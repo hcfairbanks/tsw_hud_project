@@ -6,7 +6,8 @@
   "bin": "server.js",
   "scripts": {
     "start": "node server.js",
-    "build": "node build.js"
+    "build": "node build.js",
+    "build:runtime": "node build_runtime.js"
   },
   "pkg": {
     "targets": [

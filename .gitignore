@@ -2,3 +2,9 @@ node_modules/
 # *.db
 # *.db-journal
 .DS_Store
+
+# Embedded runtime (built with npm run build:runtime)
+runtime/
+
+# Old portable folder (deprecated)
+portable/
