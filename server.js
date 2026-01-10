@@ -68,7 +68,28 @@ async function initDatabase() {
         CREATE TABLE IF NOT EXISTS routes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            country TEXT NOT NULL
+            country TEXT NOT NULL,
+            tsw_version INTEGER NOT NULL DEFAULT 3
+        )
+    `);
+    
+    // Trains table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS trains (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE
+        )
+    `);
+    
+    // Route-Train junction table (many-to-many)
+    db.run(`
+        CREATE TABLE IF NOT EXISTS route_trains (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            route_id INTEGER NOT NULL,
+            train_id INTEGER NOT NULL,
+            FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE,
+            FOREIGN KEY (train_id) REFERENCES trains(id) ON DELETE CASCADE,
+            UNIQUE(route_id, train_id)
         )
     `);
     
@@ -77,7 +98,11 @@ async function initDatabase() {
         CREATE TABLE IF NOT EXISTS timetables (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             service_name TEXT NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            route_id INTEGER,
+            train_id INTEGER,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE SET NULL,
+            FOREIGN KEY (train_id) REFERENCES trains(id) ON DELETE SET NULL
         )
     `);
     
@@ -107,8 +132,73 @@ async function initDatabase() {
         db.run('ALTER TABLE timetable_entries ADD COLUMN longitude TEXT');
     } catch (e) { /* column already exists */ }
     
+    // Add tsw_version column to routes if it doesn't exist (migration for existing databases)
+    try {
+        db.run('ALTER TABLE routes ADD COLUMN tsw_version INTEGER NOT NULL DEFAULT 3');
+    } catch (e) { /* column already exists */ }
+    
+    // Add route_id and train_id columns to timetables if they don't exist (migration)
+    try {
+        db.run('ALTER TABLE timetables ADD COLUMN route_id INTEGER REFERENCES routes(id) ON DELETE SET NULL');
+    } catch (e) { /* column already exists */ }
+    try {
+        db.run('ALTER TABLE timetables ADD COLUMN train_id INTEGER REFERENCES trains(id) ON DELETE SET NULL');
+    } catch (e) { /* column already exists */ }
+    
     saveDatabase();
     console.log('✓ Database initialized');
+}
+
+// Seed database with routes and trains from JSON files
+async function seedDatabase() {
+    const routesFile = path.join(__dirname, 'routes.json');
+    const trainsFile = path.join(__dirname, 'trains.json');
+    const routeTrainsFile = path.join(__dirname, 'route_trains.json');
+    
+    if (!fs.existsSync(routesFile) || !fs.existsSync(trainsFile) || !fs.existsSync(routeTrainsFile)) {
+        console.log('⚠ Seed files not found, skipping database seeding');
+        return;
+    }
+    
+    // Check if already seeded
+    const routeCount = db.exec('SELECT COUNT(*) as count FROM routes')[0]?.values[0][0] || 0;
+    if (routeCount > 0) {
+        console.log(`✓ Database already has ${routeCount} routes, skipping seed`);
+        return;
+    }
+    
+    console.log('Seeding database...');
+    
+    const routes = JSON.parse(fs.readFileSync(routesFile, 'utf8'));
+    const trains = JSON.parse(fs.readFileSync(trainsFile, 'utf8'));
+    const routeTrains = JSON.parse(fs.readFileSync(routeTrainsFile, 'utf8'));
+    
+    // Insert trains
+    const trainStmt = db.prepare('INSERT INTO trains (id, name) VALUES (?, ?)');
+    for (const train of trains) {
+        trainStmt.run([train.id, train.name]);
+    }
+    trainStmt.free();
+    console.log(`  ✓ Inserted ${trains.length} trains`);
+    
+    // Insert routes
+    const routeStmt = db.prepare('INSERT INTO routes (id, name, country, tsw_version) VALUES (?, ?, ?, ?)');
+    for (const route of routes) {
+        routeStmt.run([route.id, route.name, route.country, route.tsw_version]);
+    }
+    routeStmt.free();
+    console.log(`  ✓ Inserted ${routes.length} routes`);
+    
+    // Insert route-train relationships
+    const rtStmt = db.prepare('INSERT INTO route_trains (route_id, train_id) VALUES (?, ?)');
+    for (const rt of routeTrains) {
+        rtStmt.run([rt.route_id, rt.train_id]);
+    }
+    rtStmt.free();
+    console.log(`  ✓ Inserted ${routeTrains.length} route-train links`);
+    
+    saveDatabase();
+    console.log('✓ Database seeded successfully');
 }
 
 // Save database to file
@@ -139,19 +229,104 @@ const routeDb = {
         stmt.free();
         return result;
     },
-    create: (name, country) => {
-        db.run('INSERT INTO routes (name, country) VALUES (?, ?)', [name, country]);
+    create: (name, country, tsw_version = 3) => {
+        db.run('INSERT INTO routes (name, country, tsw_version) VALUES (?, ?, ?)', [name, country, tsw_version]);
         saveDatabase();
         const lastId = db.exec('SELECT last_insert_rowid() as id')[0].values[0][0];
         return { lastInsertRowid: lastId };
     },
-    update: (id, name, country) => {
-        db.run('UPDATE routes SET name = ?, country = ? WHERE id = ?', [name, country, id]);
+    update: (id, name, country, tsw_version) => {
+        db.run('UPDATE routes SET name = ?, country = ?, tsw_version = ? WHERE id = ?', [name, country, tsw_version, id]);
         saveDatabase();
     },
     delete: (id) => {
         db.run('DELETE FROM routes WHERE id = ?', [id]);
         saveDatabase();
+    },
+    getTrains: (routeId) => {
+        const stmt = db.prepare(`
+            SELECT t.* FROM trains t
+            INNER JOIN route_trains rt ON t.id = rt.train_id
+            WHERE rt.route_id = ?
+            ORDER BY t.name
+        `);
+        stmt.bind([routeId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    addTrain: (routeId, trainId) => {
+        db.run('INSERT OR IGNORE INTO route_trains (route_id, train_id) VALUES (?, ?)', [routeId, trainId]);
+        saveDatabase();
+    },
+    removeTrain: (routeId, trainId) => {
+        db.run('DELETE FROM route_trains WHERE route_id = ? AND train_id = ?', [routeId, trainId]);
+        saveDatabase();
+    }
+};
+
+// Train CRUD operations
+const trainDb = {
+    getAll: () => {
+        const stmt = db.prepare('SELECT * FROM trains ORDER BY name');
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    getById: (id) => {
+        const stmt = db.prepare('SELECT * FROM trains WHERE id = ?');
+        stmt.bind([id]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
+    getByName: (name) => {
+        const stmt = db.prepare('SELECT * FROM trains WHERE name = ?');
+        stmt.bind([name]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
+    create: (name) => {
+        db.run('INSERT INTO trains (name) VALUES (?)', [name]);
+        saveDatabase();
+        const lastId = db.exec('SELECT last_insert_rowid() as id')[0].values[0][0];
+        return { lastInsertRowid: lastId };
+    },
+    update: (id, name) => {
+        db.run('UPDATE trains SET name = ? WHERE id = ?', [name, id]);
+        saveDatabase();
+    },
+    delete: (id) => {
+        db.run('DELETE FROM trains WHERE id = ?', [id]);
+        saveDatabase();
+    },
+    getRoutes: (trainId) => {
+        const stmt = db.prepare(`
+            SELECT r.* FROM routes r
+            INNER JOIN route_trains rt ON r.id = rt.route_id
+            WHERE rt.train_id = ?
+            ORDER BY r.name
+        `);
+        stmt.bind([trainId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
     }
 };
 
@@ -408,8 +583,8 @@ async function handleRequest(req, res) {
         }
         if (method === 'POST') {
             const body = await parseBody(req);
-            const result = routeDb.create(body.name, body.country);
-            sendJson(res, { id: result.lastInsertRowid, name: body.name, country: body.country }, 201);
+            const result = routeDb.create(body.name, body.country, body.tsw_version || 3);
+            sendJson(res, { id: result.lastInsertRowid, name: body.name, country: body.country, tsw_version: body.tsw_version || 3 }, 201);
             return;
         }
     }
@@ -430,13 +605,91 @@ async function handleRequest(req, res) {
         }
         if (method === 'PUT') {
             const body = await parseBody(req);
-            routeDb.update(id, body.name, body.country);
-            sendJson(res, { id, name: body.name, country: body.country });
+            routeDb.update(id, body.name, body.country, body.tsw_version);
+            sendJson(res, { id, name: body.name, country: body.country, tsw_version: body.tsw_version });
             return;
         }
         if (method === 'DELETE') {
             routeDb.delete(id);
             sendJson(res, { success: true });
+            return;
+        }
+    }
+
+    // Route trains API
+    const routeTrainsMatch = pathname.match(/^\/api\/routes\/(\d+)\/trains$/);
+    if (routeTrainsMatch) {
+        const routeId = parseInt(routeTrainsMatch[1]);
+        
+        if (method === 'GET') {
+            const trains = routeDb.getTrains(routeId);
+            sendJson(res, trains);
+            return;
+        }
+        if (method === 'POST') {
+            const body = await parseBody(req);
+            routeDb.addTrain(routeId, body.train_id);
+            sendJson(res, { success: true }, 201);
+            return;
+        }
+        if (method === 'DELETE') {
+            const body = await parseBody(req);
+            routeDb.removeTrain(routeId, body.train_id);
+            sendJson(res, { success: true });
+            return;
+        }
+    }
+
+    // Trains API
+    if (pathname === '/api/trains') {
+        if (method === 'GET') {
+            const trains = trainDb.getAll();
+            sendJson(res, trains);
+            return;
+        }
+        if (method === 'POST') {
+            const body = await parseBody(req);
+            const result = trainDb.create(body.name);
+            sendJson(res, { id: result.lastInsertRowid, name: body.name }, 201);
+            return;
+        }
+    }
+
+    // Single train operations
+    const trainMatch = pathname.match(/^\/api\/trains\/(\d+)$/);
+    if (trainMatch) {
+        const id = parseInt(trainMatch[1]);
+        
+        if (method === 'GET') {
+            const train = trainDb.getById(id);
+            if (train) {
+                sendJson(res, train);
+            } else {
+                sendJson(res, { error: 'Train not found' }, 404);
+            }
+            return;
+        }
+        if (method === 'PUT') {
+            const body = await parseBody(req);
+            trainDb.update(id, body.name);
+            sendJson(res, { id, name: body.name });
+            return;
+        }
+        if (method === 'DELETE') {
+            trainDb.delete(id);
+            sendJson(res, { success: true });
+            return;
+        }
+    }
+
+    // Train routes API (get routes for a train)
+    const trainRoutesMatch = pathname.match(/^\/api\/trains\/(\d+)\/routes$/);
+    if (trainRoutesMatch) {
+        const trainId = parseInt(trainRoutesMatch[1]);
+        
+        if (method === 'GET') {
+            const routes = trainDb.getRoutes(trainId);
+            sendJson(res, routes);
             return;
         }
     }
@@ -663,6 +916,7 @@ process.on('SIGTERM', () => {
 // Initialize and start
 async function start() {
     await initDatabase();
+    await seedDatabase();
     const ip = getInternalIpAddress();
 
     server.listen(PORT, () => {
