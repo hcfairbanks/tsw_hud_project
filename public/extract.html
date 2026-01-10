@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract Timetable - TSW HUD Project</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a2e;
+            color: #eee;
+        }
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .nav {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav a {
+            color: #00d4ff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #0f3460;
+        }
+        h2 {
+            color: #00d4ff;
+            margin-top: 0;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 10px;
+        }
+        .upload-area {
+            border: 2px dashed #0f3460;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+        .upload-area input[type="file"] {
+            display: none;
+        }
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .file-list {
+            margin-top: 15px;
+            text-align: left;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: #1a1a2e;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        .file-item .remove {
+            color: #e94560;
+            cursor: pointer;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        .btn-primary {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            background: #00b8e6;
+        }
+        .btn-primary:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .btn-danger {
+            background: #e94560;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #d63850;
+        }
+        .btn-secondary {
+            background: #0f3460;
+            color: #eee;
+        }
+        .btn-secondary:hover {
+            background: #1a4a7a;
+        }
+        .btn-success {
+            background: #00c853;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #00a844;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #0f3460;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+            display: none;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: #00d4ff;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #888;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #0f3460;
+        }
+        th {
+            background: #0f3460;
+            color: #00d4ff;
+        }
+        tr:hover {
+            background: #1a1a2e;
+        }
+        .editable-cell {
+            cursor: pointer;
+            position: relative;
+        }
+        .editable-cell:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+        .editable-cell input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #00d4ff;
+            border-radius: 4px;
+            background: #1a1a2e;
+            color: #eee;
+            font-size: 14px;
+        }
+        .service-name-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            background: #1a1a2e;
+            color: #eee;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .service-name-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+        .actions {
+            white-space: nowrap;
+        }
+        .actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .empty-message {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .raw-text {
+            background: #0a0a1a;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .collapsible {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .collapsible::after {
+            content: '▼';
+            transition: transform 0.3s;
+        }
+        .collapsible.collapsed::after {
+            transform: rotate(-90deg);
+        }
+        .collapsible-content {
+            display: block;
+        }
+        .collapsible-content.hidden {
+            display: none;
+        }
+        #resultsSection {
+            display: none;
+        }
+        #resultsSection.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Extract Timetable</h1>
+    <p class="subtitle">Upload screenshots to extract timetable data via OCR</p>
+    
+    <nav class="nav">
+        <a href="/">← Home</a>
+        <a href="/extract">Extract</a>
+    </nav>
+
+    <!-- Upload Section -->
+    <div class="card">
+        <h2>Upload Images</h2>
+        <p style="color: #888; margin-bottom: 15px;">
+            Upload screenshots in order: First image should be the service name, followed by timetable images.
+        </p>
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <p>Click or drag images here</p>
+            <p style="color: #666; font-size: 12px;">Supports: PNG, JPG, JPEG, GIF, BMP</p>
+            <input type="file" id="fileInput" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,image/*">
+        </div>
+        <div class="file-list" id="fileList"></div>
+        <div style="margin-top: 15px;">
+            <button class="btn-primary" id="processBtn" disabled>Process Images</button>
+            <button class="btn-secondary" id="clearBtn">Clear All</button>
+        </div>
+        <div class="progress-bar" id="progressBar">
+            <div class="fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText"></div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="card" id="resultsSection">
+        <h2>Extracted Timetable</h2>
+        
+        <label style="color: #888; font-size: 12px;">Service Name:</label>
+        <input type="text" class="service-name-input" id="serviceName" placeholder="Service Name">
+        
+        <div id="tableContainer">
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>Location</th>
+                        <th>Platform</th>
+                        <th>Time 1</th>
+                        <th>Time 2</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th class="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <button class="btn-success" id="saveBtn">Create Timetable</button>
+            <button class="btn-secondary" id="addRowBtn">Add Row</button>
+            <button class="btn-secondary" id="exportCsvBtn">Export CSV</button>
+            <button class="btn-primary" id="newTimetableBtn" style="margin-left: 20px;">New Timetable</button>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <h3 class="collapsible collapsed" id="rawToggle">Raw OCR Output</h3>
+            <div class="collapsible-content hidden" id="rawContent">
+                <div class="raw-text" id="rawText"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saved Timetables Section -->
+    <div class="card">
+        <h2>Saved Timetables</h2>
+        <div id="savedList">
+            <p class="empty-message">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let currentTimetableId = null;
+        let currentEntries = [];
+        let isNewTimetable = true; // Track if this is a new unsaved timetable
+
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const processBtn = document.getElementById('processBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const resultsSection = document.getElementById('resultsSection');
+        const tableBody = document.getElementById('tableBody');
+        const serviceName = document.getElementById('serviceName');
+        const rawText = document.getElementById('rawText');
+        const rawToggle = document.getElementById('rawToggle');
+        const rawContent = document.getElementById('rawContent');
+
+        // File Upload Handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        function handleFileSelect(e) {
+            handleFiles(e.target.files);
+        }
+
+        function handleFiles(files) {
+            for (const file of files) {
+                if (/\.(png|jpg|jpeg|gif|bmp)$/i.test(file.name)) {
+                    selectedFiles.push(file);
+                }
+            }
+            selectedFiles.sort((a, b) => a.name.localeCompare(b.name));
+            renderFileList();
+        }
+
+        function renderFileList() {
+            fileList.innerHTML = selectedFiles.map((file, index) => `
+                <div class="file-item">
+                    <span>${index + 1}. ${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                    <span class="remove" onclick="removeFile(${index})">✕</span>
+                </div>
+            `).join('');
+            processBtn.disabled = selectedFiles.length === 0;
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderFileList();
+        }
+
+        clearBtn.addEventListener('click', () => {
+            selectedFiles = [];
+            fileInput.value = '';
+            renderFileList();
+        });
+
+        // Process Images
+        processBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+
+            processBtn.disabled = true;
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Uploading images...';
+
+            const formData = new FormData();
+            selectedFiles.forEach(file => formData.append('images', file, file.name));
+
+            try {
+                const response = await fetch('/api/extract', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Processing failed');
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Complete!';
+
+                const data = await response.json();
+                displayResults(data);
+                loadSavedTimetables();
+            } catch (error) {
+                progressText.textContent = 'Error: ' + error.message;
+                console.error('Error:', error);
+            } finally {
+                processBtn.disabled = false;
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                }, 2000);
+            }
+        });
+
+        // Display Results
+        function displayResults(data, isFromOcr = false) {
+            currentTimetableId = data.id || null;
+            currentEntries = data.entries || [];
+            // If data has an id, it's already saved (from OCR or loading)
+            // If it doesn't have an id, it's new and needs to be created
+            isNewTimetable = !data.id;
+            
+            serviceName.value = data.service_name || '';
+            resultsSection.classList.add('visible');
+            
+            // Update button text based on state
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.textContent = isNewTimetable ? 'Create Timetable' : 'Save Changes';
+            
+            renderTable();
+
+            // Raw text
+            if (data.rawTexts && data.rawTexts.length > 0) {
+                rawText.textContent = data.rawTexts.map(r => 
+                    `=== ${r.file} ===\n${r.text}`
+                ).join('\n\n');
+            }
+        }
+
+        function renderTable() {
+            tableBody.innerHTML = currentEntries.map((entry, index) => `
+                <tr data-id="${entry.id}" data-index="${index}">
+                    <td>${index + 1}</td>
+                    <td class="editable-cell" data-field="action">${escapeHtml(entry.action || '')}</td>
+                    <td class="editable-cell" data-field="details">${escapeHtml(entry.details || '')}</td>
+                    <td class="editable-cell" data-field="location">${escapeHtml(entry.location || '')}</td>
+                    <td class="editable-cell" data-field="platform">${escapeHtml(entry.platform || '')}</td>
+                    <td class="editable-cell" data-field="time1">${escapeHtml(entry.time1 || '')}</td>
+                    <td class="editable-cell" data-field="time2">${escapeHtml(entry.time2 || '')}</td>
+                    <td class="editable-cell" data-field="latitude">${escapeHtml(entry.latitude || '')}</td>
+                    <td class="editable-cell" data-field="longitude">${escapeHtml(entry.longitude || '')}</td>
+                    <td class="actions">
+                        <button class="btn-danger" onclick="deleteRow(${entry.id}, ${index})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Add click handlers for editable cells
+            document.querySelectorAll('.editable-cell').forEach(cell => {
+                cell.addEventListener('click', makeEditable);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function makeEditable(e) {
+            const cell = e.target;
+            if (cell.querySelector('input')) return;
+
+            const currentValue = cell.textContent;
+            const field = cell.dataset.field;
+            const row = cell.parentElement;
+            const index = parseInt(row.dataset.index);
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            
+            input.addEventListener('blur', () => {
+                const newValue = input.value;
+                currentEntries[index][field] = newValue;
+                cell.textContent = newValue;
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    cell.textContent = currentValue;
+                }
+            });
+
+            cell.textContent = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+        }
+
+        function deleteRow(id, index) {
+            if (!confirm('Delete this row?')) return;
+            
+            if (id && !isNewTimetable) {
+                // Entry exists in database, delete via API
+                fetch(`/api/entries/${id}`, { method: 'DELETE' })
+                    .then(() => {
+                        currentEntries.splice(index, 1);
+                        renderTable();
+                    })
+                    .catch(err => alert('Error deleting row: ' + err.message));
+            } else {
+                // Entry is local only, just remove from array
+                currentEntries.splice(index, 1);
+                renderTable();
+            }
+        }
+
+        // Add Row
+        document.getElementById('addRowBtn').addEventListener('click', async () => {
+            const newEntry = {
+                action: 'STOP AT LOCATION',
+                details: '',
+                location: '',
+                platform: '',
+                time1: '',
+                time2: '',
+                latitude: '',
+                longitude: ''
+            };
+
+            if (isNewTimetable) {
+                // For new timetables, just add to local array
+                currentEntries.push(newEntry);
+                renderTable();
+            } else {
+                // For existing timetables, save to database
+                try {
+                    const response = await fetch(`/api/timetables/${currentTimetableId}/entries`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newEntry)
+                    });
+                    const data = await response.json();
+                    currentEntries.push(data);
+                    renderTable();
+                } catch (err) {
+                    alert('Error adding row: ' + err.message);
+                }
+            }
+        });
+
+        // Save Changes / Create Timetable
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            console.log('=== SAVE BUTTON CLICKED ===');
+            console.log('currentTimetableId:', currentTimetableId);
+            console.log('isNewTimetable:', isNewTimetable);
+            console.log('currentEntries:', currentEntries);
+            console.log('serviceName:', serviceName.value);
+            
+            if (currentEntries.length === 0) {
+                alert('No entries to save');
+                return;
+            }
+
+            try {
+                if (isNewTimetable) {
+                    // CREATE NEW TIMETABLE - send all data in one request
+                    console.log('Creating NEW timetable with all entries...');
+                    
+                    const payload = {
+                        service_name: serviceName.value || 'Untitled',
+                        entries: currentEntries.map(entry => ({
+                            action: entry.action || '',
+                            details: entry.details || '',
+                            location: entry.location || '',
+                            platform: entry.platform || '',
+                            time1: entry.time1 || '',
+                            time2: entry.time2 || '',
+                            latitude: entry.latitude || '',
+                            longitude: entry.longitude || ''
+                        }))
+                    };
+                    
+                    console.log('Sending payload:', JSON.stringify(payload, null, 2));
+                    
+                    const response = await fetch('/api/timetables', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to create timetable');
+                    }
+                    
+                    const data = await response.json();
+                    console.log('Timetable created:', data);
+
+                    // Update state to reflect saved timetable
+                    currentTimetableId = data.id;
+                    currentEntries = data.entries || [];
+                    isNewTimetable = false;
+                    
+                    // Update button text
+                    document.getElementById('saveBtn').textContent = 'Save Changes';
+                    
+                    alert('Timetable created successfully!');
+                    renderTable();
+                    loadSavedTimetables();
+                } else {
+                    // UPDATE EXISTING TIMETABLE
+                    console.log('Updating EXISTING timetable ID:', currentTimetableId);
+                    
+                    // Update timetable service name
+                    await fetch(`/api/timetables/${currentTimetableId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ service_name: serviceName.value || 'Untitled' })
+                    });
+                    
+                    // Update each entry
+                    for (let i = 0; i < currentEntries.length; i++) {
+                        const entry = currentEntries[i];
+                        if (entry.id) {
+                            console.log('Updating entry ID:', entry.id);
+                            await fetch(`/api/entries/${entry.id}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    action: entry.action || '',
+                                    details: entry.details || '',
+                                    location: entry.location || '',
+                                    platform: entry.platform || '',
+                                    time1: entry.time1 || '',
+                                    time2: entry.time2 || '',
+                                    latitude: entry.latitude || '',
+                                    longitude: entry.longitude || ''
+                                })
+                            });
+                        }
+                    }
+                    
+                    alert('Timetable updated successfully!');
+                    loadSavedTimetables();
+                }
+            } catch (err) {
+                console.error('Save error:', err);
+                alert('Error saving: ' + err.message);
+            }
+        });
+
+        // Export CSV
+        document.getElementById('exportCsvBtn').addEventListener('click', () => {
+            if (currentEntries.length === 0) return;
+
+            const csvLines = ['#,Action,Details,Location,Platform,Time1,Time2,Latitude,Longitude'];
+            currentEntries.forEach((entry, index) => {
+                const line = [
+                    index + 1,
+                    entry.action || '',
+                    entry.details || '',
+                    entry.location || '',
+                    entry.platform || '',
+                    entry.time1 || '',
+                    entry.time2 || '',
+                    entry.latitude || '',
+                    entry.longitude || ''
+                ].map(field => {
+                    const str = String(field);
+                    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                        return '"' + str.replace(/"/g, '""') + '"';
+                    }
+                    return str;
+                }).join(',');
+                csvLines.push(line);
+            });
+
+            const blob = new Blob([csvLines.join('\n')], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (serviceName.value || 'timetable') + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // New Timetable - start fresh
+        document.getElementById('newTimetableBtn').addEventListener('click', () => {
+            if (currentEntries.length > 0 && !confirm('Start a new timetable? Unsaved changes will be lost.')) {
+                return;
+            }
+            
+            // Reset state for new timetable
+            currentTimetableId = null;
+            currentEntries = [];
+            isNewTimetable = true;
+            
+            serviceName.value = '';
+            resultsSection.classList.add('visible');
+            document.getElementById('saveBtn').textContent = 'Create Timetable';
+            rawText.textContent = '';
+            
+            renderTable();
+        });
+
+        // Raw text toggle
+        rawToggle.addEventListener('click', () => {
+            rawToggle.classList.toggle('collapsed');
+            rawContent.classList.toggle('hidden');
+        });
+
+        // Load saved timetables
+        async function loadSavedTimetables() {
+            try {
+                const response = await fetch('/api/timetables');
+                const timetables = await response.json();
+                
+                const savedList = document.getElementById('savedList');
+                
+                if (timetables.length === 0) {
+                    savedList.innerHTML = '<p class="empty-message">No saved timetables yet.</p>';
+                    return;
+                }
+
+                savedList.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Service Name</th>
+                                <th>Created</th>
+                                <th class="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${timetables.map(t => `
+                                <tr>
+                                    <td>${t.id}</td>
+                                    <td>${escapeHtml(t.service_name)}</td>
+                                    <td>${t.created_at || '-'}</td>
+                                    <td class="actions">
+                                        <button class="btn-secondary" onclick="loadTimetable(${t.id})">Load</button>
+                                        <button class="btn-danger" onclick="deleteTimetable(${t.id})">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (err) {
+                console.error('Error loading timetables:', err);
+            }
+        }
+
+        async function loadTimetable(id) {
+            try {
+                const response = await fetch(`/api/timetables/${id}`);
+                const data = await response.json();
+                displayResults(data);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (err) {
+                alert('Error loading timetable: ' + err.message);
+            }
+        }
+
+        async function deleteTimetable(id) {
+            if (!confirm('Delete this timetable?')) return;
+            
+            try {
+                await fetch(`/api/timetables/${id}`, { method: 'DELETE' });
+                if (currentTimetableId === id) {
+                    currentTimetableId = null;
+                    currentEntries = [];
+                    resultsSection.classList.remove('visible');
+                }
+                loadSavedTimetables();
+            } catch (err) {
+                alert('Error deleting timetable: ' + err.message);
+            }
+        }
+
+        // Initial load
+        loadSavedTimetables();
+    </script>
+</body>
+</html>
