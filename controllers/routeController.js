@@ -1,0 +1,68 @@
+'use strict';
+const { routeDb } = require('../db');
+const { sendJson, parseBody } = require('../utils/http');
+
+const routeController = {
+    // GET /api/routes
+    getAll: async (req, res) => {
+        const routes = routeDb.getAll();
+        sendJson(res, routes);
+    },
+
+    // POST /api/routes
+    create: async (req, res) => {
+        const body = await parseBody(req);
+        const result = routeDb.create(body.name, body.country, body.tsw_version || 3);
+        sendJson(res, { 
+            id: result.lastInsertRowid, 
+            name: body.name, 
+            country: body.country, 
+            tsw_version: body.tsw_version || 3 
+        }, 201);
+    },
+
+    // GET /api/routes/:id
+    getById: async (req, res, id) => {
+        const route = routeDb.getById(id);
+        if (route) {
+            sendJson(res, route);
+        } else {
+            sendJson(res, { error: 'Route not found' }, 404);
+        }
+    },
+
+    // PUT /api/routes/:id
+    update: async (req, res, id) => {
+        const body = await parseBody(req);
+        routeDb.update(id, body.name, body.country, body.tsw_version);
+        sendJson(res, { id, name: body.name, country: body.country, tsw_version: body.tsw_version });
+    },
+
+    // DELETE /api/routes/:id
+    delete: async (req, res, id) => {
+        routeDb.delete(id);
+        sendJson(res, { success: true });
+    },
+
+    // GET /api/routes/:id/trains
+    getTrains: async (req, res, routeId) => {
+        const trains = routeDb.getTrains(routeId);
+        sendJson(res, trains);
+    },
+
+    // POST /api/routes/:id/trains
+    addTrain: async (req, res, routeId) => {
+        const body = await parseBody(req);
+        routeDb.addTrain(routeId, body.train_id);
+        sendJson(res, { success: true }, 201);
+    },
+
+    // DELETE /api/routes/:id/trains
+    removeTrain: async (req, res, routeId) => {
+        const body = await parseBody(req);
+        routeDb.removeTrain(routeId, body.train_id);
+        sendJson(res, { success: true });
+    }
+};
+
+module.exports = routeController;
