@@ -1,0 +1,897 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TSW HUD DASHBOARD</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #222222;
+            overflow: hidden;
+            width: 100vw;
+            margin: 0 auto;
+        }
+        #container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 0;
+        }
+        #tutorial {
+            max-height: calc(100vh - 150px);
+            margin-top: 5vh;
+            cursor: default;
+        }
+        #display {
+            position: fixed;
+            bottom: 5px;
+            left: 5px;
+            right: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: black;
+            color: white;
+            padding: 15px;
+            border: 1px solid #ccc;
+            font-family: monospace;
+            white-space: pre;
+            font-size: 10px;
+            display: none;
+            border-radius: 8px;
+        }
+
+        .data-box {
+            position: fixed;
+            right: 5px;
+            background-color: white;
+            padding: 12px;
+            border: 2px solid #333;
+            font-family: Arial, sans-serif;
+            min-width: 120px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+        .data-box-label {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        .data-box-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+        #speedLimitBox { top: 10px; }
+        #powerHandleBox { top: 80px; }
+        #gradientBox { top: 140px; }
+
+        /* Desktop and large screens */
+        @media (min-width: 768px) {
+            body {
+                width: 80vw !important;
+            }
+
+            #display {
+                bottom: 10px !important;
+                left: 10px !important;
+                right: 10px !important;
+                padding: 10px !important;
+                font-size: 12px !important;
+                border-radius: 0px !important;
+            }
+
+            .data-box {
+                right: 10px !important;
+                padding: 10px !important;
+                min-width: 120px !important;
+                border-radius: 0px !important;
+            }
+
+            .data-box-label {
+                font-size: 10px !important;
+            }
+
+            .data-box-value {
+                font-size: 18px !important;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .data-box {
+                padding: 15px !important;
+                min-width: 150px !important;
+            }
+            .data-box-label {
+                font-size: 12px !important;
+                margin-bottom: 5px;
+            }
+            .data-box-value {
+                font-size: 24px !important;
+            }
+            #display {
+                font-size: 12px !important;
+            }
+        }
+    </style>
+    <script>
+
+// Global variable to track flashing state
+var flashState = false;
+setInterval(function() {
+    flashState = !flashState;
+}, 500);
+
+function degToRad(angle) {
+    return ((angle * Math.PI) / 180);
+}
+
+function radToDeg(angle) {
+    return ((angle * 180) / Math.PI);
+}
+
+function drawLine(options, line) {
+    options.ctx.beginPath();
+    options.ctx.strokeStyle = line.stroke;
+    options.ctx.lineWidth = line.width;
+    options.ctx.moveTo(line.from.X, line.from.Y);
+    options.ctx.lineTo(line.to.X, line.to.Y);
+    options.ctx.stroke();
+}
+
+function createLine(fromX, fromY, toX, toY, stroke, width, alpha) {
+    return {
+        from: { X: fromX, Y: fromY },
+        to: { X: toX, Y: toY },
+        stroke: stroke,
+        width: width,
+        alpha: alpha
+    };
+}
+
+function buildOptionsAsJSON(canvas, iSpeed) {
+    var centerX = 700,
+        centerY = 331,
+        radius = 262,
+        outerRadius = 373;
+
+    return {
+        ctx: canvas.getContext('2d'),
+        speed: iSpeed,
+        center: { X: centerX, Y: centerY },
+        levelRadius: radius - 13,
+        gaugeOptions: {
+            center: { X: centerX, Y: centerY },
+            radius: radius
+        },
+        radius: outerRadius
+    };
+}
+
+function clearCanvas(options) {
+    options.ctx.clearRect(0, 0, 1400, 605);
+}
+
+function applyDefaultContextSettings(options) {
+    options.ctx.lineWidth = 2;
+    options.ctx.globalAlpha = 1.0;
+    options.ctx.strokeStyle = "rgb(255,255,255)";
+    options.ctx.fillStyle = "rgb(255,255,255)";
+}
+
+function drawOuterMetallicArc(options) {
+    options.ctx.beginPath();
+    options.ctx.fillStyle = "rgb(127,127,127)";
+    options.ctx.arc(options.center.X, options.center.Y, options.radius, 0, Math.PI, true);
+    options.ctx.fill();
+}
+
+function drawInnerMetallicArc(options) {
+    options.ctx.beginPath();
+    options.ctx.fillStyle = "rgb(255,255,255)";
+    options.ctx.arc(options.center.X, options.center.Y, (options.radius / 100) * 90, 0, Math.PI, true);
+    options.ctx.fill();
+}
+
+function drawMetallicArc(options) {
+    drawOuterMetallicArc(options);
+    drawInnerMetallicArc(options);
+}
+
+function drawBackground(options) {
+    options.ctx.globalAlpha = 1.0;
+    options.ctx.fillStyle = "rgb(0,0,0)";
+    options.ctx.fillRect(15, 15, 1370, 563);
+}
+
+
+function drawSmallTickMarks(options) {
+    var tickvalue = options.levelRadius + 28;
+    var gaugeOptions = options.gaugeOptions;
+    applyDefaultContextSettings(options);
+
+    for (var iTick = 10; iTick < 180; iTick += 20) {
+        var iTickRad = degToRad(iTick);
+        var onArchX = gaugeOptions.radius - (Math.cos(iTickRad) * tickvalue);
+        var onArchY = gaugeOptions.radius - (Math.sin(iTickRad) * tickvalue);
+        var innerTickX = gaugeOptions.radius - (Math.cos(iTickRad) * gaugeOptions.radius);
+        var innerTickY = gaugeOptions.radius - (Math.sin(iTickRad) * gaugeOptions.radius);
+
+        var fromX = (options.center.X - gaugeOptions.radius) + onArchX;
+        var fromY = (gaugeOptions.center.Y - gaugeOptions.radius) + onArchY;
+        var toX = (options.center.X - gaugeOptions.radius) + innerTickX;
+        var toY = (gaugeOptions.center.Y - gaugeOptions.radius) + innerTickY;
+
+        var line = createLine(fromX, fromY, toX, toY, "rgb(127,127,127)", 3, 0.6);
+        drawLine(options, line);
+    }
+}
+
+function drawLargeTickMarks(options) {
+    var tickvalue = options.levelRadius + 22;
+    var gaugeOptions = options.gaugeOptions;
+    applyDefaultContextSettings(options);
+
+    for (var iTick = 20; iTick < 180; iTick += 20) {
+        var iTickRad = degToRad(iTick);
+        var onArchX = gaugeOptions.radius - (Math.cos(iTickRad) * tickvalue);
+        var onArchY = gaugeOptions.radius - (Math.sin(iTickRad) * tickvalue);
+        var innerTickX = gaugeOptions.radius - (Math.cos(iTickRad) * gaugeOptions.radius);
+        var innerTickY = gaugeOptions.radius - (Math.sin(iTickRad) * gaugeOptions.radius);
+
+        var fromX = (options.center.X - gaugeOptions.radius) + onArchX;
+        var fromY = (gaugeOptions.center.Y - gaugeOptions.radius) + onArchY;
+        var toX = (options.center.X - gaugeOptions.radius) + innerTickX;
+        var toY = (gaugeOptions.center.Y - gaugeOptions.radius) + innerTickY;
+
+        var line = createLine(fromX, fromY, toX, toY, "rgb(127,127,127)", 3, 0.6);
+        drawLine(options, line);
+    }
+}
+
+function drawTicks(options) {
+    drawSmallTickMarks(options);
+    drawLargeTickMarks(options);
+}
+
+function drawTextMarkers(options) {
+    var gaugeOptions = options.gaugeOptions;
+    var iTickToPrint = 0;
+    applyDefaultContextSettings(options);
+
+    options.ctx.font = 'italic 14px sans-serif';
+    options.ctx.textBaseline = 'top';
+    options.ctx.beginPath();
+
+    for (var iTick = 10; iTick < 180; iTick += 20) {
+        var textRadius = gaugeOptions.radius * 1.1;
+        var innerTickX = gaugeOptions.radius - (Math.cos(degToRad(iTick)) * textRadius);
+        var innerTickY = gaugeOptions.radius - (Math.sin(degToRad(iTick)) * textRadius);
+        var xPos = (options.center.X - gaugeOptions.radius - 12) + innerTickX;
+        var yPos = (gaugeOptions.center.Y - gaugeOptions.radius - 12) + innerTickY;
+
+        if (iTick < 50) { xPos -= 5; yPos += 5; }
+        else if (iTick < 90) { /* default */ }
+        else if (iTick == 90) { xPos += 4; }
+        else if (iTick < 145) { xPos += 15; }
+        else { xPos += 25; yPos += 5; }
+
+        options.ctx.fillText(iTickToPrint, xPos, yPos);
+        iTickToPrint += 25;
+    }
+    options.ctx.stroke();
+}
+
+function drawCircleAtLimit(options, speedLimit) {
+    var limitAngle = (speedLimit * 160 / 200) + 10;
+    var gaugeOptions = options.gaugeOptions;
+
+    var arcX = gaugeOptions.radius - (Math.cos(degToRad(limitAngle)) * options.levelRadius);
+    var arcY = gaugeOptions.radius - (Math.sin(degToRad(limitAngle)) * options.levelRadius);
+    var arcFromX = (options.center.X - gaugeOptions.radius) + arcX;
+    var arcFromY = (gaugeOptions.center.Y - gaugeOptions.radius) + arcY;
+
+    var extendedRadius = gaugeOptions.radius + 36;
+    var innerTickX = gaugeOptions.radius - (Math.cos(degToRad(limitAngle)) * extendedRadius);
+    var innerTickY = gaugeOptions.radius - (Math.sin(degToRad(limitAngle)) * extendedRadius);
+    var xPos = (options.center.X - gaugeOptions.radius) + innerTickX;
+    var yPos = (gaugeOptions.center.Y - gaugeOptions.radius) + innerTickY;
+
+    var line = createLine(arcFromX, arcFromY, xPos, yPos, "rgb(255, 0, 0)", 4.8, 1.0);
+    drawLine(options, line);
+
+    options.ctx.beginPath();
+    options.ctx.fillStyle = "rgb(255, 255, 255)";
+    options.ctx.strokeStyle = "rgb(255, 0, 0)";
+    options.ctx.lineWidth = 3.6;
+    options.ctx.arc(xPos, yPos, 12, 0, Math.PI * 2, false);
+    options.ctx.fill();
+    options.ctx.stroke();
+}
+
+function drawSpeedometerColourArc(options) {
+    options.ctx.beginPath();
+    options.ctx.globalAlpha = 1.0;
+    options.ctx.lineWidth = 24;
+    options.ctx.strokeStyle = "rgb(180, 180, 180)";
+    options.ctx.arc(options.center.X, options.center.Y, options.levelRadius,
+                    Math.PI + degToRad(10),
+                    Math.PI + degToRad(10) + degToRad(160), false);
+    options.ctx.stroke();
+}
+
+function drawSpeedBar(options, speedLimit) {
+    var iSpeed = options.speed;
+    if (iSpeed > 200) iSpeed = 200;
+
+    var arcLength = (iSpeed * 160 / 200);
+
+    var barColor;
+    if (speedLimit && options.speed > speedLimit + 10) {
+        barColor = "rgb(255, 0, 0)";
+    } else if (speedLimit && options.speed > speedLimit) {
+        barColor = "rgb(255, 255, 0)";
+    } else {
+        barColor = "rgb(255, 255, 255)";
+    }
+
+    options.ctx.beginPath();
+    options.ctx.globalAlpha = 1.0;
+    options.ctx.lineWidth = 24;
+    options.ctx.strokeStyle = barColor;
+    options.ctx.arc(options.center.X, options.center.Y, options.levelRadius,
+                    Math.PI + degToRad(10),
+                    Math.PI + degToRad(10) + degToRad(arcLength), false);
+    options.ctx.stroke();
+}
+
+function drawSpeedBox(options, speedLimit, isSlipping) {
+    var boxWidth = 150;
+    var boxHeight = 90;
+    var boxX = options.center.X - (boxWidth / 2);
+    var boxY = options.center.Y - (boxHeight * 1.7);
+
+    var boxColor;
+    if (speedLimit && options.speed > speedLimit + 10) {
+        boxColor = flashState ? "rgb(255, 0, 0)" : "rgb(255, 255, 255)";
+    } else if (speedLimit && options.speed > speedLimit) {
+        boxColor = "rgb(255, 255, 0)";
+    } else {
+        boxColor = "rgb(255, 255, 255)";
+    }
+
+    if (isSlipping) {
+        var zigzagColor = flashState ? "rgb(255, 0, 0)" : "rgb(255, 255, 255)";
+        options.ctx.strokeStyle = zigzagColor;
+        options.ctx.lineWidth = 2.4;
+        options.ctx.globalAlpha = 0.7;
+
+        var centerX = boxX + boxWidth / 2;
+
+        var leftPositions = [centerX - 55, centerX - 46];
+        var rightPositions = [centerX + 46, centerX + 55];
+        var allPositions = leftPositions.concat(rightPositions);
+
+        for (var i = 0; i < 4; i++) {
+            var startX = allPositions[i];
+            options.ctx.beginPath();
+            options.ctx.moveTo(startX, boxY + 12);
+
+            for (var j = 0; j < 6; j++) {
+                var xOffset = (j % 2 === 0) ? 6 : -6;
+                var yStep = 12;
+                options.ctx.lineTo(startX + xOffset, boxY + 12 + (j * yStep));
+            }
+            options.ctx.stroke();
+        }
+        options.ctx.globalAlpha = 1.0;
+    }
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 85px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+    options.ctx.fillText(Math.round(options.speed), boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawBrakeBox(options, brakeValue) {
+    var boxWidth = 120;
+    var boxHeight = 70;
+    var boxX = options.center.X - (boxWidth / 2) + 250;
+    var boxY = options.center.Y + (boxHeight * 0.3) - 39;
+
+    var boxColor = "rgb(255, 255, 255)";
+
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 41px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    var displayValue = brakeValue !== undefined && brakeValue !== null ? Math.round(brakeValue) + '%' : '--';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawLocomotiveBrakeBox(options, locomotiveBrakeValue) {
+    var boxWidth = 120;
+    var boxHeight = 70;
+    var boxX = options.center.X - (boxWidth / 2) + 250 - boxWidth - 15;
+    var boxY = options.center.Y + (boxHeight * 0.3) - 39;
+
+    var boxColor = "rgb(255, 255, 255)";
+
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 47px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    var displayValue = locomotiveBrakeValue !== undefined && locomotiveBrakeValue !== null ? Math.round(locomotiveBrakeValue * 100) + '%' : '--';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawElectricDynamicBrakeBox(options, electricDynamicBrakeValue) {
+    var boxWidth = 120;
+    var boxHeight = 70;
+    var boxX = options.center.X - (boxWidth / 2) + 250 - (boxWidth * 2) - 30;
+    var boxY = options.center.Y + (boxHeight * 0.3) - 39;
+
+    var boxColor = "rgb(255, 255, 255)";
+
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 47px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    var displayValue = electricDynamicBrakeValue !== undefined && electricDynamicBrakeValue !== null ? Math.round(electricDynamicBrakeValue) + '%' : '--';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawSpeedLimitBox(options, speedLimit) {
+    var boxWidth = 188;
+    var boxHeight = 123;
+    var boxX = 1400 - boxWidth - 26;
+    var boxY = 26;
+
+    var boxColor;
+    if (speedLimit && options.speed > speedLimit + 10) {
+        boxColor = flashState ? "rgb(255, 0, 0)" : "rgb(255, 255, 255)";
+    } else if (speedLimit && options.speed > speedLimit) {
+        boxColor = "rgb(255, 255, 0)";
+    } else {
+        boxColor = "rgb(255, 255, 255)";
+    }
+
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 43px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    var displayValue = speedLimit !== undefined && speedLimit !== null ? Math.round(speedLimit) : '--';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawPowerHandleBox(options, powerHandle, isTractionLocked) {
+    var boxWidth = 188;
+    var boxHeight = 123;
+    var boxX = 1400 - boxWidth - 26;
+    var boxY = 26 + 123 + 18;
+
+    var boxColor = isTractionLocked ? "rgb(255, 0, 0)" : "rgb(255, 255, 255)";
+
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    var textColor = (powerHandle !== undefined && powerHandle !== null && powerHandle < 0) ? "rgb(255, 255, 0)" : "rgb(255, 255, 255)";
+    options.ctx.fillStyle = textColor;
+    options.ctx.font = 'bold 43px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    var displayValue = powerHandle !== undefined && powerHandle !== null ? Math.round(powerHandle) : '--';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawGradientBox(options, incline) {
+    var boxWidth = 188;
+    var boxHeight = 123;
+    var boxX = 1400 - boxWidth - 26;
+    var boxY = 26 + 123 + 18 + 123 + 18;
+
+    var boxColor = "rgb(255, 255, 255)";
+
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 34px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    var displayValue = incline !== undefined && incline !== null ? incline.toFixed(1) + '%' : '--';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawNextSpeedLimitBox(options, nextSpeedLimit) {
+    var boxWidth = 188;
+    var boxHeight = 123;
+    var boxX = 26;
+    var boxY = 26;
+
+    var boxColor = "rgb(255, 255, 255)";
+
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 43px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    var displayValue = nextSpeedLimit !== undefined && nextSpeedLimit !== null ? Math.round(nextSpeedLimit) : '--';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawDistanceToNextSpeedLimitBox(options, distance) {
+    var boxWidth = 188;
+    var boxHeight = 123;
+    var boxX = 26;
+    var boxY = 26 + 123 + 18;
+
+    var boxColor = "rgb(255, 255, 255)";
+
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 43px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    var displayValue = distance !== undefined && distance !== null ? Math.round(distance) : '--';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawTimeBox(options, localTime) {
+    var boxWidth = 187;
+    var boxHeight = 55;
+    var boxX = options.center.X - (boxWidth / 2);
+    var boxY = options.center.Y + (boxHeight * 0.3) + 100;
+
+    var boxColor = "rgb(255, 255, 255)";
+
+    var displayValue = '--:--:--';
+    if (localTime) {
+        try {
+            var timePart = localTime.split('T')[1].split('.')[0];
+            displayValue = timePart;
+        } catch (e) {
+            console.error('Error parsing time:', e);
+        }
+    }
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 45px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawTimetableBox(options, timetableTime, timetableLabel, distanceToStation) {
+    var boxWidth = 187;
+    var boxHeight = 55;
+    var boxX = options.center.X - (boxWidth / 2);
+    var boxY = options.center.Y + (boxHeight * 0.3) + 100 + 70;
+
+    var timeBoxY = options.center.Y + (boxHeight * 0.3) + 100;
+    var lineY = timeBoxY + 50 + 10;
+    options.ctx.strokeStyle = "rgb(255, 255, 255)";
+    options.ctx.lineWidth = 2;
+    options.ctx.beginPath();
+    options.ctx.moveTo(boxX, lineY);
+    options.ctx.lineTo(boxX + boxWidth, lineY);
+    options.ctx.stroke();
+
+    var boxColor = "rgb(255, 255, 255)";
+
+    var displayValue = '--:--:--';
+    if (timetableTime) {
+        displayValue = timetableTime;
+    }
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 45px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+    options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+
+    if (timetableLabel) {
+        options.ctx.fillStyle = boxColor;
+        options.ctx.font = 'bold 45px sans-serif';
+        options.ctx.textAlign = 'left';
+        options.ctx.textBaseline = 'middle';
+        options.ctx.fillText(timetableLabel, boxX + boxWidth + 15, boxY + boxHeight / 2);
+    }
+
+    if (distanceToStation !== null && distanceToStation !== undefined) {
+        options.ctx.fillStyle = boxColor;
+        options.ctx.font = 'bold 45px sans-serif';
+        options.ctx.textAlign = 'right';
+        options.ctx.textBaseline = 'middle';
+
+        var distanceText;
+        if (distanceToStation > 3000) {
+            distanceText = (distanceToStation / 1000).toFixed(1) + 'km';
+        } else {
+            distanceText = distanceToStation + 'm';
+        }
+
+        options.ctx.fillText(distanceText, boxX - 15, boxY + boxHeight / 2);
+    }
+}
+
+function drawShowDataButton(options, isHovered, isPressed) {
+    var boxWidth = 90;
+    var boxHeight = 45;
+    var boxX = 25;
+    var boxY = 505;
+
+    var boxColor, fillColor, backgroundColor;
+    if (isPressed) {
+        boxColor = "rgb(0, 0, 0)";
+        fillColor = "rgb(0, 0, 0)";
+        backgroundColor = "rgb(200, 200, 200)";
+    } else if (isHovered) {
+        boxColor = "rgb(0, 0, 0)";
+        fillColor = "rgb(0, 0, 0)";
+        backgroundColor = "rgb(255, 255, 255)";
+    } else {
+        boxColor = "rgb(255, 255, 255)";
+        fillColor = "rgb(255, 255, 255)";
+        backgroundColor = null;
+    }
+
+    if (backgroundColor) {
+        options.ctx.fillStyle = backgroundColor;
+        options.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+    }
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = fillColor;
+    options.ctx.font = 'bold 16px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+    options.ctx.fillText('DATA', boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawRefreshButton(options, isHovered, isPressed) {
+    var boxWidth = 90;
+    var boxHeight = 45;
+    var boxX = 1270;
+    var boxY = 505;
+
+    var boxColor, fillColor, backgroundColor;
+    if (isPressed) {
+        boxColor = "rgb(0, 0, 0)";
+        fillColor = "rgb(0, 0, 0)";
+        backgroundColor = "rgb(200, 200, 200)";
+    } else if (isHovered) {
+        boxColor = "rgb(0, 0, 0)";
+        fillColor = "rgb(0, 0, 0)";
+        backgroundColor = "rgb(255, 255, 255)";
+    } else {
+        boxColor = "rgb(255, 255, 255)";
+        fillColor = "rgb(255, 255, 255)";
+        backgroundColor = null;
+    }
+
+    if (backgroundColor) {
+        options.ctx.fillStyle = backgroundColor;
+        options.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+    }
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 3.6;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = fillColor;
+    options.ctx.font = 'bold 16px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+    options.ctx.fillText('REFRESH', boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLimit, distanceToNextSpeedLimit, trainBrakeValue, trainBrakeActive, locomotiveBrakeValue, locomotiveBrakeActive, electricDynamicBrakeValue, electricBrakeActive, isTractionLocked, localTime, timetableTime, timetableLabel, distanceToStation) {
+    var canvas = document.getElementById('tutorial');
+    if (canvas !== null && canvas.getContext) {
+        var options = buildOptionsAsJSON(canvas, iSpeed);
+        clearCanvas(options);
+        drawBackground(options);
+        drawTicks(options);
+        drawTextMarkers(options);
+        drawSpeedometerColourArc(options);
+        drawSpeedBar(options, speedLimit);
+        if (speedLimit !== undefined && speedLimit !== null) {
+            drawCircleAtLimit(options, speedLimit);
+        }
+        drawSpeedBox(options, speedLimit, isSlipping);
+        if (trainBrakeActive) {
+            drawBrakeBox(options, trainBrakeValue);
+        }
+        if (locomotiveBrakeActive) {
+            drawLocomotiveBrakeBox(options, locomotiveBrakeValue);
+        }
+        if (electricBrakeActive) {
+            drawElectricDynamicBrakeBox(options, electricDynamicBrakeValue);
+        }
+        drawSpeedLimitBox(options, speedLimit);
+        drawPowerHandleBox(options, powerHandle, isTractionLocked);
+        drawGradientBox(options, incline);
+        if (distanceToNextSpeedLimit !== undefined && distanceToNextSpeedLimit !== null && distanceToNextSpeedLimit > 1) {
+            drawNextSpeedLimitBox(options, nextSpeedLimit);
+            drawDistanceToNextSpeedLimitBox(options, distanceToNextSpeedLimit);
+        }
+        drawTimeBox(options, localTime);
+        drawTimetableBox(options, timetableTime, timetableLabel, distanceToStation);
+        drawShowDataButton(options, isDataHovered, isDataPressed);
+        drawRefreshButton(options, isRefreshHovered, isRefreshPressed);
+    } else {
+        alert("Canvas not supported!");
+    }
+}
+
+    </script>
+    <script>
+        function toggleDisplay() {
+            var display = document.getElementById('display');
+            if (display.style.display === 'none' || display.style.display === '') {
+                display.style.display = 'block';
+            } else {
+                display.style.display = 'none';
+            }
+        }
+    </script>
+</head>
+<body onload='draw(0);'>
+    <div id="container">
+        <canvas id="tutorial" width="1400" height="605">Canvas not available.</canvas>
+    </div>
+
+
+    <div id="display">Waiting for data...</div>
+    <script>
+        function refreshPage() {
+            location.reload();
+        }
+
+        var canvas = document.getElementById('tutorial');
+        var isDataHovered = false;
+        var isRefreshHovered = false;
+        var isDataPressed = false;
+        var isRefreshPressed = false;
+
+        canvas.addEventListener('mousedown', function(event) {
+            var rect = canvas.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var y = event.clientY - rect.top;
+
+            if (x >= 25 && x <= 135 && y >= 505 && y <= 560) {
+                isDataPressed = true;
+                redrawButtons();
+            }
+            else if (x >= 1270 && x <= 1380 && y >= 505 && y <= 560) {
+                isRefreshPressed = true;
+                redrawButtons();
+            }
+        });
+
+        canvas.addEventListener('mouseup', function(event) {
+            if (isDataPressed || isRefreshPressed) {
+                isDataPressed = false;
+                isRefreshPressed = false;
+                redrawButtons();
+            }
+        });
+
+        canvas.addEventListener('mouseleave', function(event) {
+            isDataPressed = false;
+            isRefreshPressed = false;
+            isDataHovered = false;
+            isRefreshHovered = false;
+            canvas.style.cursor = 'default';
+            redrawButtons();
+        });
+
+        function redrawButtons() {
+            if (currentData) {
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation);
+            } else {
+                draw(0);
+            }
+        }
+
+        canvas.addEventListener('mousemove', function(event) {
+            var rect = canvas.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var y = event.clientY - rect.top;
+
+            var wasDataHovered = isDataHovered;
+            var wasRefreshHovered = isRefreshHovered;
+
+            isDataHovered = (x >= 25 && x <= 135 && y >= 505 && y <= 560);
+            isRefreshHovered = (x >= 1270 && x <= 1380 && y >= 505 && y <= 560);
+
+            if (isDataHovered || isRefreshHovered) {
+                canvas.style.cursor = 'pointer';
+            } else {
+                canvas.style.cursor = 'default';
+            }
+
+            if (wasDataHovered !== isDataHovered || wasRefreshHovered !== isRefreshHovered) {
+                redrawButtons();
+            }
+        });
+
+        canvas.addEventListener('click', function(event) {
+            var rect = canvas.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var y = event.clientY - rect.top;
+
+            if (x >= 25 && x <= 135 && y >= 505 && y <= 560) {
+                toggleDisplay();
+            }
+            else if (x >= 1270 && x <= 1380 && y >= 505 && y <= 560) {
+                refreshPage();
+            }
+        });
+
+        // Connect to the server's /stream endpoint
+        const eventSource = new EventSource('/stream');
+
+        var currentData = null;
+        var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                      (typeof window.orientation !== 'undefined') ||
+                      (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+
+        // Redraw at regular intervals to support flashing
+        setInterval(function() {
+            if (currentData) {
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation);
+            }
+        }, 100);
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            currentData = data;
+            document.getElementById('display').innerText = JSON.stringify(data, null, 2);
+            draw(Math.round(data.speed), data.limit, data.isSlipping, data.powerHandle, data.incline, data.nextSpeedLimit, data.distanceToNextSpeedLimit, data.trainBreak, data.trainBrakeActive, data.locomotiveBrakeHandle, data.locomotiveBrakeActive, data.electricDynamicBrake, data.electricBrakeActive, data.isTractionLocked, data.localTime, data.timetableTime, data.timetableLabel, data.distanceToStation);
+        };
+
+        eventSource.onerror = () => {
+            console.error("SSE connection lost.");
+        };
+    </script>
+</body>
+</html>

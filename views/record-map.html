@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Map - TSW HUD Project</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+        }
+
+        @keyframes recording-glow {
+            0%, 100% {
+                opacity: 1;
+                filter: drop-shadow(0 0 3px #ff0000);
+            }
+            50% {
+                opacity: 0.6;
+                filter: drop-shadow(0 0 8px #ff0000) drop-shadow(0 0 12px #ff0000);
+            }
+        }
+
+        .recording-indicator {
+            color: #ff0000;
+            display: inline-block;
+            animation: recording-glow 1.5s ease-in-out infinite;
+        }
+
+        .recording-indicator.paused {
+            color: #ffaa00;
+            animation: none;
+        }
+
+        .recording-indicator.stopped {
+            color: #666;
+            animation: none;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #16213e;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 1000;
+            min-width: 300px;
+            max-width: 350px;
+            color: #eee;
+            border: 1px solid #0f3460;
+        }
+
+        .info-panel h2 {
+            margin: 0 0 15px 0;
+            color: #00d4ff;
+            font-size: 18px;
+            border-bottom: 2px solid #0f3460;
+            padding-bottom: 10px;
+        }
+
+        .info-group {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #1a1a2e;
+            border-radius: 6px;
+        }
+
+        .info-group h3 {
+            font-size: 14px;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+            font-size: 13px;
+        }
+
+        .info-label {
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #eee;
+            font-weight: bold;
+        }
+
+        .timetable-display {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            border: 1px solid #00d4ff;
+        }
+
+        .route-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #00d4ff;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+
+        .btn-primary {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            background: #00b8e6;
+        }
+
+        .btn-danger {
+            background: #e94560;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #d63850;
+        }
+
+        .btn-warning {
+            background: #ffaa00;
+            color: #1a1a2e;
+        }
+
+        .btn-warning:hover {
+            background: #e69900;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #0f3460;
+            color: #eee;
+        }
+
+        .btn-secondary:hover {
+            background: #1a4a7a;
+        }
+
+        .timetable-dropdown {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-top: 8px;
+            background: #1a1a2e;
+            color: #eee;
+            cursor: pointer;
+        }
+
+        .timetable-dropdown:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .legend {
+            margin-top: 15px;
+            padding: 12px;
+            background: #1a1a2e;
+            border-radius: 6px;
+        }
+
+        .legend h3 {
+            font-size: 14px;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 6px 0;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .legend-line {
+            width: 20px;
+            height: 4px;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .follow-btn {
+            background: #0f3460;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .follow-btn:hover {
+            background: #1a4a7a;
+        }
+
+        .follow-btn.following {
+            background: #e94560;
+        }
+
+        .follow-btn.following:hover {
+            background: #d63850;
+        }
+
+        .nav-link {
+            display: inline-block;
+            color: #00d4ff;
+            text-decoration: none;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .position-display {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <div class="info-panel">
+        <a href="/" class="nav-link">Back to Home</a>
+        <h2><span class="recording-indicator stopped" id="recordingIndicator">●</span> <span id="recordingText">Not Recording</span></h2>
+
+        <div class="timetable-display">
+            <div class="route-name" id="routeName">No Recording Active</div>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="stat-value" id="coordCount">0</div>
+                    <div class="stat-label">Coordinates</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="markerCount">0</div>
+                    <div class="stat-label">Markers</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-group">
+            <h3>Recording Controls</h3>
+            <div id="timetableSelector" style="margin-bottom: 10px;">
+                <label class="info-label">Select Timetable:</label>
+                <select class="timetable-dropdown" id="timetableSelect">
+                    <option value="">-- Select a timetable --</option>
+                </select>
+            </div>
+            <div class="controls-row">
+                <button class="btn-success" id="startBtn" onclick="startRecording()">Start</button>
+                <button class="btn-warning" id="pauseBtn" onclick="pauseRecording()" disabled>Pause</button>
+                <button class="btn-danger" id="stopBtn" onclick="stopRecording()" disabled>Stop</button>
+            </div>
+        </div>
+
+        <div class="info-group">
+            <h3>Current Position</h3>
+            <div class="info-item">
+                <span class="info-label">Latitude:</span>
+                <span class="info-value position-display" id="currentLat">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Longitude:</span>
+                <span class="info-value position-display" id="currentLng">-</span>
+            </div>
+        </div>
+
+        <div class="info-group">
+            <h3>Save Station Position</h3>
+            <label class="info-label">Select Station:</label>
+            <select class="timetable-dropdown" id="stationDropdown">
+                <option value="">-- Start recording first --</option>
+            </select>
+            <div class="controls-row">
+                <button class="btn-success" id="saveBtn" onclick="saveToTimetable()" disabled>Save Position</button>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>Map Legend</h3>
+            <div class="legend-item">
+                <div class="legend-line" style="background: #0066ff;"></div>
+                <span>Route Path</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffa500;"></div>
+                <span>Current Train Position</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #00cc66;"></div>
+                <span>Saved Station</span>
+            </div>
+            <button class="follow-btn" id="followBtn" onclick="toggleFollowTrain()">Follow Train</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([52.0, -0.5], 10);
+
+        // Add tile layers
+        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        });
+        const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles © Esri',
+            maxZoom: 19
+        });
+        osm.addTo(map);
+        L.control.layers({ 'Geographic': osm, 'Satellite': satellite }).addTo(map);
+
+        // State
+        let pathCoordinates = [];
+        let pathPolyline = null;
+        let trainMarker = null;
+        let stationMarkers = new Map();
+        let isFollowingTrain = false;
+        let firstPosition = true;
+        let currentTimetableId = null;
+        let nextStationIndex = null; // Used to advance dropdown after save
+
+        // Create custom train icon
+        const trainIcon = L.divIcon({
+            className: 'train-icon',
+            html: '<div style="background: #ffa500; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(255,165,0,0.8), 0 2px 6px rgba(0,0,0,0.3);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        // Load timetables for selector
+        async function loadTimetables() {
+            try {
+                const response = await fetch('/api/timetables');
+                const timetables = await response.json();
+                const select = document.getElementById('timetableSelect');
+                select.innerHTML = '<option value="">-- Select a timetable --</option>';
+                timetables.forEach(t => {
+                    const option = document.createElement('option');
+                    option.value = t.id;
+                    option.textContent = t.service_name;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Failed to load timetables:', err);
+            }
+        }
+
+        // Check recording status
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/recording/status');
+                const status = await response.json();
+                updateUI(status);
+
+                if (status.isRecording || status.isPaused) {
+                    currentTimetableId = status.currentTimetableId;
+                    loadRouteData();
+                }
+            } catch (err) {
+                console.error('Failed to check status:', err);
+            }
+        }
+
+        // Update UI based on status
+        function updateUI(status) {
+            const indicator = document.getElementById('recordingIndicator');
+            const text = document.getElementById('recordingText');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const timetableSelector = document.getElementById('timetableSelector');
+
+            if (status.isRecording && !status.isPaused) {
+                indicator.className = 'recording-indicator';
+                text.textContent = 'Recording';
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                pauseBtn.textContent = 'Pause';
+                stopBtn.disabled = false;
+                saveBtn.disabled = false;
+                timetableSelector.style.display = 'none';
+            } else if (status.isPaused) {
+                indicator.className = 'recording-indicator paused';
+                text.textContent = 'Paused';
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                pauseBtn.textContent = 'Resume';
+                stopBtn.disabled = false;
+                saveBtn.disabled = false;
+                timetableSelector.style.display = 'none';
+            } else {
+                indicator.className = 'recording-indicator stopped';
+                text.textContent = 'Not Recording';
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                pauseBtn.textContent = 'Pause';
+                stopBtn.disabled = true;
+                saveBtn.disabled = true;
+                timetableSelector.style.display = 'block';
+            }
+
+            document.getElementById('coordCount').textContent = status.coordinateCount || 0;
+            document.getElementById('markerCount').textContent = status.markerCount || 0;
+        }
+
+        // Load route data
+        async function loadRouteData() {
+            try {
+                const response = await fetch('/api/recording/route-data');
+                const data = await response.json();
+
+                document.getElementById('routeName').textContent = data.routeName || 'No Recording';
+                document.getElementById('coordCount').textContent = data.coordinates?.length || 0;
+                document.getElementById('markerCount').textContent = data.markers?.length || 0;
+
+                // Update path
+                if (data.coordinates && data.coordinates.length > 0) {
+                    pathCoordinates = data.coordinates.map(c => [c.latitude, c.longitude]);
+                    if (pathPolyline) {
+                        pathPolyline.setLatLngs(pathCoordinates);
+                    } else {
+                        pathPolyline = L.polyline(pathCoordinates, {
+                            color: '#0066ff',
+                            weight: 4,
+                            opacity: 0.7
+                        }).addTo(map);
+                    }
+
+                    // Center on first load
+                    if (firstPosition && pathCoordinates.length > 0) {
+                        const last = pathCoordinates[pathCoordinates.length - 1];
+                        map.setView(last, 15);
+                        firstPosition = false;
+                    }
+                }
+
+                // Update current position
+                if (data.currentPosition) {
+                    document.getElementById('currentLat').textContent = data.currentPosition.latitude.toFixed(6);
+                    document.getElementById('currentLng').textContent = data.currentPosition.longitude.toFixed(6);
+
+                    const lat = data.currentPosition.latitude;
+                    const lng = data.currentPosition.longitude;
+
+                    if (trainMarker) {
+                        trainMarker.setLatLng([lat, lng]);
+                    } else {
+                        trainMarker = L.marker([lat, lng], { icon: trainIcon })
+                            .bindPopup('Current Position')
+                            .addTo(map);
+                    }
+
+                    if (isFollowingTrain) {
+                        map.setView([lat, lng], map.getZoom());
+                    }
+                }
+
+                // Populate station dropdown
+                if (data.timetable && data.timetable.length > 0) {
+                    populateStationDropdown(data.timetable);
+
+                    // Add markers for stations with coordinates
+                    data.timetable.forEach((entry, index) => {
+                        if (entry.latitude && entry.longitude) {
+                            addStationMarker(index, entry.latitude, entry.longitude, entry.destination);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to load route data:', err);
+            }
+        }
+
+        // Populate station dropdown - preserves current selection
+        function populateStationDropdown(timetable) {
+            const dropdown = document.getElementById('stationDropdown');
+            const currentValue = dropdown.value; // Preserve current selection
+
+            dropdown.innerHTML = '';
+            timetable.forEach((entry, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                const hasCoords = entry.latitude && entry.longitude;
+                option.textContent = `${index + 1}. ${entry.destination}${hasCoords ? ' [SAVED]' : ''}`;
+                dropdown.appendChild(option);
+            });
+
+            // If we need to advance to next station after a save
+            if (nextStationIndex !== null && nextStationIndex < timetable.length) {
+                dropdown.value = nextStationIndex;
+                nextStationIndex = null; // Reset the flag
+            }
+            // Otherwise restore previous selection if it was valid
+            else if (currentValue !== '' && currentValue !== null && parseInt(currentValue) < timetable.length) {
+                dropdown.value = currentValue;
+            }
+        }
+
+        // Add station marker to map
+        function addStationMarker(index, lat, lng, destination) {
+            if (stationMarkers.has(index)) {
+                map.removeLayer(stationMarkers.get(index));
+            }
+
+            const stationIcon = L.divIcon({
+                className: 'station-marker',
+                html: '<div style="background-color: #00cc66; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+
+            const marker = L.marker([lat, lng], { icon: stationIcon })
+                .bindPopup(`<strong>${index + 1}. ${destination}</strong><br>Lat: ${lat}<br>Lng: ${lng}`)
+                .addTo(map);
+
+            stationMarkers.set(index, marker);
+        }
+
+        // Start recording
+        async function startRecording() {
+            const timetableId = document.getElementById('timetableSelect').value;
+            if (!timetableId) {
+                alert('Please select a timetable first');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/recording/start/${timetableId}`, { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    currentTimetableId = timetableId;
+                    checkStatus();
+                    loadRouteData();
+                } else {
+                    alert('Failed to start recording: ' + result.error);
+                }
+            } catch (err) {
+                alert('Error starting recording: ' + err.message);
+            }
+        }
+
+        // Pause/Resume recording
+        async function pauseRecording() {
+            const btn = document.getElementById('pauseBtn');
+            const isPaused = btn.textContent === 'Resume';
+
+            try {
+                const endpoint = isPaused ? '/api/recording/resume' : '/api/recording/pause';
+                const response = await fetch(endpoint, { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    checkStatus();
+                } else {
+                    alert('Failed: ' + result.error);
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Stop recording
+        async function stopRecording() {
+            if (!confirm('Are you sure you want to stop recording? Data will be saved.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/recording/stop', { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    currentTimetableId = null;
+                    pathCoordinates = [];
+                    if (pathPolyline) {
+                        map.removeLayer(pathPolyline);
+                        pathPolyline = null;
+                    }
+                    if (trainMarker) {
+                        map.removeLayer(trainMarker);
+                        trainMarker = null;
+                    }
+                    stationMarkers.forEach(m => map.removeLayer(m));
+                    stationMarkers.clear();
+                    firstPosition = true;
+                    checkStatus();
+                    document.getElementById('routeName').textContent = 'No Recording Active';
+                    document.getElementById('stationDropdown').innerHTML = '<option value="">-- Start recording first --</option>';
+                } else {
+                    alert('Failed to stop: ' + result.error);
+                }
+            } catch (err) {
+                alert('Error stopping: ' + err.message);
+            }
+        }
+
+        // Save current position to timetable
+        async function saveToTimetable() {
+            const index = parseInt(document.getElementById('stationDropdown').value);
+            const lat = document.getElementById('currentLat').textContent;
+            const lng = document.getElementById('currentLng').textContent;
+
+            if (lat === '-' || lng === '-') {
+                alert('No current position available');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/recording/save-timetable-coords', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        index: index,
+                        latitude: parseFloat(lat),
+                        longitude: parseFloat(lng)
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    addStationMarker(index, parseFloat(lat), parseFloat(lng), result.destination);
+                    // Set flag to advance to next station after reload
+                    const dropdown = document.getElementById('stationDropdown');
+                    if (index + 1 < dropdown.options.length) {
+                        nextStationIndex = index + 1;
+                    }
+                    // Reload to update dropdown labels (will use nextStationIndex)
+                    loadRouteData();
+                } else {
+                    alert('Failed to save: ' + result.error);
+                }
+            } catch (err) {
+                alert('Error saving: ' + err.message);
+            }
+        }
+
+        // Toggle follow train
+        function toggleFollowTrain() {
+            const btn = document.getElementById('followBtn');
+            isFollowingTrain = !isFollowingTrain;
+
+            if (isFollowingTrain) {
+                btn.textContent = 'Stop Following';
+                btn.classList.add('following');
+                if (trainMarker) {
+                    const pos = trainMarker.getLatLng();
+                    map.setView([pos.lat, pos.lng], map.getZoom());
+                }
+            } else {
+                btn.textContent = 'Follow Train';
+                btn.classList.remove('following');
+            }
+        }
+
+        // Poll for updates when recording
+        setInterval(() => {
+            checkStatus();
+            if (currentTimetableId) {
+                loadRouteData();
+            }
+        }, 1000);
+
+        // Initialize
+        loadTimetables();
+        checkStatus();
+    </script>
+</body>
+</html>

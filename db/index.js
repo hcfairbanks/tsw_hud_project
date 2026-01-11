@@ -144,11 +144,120 @@ async function initDatabase() {
         db.run('ALTER TABLE routes ADD COLUMN country_id INTEGER REFERENCES countries(id) ON DELETE SET NULL');
     } catch (e) { /* column already exists */ }
 
+    // Weather presets table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS weather_presets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            temperature REAL NOT NULL DEFAULT 20,
+            cloudiness REAL NOT NULL DEFAULT 0,
+            precipitation REAL NOT NULL DEFAULT 0,
+            wetness REAL NOT NULL DEFAULT 0,
+            ground_snow REAL NOT NULL DEFAULT 0,
+            piled_snow REAL NOT NULL DEFAULT 0,
+            fog_density REAL NOT NULL DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // Route coordinates table - stores GPS coordinates for a route
+    db.run(`
+        CREATE TABLE IF NOT EXISTS route_coordinates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            route_id INTEGER NOT NULL,
+            latitude REAL NOT NULL,
+            longitude REAL NOT NULL,
+            height REAL,
+            gradient REAL,
+            sort_order INTEGER NOT NULL,
+            FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE
+        )
+    `);
+
+    // Route markers table - stores markers/stations discovered on a route
+    db.run(`
+        CREATE TABLE IF NOT EXISTS route_markers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            route_id INTEGER NOT NULL,
+            station_name TEXT NOT NULL,
+            marker_type TEXT,
+            latitude REAL,
+            longitude REAL,
+            platform_length REAL,
+            is_timetable_station INTEGER DEFAULT 0,
+            FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE
+        )
+    `);
+
+    // Timetable coordinates table - stores GPS coordinates for a timetable recording
+    db.run(`
+        CREATE TABLE IF NOT EXISTS timetable_coordinates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timetable_id INTEGER NOT NULL,
+            latitude REAL NOT NULL,
+            longitude REAL NOT NULL,
+            height REAL,
+            gradient REAL,
+            sort_order INTEGER NOT NULL,
+            FOREIGN KEY (timetable_id) REFERENCES timetables(id) ON DELETE CASCADE
+        )
+    `);
+
+    // Timetable markers table - stores markers discovered during a timetable recording
+    db.run(`
+        CREATE TABLE IF NOT EXISTS timetable_markers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timetable_id INTEGER NOT NULL,
+            station_name TEXT NOT NULL,
+            marker_type TEXT,
+            latitude REAL,
+            longitude REAL,
+            platform_length REAL,
+            is_timetable_station INTEGER DEFAULT 0,
+            FOREIGN KEY (timetable_id) REFERENCES timetables(id) ON DELETE CASCADE
+        )
+    `);
+
+    // Create index for faster coordinate lookups
+    try {
+        db.run('CREATE INDEX IF NOT EXISTS idx_route_coordinates_route_id ON route_coordinates(route_id)');
+        db.run('CREATE INDEX IF NOT EXISTS idx_route_markers_route_id ON route_markers(route_id)');
+        db.run('CREATE INDEX IF NOT EXISTS idx_timetable_coordinates_timetable_id ON timetable_coordinates(timetable_id)');
+        db.run('CREATE INDEX IF NOT EXISTS idx_timetable_markers_timetable_id ON timetable_markers(timetable_id)');
+    } catch (e) { /* indexes may already exist */ }
+
     // Migrate existing country text values to countries table
     migrateCountries();
 
+    // Seed default weather presets
+    seedWeatherPresets();
+
     saveDatabase();
     console.log('✓ Database initialized');
+}
+
+// Seed default weather presets
+function seedWeatherPresets() {
+    const presetCount = db.exec('SELECT COUNT(*) FROM weather_presets')[0]?.values[0][0] || 0;
+    if (presetCount > 0) {
+        return; // Already seeded
+    }
+
+    console.log('Seeding weather presets...');
+
+    // Sunny Day preset
+    db.run(`INSERT INTO weather_presets (name, temperature, cloudiness, precipitation, wetness, ground_snow, piled_snow, fog_density)
+            VALUES ('Sunny Day', 25, 0.1, 0, 0, 0, 0, 0)`);
+
+    // Snowy Day preset
+    db.run(`INSERT INTO weather_presets (name, temperature, cloudiness, precipitation, wetness, ground_snow, piled_snow, fog_density)
+            VALUES ('Snowy Day', -5, 0.8, 0.7, 0.3, 0.8, 0.6, 0.2)`);
+
+    // Rainy Day preset
+    db.run(`INSERT INTO weather_presets (name, temperature, cloudiness, precipitation, wetness, ground_snow, piled_snow, fog_density)
+            VALUES ('Rainy Day', 12, 0.9, 0.8, 0.7, 0, 0, 0.3)`);
+
+    console.log('✓ Weather presets seeded');
 }
 
 // Migrate existing country text values to countries table and link routes
@@ -565,6 +674,421 @@ const entryDb = {
     }
 };
 
+// Weather preset CRUD operations
+const weatherPresetDb = {
+    getAll: () => {
+        const stmt = db.prepare('SELECT * FROM weather_presets ORDER BY name');
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    getById: (id) => {
+        const stmt = db.prepare('SELECT * FROM weather_presets WHERE id = ?');
+        stmt.bind([id]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
+    getByName: (name) => {
+        const stmt = db.prepare('SELECT * FROM weather_presets WHERE name = ?');
+        stmt.bind([name]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
+    create: (preset) => {
+        db.run(
+            `INSERT INTO weather_presets (name, temperature, cloudiness, precipitation, wetness, ground_snow, piled_snow, fog_density)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [preset.name, preset.temperature, preset.cloudiness, preset.precipitation, preset.wetness, preset.ground_snow, preset.piled_snow, preset.fog_density]
+        );
+        const result = db.exec('SELECT last_insert_rowid() as id');
+        const lastId = result.length > 0 && result[0].values.length > 0 ? result[0].values[0][0] : 0;
+        saveDatabase();
+        return { lastInsertRowid: lastId };
+    },
+    update: (id, preset) => {
+        db.run(
+            `UPDATE weather_presets SET name = ?, temperature = ?, cloudiness = ?, precipitation = ?, wetness = ?, ground_snow = ?, piled_snow = ?, fog_density = ? WHERE id = ?`,
+            [preset.name, preset.temperature, preset.cloudiness, preset.precipitation, preset.wetness, preset.ground_snow, preset.piled_snow, preset.fog_density, id]
+        );
+        saveDatabase();
+    },
+    delete: (id) => {
+        db.run('DELETE FROM weather_presets WHERE id = ?', [id]);
+        saveDatabase();
+    }
+};
+
+// Route coordinates CRUD operations
+const routeCoordinateDb = {
+    getByRouteId: (routeId) => {
+        const stmt = db.prepare('SELECT * FROM route_coordinates WHERE route_id = ? ORDER BY sort_order');
+        stmt.bind([routeId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    getCount: (routeId) => {
+        const result = db.exec('SELECT COUNT(*) FROM route_coordinates WHERE route_id = ?', [routeId]);
+        return result.length > 0 ? result[0].values[0][0] : 0;
+    },
+    deleteByRouteId: (routeId) => {
+        db.run('DELETE FROM route_coordinates WHERE route_id = ?', [routeId]);
+        saveDatabase();
+    },
+    bulkInsert: (routeId, coordinates) => {
+        // Delete existing coordinates first
+        db.run('DELETE FROM route_coordinates WHERE route_id = ?', [routeId]);
+
+        // Insert new coordinates
+        const stmt = db.prepare('INSERT INTO route_coordinates (route_id, latitude, longitude, height, gradient, sort_order) VALUES (?, ?, ?, ?, ?, ?)');
+        for (let i = 0; i < coordinates.length; i++) {
+            const coord = coordinates[i];
+            stmt.run([routeId, coord.latitude, coord.longitude, coord.height || null, coord.gradient || null, i]);
+        }
+        stmt.free();
+        saveDatabase();
+        return coordinates.length;
+    }
+};
+
+// Route markers CRUD operations
+const routeMarkerDb = {
+    getByRouteId: (routeId) => {
+        const stmt = db.prepare('SELECT * FROM route_markers WHERE route_id = ? ORDER BY id');
+        stmt.bind([routeId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    getCount: (routeId) => {
+        const result = db.exec('SELECT COUNT(*) FROM route_markers WHERE route_id = ?', [routeId]);
+        return result.length > 0 ? result[0].values[0][0] : 0;
+    },
+    deleteByRouteId: (routeId) => {
+        db.run('DELETE FROM route_markers WHERE route_id = ?', [routeId]);
+        saveDatabase();
+    },
+    create: (routeId, marker) => {
+        db.run(
+            'INSERT INTO route_markers (route_id, station_name, marker_type, latitude, longitude, platform_length, is_timetable_station) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [routeId, marker.stationName || marker.station_name, marker.markerType || marker.marker_type || 'Station',
+             marker.latitude || null, marker.longitude || null, marker.platformLength || marker.platform_length || null,
+             marker.isTimetableStation || marker.is_timetable_station ? 1 : 0]
+        );
+        const result = db.exec('SELECT last_insert_rowid() as id');
+        const lastId = result.length > 0 && result[0].values.length > 0 ? result[0].values[0][0] : 0;
+        saveDatabase();
+        return { lastInsertRowid: lastId };
+    },
+    update: (id, marker) => {
+        db.run(
+            'UPDATE route_markers SET station_name = ?, marker_type = ?, latitude = ?, longitude = ?, platform_length = ?, is_timetable_station = ? WHERE id = ?',
+            [marker.stationName || marker.station_name, marker.markerType || marker.marker_type || 'Station',
+             marker.latitude || null, marker.longitude || null, marker.platformLength || marker.platform_length || null,
+             marker.isTimetableStation || marker.is_timetable_station ? 1 : 0, id]
+        );
+        saveDatabase();
+    },
+    bulkInsert: (routeId, markers) => {
+        // Delete existing markers first
+        db.run('DELETE FROM route_markers WHERE route_id = ?', [routeId]);
+
+        // Insert new markers
+        const stmt = db.prepare('INSERT INTO route_markers (route_id, station_name, marker_type, latitude, longitude, platform_length, is_timetable_station) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        for (const marker of markers) {
+            stmt.run([
+                routeId,
+                marker.stationName || marker.station_name,
+                marker.markerType || marker.marker_type || 'Station',
+                marker.latitude || null,
+                marker.longitude || null,
+                marker.platformLength || marker.platform_length || null,
+                marker.isTimetableStation || marker.is_timetable_station ? 1 : 0
+            ]);
+        }
+        stmt.free();
+        saveDatabase();
+        return markers.length;
+    }
+};
+
+// Timetable coordinates CRUD operations
+const timetableCoordinateDb = {
+    getByTimetableId: (timetableId) => {
+        const stmt = db.prepare('SELECT * FROM timetable_coordinates WHERE timetable_id = ? ORDER BY sort_order');
+        stmt.bind([timetableId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    getCount: (timetableId) => {
+        const result = db.exec('SELECT COUNT(*) FROM timetable_coordinates WHERE timetable_id = ?', [timetableId]);
+        return result.length > 0 ? result[0].values[0][0] : 0;
+    },
+    deleteByTimetableId: (timetableId) => {
+        db.run('DELETE FROM timetable_coordinates WHERE timetable_id = ?', [timetableId]);
+        saveDatabase();
+    },
+    bulkInsert: (timetableId, coordinates) => {
+        // Delete existing coordinates first
+        db.run('DELETE FROM timetable_coordinates WHERE timetable_id = ?', [timetableId]);
+
+        // Insert new coordinates
+        const stmt = db.prepare('INSERT INTO timetable_coordinates (timetable_id, latitude, longitude, height, gradient, sort_order) VALUES (?, ?, ?, ?, ?, ?)');
+        for (let i = 0; i < coordinates.length; i++) {
+            const coord = coordinates[i];
+            stmt.run([timetableId, coord.latitude, coord.longitude, coord.height || null, coord.gradient || null, i]);
+        }
+        stmt.free();
+        saveDatabase();
+        return coordinates.length;
+    }
+};
+
+// Timetable markers CRUD operations
+const timetableMarkerDb = {
+    getByTimetableId: (timetableId) => {
+        const stmt = db.prepare('SELECT * FROM timetable_markers WHERE timetable_id = ? ORDER BY id');
+        stmt.bind([timetableId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    getCount: (timetableId) => {
+        const result = db.exec('SELECT COUNT(*) FROM timetable_markers WHERE timetable_id = ?', [timetableId]);
+        return result.length > 0 ? result[0].values[0][0] : 0;
+    },
+    deleteByTimetableId: (timetableId) => {
+        db.run('DELETE FROM timetable_markers WHERE timetable_id = ?', [timetableId]);
+        saveDatabase();
+    },
+    bulkInsert: (timetableId, markers) => {
+        // Delete existing markers first
+        db.run('DELETE FROM timetable_markers WHERE timetable_id = ?', [timetableId]);
+
+        // Insert new markers
+        const stmt = db.prepare('INSERT INTO timetable_markers (timetable_id, station_name, marker_type, latitude, longitude, platform_length, is_timetable_station) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        for (const marker of markers) {
+            stmt.run([
+                timetableId,
+                marker.stationName || marker.station_name,
+                marker.markerType || marker.marker_type || 'Station',
+                marker.latitude || null,
+                marker.longitude || null,
+                marker.platformLength || marker.platform_length || null,
+                marker.isTimetableStation || marker.is_timetable_station ? 1 : 0
+            ]);
+        }
+        stmt.free();
+        saveDatabase();
+        return markers.length;
+    }
+};
+
+// Build complete timetable data from database (for map display)
+const timetableDataDb = {
+    // Get full timetable data with coordinates, markers, and entries
+    getFullTimetableData: (timetableId) => {
+        // Get timetable info
+        const timetable = timetableDb.getById(timetableId);
+        if (!timetable) return null;
+
+        // Get coordinates for this timetable
+        const coordinates = timetableCoordinateDb.getByTimetableId(timetableId);
+
+        // Get markers for this timetable (discovered during recording - kept for future use)
+        const markers = timetableMarkerDb.getByTimetableId(timetableId);
+
+        // Get timetable entries (stations from OCR) - these are the actual stops
+        const entries = entryDb.getByTimetableId(timetableId);
+        const timetableEntries = entries.map((entry, index) => ({
+            index,
+            destination: entry.location || entry.details || 'Unknown',
+            arrival: entry.time1 || '',
+            departure: entry.time2 || '',
+            platform: entry.platform || '',
+            apiName: entry.location || '',
+            latitude: entry.latitude ? parseFloat(entry.latitude) : null,
+            longitude: entry.longitude ? parseFloat(entry.longitude) : null
+        }));
+
+        // Build the data object
+        // - coordinates: GPS path for the route polyline
+        // - markers: raw discovered markers from game API (kept for future use)
+        // - timetable: the actual stations in stopping order (used for map display)
+        return {
+            routeName: timetable.service_name,
+            timetableId: timetable.id,
+            routeId: timetable.route_id,
+            trainId: timetable.train_id,
+            totalPoints: coordinates.length,
+            totalMarkers: markers.length,
+            coordinates: coordinates.map(c => ({
+                latitude: c.latitude,
+                longitude: c.longitude,
+                height: c.height,
+                gradient: c.gradient
+            })),
+            markers: markers.map(m => ({
+                stationName: m.station_name,
+                markerType: m.marker_type,
+                latitude: m.latitude,
+                longitude: m.longitude,
+                platformLength: m.platform_length
+            })),
+            timetable: timetableEntries
+        };
+    },
+
+    // Check if a timetable has coordinate data
+    hasCoordinates: (timetableId) => {
+        return timetableCoordinateDb.getCount(timetableId) > 0;
+    },
+
+    // Get timetables that have coordinate data
+    getTimetablesWithCoordinates: () => {
+        const stmt = db.prepare(`
+            SELECT t.*,
+                   (SELECT COUNT(*) FROM timetable_coordinates WHERE timetable_id = t.id) as coordinate_count,
+                   (SELECT COUNT(*) FROM timetable_markers WHERE timetable_id = t.id) as marker_count
+            FROM timetables t
+            WHERE (SELECT COUNT(*) FROM timetable_coordinates WHERE timetable_id = t.id) > 0
+            ORDER BY t.service_name
+        `);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+
+    // Get all timetables with coordinate counts
+    getAllWithCounts: () => {
+        const stmt = db.prepare(`
+            SELECT t.*,
+                   (SELECT COUNT(*) FROM timetable_coordinates WHERE timetable_id = t.id) as coordinate_count,
+                   (SELECT COUNT(*) FROM timetable_markers WHERE timetable_id = t.id) as marker_count
+            FROM timetables t
+            ORDER BY t.id DESC
+        `);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    }
+};
+
+// Build complete route data from database
+const routeDataDb = {
+    // Get full route data with coordinates, markers, and timetable
+    getFullRouteData: (routeId, timetableId = null) => {
+        // Get route info
+        const route = routeDb.getById(routeId);
+        if (!route) return null;
+
+        // Get coordinates
+        const coordinates = routeCoordinateDb.getByRouteId(routeId);
+
+        // Get markers
+        const markers = routeMarkerDb.getByRouteId(routeId);
+
+        // Get timetable entries if timetableId provided
+        let timetable = [];
+        if (timetableId) {
+            const entries = entryDb.getByTimetableId(timetableId);
+            timetable = entries.map((entry, index) => ({
+                index,
+                destination: entry.location || entry.details || 'Unknown',
+                arrival: entry.time1 || '',
+                departure: entry.time2 || '',
+                platform: entry.platform || '',
+                apiName: entry.location || '',
+                latitude: entry.latitude ? parseFloat(entry.latitude) : null,
+                longitude: entry.longitude ? parseFloat(entry.longitude) : null
+            }));
+
+            // Mark which markers are timetable stations
+            const timetableLocations = new Set(timetable.map(t => t.apiName).filter(n => n));
+            markers.forEach(marker => {
+                marker.isTimetableStation = timetableLocations.has(marker.station_name) ? 1 : 0;
+            });
+        }
+
+        // Build the route data object (same format as JSON files)
+        return {
+            routeName: route.name,
+            routeId: route.id,
+            timetableId: timetableId,
+            totalPoints: coordinates.length,
+            totalMarkers: markers.length,
+            coordinates: coordinates.map(c => ({
+                latitude: c.latitude,
+                longitude: c.longitude,
+                height: c.height,
+                gradient: c.gradient
+            })),
+            markers: markers.map(m => ({
+                stationName: m.station_name,
+                markerType: m.marker_type,
+                latitude: m.latitude,
+                longitude: m.longitude,
+                platformLength: m.platform_length,
+                isTimetableStation: m.is_timetable_station === 1
+            })),
+            timetable: timetable
+        };
+    },
+
+    // Check if a route has coordinate data
+    hasCoordinates: (routeId) => {
+        return routeCoordinateDb.getCount(routeId) > 0;
+    },
+
+    // Get routes that have coordinate data
+    getRoutesWithCoordinates: () => {
+        const stmt = db.prepare(`
+            SELECT r.*,
+                   (SELECT COUNT(*) FROM route_coordinates WHERE route_id = r.id) as coordinate_count,
+                   (SELECT COUNT(*) FROM route_markers WHERE route_id = r.id) as marker_count
+            FROM routes r
+            WHERE (SELECT COUNT(*) FROM route_coordinates WHERE route_id = r.id) > 0
+            ORDER BY r.name
+        `);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    }
+};
+
 // Close database connection
 function closeDatabase() {
     if (db) {
@@ -584,5 +1108,12 @@ module.exports = {
     routeDb,
     trainDb,
     timetableDb,
-    entryDb
+    entryDb,
+    weatherPresetDb,
+    routeCoordinateDb,
+    routeMarkerDb,
+    routeDataDb,
+    timetableCoordinateDb,
+    timetableMarkerDb,
+    timetableDataDb
 };

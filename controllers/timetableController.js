@@ -1,12 +1,30 @@
 'use strict';
-const { timetableDb, entryDb } = require('../db');
+const { timetableDb, entryDb, timetableCoordinateDb } = require('../db');
 const { sendJson, parseBody } = require('../utils/http');
 
 const timetableController = {
     // GET /api/timetables
-    getAll: async (req, res) => {
-        const timetables = timetableDb.getAll();
-        sendJson(res, timetables);
+    // Supports query params: route_id, train_id
+    getAll: async (req, res, routeId = null, trainId = null) => {
+        let timetables = timetableDb.getAll();
+
+        // Filter by route_id if provided
+        if (routeId) {
+            timetables = timetables.filter(t => t.route_id === routeId);
+        }
+
+        // Filter by train_id if provided
+        if (trainId) {
+            timetables = timetables.filter(t => t.train_id === trainId);
+        }
+
+        // Add coordinate counts
+        const timetablesWithCounts = timetables.map(t => ({
+            ...t,
+            coordinate_count: timetableCoordinateDb.getCount(t.id)
+        }));
+
+        sendJson(res, timetablesWithCounts);
     },
 
     // POST /api/timetables

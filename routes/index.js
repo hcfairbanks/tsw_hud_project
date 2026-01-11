@@ -6,6 +6,13 @@ const trainController = require('../controllers/trainController');
 const timetableController = require('../controllers/timetableController');
 const entryController = require('../controllers/entryController');
 const ocrController = require('../controllers/ocrController');
+const hudController = require('../controllers/hudController');
+const streamController = require('../controllers/streamController');
+const weatherController = require('../controllers/weatherController');
+const weatherPresetController = require('../controllers/weatherPresetController');
+const recordingController = require('../controllers/recordingController');
+const processingController = require('../controllers/processingController');
+const mapDataController = require('../controllers/mapDataController');
 
 /**
  * Route handler - maps URL patterns to controller methods
@@ -28,6 +35,30 @@ async function handleRoutes(req, res) {
     
     if (pathname === '/extract' || pathname === '/extract.html') {
         serveFile(res, 'extract.html', 'text/html');
+        return true;
+    }
+
+    // HUD dashboard page
+    if (pathname === '/hud' || pathname === '/hud.html') {
+        serveFile(res, 'hud.html', 'text/html');
+        return true;
+    }
+
+    // Live map page
+    if (pathname === '/map' || pathname === '/map.html') {
+        serveFile(res, 'map.html', 'text/html');
+        return true;
+    }
+
+    // Weather control page
+    if (pathname === '/weather' || pathname === '/weather.html') {
+        serveFile(res, 'weather.html', 'text/html');
+        return true;
+    }
+
+    // Record map page for manual coordinate entry
+    if (pathname === '/record-map' || pathname === '/record-map.html') {
+        serveFile(res, 'record-map.html', 'text/html');
         return true;
     }
 
@@ -79,6 +110,19 @@ async function handleRoutes(req, res) {
     const countryShowMatch = pathname.match(/^\/countries\/(\d+)$/);
     if (countryShowMatch) {
         serveFile(res, 'countries/show.html', 'text/html');
+        return true;
+    }
+
+    // Weather presets list page
+    if (pathname === '/weather-presets') {
+        serveFile(res, 'weather-presets/index.html', 'text/html');
+        return true;
+    }
+
+    // Weather preset show page /weather-presets/:id
+    const weatherPresetShowMatch = pathname.match(/^\/weather-presets\/(\d+)$/);
+    if (weatherPresetShowMatch) {
+        serveFile(res, 'weather-presets/show.html', 'text/html');
         return true;
     }
 
@@ -238,7 +282,9 @@ async function handleRoutes(req, res) {
     
     if (pathname === '/api/timetables') {
         if (method === 'GET') {
-            await timetableController.getAll(req, res);
+            const routeId = url.searchParams.get('route_id') ? parseInt(url.searchParams.get('route_id')) : null;
+            const trainId = url.searchParams.get('train_id') ? parseInt(url.searchParams.get('train_id')) : null;
+            await timetableController.getAll(req, res, routeId, trainId);
             return true;
         }
         if (method === 'POST') {
@@ -311,6 +357,211 @@ async function handleRoutes(req, res) {
 
     if (pathname === '/api/extract' && method === 'POST') {
         await ocrController.extract(req, res);
+        return true;
+    }
+
+    // ============================================
+    // HUD & Telemetry API Routes
+    // ============================================
+
+    // SSE stream for live telemetry
+    if (pathname === '/stream') {
+        await streamController.handleStream(req, res);
+        return true;
+    }
+
+    // Get current route data
+    if (pathname === '/route-data' && method === 'GET') {
+        await hudController.getCurrentRoute(req, res);
+        return true;
+    }
+
+    // List available route files
+    if (pathname === '/api/hud/routes' && method === 'GET') {
+        await hudController.listRoutes(req, res);
+        return true;
+    }
+
+    // Browse directory for routes
+    if (pathname.startsWith('/api/hud/browse') && method === 'GET') {
+        const requestedPath = url.searchParams.get('path') || '';
+        await hudController.browseDirectory(req, res, requestedPath);
+        return true;
+    }
+
+    // Load a specific route
+    if (pathname.startsWith('/api/hud/load-route') && method === 'GET') {
+        const filename = url.searchParams.get('file');
+        const type = url.searchParams.get('type') || 'processed';
+        const filePath = url.searchParams.get('path');
+        await hudController.loadRoute(req, res, filename, type, filePath);
+        return true;
+    }
+
+    // Upload route data from client
+    if (pathname === '/api/upload-route' && method === 'POST') {
+        await hudController.uploadRoute(req, res);
+        return true;
+    }
+
+    // ============================================
+    // Weather API Routes
+    // ============================================
+
+    // Set weather value
+    if (pathname === '/api/weather/set' && method === 'PATCH') {
+        const key = url.searchParams.get('key');
+        const value = parseFloat(url.searchParams.get('value'));
+        await weatherController.setWeather(req, res, key, value);
+        return true;
+    }
+
+    // ============================================
+    // Weather Preset API Routes
+    // ============================================
+
+    if (pathname === '/api/weather-presets') {
+        if (method === 'GET') {
+            await weatherPresetController.getAll(req, res);
+            return true;
+        }
+        if (method === 'POST') {
+            await weatherPresetController.create(req, res);
+            return true;
+        }
+    }
+
+    // Single weather preset operations
+    const weatherPresetMatch = pathname.match(/^\/api\/weather-presets\/(\d+)$/);
+    if (weatherPresetMatch) {
+        const id = parseInt(weatherPresetMatch[1]);
+
+        if (method === 'GET') {
+            await weatherPresetController.getById(req, res, id);
+            return true;
+        }
+        if (method === 'PUT') {
+            await weatherPresetController.update(req, res, id);
+            return true;
+        }
+        if (method === 'DELETE') {
+            await weatherPresetController.delete(req, res, id);
+            return true;
+        }
+    }
+
+    // ============================================
+    // Recording API Routes
+    // ============================================
+
+    // Recording status
+    if (pathname === '/api/recording/status' && method === 'GET') {
+        recordingController.getStatus(req, res);
+        return true;
+    }
+
+    // Start recording for a timetable
+    const recordingStartMatch = pathname.match(/^\/api\/recording\/start\/(\d+)$/);
+    if (recordingStartMatch && method === 'POST') {
+        const timetableId = parseInt(recordingStartMatch[1]);
+        await recordingController.start(req, res, timetableId);
+        return true;
+    }
+
+    // Stop recording
+    if (pathname === '/api/recording/stop' && method === 'POST') {
+        recordingController.stop(req, res);
+        return true;
+    }
+
+    // Pause recording
+    if (pathname === '/api/recording/pause' && method === 'POST') {
+        recordingController.pause(req, res);
+        return true;
+    }
+
+    // Resume recording
+    if (pathname === '/api/recording/resume' && method === 'POST') {
+        recordingController.resume(req, res);
+        return true;
+    }
+
+    // Get current route data for record map
+    if (pathname === '/api/recording/route-data' && method === 'GET') {
+        recordingController.getRouteData(req, res);
+        return true;
+    }
+
+    // Save coordinates to timetable entry
+    if (pathname === '/api/recording/save-timetable-coords' && method === 'POST') {
+        await recordingController.saveTimetableCoords(req, res);
+        return true;
+    }
+
+    // List recorded files
+    if (pathname === '/api/recording/list' && method === 'GET') {
+        recordingController.listRecordings(req, res);
+        return true;
+    }
+
+    // Get a specific recording file
+    if (pathname === '/api/recording/file' && method === 'GET') {
+        const filename = url.searchParams.get('file');
+        recordingController.getRecordingFile(req, res, filename);
+        return true;
+    }
+
+    // ============================================
+    // Processing API Routes
+    // ============================================
+
+    // Process a recording file
+    if (pathname.startsWith('/api/processing/process') && method === 'POST') {
+        const filename = url.searchParams.get('file');
+        await processingController.process(req, res, filename);
+        return true;
+    }
+
+    // List processed files
+    if (pathname === '/api/processing/list' && method === 'GET') {
+        processingController.listProcessed(req, res);
+        return true;
+    }
+
+    // Get a processed file
+    if (pathname.startsWith('/api/processing/file') && method === 'GET') {
+        const filename = url.searchParams.get('file');
+        processingController.getProcessedFile(req, res, filename);
+        return true;
+    }
+
+    // ============================================
+    // Map Data API Routes (timetable-based)
+    // ============================================
+
+    // Get all timetables for map selector
+    if (pathname === '/api/map/timetables' && method === 'GET') {
+        mapDataController.getAllTimetables(req, res);
+        return true;
+    }
+
+    // Get timetables that have coordinate data
+    if (pathname === '/api/map/timetables-with-data' && method === 'GET') {
+        mapDataController.getTimetablesWithData(req, res);
+        return true;
+    }
+
+    // Get full timetable data (coordinates, markers, entries) for map display
+    const mapTimetableDataMatch = pathname.match(/^\/api\/map\/timetables\/(\d+)\/data$/);
+    if (mapTimetableDataMatch && method === 'GET') {
+        const timetableId = parseInt(mapTimetableDataMatch[1]);
+        mapDataController.getTimetableData(req, res, timetableId);
+        return true;
+    }
+
+    // Import recording data into a timetable
+    if (pathname === '/api/map/import-recording' && method === 'POST') {
+        await mapDataController.importFromRecording(req, res);
         return true;
     }
 
