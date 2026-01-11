@@ -1,0 +1,31 @@
+{
+  "routeName": "2T17: London Euston - Tring                                      08:30 00:10",
+  "totalPoints": 0,
+  "totalMarkers": 0,
+  "duration": 0,
+  "requestCount": 0,
+  "coordinates": [],
+  "markers": [],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "StationOne",
+      "arrival": "",
+      "departure": "08:32:00",
+      "platform": "1",
+      "apiName": "StationOne Platform 1",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 1,
+      "destination": "StationOne",
+      "arrival": "08:40:00",
+      "departure": "",
+      "platform": "2",
+      "apiName": "StationOne Platform 2",
+      "longitude": null,
+      "latitude": null
+    }
+  ]
+}

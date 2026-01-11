@@ -14,6 +14,7 @@ let loadedRouteData = null;
 let routeFilePath = null;
 let timetableData = [];
 let currentPlayerPosition = null;
+let currentHeight = null; // Height from TrackData for recording
 
 // Get the directory where the app is running from
 const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
@@ -186,24 +187,31 @@ function calculateDistanceAlongRoute(playerLat, playerLon, markerLat, markerLon)
 }
 
 /**
- * Get next timetable marker based on current target
+ * Get next timetable station based on current target
+ * Now uses timetable entries (which have coordinates) instead of markers
  */
-function getNextTimetableMarker(targetApiName) {
-    if (!targetApiName || !loadedRouteData || !loadedRouteData.markers) {
+function getNextTimetableStation(targetApiName) {
+    if (!targetApiName || !timetableData || timetableData.length === 0) {
         return null;
     }
 
-    const marker = loadedRouteData.markers.find(m => m.stationName === targetApiName);
+    // Find the timetable entry that matches the target
+    const station = timetableData.find(entry =>
+        entry.apiName === targetApiName || entry.destination === targetApiName
+    );
 
-    if (!marker) {
+    if (!station || !station.latitude || !station.longitude) {
         return null;
     }
 
     return {
-        name: marker.stationName,
-        latitude: marker.latitude || marker.detectedAt?.latitude,
-        longitude: marker.longitude || marker.detectedAt?.longitude,
-        type: marker.markerType
+        name: station.destination,
+        latitude: station.latitude,
+        longitude: station.longitude,
+        arrival: station.arrival,
+        departure: station.departure,
+        platform: station.platform,
+        index: station.index
     };
 }
 
@@ -217,6 +225,7 @@ function parseSubscriptionData(rawData) {
         timetableTime: null,
         timetableLabel: null,
         distanceToStation: null,
+        nextStation: null,  // Next timetable station info
         speed: 0,
         direction: 0,
         limit: 0,
@@ -264,15 +273,14 @@ function parseSubscriptionData(rawData) {
                             recordingController.processCoordinate(
                                 entry.Values.geoLocation,
                                 streamData.incline,
-                                null // height - will be filled from TrackData
+                                currentHeight // height from TrackData
                             );
                         }
                     }
                 }
                 // Extract track data for markers and height
                 else if (entry.Path === 'DriverAid.TrackData') {
-                    // Extract height from lastPlayerPosition
-                    let currentHeight = null;
+                    // Extract height from lastPlayerPosition and store for recording
                     if (entry.Values.lastPlayerPosition && typeof entry.Values.lastPlayerPosition.height === 'number') {
                         currentHeight = entry.Values.lastPlayerPosition.height;
                     }
@@ -390,21 +398,29 @@ function parseSubscriptionData(rawData) {
         streamData.timetableTime = timetableDisplay.time;
         streamData.timetableLabel = timetableDisplay.label;
 
-        // Calculate distance along route to next marker
+        // Calculate distance along route to next station
         if (timetableDisplay.targetApiName && currentPlayerPosition) {
-            const nextMarker = getNextTimetableMarker(timetableDisplay.targetApiName);
+            const nextStation = getNextTimetableStation(timetableDisplay.targetApiName);
 
-            if (nextMarker && nextMarker.latitude && nextMarker.longitude) {
+            if (nextStation && nextStation.latitude && nextStation.longitude) {
                 const distance = calculateDistanceAlongRoute(
                     currentPlayerPosition.latitude,
                     currentPlayerPosition.longitude,
-                    nextMarker.latitude,
-                    nextMarker.longitude
+                    nextStation.latitude,
+                    nextStation.longitude
                 );
 
                 if (distance !== null) {
                     streamData.distanceToStation = Math.round(distance);
                 }
+
+                // Also include the next station info in stream
+                streamData.nextStation = {
+                    name: nextStation.name,
+                    arrival: nextStation.arrival,
+                    platform: nextStation.platform,
+                    index: nextStation.index
+                };
             }
         }
     }

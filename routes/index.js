@@ -13,6 +13,7 @@ const weatherPresetController = require('../controllers/weatherPresetController'
 const recordingController = require('../controllers/recordingController');
 const processingController = require('../controllers/processingController');
 const mapDataController = require('../controllers/mapDataController');
+const stationMappingController = require('../controllers/stationMappingController');
 
 /**
  * Route handler - maps URL patterns to controller methods
@@ -293,11 +294,26 @@ async function handleRoutes(req, res) {
         }
     }
 
+    // Timetable export endpoints (must come before single timetable operations)
+    const timetableExportDownloadMatch = pathname.match(/^\/api\/timetables\/(\d+)\/export\/download$/);
+    if (timetableExportDownloadMatch && method === 'GET') {
+        const id = parseInt(timetableExportDownloadMatch[1]);
+        await timetableController.exportDownload(req, res, id);
+        return true;
+    }
+
+    const timetableExportMatch = pathname.match(/^\/api\/timetables\/(\d+)\/export$/);
+    if (timetableExportMatch && method === 'GET') {
+        const id = parseInt(timetableExportMatch[1]);
+        await timetableController.export(req, res, id);
+        return true;
+    }
+
     // Single timetable operations
     const timetableMatch = pathname.match(/^\/api\/timetables\/(\d+)$/);
     if (timetableMatch) {
         const id = parseInt(timetableMatch[1]);
-        
+
         if (method === 'GET') {
             await timetableController.getById(req, res, id);
             return true;
@@ -313,9 +329,80 @@ async function handleRoutes(req, res) {
     }
 
     // ============================================
+    // Station Name Mapping API Routes
+    // ============================================
+
+    // GET /api/station-mappings - Get all mappings (optional ?route_id=X)
+    // POST /api/station-mappings - Create a new mapping
+    if (pathname === '/api/station-mappings') {
+        if (method === 'GET') {
+            const routeId = url.searchParams.get('route_id') ? parseInt(url.searchParams.get('route_id')) : null;
+            await stationMappingController.getAll(req, res, routeId);
+            return true;
+        }
+        if (method === 'POST') {
+            await stationMappingController.create(req, res);
+            return true;
+        }
+    }
+
+    // GET /api/station-mappings/lookup/:routeId - Get lookup object for processing
+    const mappingLookupMatch = pathname.match(/^\/api\/station-mappings\/lookup\/(\d+)$/);
+    if (mappingLookupMatch && method === 'GET') {
+        const routeId = parseInt(mappingLookupMatch[1]);
+        await stationMappingController.getLookup(req, res, routeId);
+        return true;
+    }
+
+    // GET /api/station-mappings/lookup - Get global lookup object
+    if (pathname === '/api/station-mappings/lookup' && method === 'GET') {
+        await stationMappingController.getLookup(req, res, null);
+        return true;
+    }
+
+    // POST /api/station-mappings/bulk - Bulk import mappings
+    if (pathname === '/api/station-mappings/bulk' && method === 'POST') {
+        await stationMappingController.bulkImport(req, res);
+        return true;
+    }
+
+    // POST /api/station-mappings/import-object - Import from { displayName: apiName } object
+    if (pathname === '/api/station-mappings/import-object' && method === 'POST') {
+        await stationMappingController.importFromObject(req, res);
+        return true;
+    }
+
+    // GET /api/station-mappings/route/:routeId - Get mappings for a specific route
+    const mappingRouteMatch = pathname.match(/^\/api\/station-mappings\/route\/(\d+)$/);
+    if (mappingRouteMatch && method === 'GET') {
+        const routeId = parseInt(mappingRouteMatch[1]);
+        await stationMappingController.getByRouteId(req, res, routeId);
+        return true;
+    }
+
+    // Single mapping operations: GET, PUT, DELETE /api/station-mappings/:id
+    const mappingMatch = pathname.match(/^\/api\/station-mappings\/(\d+)$/);
+    if (mappingMatch) {
+        const id = parseInt(mappingMatch[1]);
+
+        if (method === 'GET') {
+            await stationMappingController.getById(req, res, id);
+            return true;
+        }
+        if (method === 'PUT') {
+            await stationMappingController.update(req, res, id);
+            return true;
+        }
+        if (method === 'DELETE') {
+            await stationMappingController.delete(req, res, id);
+            return true;
+        }
+    }
+
+    // ============================================
     // Entry API Routes
     // ============================================
-    
+
     // Timetable entries API
     const entriesMatch = pathname.match(/^\/api\/timetables\/(\d+)\/entries$/);
     if (entriesMatch) {
@@ -532,6 +619,12 @@ async function handleRoutes(req, res) {
     if (pathname.startsWith('/api/processing/file') && method === 'GET') {
         const filename = url.searchParams.get('file');
         processingController.getProcessedFile(req, res, filename);
+        return true;
+    }
+
+    // Process a timetable's recording data (database-based)
+    if (pathname === '/api/processing/timetable' && method === 'POST') {
+        await processingController.processRecordingData(req, res);
         return true;
     }
 

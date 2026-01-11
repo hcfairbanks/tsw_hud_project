@@ -89,6 +89,7 @@
         <div class="action-bar">
             <button class="btn-primary" onclick="exportCSV()">Export CSV</button>
             <button class="btn-secondary" onclick="exportThirdRails()">Export ThirdRails</button>
+            <button class="btn-secondary" onclick="exportJSON()">Export JSON (Map)</button>
         </div>
     </div>
 
@@ -476,6 +477,11 @@
 
             var filename = sanitizeFilename(timetable.service_name || 'timetable') + '_thirdrails.csv';
             downloadCSV(lines.join('\n'), filename);
+        }
+
+        function exportJSON() {
+            // Trigger download via the export/download endpoint
+            window.location.href = '/api/timetables/' + timetableId + '/export/download';
         }
 
         // Warn before leaving with unsaved changes

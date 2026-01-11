@@ -1,12 +1,11 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { sendJson } = require('../utils/http');
-const { timetableDb, entryDb } = require('../db');
+const { sendJson, parseBody } = require('../utils/http');
+const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, routeDb, stationMappingDb } = require('../db');
 
-// Recording data directory
-const recordingDataDir = path.join(__dirname, '..', 'recording_data');
-const processedDataDir = path.join(__dirname, '..', 'processed_data');
+// Get the directory where the app is running from
+const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
 
 /**
  * Calculate distance between two lat/lng points using Haversine formula
@@ -14,65 +13,17 @@ const processedDataDir = path.join(__dirname, '..', 'processed_data');
  */
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000; // Earth's radius in meters
-    const phi1 = lat1 * Math.PI / 180;
-    const phi2 = lat2 * Math.PI / 180;
-    const deltaPhi = (lat2 - lat1) * Math.PI / 180;
-    const deltaLambda = (lon2 - lon1) * Math.PI / 180;
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
 
-    const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-              Math.cos(phi1) * Math.cos(phi2) *
-              Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c;
-}
-
-/**
- * Follow the route path from a starting coordinate index for a specified distance
- * Returns {latitude, longitude} of the point on the route that is distance meters ahead
- */
-function followRoutePath(coordinates, startIndex, distanceMeters) {
-    if (startIndex >= coordinates.length - 1) {
-        const lastCoord = coordinates[coordinates.length - 1];
-        return {
-            latitude: lastCoord.latitude,
-            longitude: lastCoord.longitude
-        };
-    }
-
-    let remainingDistance = distanceMeters;
-    let currentIndex = startIndex;
-
-    while (currentIndex < coordinates.length - 1 && remainingDistance > 0) {
-        const current = coordinates[currentIndex];
-        const next = coordinates[currentIndex + 1];
-
-        const segmentDistance = calculateDistance(
-            current.latitude,
-            current.longitude,
-            next.latitude,
-            next.longitude
-        );
-
-        if (segmentDistance >= remainingDistance) {
-            // The target point is within this segment - interpolate
-            const ratio = remainingDistance / segmentDistance;
-            return {
-                latitude: current.latitude + (next.latitude - current.latitude) * ratio,
-                longitude: current.longitude + (next.longitude - current.longitude) * ratio
-            };
-        }
-
-        remainingDistance -= segmentDistance;
-        currentIndex++;
-    }
-
-    // Reached the end of the route
-    const lastCoord = coordinates[coordinates.length - 1];
-    return {
-        latitude: lastCoord.latitude,
-        longitude: lastCoord.longitude
-    };
 }
 
 /**
@@ -102,39 +53,195 @@ function findNearestCoordinateIndex(coordinates, targetLat, targetLon) {
 }
 
 /**
- * Process markers and calculate their actual positions
+ * Follow the route path from a starting coordinate index for a specified distance
+ * Returns {latitude, longitude} of the point on the route that is distance meters ahead
  */
-function processMarkers(data, timetableStations) {
-    if (!data.coordinates || !Array.isArray(data.coordinates) || data.coordinates.length === 0) {
-        return { method1Count: 0, method2Count: 0, errorCount: 0 };
+function followRoutePath(coordinates, startIndex, distanceMeters) {
+    if (startIndex >= coordinates.length - 1) {
+        // Already at or past the end
+        const lastCoord = coordinates[coordinates.length - 1];
+        return {
+            latitude: lastCoord.latitude,
+            longitude: lastCoord.longitude
+        };
     }
 
-    if (!data.markers || !Array.isArray(data.markers)) {
-        return { method1Count: 0, method2Count: 0, errorCount: 0 };
+    let remainingDistance = distanceMeters;
+    let currentIndex = startIndex;
+
+    // Walk along the route, accumulating distance
+    while (currentIndex < coordinates.length - 1 && remainingDistance > 0) {
+        const current = coordinates[currentIndex];
+        const next = coordinates[currentIndex + 1];
+
+        const segmentDistance = calculateDistance(
+            current.latitude,
+            current.longitude,
+            next.latitude,
+            next.longitude
+        );
+
+        if (segmentDistance >= remainingDistance) {
+            // The target point is within this segment
+            // Interpolate between current and next
+            const ratio = remainingDistance / segmentDistance;
+            return {
+                latitude: current.latitude + (next.latitude - current.latitude) * ratio,
+                longitude: current.longitude + (next.longitude - current.longitude) * ratio
+            };
+        }
+
+        // Move to next segment
+        remainingDistance -= segmentDistance;
+        currentIndex++;
     }
 
-    let method1Count = 0;
-    let method2Count = 0;
-    let errorCount = 0;
+    // Reached the end of the route
+    const lastCoord = coordinates[coordinates.length - 1];
+    return {
+        latitude: lastCoord.latitude,
+        longitude: lastCoord.longitude
+    };
+}
 
-    for (let i = 0; i < data.markers.length; i++) {
-        const marker = data.markers[i];
-        const markerName = marker.stationName || marker.markerName || `Marker ${i + 1}`;
+/**
+ * Pre-process raw timetable entries into proper station entries
+ * Following the logic from extract.js writeToJSONRouteSkeleton:
+ * - WAIT FOR SERVICE + LOAD PASSENGERS = First station (arrival from WAIT, departure from LOAD)
+ * - STOP AT LOCATION + LOAD PASSENGERS = Station stop (arrival from STOP, departure from LOAD)
+ * - UNLOAD PASSENGERS = Final stop
+ * - LOAD PASSENGERS alone is NOT a station entry
+ *
+ * @param {Array} rawEntries - Raw timetable entries from database
+ * @param {Object} stationNameMapping - Map of display names to API names
+ * @returns {Array} Processed station entries with proper arrival/departure times and apiName
+ */
+function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
+    // Same logic as writeToJSONRouteSkeleton in timetableController.js
+    // and ThirdRails export in show.html
+    const processedEntries = [];
+    let index = 0;
 
-        // Check if this marker is a timetable station
-        marker.isTimetableStation = timetableStations.includes(marker.stationName);
+    for (let i = 0; i < rawEntries.length; i++) {
+        const entry = rawEntries[i];
+        const action = (entry.action || '').toUpperCase().trim();
 
+        if (action === 'WAIT FOR SERVICE') {
+            const destination = entry.location || '';
+            const platform = entry.platform || '';
+            // WAIT FOR SERVICE: arrival is time2
+            const arrival = entry.time2 || '';
+            let departure = '';
+
+            // Look for following LOAD PASSENGERS to get departure time
+            if (i + 1 < rawEntries.length) {
+                const nextEntry = rawEntries[i + 1];
+                if ((nextEntry.action || '').toUpperCase().trim() === 'LOAD PASSENGERS') {
+                    departure = nextEntry.time1 || '';
+                    i++; // Skip the LOAD PASSENGERS entry
+                } else {
+                    // No LOAD PASSENGERS after: departure = time2 (same as arrival)
+                    departure = arrival;
+                }
+            } else {
+                // No next entry: departure = time2 (same as arrival)
+                departure = arrival;
+            }
+
+            // Build apiName: mapped destination + " Platform " + platform
+            const mappedDestination = stationNameMapping[destination] || destination;
+            const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+
+            processedEntries.push({
+                index: index++,
+                destination: destination,
+                arrival: arrival,
+                departure: departure,
+                platform: platform,
+                apiName: apiName,
+                latitude: null,
+                longitude: null
+            });
+        } else if (action === 'STOP AT LOCATION') {
+            const destination = entry.location || '';
+            const platform = entry.platform || '';
+            // STOP AT LOCATION: arrival is time1
+            const arrival = entry.time1 || '';
+            let departure = '';
+
+            // Look for following LOAD PASSENGERS to get departure time
+            if (i + 1 < rawEntries.length) {
+                const nextEntry = rawEntries[i + 1];
+                if ((nextEntry.action || '').toUpperCase().trim() === 'LOAD PASSENGERS') {
+                    departure = nextEntry.time1 || '';
+                    i++; // Skip the LOAD PASSENGERS entry
+                }
+            }
+
+            // Build apiName: mapped destination + " Platform " + platform
+            const mappedDestination = stationNameMapping[destination] || destination;
+            const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+
+            processedEntries.push({
+                index: index++,
+                destination: destination,
+                arrival: arrival,
+                departure: departure,
+                platform: platform,
+                apiName: apiName,
+                latitude: null,
+                longitude: null
+            });
+        } else if (action === 'UNLOAD PASSENGERS') {
+            // UNLOAD PASSENGERS with location = final stop
+            const destination = entry.location || '';
+            if (destination && destination !== '-') {
+                const platform = entry.platform || '';
+                const arrival = entry.time1 || '';
+                const mappedDestination = stationNameMapping[destination] || destination;
+                const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+
+                processedEntries.push({
+                    index: index++,
+                    destination: destination,
+                    arrival: arrival,
+                    departure: '',
+                    platform: platform,
+                    apiName: apiName,
+                    latitude: null,
+                    longitude: null
+                });
+            }
+        }
+        // LOAD PASSENGERS alone is skipped - handled above with WAIT/STOP
+    }
+
+    return processedEntries;
+}
+
+/**
+ * Calculate marker positions using the route path
+ * Priority: 1) onspot + spoton_distance, 2) detectedAt + distanceAheadMeters
+ */
+function calculateMarkerPositions(markers, coordinates) {
+    const results = {
+        method1Count: 0,  // onspot
+        method2Count: 0,  // detectedAt
+        errorCount: 0
+    };
+
+    for (const marker of markers) {
         try {
-            // Method 1: Use onspot position and spoton_distance
+            // Method 1: Use onspot position and spoton_distance (most accurate)
             if (marker.onspot_latitude && marker.onspot_longitude && marker.spoton_distance !== undefined) {
                 const nearestIndex = findNearestCoordinateIndex(
-                    data.coordinates,
+                    coordinates,
                     marker.onspot_latitude,
                     marker.onspot_longitude
                 );
 
                 const position = followRoutePath(
-                    data.coordinates,
+                    coordinates,
                     nearestIndex,
                     marker.spoton_distance
                 );
@@ -142,18 +249,18 @@ function processMarkers(data, timetableStations) {
                 marker.latitude = position.latitude;
                 marker.longitude = position.longitude;
                 marker.calculationMethod = 'onspot';
-                method1Count++;
+                results.method1Count++;
             }
             // Method 2: Use detectedAt position and distanceAheadMeters
             else if (marker.detectedAt && marker.detectedAt.latitude && marker.detectedAt.longitude && marker.distanceAheadMeters !== undefined) {
                 const nearestIndex = findNearestCoordinateIndex(
-                    data.coordinates,
+                    coordinates,
                     marker.detectedAt.latitude,
                     marker.detectedAt.longitude
                 );
 
                 const position = followRoutePath(
-                    data.coordinates,
+                    coordinates,
                     nearestIndex,
                     marker.distanceAheadMeters
                 );
@@ -161,171 +268,217 @@ function processMarkers(data, timetableStations) {
                 marker.latitude = position.latitude;
                 marker.longitude = position.longitude;
                 marker.calculationMethod = 'detectedAt';
-                method2Count++;
+                results.method2Count++;
             }
             else {
                 marker.calculationMethod = 'none';
-                errorCount++;
+                results.errorCount++;
             }
         } catch (error) {
+            console.error(`Error processing marker ${marker.stationName}:`, error.message);
             marker.calculationMethod = 'error';
-            errorCount++;
+            results.errorCount++;
+        }
+    }
+
+    return results;
+}
+
+/**
+ * Map timetable entries to marker coordinates using EXACT apiName matching
+ * apiName must be 100% identical to marker stationName for a match
+ * Returns updated timetable entries with coordinates
+ */
+function mapTimetableToMarkers(timetableEntries, markers) {
+    const markerMap = new Map();
+
+    // Build a map of marker names to coordinates
+    for (const marker of markers) {
+        if (marker.latitude && marker.longitude) {
+            markerMap.set(marker.stationName, {
+                latitude: marker.latitude,
+                longitude: marker.longitude
+            });
+        }
+    }
+
+    // Map coordinates to timetable entries using EXACT apiName matching only
+    for (const entry of timetableEntries) {
+        // Skip if entry already has user-entered coordinates
+        if (entry.latitude && entry.longitude) {
+            continue;
         }
 
-        // Clean up unnecessary fields
-        delete marker.detectedAt;
-        delete marker.distanceAheadMeters;
-        delete marker.timestamp;
-        delete marker.platformLength;
-        delete marker.calculationMethod;
-        delete marker.onspot_latitude;
-        delete marker.onspot_longitude;
-        delete marker.onspot_timestamp;
-        delete marker.spoton_distance;
+        // Skip if no apiName - only entries with valid apiName can get coordinates
+        if (!entry.apiName || !entry.apiName.trim()) {
+            continue;
+        }
+
+        // EXACT match only - apiName must be 100% identical to marker stationName
+        const coords = markerMap.get(entry.apiName);
+
+        if (coords) {
+            entry.latitude = coords.latitude;
+            entry.longitude = coords.longitude;
+        }
     }
 
-    return { method1Count, method2Count, errorCount };
+    return timetableEntries;
 }
 
 /**
- * Process a recording file
+ * Process a timetable's recording data
+ * This calculates marker positions and maps them to timetable entries
  */
-function processRecordingFile(inputPath, outputPath) {
-    const data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
-
-    // Get timetable station names
-    let timetableStations = [];
-    if (data.timetable && Array.isArray(data.timetable)) {
-        timetableStations = data.timetable.map(stop => stop.apiName || stop.destination).filter(name => name);
-    }
-
-    // Process markers
-    const result = processMarkers(data, timetableStations);
-
-    // Clean up processing metadata
-    delete data.markersProcessed;
-    delete data.markersProcessedTimestamp;
-    delete data.processingVersion;
-
-    // Write output file
-    fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
-
-    return {
-        success: true,
-        routeName: data.routeName,
-        coordinateCount: data.coordinates ? data.coordinates.length : 0,
-        markerCount: data.markers ? data.markers.length : 0,
-        ...result
-    };
-}
-
-/**
- * Process a recording and update timetable entries with calculated coordinates
- */
-async function process(req, res, filename) {
-    if (!filename) {
-        sendJson(res, { error: 'Filename is required' }, 400);
-        return;
-    }
-
-    const inputPath = path.join(recordingDataDir, filename);
-    if (!fs.existsSync(inputPath)) {
-        sendJson(res, { error: 'Recording file not found' }, 404);
-        return;
-    }
-
-    // Create processed data directory if it doesn't exist
-    if (!fs.existsSync(processedDataDir)) {
-        fs.mkdirSync(processedDataDir, { recursive: true });
-    }
-
-    // Generate output filename
-    const outputFilename = filename.replace('raw_data_', '');
-    const outputPath = path.join(processedDataDir, outputFilename);
-
+async function processRecordingData(req, res) {
     try {
-        const result = processRecordingFile(inputPath, outputPath);
+        const body = await parseBody(req);
+        const { timetableId } = body;
 
-        // If there's a timetableId, update the database entries with calculated coordinates
-        const data = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
-        if (data.timetableId && data.markers) {
-            const entries = entryDb.getByTimetableId(data.timetableId);
+        if (!timetableId) {
+            sendJson(res, { error: 'timetableId is required' }, 400);
+            return;
+        }
 
-            for (const marker of data.markers) {
-                if (marker.latitude && marker.longitude && marker.isTimetableStation) {
-                    // Find matching entry
-                    const entry = entries.find(e =>
-                        e.location === marker.stationName ||
-                        e.details === marker.stationName
-                    );
-                    if (entry && (!entry.latitude || !entry.longitude)) {
-                        entry.latitude = marker.latitude.toString();
-                        entry.longitude = marker.longitude.toString();
-                        entryDb.update(entry.id, entry);
-                    }
-                }
+        // Get timetable info
+        const timetable = timetableDb.getById(timetableId);
+        if (!timetable) {
+            sendJson(res, { error: 'Timetable not found' }, 404);
+            return;
+        }
+
+        // Get coordinates
+        const coordinates = timetableCoordinateDb.getByTimetableId(timetableId);
+        if (!coordinates || coordinates.length === 0) {
+            sendJson(res, { error: 'No coordinates found for this timetable' }, 400);
+            return;
+        }
+
+        // Get markers
+        const markers = timetableMarkerDb.getByTimetableId(timetableId);
+
+        // Get timetable entries
+        const entries = entryDb.getByTimetableId(timetableId);
+
+        console.log(`Processing timetable ${timetableId}: ${timetable.service_name}`);
+        console.log(`  Coordinates: ${coordinates.length}`);
+        console.log(`  Markers: ${markers.length}`);
+        console.log(`  Entries: ${entries.length}`);
+
+        // Calculate marker positions
+        const markerResults = calculateMarkerPositions(markers, coordinates);
+        console.log(`  Marker processing: ${markerResults.method1Count} onspot, ${markerResults.method2Count} detectedAt, ${markerResults.errorCount} errors`);
+
+        // Update markers in database with calculated positions
+        for (const marker of markers) {
+            if (marker.latitude && marker.longitude) {
+                // Update the marker in database
+                timetableMarkerDb.update(marker.id, {
+                    station_name: marker.station_name,
+                    marker_type: marker.marker_type,
+                    latitude: marker.latitude,
+                    longitude: marker.longitude,
+                    platform_length: marker.platform_length
+                });
             }
         }
+
+        // Load station name mapping from database
+        // Gets route-specific mappings plus global mappings (route_id = NULL)
+        let stationNameMapping = {};
+        if (timetable.route_id) {
+            stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
+            const mappingCount = Object.keys(stationNameMapping).length;
+            if (mappingCount > 0) {
+                console.log(`  Loaded ${mappingCount} station name mappings from database`);
+            }
+        } else {
+            // Get global mappings only
+            stationNameMapping = stationMappingDb.getMappingObject(null);
+            const mappingCount = Object.keys(stationNameMapping).length;
+            if (mappingCount > 0) {
+                console.log(`  Loaded ${mappingCount} global station name mappings`);
+            }
+        }
+
+        // Pre-process raw timetable entries into proper station entries
+        // This combines WAIT FOR SERVICE + LOAD PASSENGERS, STOP + LOAD PASSENGERS, etc.
+        // and generates apiName from station mapping
+        const timetableEntries = preprocessTimetableEntries(entries, stationNameMapping);
+        console.log(`  Preprocessed ${entries.length} raw entries into ${timetableEntries.length} station entries`);
+
+        // Preserve any user-entered coordinates from original entries
+        // Match by destination/location since indices may differ after preprocessing
+        // Only match if destination is not empty to avoid false matches
+        for (const entry of timetableEntries) {
+            if (!entry.destination || !entry.destination.trim()) {
+                continue; // Skip entries with empty destination
+            }
+            const originalEntry = entries.find(e =>
+                (e.location || e.details) === entry.destination &&
+                e.latitude && e.longitude
+            );
+            if (originalEntry) {
+                entry.latitude = parseFloat(originalEntry.latitude);
+                entry.longitude = parseFloat(originalEntry.longitude);
+            }
+        }
+
+        // Map timetable entries to marker coordinates (EXACT apiName matching only)
+        const processedMarkers = markers.map(m => ({
+            stationName: m.station_name,
+            latitude: m.latitude,
+            longitude: m.longitude
+        }));
+
+        mapTimetableToMarkers(timetableEntries, processedMarkers);
+
+        // Log apiName matching results for debugging
+        let matchedCount = 0;
+        let unmatchedEntries = [];
+        for (const entry of timetableEntries) {
+            if (entry.latitude && entry.longitude) {
+                matchedCount++;
+            } else if (entry.apiName) {
+                unmatchedEntries.push({ destination: entry.destination, apiName: entry.apiName });
+            }
+        }
+        console.log(`  Coordinate matching: ${matchedCount} matched, ${unmatchedEntries.length} with apiName but no match`);
+        if (unmatchedEntries.length > 0 && unmatchedEntries.length <= 5) {
+            console.log(`    Unmatched apiNames: ${unmatchedEntries.map(e => e.apiName).join(', ')}`);
+        }
+
+        // Note: We don't update the original entries in database here
+        // The preprocessed entries are used for export/display only
+        // Raw entries are preserved in the database for flexibility
+        console.log(`  Preprocessed timetable ready for export`);
 
         sendJson(res, {
-            ...result,
-            inputFile: filename,
-            outputFile: outputFilename
+            success: true,
+            timetableId,
+            serviceName: timetable.service_name,
+            coordinateCount: coordinates.length,
+            markerCount: markers.length,
+            rawEntryCount: entries.length,
+            processedEntryCount: timetableEntries.length,
+            markerProcessing: markerResults,
+            entriesMatched: matchedCount,
+            entriesUnmatched: unmatchedEntries.length
         });
+
     } catch (err) {
-        sendJson(res, { error: 'Processing failed: ' + err.message }, 500);
+        console.error('Error processing recording data:', err);
+        sendJson(res, { error: err.message }, 500);
     }
 }
 
 /**
- * List processed files
- */
-function listProcessed(req, res) {
-    if (!fs.existsSync(processedDataDir)) {
-        sendJson(res, []);
-        return;
-    }
-
-    const files = fs.readdirSync(processedDataDir)
-        .filter(f => f.endsWith('.json'))
-        .map(f => {
-            const filePath = path.join(processedDataDir, f);
-            const stats = fs.statSync(filePath);
-            try {
-                const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                return {
-                    filename: f,
-                    routeName: data.routeName || 'Unknown',
-                    timetableId: data.timetableId,
-                    coordinateCount: data.coordinates?.length || 0,
-                    markerCount: data.markers?.length || 0,
-                    size: stats.size,
-                    modified: stats.mtime
-                };
-            } catch (err) {
-                return {
-                    filename: f,
-                    error: 'Could not parse file',
-                    size: stats.size,
-                    modified: stats.mtime
-                };
-            }
-        })
-        .sort((a, b) => new Date(b.modified) - new Date(a.modified));
-
-    sendJson(res, files);
-}
-
-/**
- * Get a specific processed file
+ * Get a processed recording file from the recording_data folder
  */
 function getProcessedFile(req, res, filename) {
-    if (!filename) {
-        sendJson(res, { error: 'Filename is required' }, 400);
-        return;
-    }
+    const recordingDir = path.join(appDir, 'recording_data');
+    const filePath = path.join(recordingDir, filename);
 
-    const filePath = path.join(processedDataDir, filename);
     if (!fs.existsSync(filePath)) {
         sendJson(res, { error: 'File not found' }, 404);
         return;
@@ -335,15 +488,123 @@ function getProcessedFile(req, res, filename) {
         const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         sendJson(res, data);
     } catch (err) {
-        sendJson(res, { error: 'Could not read file' }, 500);
+        sendJson(res, { error: 'Failed to read file: ' + err.message }, 500);
     }
 }
 
+/**
+ * List available recording files
+ */
+function listRecordingFiles(req, res) {
+    const recordingDir = path.join(appDir, 'recording_data');
+
+    if (!fs.existsSync(recordingDir)) {
+        sendJson(res, { files: [] });
+        return;
+    }
+
+    const files = fs.readdirSync(recordingDir)
+        .filter(f => f.endsWith('.json'))
+        .map(f => {
+            const filePath = path.join(recordingDir, f);
+            const stats = fs.statSync(filePath);
+            return {
+                filename: f,
+                size: stats.size,
+                modified: stats.mtime
+            };
+        })
+        .sort((a, b) => b.modified - a.modified);
+
+    sendJson(res, { files });
+}
+
+/**
+ * Process a recording file (file-based processing)
+ * Kept for backwards compatibility
+ */
+async function process(req, res, filename) {
+    const recordingDir = path.join(appDir, 'recording_data');
+    const processedDir = path.join(appDir, 'processed_data');
+
+    // Ensure processed directory exists
+    if (!fs.existsSync(processedDir)) {
+        fs.mkdirSync(processedDir, { recursive: true });
+    }
+
+    if (!filename) {
+        sendJson(res, { error: 'filename is required' }, 400);
+        return;
+    }
+
+    const inputPath = path.join(recordingDir, filename);
+    if (!fs.existsSync(inputPath)) {
+        sendJson(res, { error: 'File not found' }, 404);
+        return;
+    }
+
+    try {
+        const data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+
+        // Calculate marker positions if we have coordinates
+        if (data.coordinates && data.coordinates.length > 0 && data.markers) {
+            const results = calculateMarkerPositions(data.markers, data.coordinates);
+            console.log(`Processed ${filename}: ${results.method1Count} onspot, ${results.method2Count} detectedAt, ${results.errorCount} errors`);
+        }
+
+        // Save processed file
+        const outputPath = path.join(processedDir, filename);
+        fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
+
+        sendJson(res, {
+            success: true,
+            filename,
+            outputPath: outputPath
+        });
+    } catch (err) {
+        console.error('Error processing file:', err);
+        sendJson(res, { error: err.message }, 500);
+    }
+}
+
+/**
+ * List processed files
+ */
+function listProcessed(req, res) {
+    const processedDir = path.join(appDir, 'processed_data');
+
+    if (!fs.existsSync(processedDir)) {
+        sendJson(res, { files: [] });
+        return;
+    }
+
+    const files = fs.readdirSync(processedDir)
+        .filter(f => f.endsWith('.json'))
+        .map(f => {
+            const filePath = path.join(processedDir, f);
+            const stats = fs.statSync(filePath);
+            return {
+                filename: f,
+                size: stats.size,
+                modified: stats.mtime
+            };
+        })
+        .sort((a, b) => b.modified - a.modified);
+
+    sendJson(res, { files });
+}
+
 module.exports = {
-    process,
-    listProcessed,
-    getProcessedFile,
     calculateDistance,
+    findNearestCoordinateIndex,
     followRoutePath,
-    findNearestCoordinateIndex
+    preprocessTimetableEntries,
+    calculateMarkerPositions,
+    mapTimetableToMarkers,
+    processRecordingData,
+    getProcessedFile,
+    listRecordingFiles,
+    // Aliases for route compatibility
+    process,
+    listProcessed
 };

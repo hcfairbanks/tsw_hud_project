@@ -160,35 +160,6 @@ async function initDatabase() {
         )
     `);
 
-    // Route coordinates table - stores GPS coordinates for a route
-    db.run(`
-        CREATE TABLE IF NOT EXISTS route_coordinates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            route_id INTEGER NOT NULL,
-            latitude REAL NOT NULL,
-            longitude REAL NOT NULL,
-            height REAL,
-            gradient REAL,
-            sort_order INTEGER NOT NULL,
-            FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE
-        )
-    `);
-
-    // Route markers table - stores markers/stations discovered on a route
-    db.run(`
-        CREATE TABLE IF NOT EXISTS route_markers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            route_id INTEGER NOT NULL,
-            station_name TEXT NOT NULL,
-            marker_type TEXT,
-            latitude REAL,
-            longitude REAL,
-            platform_length REAL,
-            is_timetable_station INTEGER DEFAULT 0,
-            FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE
-        )
-    `);
-
     // Timetable coordinates table - stores GPS coordinates for a timetable recording
     db.run(`
         CREATE TABLE IF NOT EXISTS timetable_coordinates (
@@ -218,13 +189,28 @@ async function initDatabase() {
         )
     `);
 
+    // Station name mappings table - maps display names to API names
+    // Can be route-specific or global (route_id = NULL)
+    db.run(`
+        CREATE TABLE IF NOT EXISTS station_name_mappings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            route_id INTEGER,
+            display_name TEXT NOT NULL,
+            api_name TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE,
+            UNIQUE(route_id, display_name)
+        )
+    `);
+
     // Create index for faster coordinate lookups
     try {
-        db.run('CREATE INDEX IF NOT EXISTS idx_route_coordinates_route_id ON route_coordinates(route_id)');
-        db.run('CREATE INDEX IF NOT EXISTS idx_route_markers_route_id ON route_markers(route_id)');
         db.run('CREATE INDEX IF NOT EXISTS idx_timetable_coordinates_timetable_id ON timetable_coordinates(timetable_id)');
         db.run('CREATE INDEX IF NOT EXISTS idx_timetable_markers_timetable_id ON timetable_markers(timetable_id)');
     } catch (e) { /* indexes may already exist */ }
+
+    // Seed default countries
+    seedCountries();
 
     // Migrate existing country text values to countries table
     migrateCountries();
@@ -258,6 +244,35 @@ function seedWeatherPresets() {
             VALUES ('Rainy Day', 12, 0.9, 0.8, 0.7, 0, 0, 0.3)`);
 
     console.log('✓ Weather presets seeded');
+}
+
+// Seed default countries
+function seedCountries() {
+    const countryCount = db.exec('SELECT COUNT(*) FROM countries')[0]?.values[0][0] || 0;
+    if (countryCount > 0) {
+        return; // Already seeded
+    }
+
+    console.log('Seeding countries...');
+
+    const countries = [
+        { name: 'United Kingdom', code: 'GB' },
+        { name: 'Germany', code: 'DE' },
+        { name: 'United States', code: 'US' },
+        { name: 'France', code: 'FR' },
+        { name: 'Austria', code: 'AT' },
+        { name: 'Switzerland', code: 'CH' },
+        { name: 'Netherlands', code: 'NL' },
+        { name: 'Ireland', code: 'IE' },
+        { name: 'Canada', code: 'CA' },
+        { name: 'Italy', code: 'IT' }
+    ];
+
+    for (const country of countries) {
+        db.run('INSERT INTO countries (name, code) VALUES (?, ?)', [country.name, country.code]);
+    }
+
+    console.log(`✓ ${countries.length} countries seeded`);
 }
 
 // Migrate existing country text values to countries table and link routes
@@ -349,6 +364,64 @@ async function seedDatabase() {
     
     saveDatabase();
     console.log('✓ Database seeded successfully');
+
+    // Seed station name mappings after routes are seeded
+    seedStationMappings();
+}
+
+// Seed station name mappings from JSON file
+function seedStationMappings() {
+    const mappingsFile = path.join(__dirname, 'seed_station_mappings.json');
+
+    if (!fs.existsSync(mappingsFile)) {
+        console.log('⚠ Station mappings seed file not found, skipping');
+        return;
+    }
+
+    // Check if already seeded
+    const mappingCount = db.exec('SELECT COUNT(*) FROM station_name_mappings')[0]?.values[0][0] || 0;
+    if (mappingCount > 0) {
+        console.log(`✓ Database already has ${mappingCount} station mappings, skipping seed`);
+        return;
+    }
+
+    console.log('Seeding station name mappings...');
+
+    const mappings = JSON.parse(fs.readFileSync(mappingsFile, 'utf8'));
+
+    // Group by route name and look up route IDs
+    const routeCache = {};
+    let insertedCount = 0;
+
+    for (const mapping of mappings) {
+        let routeId = null;
+
+        if (mapping.route_name) {
+            // Look up route ID by name (use cache to avoid repeated queries)
+            if (!(mapping.route_name in routeCache)) {
+                const result = db.exec('SELECT id FROM routes WHERE name = ?', [mapping.route_name]);
+                routeCache[mapping.route_name] = result.length > 0 && result[0].values.length > 0
+                    ? result[0].values[0][0]
+                    : null;
+            }
+            routeId = routeCache[mapping.route_name];
+
+            if (routeId === null) {
+                console.log(`  ⚠ Route not found: "${mapping.route_name}", skipping mapping`);
+                continue;
+            }
+        }
+
+        // Insert the mapping
+        db.run(
+            'INSERT INTO station_name_mappings (route_id, display_name, api_name) VALUES (?, ?, ?)',
+            [routeId, mapping.display_name, mapping.api_name]
+        );
+        insertedCount++;
+    }
+
+    saveDatabase();
+    console.log(`  ✓ Inserted ${insertedCount} station name mappings`);
 }
 
 // Save database to file
@@ -729,106 +802,6 @@ const weatherPresetDb = {
     }
 };
 
-// Route coordinates CRUD operations
-const routeCoordinateDb = {
-    getByRouteId: (routeId) => {
-        const stmt = db.prepare('SELECT * FROM route_coordinates WHERE route_id = ? ORDER BY sort_order');
-        stmt.bind([routeId]);
-        const results = [];
-        while (stmt.step()) {
-            results.push(stmt.getAsObject());
-        }
-        stmt.free();
-        return results;
-    },
-    getCount: (routeId) => {
-        const result = db.exec('SELECT COUNT(*) FROM route_coordinates WHERE route_id = ?', [routeId]);
-        return result.length > 0 ? result[0].values[0][0] : 0;
-    },
-    deleteByRouteId: (routeId) => {
-        db.run('DELETE FROM route_coordinates WHERE route_id = ?', [routeId]);
-        saveDatabase();
-    },
-    bulkInsert: (routeId, coordinates) => {
-        // Delete existing coordinates first
-        db.run('DELETE FROM route_coordinates WHERE route_id = ?', [routeId]);
-
-        // Insert new coordinates
-        const stmt = db.prepare('INSERT INTO route_coordinates (route_id, latitude, longitude, height, gradient, sort_order) VALUES (?, ?, ?, ?, ?, ?)');
-        for (let i = 0; i < coordinates.length; i++) {
-            const coord = coordinates[i];
-            stmt.run([routeId, coord.latitude, coord.longitude, coord.height || null, coord.gradient || null, i]);
-        }
-        stmt.free();
-        saveDatabase();
-        return coordinates.length;
-    }
-};
-
-// Route markers CRUD operations
-const routeMarkerDb = {
-    getByRouteId: (routeId) => {
-        const stmt = db.prepare('SELECT * FROM route_markers WHERE route_id = ? ORDER BY id');
-        stmt.bind([routeId]);
-        const results = [];
-        while (stmt.step()) {
-            results.push(stmt.getAsObject());
-        }
-        stmt.free();
-        return results;
-    },
-    getCount: (routeId) => {
-        const result = db.exec('SELECT COUNT(*) FROM route_markers WHERE route_id = ?', [routeId]);
-        return result.length > 0 ? result[0].values[0][0] : 0;
-    },
-    deleteByRouteId: (routeId) => {
-        db.run('DELETE FROM route_markers WHERE route_id = ?', [routeId]);
-        saveDatabase();
-    },
-    create: (routeId, marker) => {
-        db.run(
-            'INSERT INTO route_markers (route_id, station_name, marker_type, latitude, longitude, platform_length, is_timetable_station) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [routeId, marker.stationName || marker.station_name, marker.markerType || marker.marker_type || 'Station',
-             marker.latitude || null, marker.longitude || null, marker.platformLength || marker.platform_length || null,
-             marker.isTimetableStation || marker.is_timetable_station ? 1 : 0]
-        );
-        const result = db.exec('SELECT last_insert_rowid() as id');
-        const lastId = result.length > 0 && result[0].values.length > 0 ? result[0].values[0][0] : 0;
-        saveDatabase();
-        return { lastInsertRowid: lastId };
-    },
-    update: (id, marker) => {
-        db.run(
-            'UPDATE route_markers SET station_name = ?, marker_type = ?, latitude = ?, longitude = ?, platform_length = ?, is_timetable_station = ? WHERE id = ?',
-            [marker.stationName || marker.station_name, marker.markerType || marker.marker_type || 'Station',
-             marker.latitude || null, marker.longitude || null, marker.platformLength || marker.platform_length || null,
-             marker.isTimetableStation || marker.is_timetable_station ? 1 : 0, id]
-        );
-        saveDatabase();
-    },
-    bulkInsert: (routeId, markers) => {
-        // Delete existing markers first
-        db.run('DELETE FROM route_markers WHERE route_id = ?', [routeId]);
-
-        // Insert new markers
-        const stmt = db.prepare('INSERT INTO route_markers (route_id, station_name, marker_type, latitude, longitude, platform_length, is_timetable_station) VALUES (?, ?, ?, ?, ?, ?, ?)');
-        for (const marker of markers) {
-            stmt.run([
-                routeId,
-                marker.stationName || marker.station_name,
-                marker.markerType || marker.marker_type || 'Station',
-                marker.latitude || null,
-                marker.longitude || null,
-                marker.platformLength || marker.platform_length || null,
-                marker.isTimetableStation || marker.is_timetable_station ? 1 : 0
-            ]);
-        }
-        stmt.free();
-        saveDatabase();
-        return markers.length;
-    }
-};
-
 // Timetable coordinates CRUD operations
 const timetableCoordinateDb = {
     getByTimetableId: (timetableId) => {
@@ -905,6 +878,20 @@ const timetableMarkerDb = {
         stmt.free();
         saveDatabase();
         return markers.length;
+    },
+    update: (id, marker) => {
+        db.run(
+            'UPDATE timetable_markers SET station_name = ?, marker_type = ?, latitude = ?, longitude = ?, platform_length = ? WHERE id = ?',
+            [
+                marker.station_name || marker.stationName,
+                marker.marker_type || marker.markerType || 'Station',
+                marker.latitude || null,
+                marker.longitude || null,
+                marker.platform_length || marker.platformLength || null,
+                id
+            ]
+        );
+        saveDatabase();
     }
 };
 
@@ -1004,88 +991,123 @@ const timetableDataDb = {
     }
 };
 
-// Build complete route data from database
-const routeDataDb = {
-    // Get full route data with coordinates, markers, and timetable
-    getFullRouteData: (routeId, timetableId = null) => {
-        // Get route info
-        const route = routeDb.getById(routeId);
-        if (!route) return null;
+// Station name mappings CRUD operations
+const stationMappingDb = {
+    // Get all mappings, optionally filtered by route
+    getAll: (routeId = null) => {
+        let query = 'SELECT * FROM station_name_mappings';
+        const params = [];
 
-        // Get coordinates
-        const coordinates = routeCoordinateDb.getByRouteId(routeId);
-
-        // Get markers
-        const markers = routeMarkerDb.getByRouteId(routeId);
-
-        // Get timetable entries if timetableId provided
-        let timetable = [];
-        if (timetableId) {
-            const entries = entryDb.getByTimetableId(timetableId);
-            timetable = entries.map((entry, index) => ({
-                index,
-                destination: entry.location || entry.details || 'Unknown',
-                arrival: entry.time1 || '',
-                departure: entry.time2 || '',
-                platform: entry.platform || '',
-                apiName: entry.location || '',
-                latitude: entry.latitude ? parseFloat(entry.latitude) : null,
-                longitude: entry.longitude ? parseFloat(entry.longitude) : null
-            }));
-
-            // Mark which markers are timetable stations
-            const timetableLocations = new Set(timetable.map(t => t.apiName).filter(n => n));
-            markers.forEach(marker => {
-                marker.isTimetableStation = timetableLocations.has(marker.station_name) ? 1 : 0;
-            });
+        if (routeId !== null) {
+            query += ' WHERE route_id = ? OR route_id IS NULL';
+            params.push(routeId);
         }
 
-        // Build the route data object (same format as JSON files)
-        return {
-            routeName: route.name,
-            routeId: route.id,
-            timetableId: timetableId,
-            totalPoints: coordinates.length,
-            totalMarkers: markers.length,
-            coordinates: coordinates.map(c => ({
-                latitude: c.latitude,
-                longitude: c.longitude,
-                height: c.height,
-                gradient: c.gradient
-            })),
-            markers: markers.map(m => ({
-                stationName: m.station_name,
-                markerType: m.marker_type,
-                latitude: m.latitude,
-                longitude: m.longitude,
-                platformLength: m.platform_length,
-                isTimetableStation: m.is_timetable_station === 1
-            })),
-            timetable: timetable
-        };
-    },
+        query += ' ORDER BY route_id NULLS FIRST, display_name';
 
-    // Check if a route has coordinate data
-    hasCoordinates: (routeId) => {
-        return routeCoordinateDb.getCount(routeId) > 0;
-    },
-
-    // Get routes that have coordinate data
-    getRoutesWithCoordinates: () => {
-        const stmt = db.prepare(`
-            SELECT r.*,
-                   (SELECT COUNT(*) FROM route_coordinates WHERE route_id = r.id) as coordinate_count,
-                   (SELECT COUNT(*) FROM route_markers WHERE route_id = r.id) as marker_count
-            FROM routes r
-            WHERE (SELECT COUNT(*) FROM route_coordinates WHERE route_id = r.id) > 0
-            ORDER BY r.name
-        `);
+        const stmt = db.prepare(query);
+        if (params.length > 0) {
+            stmt.bind(params);
+        }
         const results = [];
         while (stmt.step()) {
             results.push(stmt.getAsObject());
         }
         stmt.free();
         return results;
+    },
+
+    // Get a single mapping by ID
+    getById: (id) => {
+        const stmt = db.prepare('SELECT * FROM station_name_mappings WHERE id = ?');
+        stmt.bind([id]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
+
+    // Get mappings for a specific route (includes global mappings where route_id is NULL)
+    getByRouteId: (routeId) => {
+        const stmt = db.prepare('SELECT * FROM station_name_mappings WHERE route_id = ? OR route_id IS NULL ORDER BY route_id NULLS FIRST, display_name');
+        stmt.bind([routeId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+
+    // Get mapping as a lookup object { displayName: apiName }
+    getMappingObject: (routeId = null) => {
+        const mappings = routeId !== null
+            ? stationMappingDb.getByRouteId(routeId)
+            : stationMappingDb.getAll();
+
+        const result = {};
+        for (const mapping of mappings) {
+            result[mapping.display_name] = mapping.api_name;
+        }
+        return result;
+    },
+
+    // Create a new mapping
+    create: (displayName, apiName, routeId = null) => {
+        const result = db.run(
+            'INSERT INTO station_name_mappings (display_name, api_name, route_id) VALUES (?, ?, ?)',
+            [displayName, apiName, routeId]
+        );
+        saveDatabase();
+        return { lastInsertRowid: db.exec('SELECT last_insert_rowid()')[0].values[0][0] };
+    },
+
+    // Update an existing mapping
+    update: (id, displayName, apiName, routeId = null) => {
+        db.run(
+            'UPDATE station_name_mappings SET display_name = ?, api_name = ?, route_id = ? WHERE id = ?',
+            [displayName, apiName, routeId, id]
+        );
+        saveDatabase();
+    },
+
+    // Delete a mapping
+    delete: (id) => {
+        db.run('DELETE FROM station_name_mappings WHERE id = ?', [id]);
+        saveDatabase();
+    },
+
+    // Delete all mappings for a route
+    deleteByRouteId: (routeId) => {
+        db.run('DELETE FROM station_name_mappings WHERE route_id = ?', [routeId]);
+        saveDatabase();
+    },
+
+    // Bulk insert mappings (useful for importing from JSON files)
+    bulkInsert: (mappings, routeId = null) => {
+        const stmt = db.prepare('INSERT OR REPLACE INTO station_name_mappings (display_name, api_name, route_id) VALUES (?, ?, ?)');
+        for (const mapping of mappings) {
+            stmt.run([
+                mapping.display_name || mapping.displayName,
+                mapping.api_name || mapping.apiName,
+                mapping.route_id !== undefined ? mapping.route_id : routeId
+            ]);
+        }
+        stmt.free();
+        saveDatabase();
+        return mappings.length;
+    },
+
+    // Import from a JSON object { displayName: apiName }
+    importFromObject: (obj, routeId = null) => {
+        const mappings = Object.entries(obj).map(([displayName, apiName]) => ({
+            display_name: displayName,
+            api_name: apiName,
+            route_id: routeId
+        }));
+        return stationMappingDb.bulkInsert(mappings, routeId);
     }
 };
 
@@ -1102,6 +1124,7 @@ function closeDatabase() {
 module.exports = {
     initDatabase,
     seedDatabase,
+    seedStationMappings,
     saveDatabase,
     closeDatabase,
     countryDb,
@@ -1110,10 +1133,8 @@ module.exports = {
     timetableDb,
     entryDb,
     weatherPresetDb,
-    routeCoordinateDb,
-    routeMarkerDb,
-    routeDataDb,
     timetableCoordinateDb,
     timetableMarkerDb,
-    timetableDataDb
+    timetableDataDb,
+    stationMappingDb
 };

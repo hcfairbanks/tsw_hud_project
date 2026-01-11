@@ -1,0 +1,22 @@
+[
+    {
+        "route_name": "West Coast Main Line: London Euston - Milton Keynes",
+        "display_name": "London Euston",
+        "api_name": "Euston"
+    },
+    {
+        "route_name": "West Coast Main Line: London Euston - Milton Keynes",
+        "display_name": "Bletchley Platform",
+        "api_name": "Bletchley"
+    },
+    {
+        "route_name": "West Coast Main Line: London Euston - Milton Keynes",
+        "display_name": "Watford Junction",
+        "api_name": "Watford Jn"
+    },
+    {
+        "route_name": "West Coast Main Line: London Euston - Milton Keynes",
+        "display_name": "Milton Keynes",
+        "api_name": "MiltonKyns"
+    }
+]

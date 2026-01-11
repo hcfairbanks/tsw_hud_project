@@ -1,0 +1,51 @@
+{
+  "routeName": "2T17: London Euston - Tring                                      08:22 00:35",
+  "totalPoints": 0,
+  "totalMarkers": 0,
+  "duration": 0,
+  "requestCount": 0,
+  "coordinates": [],
+  "markers": [],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "",
+      "arrival": "08:22:00",
+      "departure": "08:24:00",
+      "platform": "",
+      "apiName": "",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 1,
+      "destination": "Watford Junction",
+      "arrival": "08:40:30",
+      "departure": "08:41:00",
+      "platform": "8",
+      "apiName": "Watford Junction Platform 8",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 2,
+      "destination": "Hemel Hempstead",
+      "arrival": "08:48:30",
+      "departure": "08:49:00",
+      "platform": "3",
+      "apiName": "Hemel Hempstead Platform 3",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 3,
+      "destination": "Tring",
+      "arrival": "08:57:30",
+      "departure": "",
+      "platform": "4",
+      "apiName": "Tring Platform 4",
+      "longitude": null,
+      "latitude": null
+    }
+  ]
+}

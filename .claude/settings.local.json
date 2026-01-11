@@ -6,7 +6,8 @@
       "Bash(taskkill:*)",
       "Bash(tasklist /FI \"PID eq 25956\")",
       "Bash(powershell -Command:*)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(dir \"c:\\\\Users\\\\hcfai\\\\Desktop\\\\git\\\\tsw_hud_project\\\\db\"\")"
     ]
   }
 }
