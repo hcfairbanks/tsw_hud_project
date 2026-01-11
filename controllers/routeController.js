@@ -25,12 +25,13 @@ const routeController = {
     // POST /api/routes
     create: async (req, res) => {
         const body = await parseBody(req);
-        const result = routeDb.create(body.name, body.country, body.tsw_version || 3);
-        sendJson(res, { 
-            id: result.lastInsertRowid, 
-            name: body.name, 
-            country: body.country, 
-            tsw_version: body.tsw_version || 3 
+        const result = routeDb.create(body.name, body.country, body.tsw_version || 3, body.country_id || null);
+        sendJson(res, {
+            id: result.lastInsertRowid,
+            name: body.name,
+            country: body.country,
+            country_id: body.country_id || null,
+            tsw_version: body.tsw_version || 3
         }, 201);
     },
 
@@ -47,8 +48,8 @@ const routeController = {
     // PUT /api/routes/:id
     update: async (req, res, id) => {
         const body = await parseBody(req);
-        routeDb.update(id, body.name, body.country, body.tsw_version);
-        sendJson(res, { id, name: body.name, country: body.country, tsw_version: body.tsw_version });
+        routeDb.update(id, body.name, body.country, body.tsw_version, body.country_id || null);
+        sendJson(res, { id, name: body.name, country: body.country, country_id: body.country_id || null, tsw_version: body.tsw_version });
     },
 
     // DELETE /api/routes/:id

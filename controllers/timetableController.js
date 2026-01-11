@@ -14,12 +14,14 @@ const timetableController = {
         const body = await parseBody(req);
         console.log('=== CREATE TIMETABLE ===');
         console.log('Body received:', JSON.stringify(body, null, 2));
-        
+
         // Step 1: Create the timetable
         const serviceName = body.service_name || 'Untitled';
-        const result = timetableDb.create(serviceName);
+        const routeId = body.route_id || null;
+        const trainId = body.train_id || null;
+        const result = timetableDb.create(serviceName, routeId, trainId);
         const timetableId = result.lastInsertRowid;
-        console.log('Timetable created with ID:', timetableId);
+        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId);
         
         // Step 2: Create all entries if provided
         const savedEntries = [];
@@ -45,9 +47,11 @@ const timetableController = {
         }
         
         console.log('=== TIMETABLE CREATION COMPLETE ===');
-        sendJson(res, { 
-            id: timetableId, 
+        sendJson(res, {
+            id: timetableId,
             service_name: serviceName,
+            route_id: routeId,
+            train_id: trainId,
             entries: savedEntries
         }, 201);
     },

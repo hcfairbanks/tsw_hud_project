@@ -1,0 +1,20 @@
+- translations
+- color blindeness options
+- make sure all tags have alternative text for text readers and blindness
+- increase font for sight issues
+- settings folder
+    - default language
+    - default color blindeness seatings
+    - default font size
+    - default apikey settings
+    - default 5 / 6 settings 
+- hud
+- map recorder
+- map player
+- Weather
+- Audio player for announcments ?
+
+Other Questions 
+- Markers?
+- Gradiant?
+- height ?

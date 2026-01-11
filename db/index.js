@@ -46,12 +46,24 @@ async function initDatabase() {
     }
     
     // Create tables
+
+    // Countries table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS countries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            code TEXT
+        )
+    `);
+
     db.run(`
         CREATE TABLE IF NOT EXISTS routes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             country TEXT NOT NULL,
-            tsw_version INTEGER NOT NULL DEFAULT 3
+            country_id INTEGER,
+            tsw_version INTEGER NOT NULL DEFAULT 3,
+            FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE SET NULL
         )
     `);
     
@@ -126,9 +138,56 @@ async function initDatabase() {
     try {
         db.run('ALTER TABLE timetables ADD COLUMN train_id INTEGER REFERENCES trains(id) ON DELETE SET NULL');
     } catch (e) { /* column already exists */ }
-    
+
+    // Add country_id column to routes if it doesn't exist (migration)
+    try {
+        db.run('ALTER TABLE routes ADD COLUMN country_id INTEGER REFERENCES countries(id) ON DELETE SET NULL');
+    } catch (e) { /* column already exists */ }
+
+    // Migrate existing country text values to countries table
+    migrateCountries();
+
     saveDatabase();
     console.log('✓ Database initialized');
+}
+
+// Migrate existing country text values to countries table and link routes
+function migrateCountries() {
+    // Get all unique countries from routes
+    const countriesResult = db.exec('SELECT DISTINCT country FROM routes WHERE country IS NOT NULL AND country != ""');
+    if (countriesResult.length === 0 || countriesResult[0].values.length === 0) {
+        return;
+    }
+
+    const existingCountries = db.exec('SELECT COUNT(*) FROM countries');
+    if (existingCountries[0].values[0][0] > 0) {
+        // Countries already migrated
+        return;
+    }
+
+    console.log('Migrating countries...');
+
+    // Insert unique countries
+    for (const row of countriesResult[0].values) {
+        const countryName = row[0];
+        if (countryName) {
+            try {
+                db.run('INSERT OR IGNORE INTO countries (name) VALUES (?)', [countryName]);
+            } catch (e) { /* ignore duplicates */ }
+        }
+    }
+
+    // Update routes to reference country_id
+    const countries = db.exec('SELECT id, name FROM countries');
+    if (countries.length > 0) {
+        for (const row of countries[0].values) {
+            const countryId = row[0];
+            const countryName = row[1];
+            db.run('UPDATE routes SET country_id = ? WHERE country = ?', [countryId, countryName]);
+        }
+    }
+
+    console.log('✓ Countries migrated');
 }
 
 // Seed database with routes and trains from JSON files
@@ -189,6 +248,64 @@ function saveDatabase() {
     const buffer = Buffer.from(data);
     fs.writeFileSync(dbPath, buffer);
 }
+
+// Country CRUD operations
+const countryDb = {
+    getAll: () => {
+        const stmt = db.prepare('SELECT * FROM countries ORDER BY name');
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    getById: (id) => {
+        const stmt = db.prepare('SELECT * FROM countries WHERE id = ?');
+        stmt.bind([id]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
+    getByName: (name) => {
+        const stmt = db.prepare('SELECT * FROM countries WHERE name = ?');
+        stmt.bind([name]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
+    create: (name, code = null) => {
+        db.run('INSERT INTO countries (name, code) VALUES (?, ?)', [name, code]);
+        const result = db.exec('SELECT last_insert_rowid() as id');
+        const lastId = result.length > 0 && result[0].values.length > 0 ? result[0].values[0][0] : 0;
+        saveDatabase();
+        return { lastInsertRowid: lastId };
+    },
+    update: (id, name, code = null) => {
+        db.run('UPDATE countries SET name = ?, code = ? WHERE id = ?', [name, code, id]);
+        saveDatabase();
+    },
+    delete: (id) => {
+        db.run('DELETE FROM countries WHERE id = ?', [id]);
+        saveDatabase();
+    },
+    getRoutes: (countryId) => {
+        const stmt = db.prepare('SELECT * FROM routes WHERE country_id = ? ORDER BY name');
+        stmt.bind([countryId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    }
+};
 
 // Route CRUD operations
 const routeDb = {
@@ -260,14 +377,14 @@ const routeDb = {
         stmt.free();
         return result;
     },
-    create: (name, country, tsw_version = 3) => {
-        db.run('INSERT INTO routes (name, country, tsw_version) VALUES (?, ?, ?)', [name, country, tsw_version]);
+    create: (name, country, tsw_version = 3, country_id = null) => {
+        db.run('INSERT INTO routes (name, country, tsw_version, country_id) VALUES (?, ?, ?, ?)', [name, country, tsw_version, country_id]);
         saveDatabase();
         const lastId = db.exec('SELECT last_insert_rowid() as id')[0].values[0][0];
         return { lastInsertRowid: lastId };
     },
-    update: (id, name, country, tsw_version) => {
-        db.run('UPDATE routes SET name = ?, country = ?, tsw_version = ? WHERE id = ?', [name, country, tsw_version, id]);
+    update: (id, name, country, tsw_version, country_id = null) => {
+        db.run('UPDATE routes SET name = ?, country = ?, tsw_version = ?, country_id = ? WHERE id = ?', [name, country, tsw_version, country_id, id]);
         saveDatabase();
     },
     delete: (id) => {
@@ -332,8 +449,10 @@ const trainDb = {
     },
     create: (name) => {
         db.run('INSERT INTO trains (name) VALUES (?)', [name]);
+        // Get ID immediately after insert, before saveDatabase
+        const result = db.exec('SELECT last_insert_rowid() as id');
+        const lastId = result.length > 0 && result[0].values.length > 0 ? result[0].values[0][0] : 0;
         saveDatabase();
-        const lastId = db.exec('SELECT last_insert_rowid() as id')[0].values[0][0];
         return { lastInsertRowid: lastId };
     },
     update: (id, name) => {
@@ -382,8 +501,8 @@ const timetableDb = {
         stmt.free();
         return result;
     },
-    create: (serviceName) => {
-        db.run('INSERT INTO timetables (service_name) VALUES (?)', [serviceName]);
+    create: (serviceName, routeId = null, trainId = null) => {
+        db.run('INSERT INTO timetables (service_name, route_id, train_id) VALUES (?, ?, ?)', [serviceName, routeId, trainId]);
         // Get the ID immediately after insert, before saveDatabase
         const result = db.exec('SELECT last_insert_rowid() as id');
         console.log('last_insert_rowid result:', JSON.stringify(result));
@@ -410,7 +529,8 @@ const entryDb = {
         stmt.bind([timetableId]);
         const results = [];
         while (stmt.step()) {
-            results.push(stmt.getAsObject());
+            const obj = stmt.getAsObject();
+            results.push(obj);
         }
         stmt.free();
         return results;
@@ -460,6 +580,7 @@ module.exports = {
     seedDatabase,
     saveDatabase,
     closeDatabase,
+    countryDb,
     routeDb,
     trainDb,
     timetableDb,

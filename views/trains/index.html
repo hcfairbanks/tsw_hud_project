@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trains - TSW HUD Project</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
+        h1 { color: #00d4ff; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .nav { text-align: center; margin-bottom: 20px; }
+        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
+        .nav a:hover { background: #1a4a7a; }
+        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
+        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #aaa; }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
+        input[type="text"]:focus { outline: none; border-color: #00d4ff; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
+        .btn-primary { background: #00d4ff; color: #1a1a2e; }
+        .btn-primary:hover { background: #00b8e6; }
+        .btn-danger { background: #e94560; color: #fff; }
+        .btn-danger:hover { background: #d63850; }
+        .btn-secondary { background: #0f3460; color: #eee; }
+        .btn-secondary:hover { background: #1a4a7a; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
+        th { background: #0f3460; color: #00d4ff; }
+        tr:hover { background: #1a1a2e; }
+        .actions { white-space: nowrap; }
+        .actions button { padding: 5px 10px; font-size: 12px; }
+        .empty-message { text-align: center; color: #666; padding: 20px; }
+        #editForm { display: none; }
+        #editForm.active { display: block; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-box input { flex: 1; }
+    </style>
+</head>
+<body>
+    <h1>Trains</h1>
+    <p class="subtitle">Train Sim World Dashboard &amp; HUD System</p>
+    <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/routes">Routes</a>
+        <a href="/trains">Trains</a>
+        <a href="/extract">Extract Timetable</a>
+    </nav>
+    <div class="card">
+        <h2>Add New Train</h2>
+        <form id="addForm">
+            <div class="form-group">
+                <label for="name">Train Name:</label>
+                <input type="text" id="name" name="name" required placeholder="e.g., Class 395 Javelin">
+            </div>
+            <button type="submit" class="btn-primary">Add Train</button>
+        </form>
+    </div>
+    <div class="card" id="editForm">
+        <h2>Edit Train</h2>
+        <form id="editFormInner">
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label for="editName">Train Name:</label>
+                <input type="text" id="editName" name="name" required>
+            </div>
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
+        </form>
+    </div>
+    <div class="card">
+        <h2>Trains</h2>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search trains by name...">
+            <button class="btn-primary" onclick="search()">Search</button>
+            <button class="btn-secondary" onclick="clearSearch()">Clear</button>
+        </div>
+        <div id="trainsList"><p class="empty-message">Loading trains...</p></div>
+    </div>
+    <script>
+        const API_URL = '/api/trains';
+        let allTrains = [];
+        let currentSearch = '';
+
+        async function loadTrains() {
+            try {
+                const response = await fetch(API_URL);
+                allTrains = await response.json();
+                renderTrains();
+            } catch (error) {
+                console.error('Error loading trains:', error);
+                document.getElementById('trainsList').innerHTML = '<p class="empty-message">Error loading trains</p>';
+            }
+        }
+
+        function renderTrains() {
+            const container = document.getElementById('trainsList');
+            let trains = allTrains;
+
+            if (currentSearch) {
+                const searchLower = currentSearch.toLowerCase();
+                trains = allTrains.filter(function(t) {
+                    return t.name.toLowerCase().includes(searchLower);
+                });
+            }
+
+            if (trains.length === 0) {
+                container.innerHTML = '<p class="empty-message">No trains found.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>ID</th><th>Name</th><th class="actions">Actions</th></tr></thead><tbody>';
+            trains.forEach(function(t) {
+                html += '<tr><td>' + t.id + '</td><td><a href="/trains/' + t.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(t.name) + '</a></td>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showTrain(' + t.id + ')">Show</button>';
+                html += "<button class=\"btn-secondary\" onclick=\"editTrain(" + t.id + ",'" + escapeJs(t.name) + "')\">Edit</button>";
+                html += '<button class="btn-danger" onclick="deleteTrain(' + t.id + ')">Delete</button></td></tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function showTrain(id) { window.location.href = '/trains/' + id; }
+
+        function search() {
+            currentSearch = document.getElementById('searchInput').value.trim();
+            renderTrains();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            currentSearch = '';
+            renderTrains();
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') search();
+        });
+
+        function escapeHtml(text) { var div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+        function escapeJs(text) { return String(text).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"'); }
+
+        document.getElementById('addForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var name = document.getElementById('name').value.trim();
+            try {
+                await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) });
+                document.getElementById('name').value = '';
+                loadTrains();
+            } catch (error) { console.error('Error adding train:', error); alert('Error adding train'); }
+        });
+
+        function editTrain(id, name) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editName').value = name;
+            document.getElementById('editForm').classList.add('active');
+            document.getElementById('editName').focus();
+        }
+
+        function cancelEdit() { document.getElementById('editForm').classList.remove('active'); }
+
+        document.getElementById('editFormInner').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var id = document.getElementById('editId').value;
+            var name = document.getElementById('editName').value.trim();
+            try {
+                await fetch(API_URL + '/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) });
+                cancelEdit();
+                loadTrains();
+            } catch (error) { console.error('Error updating train:', error); alert('Error updating train'); }
+        });
+
+        async function deleteTrain(id) {
+            if (!confirm('Are you sure you want to delete this train?')) return;
+            try {
+                await fetch(API_URL + '/' + id, { method: 'DELETE' });
+                loadTrains();
+            } catch (error) { console.error('Error deleting train:', error); alert('Error deleting train'); }
+        }
+
+        loadTrains();
+    </script>
+</body>
+</html>

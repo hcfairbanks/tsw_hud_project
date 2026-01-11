@@ -45,3 +45,10 @@ Uses SQLite with `better-sqlite3`. The database file `tsw_hud.db` is created aut
 - `better-sqlite3` - Fast SQLite3 bindings (synchronous API)
 - `axios` - HTTP client for API calls
 - `csv-writer` - CSV file writing utility
+
+
+# If you know the port (3000)
+npx kill-port 3000
+
+# Or find and kill the node process
+taskkill /F /IM node.exe

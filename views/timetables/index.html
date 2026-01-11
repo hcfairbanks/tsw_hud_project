@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetables - TSW HUD Project</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
+        h1 { color: #00d4ff; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .nav { text-align: center; margin-bottom: 20px; }
+        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
+        .nav a:hover { background: #1a4a7a; }
+        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
+        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
+        .btn-primary { background: #00d4ff; color: #1a1a2e; }
+        .btn-primary:hover { background: #00b8e6; }
+        .btn-danger { background: #e94560; color: #fff; }
+        .btn-danger:hover { background: #d63850; }
+        .btn-secondary { background: #0f3460; color: #eee; }
+        .btn-secondary:hover { background: #1a4a7a; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
+        th { background: #0f3460; color: #00d4ff; }
+        tr:hover { background: #1a1a2e; }
+        .actions { white-space: nowrap; }
+        .actions button { padding: 5px 10px; font-size: 12px; }
+        .empty-message { text-align: center; color: #666; padding: 20px; }
+        .filter-box { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
+        .filter-box label { color: #aaa; white-space: nowrap; }
+        .filter-box select, .filter-box input { padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
+        .filter-box select:focus, .filter-box input:focus { outline: none; border-color: #00d4ff; }
+        .filter-box select { min-width: 200px; }
+        .filter-box input { flex: 1; min-width: 150px; }
+        a { color: #00d4ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Timetables</h1>
+    <p class="subtitle">Train Sim World Dashboard &amp; HUD System</p>
+    <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/routes">Routes</a>
+        <a href="/trains">Trains</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/extract">Extract Timetable</a>
+    </nav>
+
+    <div class="card">
+        <h2>All Timetables</h2>
+        <div class="filter-box">
+            <label for="searchInput">Search:</label>
+            <input type="text" id="searchInput" placeholder="Search by service name...">
+            <label for="routeFilter">Route:</label>
+            <select id="routeFilter">
+                <option value="">All Routes</option>
+            </select>
+            <label for="trainFilter">Train:</label>
+            <select id="trainFilter">
+                <option value="">All Trains</option>
+            </select>
+            <button class="btn-secondary" onclick="clearFilters()">Clear</button>
+        </div>
+        <div id="timetablesList">
+            <p class="empty-message">Loading timetables...</p>
+        </div>
+    </div>
+
+    <script>
+        let allTimetables = [];
+        let allRoutes = [];
+        let allTrains = [];
+
+        async function loadData() {
+            try {
+                const [timetablesRes, routesRes, trainsRes] = await Promise.all([
+                    fetch('/api/timetables'),
+                    fetch('/api/routes'),
+                    fetch('/api/trains')
+                ]);
+                allTimetables = await timetablesRes.json();
+                allRoutes = await routesRes.json();
+                allTrains = await trainsRes.json();
+
+                populateFilters();
+                renderTimetables();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('timetablesList').innerHTML = '<p class="empty-message">Error loading timetables</p>';
+            }
+        }
+
+        function populateFilters() {
+            const routeSelect = document.getElementById('routeFilter');
+            allRoutes.forEach(function(route) {
+                const option = document.createElement('option');
+                option.value = route.id;
+                option.textContent = route.name;
+                routeSelect.appendChild(option);
+            });
+
+            const trainSelect = document.getElementById('trainFilter');
+            allTrains.forEach(function(train) {
+                const option = document.createElement('option');
+                option.value = train.id;
+                option.textContent = train.name;
+                trainSelect.appendChild(option);
+            });
+        }
+
+        function renderTimetables() {
+            const container = document.getElementById('timetablesList');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const routeId = document.getElementById('routeFilter').value;
+            const trainId = document.getElementById('trainFilter').value;
+
+            let timetables = allTimetables;
+
+            // Apply filters
+            if (searchTerm) {
+                timetables = timetables.filter(function(t) {
+                    return t.service_name && t.service_name.toLowerCase().includes(searchTerm);
+                });
+            }
+            if (routeId) {
+                timetables = timetables.filter(function(t) { return t.route_id == routeId; });
+            }
+            if (trainId) {
+                timetables = timetables.filter(function(t) { return t.train_id == trainId; });
+            }
+
+            if (timetables.length === 0) {
+                container.innerHTML = '<p class="empty-message">No timetables found.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>ID</th><th>Service Name</th><th>Route</th><th>Train</th><th>Created</th><th class="actions">Actions</th></tr></thead><tbody>';
+            timetables.forEach(function(t) {
+                const route = allRoutes.find(function(r) { return r.id == t.route_id; });
+                const train = allTrains.find(function(tr) { return tr.id == t.train_id; });
+
+                html += '<tr>';
+                html += '<td>' + t.id + '</td>';
+                html += '<td><a href="/timetables/' + t.id + '">' + escapeHtml(t.service_name || 'Untitled') + '</a></td>';
+                html += '<td>' + (route ? '<a href="/routes/' + route.id + '">' + escapeHtml(route.name) + '</a>' : '-') + '</td>';
+                html += '<td>' + (train ? '<a href="/trains/' + train.id + '">' + escapeHtml(train.name) + '</a>' : '-') + '</td>';
+                html += '<td>' + (t.created_at || '-') + '</td>';
+                html += '<td class="actions">';
+                html += '<button class="btn-primary" onclick="showTimetable(' + t.id + ')">Show</button>';
+                html += '<button class="btn-danger" onclick="deleteTimetable(' + t.id + ')">Delete</button>';
+                html += '</td></tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function showTimetable(id) {
+            window.location.href = '/timetables/' + id;
+        }
+
+        async function deleteTimetable(id) {
+            if (!confirm('Are you sure you want to delete this timetable?')) return;
+            try {
+                await fetch('/api/timetables/' + id, { method: 'DELETE' });
+                loadData();
+            } catch (error) {
+                console.error('Error deleting timetable:', error);
+                alert('Error deleting timetable');
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('routeFilter').value = '';
+            document.getElementById('trainFilter').value = '';
+            renderTimetables();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Event listeners for filters
+        document.getElementById('searchInput').addEventListener('input', renderTimetables);
+        document.getElementById('routeFilter').addEventListener('change', renderTimetables);
+        document.getElementById('trainFilter').addEventListener('change', renderTimetables);
+
+        loadData();
+    </script>
+</body>
+</html>

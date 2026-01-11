@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countries - TSW HUD Project</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
+        h1 { color: #00d4ff; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .nav { text-align: center; margin-bottom: 20px; }
+        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
+        .nav a:hover { background: #1a4a7a; }
+        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
+        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #aaa; }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
+        input[type="text"]:focus { outline: none; border-color: #00d4ff; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
+        .btn-primary { background: #00d4ff; color: #1a1a2e; }
+        .btn-primary:hover { background: #00b8e6; }
+        .btn-danger { background: #e94560; color: #fff; }
+        .btn-danger:hover { background: #d63850; }
+        .btn-secondary { background: #0f3460; color: #eee; }
+        .btn-secondary:hover { background: #1a4a7a; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
+        th { background: #0f3460; color: #00d4ff; }
+        tr:hover { background: #1a1a2e; }
+        .actions { white-space: nowrap; }
+        .actions button { padding: 5px 10px; font-size: 12px; }
+        .empty-message { text-align: center; color: #666; padding: 20px; }
+        #editForm { display: none; }
+        #editForm.active { display: block; }
+        .add-form { display: flex; gap: 10px; align-items: flex-end; }
+        .add-form .form-group { flex: 1; margin-bottom: 0; }
+        .add-form .form-group.code { flex: 0 0 100px; }
+        a { color: #00d4ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Countries</h1>
+    <p class="subtitle">Train Sim World Dashboard &amp; HUD System</p>
+    <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/routes">Routes</a>
+        <a href="/trains">Trains</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/countries">Countries</a>
+    </nav>
+
+    <div class="card">
+        <h2>Add New Country</h2>
+        <form id="addForm" class="add-form">
+            <div class="form-group">
+                <label for="name">Country Name:</label>
+                <input type="text" id="name" name="name" required placeholder="e.g., United Kingdom">
+            </div>
+            <div class="form-group code">
+                <label for="code">Code:</label>
+                <input type="text" id="code" name="code" placeholder="e.g., UK">
+            </div>
+            <button type="submit" class="btn-primary">Add</button>
+        </form>
+    </div>
+
+    <div class="card" id="editForm">
+        <h2>Edit Country</h2>
+        <form id="editFormInner" class="add-form">
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label for="editName">Country Name:</label>
+                <input type="text" id="editName" name="name" required>
+            </div>
+            <div class="form-group code">
+                <label for="editCode">Code:</label>
+                <input type="text" id="editCode" name="code">
+            </div>
+            <button type="submit" class="btn-primary">Save</button>
+            <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>All Countries</h2>
+        <div id="countriesList">
+            <p class="empty-message">Loading countries...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/countries';
+        let allCountries = [];
+
+        async function loadCountries() {
+            try {
+                const response = await fetch(API_URL);
+                allCountries = await response.json();
+                renderCountries();
+            } catch (error) {
+                console.error('Error loading countries:', error);
+                document.getElementById('countriesList').innerHTML = '<p class="empty-message">Error loading countries</p>';
+            }
+        }
+
+        function renderCountries() {
+            const container = document.getElementById('countriesList');
+
+            if (allCountries.length === 0) {
+                container.innerHTML = '<p class="empty-message">No countries found.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Code</th><th class="actions">Actions</th></tr></thead><tbody>';
+            allCountries.forEach(function(c) {
+                html += '<tr>';
+                html += '<td>' + c.id + '</td>';
+                html += '<td><a href="/countries/' + c.id + '">' + escapeHtml(c.name) + '</a></td>';
+                html += '<td>' + escapeHtml(c.code || '') + '</td>';
+                html += '<td class="actions">';
+                html += '<button class="btn-primary" onclick="showCountry(' + c.id + ')">Show</button>';
+                html += '<button class="btn-secondary" onclick="editCountry(' + c.id + ', \'' + escapeJs(c.name) + '\', \'' + escapeJs(c.code || '') + '\')">Edit</button>';
+                html += '<button class="btn-danger" onclick="deleteCountry(' + c.id + ')">Delete</button>';
+                html += '</td></tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function showCountry(id) {
+            window.location.href = '/countries/' + id;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function escapeJs(text) {
+            return String(text || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+
+        document.getElementById('addForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var name = document.getElementById('name').value.trim();
+            var code = document.getElementById('code').value.trim();
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, code: code || null })
+                });
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to add country');
+                }
+                document.getElementById('name').value = '';
+                document.getElementById('code').value = '';
+                loadCountries();
+            } catch (error) {
+                console.error('Error adding country:', error);
+                alert('Error: ' + error.message);
+            }
+        });
+
+        function editCountry(id, name, code) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editName').value = name;
+            document.getElementById('editCode').value = code;
+            document.getElementById('editForm').classList.add('active');
+            document.getElementById('editName').focus();
+        }
+
+        function cancelEdit() {
+            document.getElementById('editForm').classList.remove('active');
+        }
+
+        document.getElementById('editFormInner').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var id = document.getElementById('editId').value;
+            var name = document.getElementById('editName').value.trim();
+            var code = document.getElementById('editCode').value.trim();
+            try {
+                await fetch(API_URL + '/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, code: code || null })
+                });
+                cancelEdit();
+                loadCountries();
+            } catch (error) {
+                console.error('Error updating country:', error);
+                alert('Error updating country');
+            }
+        });
+
+        async function deleteCountry(id) {
+            if (!confirm('Are you sure you want to delete this country?')) return;
+            try {
+                await fetch(API_URL + '/' + id, { method: 'DELETE' });
+                loadCountries();
+            } catch (error) {
+                console.error('Error deleting country:', error);
+                alert('Error deleting country');
+            }
+        }
+
+        loadCountries();
+    </script>
+</body>
+</html>

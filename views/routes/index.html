@@ -18,6 +18,8 @@
         label { display: block; margin-bottom: 5px; color: #aaa; }
         input[type="text"] { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
         input[type="text"]:focus { outline: none; border-color: #00d4ff; }
+        select { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
+        select:focus { outline: none; border-color: #00d4ff; }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
         .btn-primary { background: #00d4ff; color: #1a1a2e; }
         .btn-primary:hover { background: #00b8e6; }
@@ -50,6 +52,7 @@
     <nav class="nav">
         <a href="/">Home</a>
         <a href="/routes">Routes</a>
+        <a href="/trains">Trains</a>
         <a href="/extract">Extract Timetable</a>
     </nav>
     <div class="card">
@@ -61,7 +64,9 @@
             </div>
             <div class="form-group">
                 <label for="country">Country:</label>
-                <input type="text" id="country" name="country" required placeholder="e.g., United Kingdom">
+                <select id="country" name="country" required>
+                    <option value="">Select a country...</option>
+                </select>
             </div>
             <button type="submit" class="btn-primary">Add Route</button>
         </form>
@@ -76,7 +81,9 @@
             </div>
             <div class="form-group">
                 <label for="editCountry">Country:</label>
-                <input type="text" id="editCountry" name="country" required>
+                <select id="editCountry" name="country" required>
+                    <option value="">Select a country...</option>
+                </select>
             </div>
             <button type="submit" class="btn-primary">Save Changes</button>
             <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
@@ -95,6 +102,38 @@
     <script>
         const API_URL = '/api/routes';
         let currentPage = 1, currentLimit = 10, currentSearch = '';
+        let allCountries = [];
+
+        async function loadCountries() {
+            try {
+                const response = await fetch('/api/countries');
+                allCountries = await response.json();
+                populateCountryDropdowns();
+            } catch (error) {
+                console.error('Error loading countries:', error);
+            }
+        }
+
+        function populateCountryDropdowns() {
+            const addSelect = document.getElementById('country');
+            const editSelect = document.getElementById('editCountry');
+
+            // Clear existing options except the first
+            addSelect.innerHTML = '<option value="">Select a country...</option>';
+            editSelect.innerHTML = '<option value="">Select a country...</option>';
+
+            allCountries.forEach(function(c) {
+                const option1 = document.createElement('option');
+                option1.value = c.id;
+                option1.textContent = c.name;
+                addSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = c.id;
+                option2.textContent = c.name;
+                editSelect.appendChild(option2);
+            });
+        }
 
         async function loadRoutes(page, limit, search) {
             page = page || 1; limit = limit || 10; search = search || '';
@@ -117,13 +156,21 @@
             if (routes.length === 0) { container.innerHTML = '<p class="empty-message">No routes found.</p>'; return; }
             let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Country</th><th class="actions">Actions</th></tr></thead><tbody>';
             routes.forEach(function(r) {
-                html += '<tr><td>' + r.id + '</td><td>' + escapeHtml(r.name) + '</td><td>' + escapeHtml(r.country) + '</td>';
-                html += "<td class=\"actions\"><button class=\"btn-secondary\" onclick=\"editRoute(" + r.id + ",'" + escapeJs(r.name) + "','" + escapeJs(r.country) + "')\">Edit</button>";
+                // Look up country name from country_id or fallback to country text
+                const country = allCountries.find(function(c) { return c.id == r.country_id; });
+                const countryName = country ? country.name : r.country;
+                const countryId = r.country_id || '';
+                html += '<tr><td>' + r.id + '</td><td><a href="/routes/' + r.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(r.name) + '</a></td>';
+                html += '<td>' + (country ? '<a href="/countries/' + country.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(countryName) + '</a>' : escapeHtml(countryName)) + '</td>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + r.id + ')">Show</button>';
+                html += '<button class="btn-secondary" onclick="editRoute(' + r.id + ',\'' + escapeJs(r.name) + '\',' + countryId + ')">Edit</button>';
                 html += '<button class="btn-danger" onclick="deleteRoute(' + r.id + ')">Delete</button></td></tr>';
             });
             html += '</tbody></table>';
             container.innerHTML = html;
         }
+
+        function showRoute(id) { window.location.href = '/routes/' + id; }
 
         function renderPagination(p) {
             const container = document.getElementById('pagination');
@@ -152,19 +199,21 @@
         document.getElementById('addForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             var name = document.getElementById('name').value.trim();
-            var country = document.getElementById('country').value.trim();
+            var countryId = document.getElementById('country').value;
+            var country = allCountries.find(function(c) { return c.id == countryId; });
+            var countryName = country ? country.name : '';
             try {
-                await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, country: country }) });
+                await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, country: countryName, country_id: parseInt(countryId) }) });
                 document.getElementById('name').value = '';
                 document.getElementById('country').value = '';
                 loadRoutes(1, currentLimit, currentSearch);
             } catch (error) { console.error('Error adding route:', error); alert('Error adding route'); }
         });
 
-        function editRoute(id, name, country) {
+        function editRoute(id, name, countryId) {
             document.getElementById('editId').value = id;
             document.getElementById('editName').value = name;
-            document.getElementById('editCountry').value = country;
+            document.getElementById('editCountry').value = countryId || '';
             document.getElementById('editForm').classList.add('active');
             document.getElementById('editName').focus();
         }
@@ -175,9 +224,11 @@
             e.preventDefault();
             var id = document.getElementById('editId').value;
             var name = document.getElementById('editName').value.trim();
-            var country = document.getElementById('editCountry').value.trim();
+            var countryId = document.getElementById('editCountry').value;
+            var country = allCountries.find(function(c) { return c.id == countryId; });
+            var countryName = country ? country.name : '';
             try {
-                await fetch(API_URL + '/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, country: country }) });
+                await fetch(API_URL + '/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, country: countryName, country_id: parseInt(countryId) }) });
                 cancelEdit();
                 loadRoutes(currentPage, currentLimit, currentSearch);
             } catch (error) { console.error('Error updating route:', error); alert('Error updating route'); }
@@ -191,7 +242,7 @@
             } catch (error) { console.error('Error deleting route:', error); alert('Error deleting route'); }
         }
 
-        loadRoutes();
+        loadCountries().then(loadRoutes);
     </script>
 </body>
 </html>

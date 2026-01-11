@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Details - TSW HUD Project</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
+        h1 { color: #00d4ff; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .nav { text-align: center; margin-bottom: 20px; }
+        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
+        .nav a:hover { background: #1a4a7a; }
+        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
+        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
+        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid #0f3460; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { font-weight: bold; color: #00d4ff; width: 120px; flex-shrink: 0; }
+        .detail-value { color: #eee; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
+        .btn-primary { background: #00d4ff; color: #1a1a2e; }
+        .btn-primary:hover { background: #00b8e6; }
+        .btn-secondary { background: #0f3460; color: #eee; }
+        .btn-secondary:hover { background: #1a4a7a; }
+        .btn-danger { background: #e94560; color: #fff; }
+        .btn-danger:hover { background: #d63850; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
+        th { background: #0f3460; color: #00d4ff; }
+        tr:hover { background: #1a1a2e; }
+        .empty-message { text-align: center; color: #666; padding: 20px; }
+        .back-link { margin-bottom: 20px; }
+        .back-link a { color: #00d4ff; text-decoration: none; }
+        .back-link a:hover { text-decoration: underline; }
+        .filter-box { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .filter-box label { color: #aaa; white-space: nowrap; }
+        .filter-box select { flex: 1; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
+        .filter-box select:focus { outline: none; border-color: #00d4ff; }
+        .context-info { background: #0f3460; padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; color: #aaa; }
+        .context-info a { color: #00d4ff; text-decoration: none; }
+        .context-info a:hover { text-decoration: underline; }
+        .upload-area { border: 2px dashed #0f3460; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-area:hover, .upload-area.dragover { border-color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #1a1a2e; border-radius: 4px; margin-bottom: 5px; }
+        .file-item .remove { color: #e94560; cursor: pointer; }
+        .editable-cell { cursor: pointer; position: relative; }
+        .editable-cell:hover { background: rgba(0, 212, 255, 0.1); }
+        .editable-cell input { width: 100%; padding: 5px; border: 1px solid #00d4ff; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>Train Details</h1>
+    <p class="subtitle">Train Sim World Dashboard &amp; HUD System</p>
+    <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/routes">Routes</a>
+        <a href="/trains">Trains</a>
+        <a href="/extract">Extract Timetable</a>
+    </nav>
+
+    <div class="back-link" id="backLink">
+        <a href="/trains">&larr; Back to Trains</a>
+    </div>
+
+    <div class="card">
+        <h2 id="trainName">Loading...</h2>
+        <div id="trainDetails">
+            <p class="empty-message">Loading train details...</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Extract New Timetable</h2>
+        <p style="color: #888; margin-bottom: 15px;">
+            Upload screenshots to extract timetable data via OCR. Route and train will be automatically assigned.
+        </p>
+        <div class="upload-area" id="uploadArea">
+            <div style="font-size: 48px; margin-bottom: 10px;">📁</div>
+            <p>Click or drag images here</p>
+            <p style="color: #666; font-size: 12px;">Supports: PNG, JPG, JPEG, GIF, BMP</p>
+            <input type="file" id="fileInput" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,image/*" style="display:none;">
+        </div>
+        <div id="fileList" style="margin-top: 15px;"></div>
+        <div style="margin-top: 15px;">
+            <button class="btn-primary" id="processBtn" disabled>Process Images</button>
+            <button class="btn-secondary" id="clearBtn">Clear All</button>
+        </div>
+        <div id="progressBar" style="width:100%;height:20px;background:#0f3460;border-radius:10px;overflow:hidden;margin-top:15px;display:none;">
+            <div id="progressFill" style="height:100%;background:#00d4ff;width:0%;transition:width 0.3s;"></div>
+        </div>
+        <div id="progressText" style="text-align:center;margin-top:10px;color:#888;"></div>
+
+        <div id="extractResults" style="display:none;margin-top:20px;">
+            <label style="color: #888; font-size: 12px;">Service Name:</label>
+            <input type="text" id="serviceName" placeholder="Service Name" style="width:100%;padding:10px;border:1px solid #0f3460;border-radius:4px;background:#1a1a2e;color:#eee;font-size:16px;margin-bottom:15px;">
+
+            <div id="extractTableContainer">
+                <table id="extractTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>Location</th>
+                            <th>Platform</th>
+                            <th>Time 1</th>
+                            <th>Time 2</th>
+                            <th class="actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="extractTableBody"></tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <button class="btn-primary" id="saveExtractBtn">Create Timetable</button>
+                <button class="btn-secondary" id="addRowBtn">Add Row</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Timetables</h2>
+        <div id="contextInfo" class="context-info" style="display:none;"></div>
+        <div class="filter-box">
+            <label for="routeFilter">Filter by Route:</label>
+            <select id="routeFilter" onchange="filterTimetables()">
+                <option value="">All Routes</option>
+            </select>
+        </div>
+        <div id="timetablesList">
+            <p class="empty-message">Loading timetables...</p>
+        </div>
+    </div>
+
+    <script>
+        const trainId = window.location.pathname.split('/').pop();
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromRouteId = urlParams.get('from_route');
+
+        let allTimetables = [];
+        let allRoutes = [];
+        let currentRoute = null;
+
+        async function loadTrain() {
+            try {
+                const response = await fetch('/api/trains/' + trainId);
+                if (!response.ok) {
+                    document.getElementById('trainName').textContent = 'Train Not Found';
+                    document.getElementById('trainDetails').innerHTML = '<p class="empty-message">The requested train could not be found.</p>';
+                    return;
+                }
+                const train = await response.json();
+                renderTrain(train);
+            } catch (error) {
+                console.error('Error loading train:', error);
+                document.getElementById('trainDetails').innerHTML = '<p class="empty-message">Error loading train</p>';
+            }
+        }
+
+        function renderTrain(train) {
+            document.getElementById('trainName').textContent = train.name;
+            document.title = train.name + ' - TSW HUD Project';
+
+            let html = '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + train.id + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value">' + escapeHtml(train.name) + '</span></div>';
+
+            document.getElementById('trainDetails').innerHTML = html;
+        }
+
+        async function loadRoutes() {
+            try {
+                // Only fetch routes that have this train assigned
+                const response = await fetch('/api/trains/' + trainId + '/routes');
+                allRoutes = await response.json();
+                populateRouteFilter();
+
+                // If we came from a specific route, show context and set filter
+                if (fromRouteId) {
+                    currentRoute = allRoutes.find(function(r) { return r.id == fromRouteId; });
+                    if (currentRoute) {
+                        document.getElementById('routeFilter').value = fromRouteId;
+                        document.getElementById('contextInfo').style.display = 'block';
+                        document.getElementById('contextInfo').innerHTML = 'Showing timetables for this train on <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
+                        document.getElementById('backLink').innerHTML = '<a href="/routes/' + currentRoute.id + '">&larr; Back to ' + escapeHtml(currentRoute.name) + '</a>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading routes:', error);
+            }
+        }
+
+        function populateRouteFilter() {
+            const select = document.getElementById('routeFilter');
+            allRoutes.forEach(function(route) {
+                const option = document.createElement('option');
+                option.value = route.id;
+                option.textContent = route.name;
+                select.appendChild(option);
+            });
+        }
+
+        async function loadTimetables() {
+            try {
+                const response = await fetch('/api/timetables');
+                const timetables = await response.json();
+                // Filter to only timetables for this train
+                allTimetables = timetables.filter(function(t) { return t.train_id == trainId; });
+                renderTimetables();
+            } catch (error) {
+                console.error('Error loading timetables:', error);
+                document.getElementById('timetablesList').innerHTML = '<p class="empty-message">Error loading timetables</p>';
+            }
+        }
+
+        function filterTimetables() {
+            const routeId = document.getElementById('routeFilter').value;
+            if (routeId) {
+                currentRoute = allRoutes.find(function(r) { return r.id == routeId; });
+                // Update URL without reloading
+                const newUrl = '/trains/' + trainId + '?from_route=' + routeId;
+                window.history.replaceState({}, '', newUrl);
+                document.getElementById('contextInfo').style.display = 'block';
+                document.getElementById('contextInfo').innerHTML = 'Showing timetables for this train on <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
+            } else {
+                currentRoute = null;
+                window.history.replaceState({}, '', '/trains/' + trainId);
+                document.getElementById('contextInfo').style.display = 'none';
+            }
+            renderTimetables();
+        }
+
+        function renderTimetables() {
+            const container = document.getElementById('timetablesList');
+            let timetables = allTimetables;
+
+            // Filter by selected route
+            const routeId = document.getElementById('routeFilter').value;
+            if (routeId) {
+                timetables = timetables.filter(function(t) { return t.route_id == routeId; });
+            }
+
+            if (timetables.length === 0) {
+                container.innerHTML = '<p class="empty-message">No timetables found for this train' + (routeId ? ' on this route' : '') + '.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>ID</th><th>Service Name</th><th>Route</th><th>Created</th><th class="actions">Actions</th></tr></thead><tbody>';
+            timetables.forEach(function(t) {
+                const route = allRoutes.find(function(r) { return r.id == t.route_id; });
+                const routeName = route ? route.name : 'Unknown';
+                html += '<tr>';
+                html += '<td>' + t.id + '</td>';
+                html += '<td><a href="/timetables/' + t.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(t.service_name) + '</a></td>';
+                html += '<td>' + (route ? '<a href="/routes/' + route.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(routeName) + '</a>' : routeName) + '</td>';
+                html += '<td>' + (t.created_at || '-') + '</td>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showTimetable(' + t.id + ')">Show</button></td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function showTimetable(id) {
+            window.location.href = '/timetables/' + id;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ====================================
+        // EXTRACTION FUNCTIONALITY
+        // ====================================
+        let selectedFiles = [];
+        let extractedEntries = [];
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileListEl = document.getElementById('fileList');
+        const processBtn = document.getElementById('processBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const extractResults = document.getElementById('extractResults');
+        const extractTableBody = document.getElementById('extractTableBody');
+        const serviceNameInput = document.getElementById('serviceName');
+
+        uploadArea.addEventListener('click', function() { fileInput.click(); });
+        fileInput.addEventListener('change', function(e) { handleFiles(e.target.files); });
+
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        function handleFiles(files) {
+            for (var i = 0; i < files.length; i++) {
+                if (/\.(png|jpg|jpeg|gif|bmp)$/i.test(files[i].name)) {
+                    selectedFiles.push(files[i]);
+                }
+            }
+            selectedFiles.sort(function(a, b) { return a.name.localeCompare(b.name); });
+            renderFileList();
+        }
+
+        function renderFileList() {
+            fileListEl.innerHTML = selectedFiles.map(function(file, index) {
+                return '<div class="file-item"><span>' + (index + 1) + '. ' + escapeHtml(file.name) + ' (' + (file.size / 1024).toFixed(1) + ' KB)</span><span class="remove" onclick="removeFile(' + index + ')">✕</span></div>';
+            }).join('');
+            processBtn.disabled = selectedFiles.length === 0;
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderFileList();
+        }
+
+        clearBtn.addEventListener('click', function() {
+            selectedFiles = [];
+            fileInput.value = '';
+            renderFileList();
+        });
+
+        processBtn.addEventListener('click', async function() {
+            if (selectedFiles.length === 0) return;
+
+            processBtn.disabled = true;
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Uploading images...';
+
+            var formData = new FormData();
+            selectedFiles.forEach(function(file) { formData.append('images', file, file.name); });
+
+            try {
+                var response = await fetch('/api/extract', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    var error = await response.json();
+                    throw new Error(error.error || 'Processing failed');
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Complete!';
+
+                var data = await response.json();
+                displayExtractResults(data);
+            } catch (error) {
+                progressText.textContent = 'Error: ' + error.message;
+                console.error('Error:', error);
+            } finally {
+                processBtn.disabled = false;
+                setTimeout(function() { progressBar.style.display = 'none'; }, 2000);
+            }
+        });
+
+        function displayExtractResults(data) {
+            extractedEntries = data.entries || [];
+            serviceNameInput.value = data.service_name || '';
+            extractResults.style.display = 'block';
+            renderExtractTable();
+        }
+
+        function renderExtractTable() {
+            extractTableBody.innerHTML = extractedEntries.map(function(entry, index) {
+                return '<tr data-index="' + index + '">' +
+                    '<td>' + (index + 1) + '</td>' +
+                    '<td class="editable-cell" data-field="action">' + escapeHtml(entry.action || '') + '</td>' +
+                    '<td class="editable-cell" data-field="details">' + escapeHtml(entry.details || '') + '</td>' +
+                    '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>' +
+                    '<td class="editable-cell" data-field="platform">' + escapeHtml(entry.platform || '') + '</td>' +
+                    '<td class="editable-cell" data-field="time1">' + escapeHtml(entry.time1 || '') + '</td>' +
+                    '<td class="editable-cell" data-field="time2">' + escapeHtml(entry.time2 || '') + '</td>' +
+                    '<td class="actions"><button class="btn-danger" onclick="deleteExtractRow(' + index + ')">Delete</button></td>' +
+                    '</tr>';
+            }).join('');
+
+            document.querySelectorAll('#extractTableBody .editable-cell').forEach(function(cell) {
+                cell.addEventListener('click', makeExtractCellEditable);
+            });
+        }
+
+        function makeExtractCellEditable(e) {
+            var cell = e.target;
+            if (cell.querySelector('input')) return;
+
+            var currentValue = cell.textContent;
+            var field = cell.dataset.field;
+            var row = cell.parentElement;
+            var index = parseInt(row.dataset.index);
+
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+
+            input.addEventListener('blur', function() {
+                var newValue = input.value;
+                extractedEntries[index][field] = newValue;
+                cell.textContent = newValue;
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    cell.textContent = currentValue;
+                }
+            });
+
+            cell.textContent = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+        }
+
+        function deleteExtractRow(index) {
+            if (!confirm('Delete this row?')) return;
+            extractedEntries.splice(index, 1);
+            renderExtractTable();
+        }
+
+        document.getElementById('addRowBtn').addEventListener('click', function() {
+            extractedEntries.push({
+                action: 'STOP AT LOCATION',
+                details: '',
+                location: '',
+                platform: '',
+                time1: '',
+                time2: '',
+                latitude: '',
+                longitude: ''
+            });
+            renderExtractTable();
+        });
+
+        document.getElementById('saveExtractBtn').addEventListener('click', async function() {
+            if (extractedEntries.length === 0) {
+                alert('No entries to save');
+                return;
+            }
+
+            // Get the selected route ID from filter (or fromRouteId)
+            var selectedRouteId = document.getElementById('routeFilter').value || fromRouteId || null;
+
+            var payload = {
+                service_name: serviceNameInput.value || 'Untitled',
+                route_id: selectedRouteId ? parseInt(selectedRouteId) : null,
+                train_id: parseInt(trainId),
+                entries: extractedEntries.map(function(entry) {
+                    return {
+                        action: entry.action || '',
+                        details: entry.details || '',
+                        location: entry.location || '',
+                        platform: entry.platform || '',
+                        time1: entry.time1 || '',
+                        time2: entry.time2 || '',
+                        latitude: entry.latitude || '',
+                        longitude: entry.longitude || ''
+                    };
+                })
+            };
+
+            try {
+                var response = await fetch('/api/timetables', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create timetable');
+                }
+
+                alert('Timetable created successfully!');
+
+                // Reset extraction form
+                extractedEntries = [];
+                selectedFiles = [];
+                fileInput.value = '';
+                serviceNameInput.value = '';
+                renderFileList();
+                extractResults.style.display = 'none';
+
+                // Reload timetables to show the new one
+                loadTimetables();
+            } catch (err) {
+                console.error('Save error:', err);
+                alert('Error saving: ' + err.message);
+            }
+        });
+
+        // Load everything
+        loadTrain();
+        loadRoutes().then(loadTimetables);
+    </script>
+</body>
+</html>

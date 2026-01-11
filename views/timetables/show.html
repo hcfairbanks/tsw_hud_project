@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Details - TSW HUD Project</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
+        h1 { color: #00d4ff; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .nav { text-align: center; margin-bottom: 20px; }
+        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
+        .nav a:hover { background: #1a4a7a; }
+        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
+        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
+        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid #0f3460; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { font-weight: bold; color: #00d4ff; width: 120px; flex-shrink: 0; }
+        .detail-value { color: #eee; flex: 1; }
+        .detail-value a { color: #00d4ff; text-decoration: none; }
+        .detail-value a:hover { text-decoration: underline; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
+        .btn-primary { background: #00d4ff; color: #1a1a2e; }
+        .btn-primary:hover { background: #00b8e6; }
+        .btn-secondary { background: #0f3460; color: #eee; }
+        .btn-secondary:hover { background: #1a4a7a; }
+        .btn-danger { background: #e94560; color: #fff; }
+        .btn-danger:hover { background: #d63850; }
+        .btn-save { background: #27ae60; color: #fff; }
+        .btn-save:hover { background: #219a52; }
+        .btn-cancel { background: #95a5a6; color: #fff; }
+        .btn-cancel:hover { background: #7f8c8d; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #0f3460; font-size: 14px; }
+        th { background: #0f3460; color: #00d4ff; }
+        tr:hover { background: #1a1a2e; }
+        .actions { white-space: nowrap; }
+        .actions button { padding: 5px 10px; font-size: 12px; }
+        .empty-message { text-align: center; color: #666; padding: 20px; }
+        .back-link { margin-bottom: 20px; }
+        .back-link a { color: #00d4ff; text-decoration: none; }
+        .back-link a:hover { text-decoration: underline; }
+        .editable-cell { cursor: pointer; position: relative; }
+        .editable-cell:hover { background: rgba(0, 212, 255, 0.1); }
+        .editable-cell input, .editable-cell select { width: 100%; padding: 5px; border: 1px solid #00d4ff; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
+        .service-name-input { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 16px; }
+        .service-name-input:focus { outline: none; border-color: #00d4ff; }
+        .action-bar { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .unsaved-indicator { color: #f39c12; font-size: 12px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Timetable Details</h1>
+    <p class="subtitle">Train Sim World Dashboard &amp; HUD System</p>
+    <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/routes">Routes</a>
+        <a href="/trains">Trains</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/extract">Extract Timetable</a>
+    </nav>
+
+    <div class="back-link">
+        <a href="/timetables">&larr; Back to Timetables</a>
+    </div>
+
+    <div class="card">
+        <h2 id="timetableTitle">Loading...</h2>
+        <div id="timetableDetails">
+            <p class="empty-message">Loading timetable details...</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Entries <span id="unsavedIndicator" class="unsaved-indicator" style="display:none;">* Unsaved changes</span></h2>
+        <div id="entriesList">
+            <p class="empty-message">Loading entries...</p>
+        </div>
+        <div class="action-bar">
+            <button class="btn-primary" onclick="addEntry()">Add Entry</button>
+            <button class="btn-save" id="saveBtn" onclick="saveChanges()" disabled>Save All Changes</button>
+            <button class="btn-danger" onclick="deleteTimetable()">Delete Timetable</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Export</h2>
+        <div class="action-bar">
+            <button class="btn-primary" onclick="exportCSV()">Export CSV</button>
+            <button class="btn-secondary" onclick="exportThirdRails()">Export ThirdRails</button>
+        </div>
+    </div>
+
+    <script>
+        const timetableId = window.location.pathname.split('/').pop();
+        let timetable = null;
+        let entries = [];
+        let allRoutes = [];
+        let allTrains = [];
+        let hasUnsavedChanges = false;
+
+        async function loadData() {
+            try {
+                const [timetableRes, routesRes, trainsRes] = await Promise.all([
+                    fetch('/api/timetables/' + timetableId),
+                    fetch('/api/routes'),
+                    fetch('/api/trains')
+                ]);
+
+                if (!timetableRes.ok) {
+                    document.getElementById('timetableTitle').textContent = 'Timetable Not Found';
+                    document.getElementById('timetableDetails').innerHTML = '<p class="empty-message">The requested timetable could not be found.</p>';
+                    return;
+                }
+
+                timetable = await timetableRes.json();
+                allRoutes = await routesRes.json();
+                allTrains = await trainsRes.json();
+                entries = timetable.entries || [];
+
+                renderTimetable();
+                renderEntries();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('timetableDetails').innerHTML = '<p class="empty-message">Error loading timetable</p>';
+            }
+        }
+
+        function renderTimetable() {
+            document.getElementById('timetableTitle').textContent = timetable.service_name || 'Untitled';
+            document.title = (timetable.service_name || 'Timetable') + ' - TSW HUD Project';
+
+            const route = allRoutes.find(function(r) { return r.id == timetable.route_id; });
+            const train = allTrains.find(function(t) { return t.id == timetable.train_id; });
+
+            let html = '';
+            html += '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + timetable.id + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">Service Name:</span><span class="detail-value"><input type="text" class="service-name-input" id="serviceNameInput" value="' + escapeHtml(timetable.service_name || '') + '" onchange="markUnsaved()"></span></div>';
+            html += '<div class="detail-row"><span class="detail-label">Route:</span><span class="detail-value">' + (route ? '<a href="/routes/' + route.id + '">' + escapeHtml(route.name) + '</a>' : '-') + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">Train:</span><span class="detail-value">' + (train ? '<a href="/trains/' + train.id + '">' + escapeHtml(train.name) + '</a>' : '-') + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">Created:</span><span class="detail-value">' + (timetable.created_at || '-') + '</span></div>';
+
+            document.getElementById('timetableDetails').innerHTML = html;
+        }
+
+        function renderEntries() {
+            const container = document.getElementById('entriesList');
+
+            if (entries.length === 0) {
+                container.innerHTML = '<p class="empty-message">No entries in this timetable.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>#</th><th>Action</th><th>Location</th><th>Platform</th><th>Time 1</th><th>Time 2</th><th>Details</th><th class="actions">Actions</th></tr></thead><tbody>';
+            entries.forEach(function(entry, index) {
+                html += '<tr data-index="' + index + '" data-id="' + (entry.id || '') + '">';
+                html += '<td>' + (index + 1) + '</td>';
+                html += '<td class="editable-cell" data-field="action">' + escapeHtml(entry.action || '') + '</td>';
+                html += '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>';
+                html += '<td class="editable-cell" data-field="platform">' + escapeHtml(entry.platform || '') + '</td>';
+                html += '<td class="editable-cell" data-field="time1">' + escapeHtml(entry.time1 || '') + '</td>';
+                html += '<td class="editable-cell" data-field="time2">' + escapeHtml(entry.time2 || '') + '</td>';
+                html += '<td class="editable-cell" data-field="details">' + escapeHtml(entry.details || '') + '</td>';
+                html += '<td class="actions">';
+                if (index > 0) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', -1)">Up</button>';
+                if (index < entries.length - 1) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', 1)">Down</button>';
+                html += '<button class="btn-danger" onclick="deleteEntry(' + index + ')">Delete</button>';
+                html += '</td></tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+            // Add click handlers for editable cells
+            document.querySelectorAll('#entriesList .editable-cell').forEach(function(cell) {
+                cell.addEventListener('click', makeCellEditable);
+            });
+        }
+
+        function makeCellEditable(e) {
+            var cell = e.target;
+            if (cell.querySelector('input') || cell.querySelector('select')) return;
+
+            var currentValue = cell.textContent;
+            var field = cell.dataset.field;
+            var row = cell.parentElement;
+            var index = parseInt(row.dataset.index);
+
+            var input;
+            if (field === 'action') {
+                input = document.createElement('select');
+                var actions = ['WAIT FOR SERVICE', 'STOP AT LOCATION', 'LOAD PASSENGERS', 'UNLOAD PASSENGERS'];
+                actions.forEach(function(action) {
+                    var option = document.createElement('option');
+                    option.value = action;
+                    option.textContent = action;
+                    if (action === currentValue) option.selected = true;
+                    input.appendChild(option);
+                });
+            } else {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.value = currentValue;
+            }
+
+            input.addEventListener('blur', function() {
+                var newValue = input.value;
+                entries[index][field] = newValue;
+                cell.textContent = newValue;
+                markUnsaved();
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    cell.textContent = currentValue;
+                }
+            });
+
+            cell.textContent = '';
+            cell.appendChild(input);
+            input.focus();
+            if (input.select) input.select();
+        }
+
+        function addEntry() {
+            entries.push({
+                action: 'STOP AT LOCATION',
+                details: '',
+                location: '',
+                platform: '',
+                time1: '',
+                time2: '',
+                latitude: '',
+                longitude: '',
+                sort_order: entries.length,
+                isNew: true
+            });
+            renderEntries();
+            markUnsaved();
+        }
+
+        function deleteEntry(index) {
+            if (!confirm('Delete this entry?')) return;
+            entries.splice(index, 1);
+            // Update sort_order
+            entries.forEach(function(entry, i) { entry.sort_order = i; });
+            renderEntries();
+            markUnsaved();
+        }
+
+        function moveEntry(index, direction) {
+            var newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= entries.length) return;
+
+            var temp = entries[index];
+            entries[index] = entries[newIndex];
+            entries[newIndex] = temp;
+
+            // Update sort_order
+            entries.forEach(function(entry, i) { entry.sort_order = i; });
+            renderEntries();
+            markUnsaved();
+        }
+
+        function markUnsaved() {
+            hasUnsavedChanges = true;
+            document.getElementById('unsavedIndicator').style.display = 'inline';
+            document.getElementById('saveBtn').disabled = false;
+        }
+
+        function markSaved() {
+            hasUnsavedChanges = false;
+            document.getElementById('unsavedIndicator').style.display = 'none';
+            document.getElementById('saveBtn').disabled = true;
+        }
+
+        async function saveChanges() {
+            try {
+                // Update timetable service name
+                const serviceName = document.getElementById('serviceNameInput').value.trim();
+                await fetch('/api/timetables/' + timetableId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ service_name: serviceName })
+                });
+
+                // Update/create/delete entries
+                for (var i = 0; i < entries.length; i++) {
+                    var entry = entries[i];
+                    if (entry.isNew) {
+                        // Create new entry
+                        var createRes = await fetch('/api/timetables/' + timetableId + '/entries', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(entry)
+                        });
+                        var created = await createRes.json();
+                        entries[i].id = created.id;
+                        delete entries[i].isNew;
+                    } else if (entry.id) {
+                        // Update existing entry
+                        await fetch('/api/entries/' + entry.id, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(entry)
+                        });
+                    }
+                }
+
+                // Update title
+                document.getElementById('timetableTitle').textContent = serviceName || 'Untitled';
+                timetable.service_name = serviceName;
+
+                markSaved();
+                alert('Changes saved successfully!');
+            } catch (error) {
+                console.error('Error saving changes:', error);
+                alert('Error saving changes: ' + error.message);
+            }
+        }
+
+        async function deleteTimetable() {
+            if (!confirm('Are you sure you want to delete this timetable and all its entries?')) return;
+            try {
+                await fetch('/api/timetables/' + timetableId, { method: 'DELETE' });
+                window.location.href = '/timetables';
+            } catch (error) {
+                console.error('Error deleting timetable:', error);
+                alert('Error deleting timetable');
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function escapeCSV(text) {
+            if (!text) return '';
+            // If contains comma, quote, or newline, wrap in quotes and escape quotes
+            if (text.indexOf(',') >= 0 || text.indexOf('"') >= 0 || text.indexOf('\n') >= 0) {
+                return '"' + text.replace(/"/g, '""') + '"';
+            }
+            return text;
+        }
+
+        function sanitizeFilename(name) {
+            // Collapse multiple spaces into single space and trim
+            return name.replace(/\s+/g, ' ').trim();
+        }
+
+        function downloadCSV(content, filename) {
+            var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        function exportCSV() {
+            if (entries.length === 0) {
+                alert('No entries to export');
+                return;
+            }
+
+            var lines = ['Action,Location,Platform,Arrival,Departure,Latitude,Longitude'];
+
+            entries.forEach(function(entry) {
+                var action = entry.action || '';
+                var location = entry.location || '';
+                var platform = entry.platform || '';
+                var arrival = '';
+                var departure = '';
+                var latitude = (entry.latitude !== null && entry.latitude !== undefined) ? String(entry.latitude) : '';
+                var longitude = (entry.longitude !== null && entry.longitude !== undefined) ? String(entry.longitude) : '';
+
+                // Map actions and times based on format
+                if (action === 'WAIT FOR SERVICE') {
+                    action = 'WAIT FOR SERVICE';
+                    arrival = entry.time2 || entry.time1 || '';
+                } else if (action === 'STOP AT LOCATION') {
+                    action = 'STOP';
+                    arrival = entry.time1 || '';
+                } else if (action === 'LOAD PASSENGERS') {
+                    action = 'LOAD PASSENGERS';
+                    departure = entry.time1 || '';
+                } else if (action === 'UNLOAD PASSENGERS') {
+                    action = 'UNLOAD PASSENGERS';
+                    departure = entry.time1 || '';
+                }
+
+                lines.push([
+                    escapeCSV(action),
+                    escapeCSV(location),
+                    escapeCSV(platform),
+                    escapeCSV(arrival),
+                    escapeCSV(departure),
+                    escapeCSV(latitude),
+                    escapeCSV(longitude)
+                ].join(','));
+            });
+
+            var filename = sanitizeFilename(timetable.service_name || 'timetable') + '.csv';
+            downloadCSV(lines.join('\n'), filename);
+        }
+
+        function exportThirdRails() {
+            if (entries.length === 0) {
+                alert('No entries to export');
+                return;
+            }
+
+            var lines = ['Destination,Arrival,Departure,Platform'];
+            var combinedRows = [];
+
+            // Combine STOP/WAIT entries with following LOAD PASSENGERS
+            for (var i = 0; i < entries.length; i++) {
+                var entry = entries[i];
+                var action = entry.action || '';
+
+                if (action === 'WAIT FOR SERVICE' || action === 'STOP AT LOCATION') {
+                    var row = {
+                        destination: entry.location || '',
+                        arrival: entry.time2 || entry.time1 || '',
+                        departure: '',
+                        platform: entry.platform || ''
+                    };
+
+                    // For WAIT FOR SERVICE, arrival is time2 (or time1)
+                    if (action === 'WAIT FOR SERVICE') {
+                        row.arrival = entry.time2 || entry.time1 || '';
+                    } else {
+                        row.arrival = entry.time1 || '';
+                    }
+
+                    // Look for following LOAD PASSENGERS to get departure time
+                    if (i + 1 < entries.length) {
+                        var nextEntry = entries[i + 1];
+                        if (nextEntry.action === 'LOAD PASSENGERS') {
+                            row.departure = nextEntry.time1 || '';
+                            i++; // Skip the LOAD PASSENGERS entry
+                        }
+                    }
+
+                    combinedRows.push(row);
+                } else if (action === 'UNLOAD PASSENGERS') {
+                    // Find previous STOP entry to get location
+                    var prevEntry = i > 0 ? entries[i - 1] : null;
+                    if (prevEntry && prevEntry.action === 'STOP AT LOCATION') {
+                        // Already handled with the STOP
+                    } else {
+                        // Standalone UNLOAD - use its own data
+                        combinedRows.push({
+                            destination: entry.location || '',
+                            arrival: entry.time1 || '',
+                            departure: '',
+                            platform: entry.platform || ''
+                        });
+                    }
+                }
+            }
+
+            combinedRows.forEach(function(row) {
+                lines.push([
+                    escapeCSV(row.destination),
+                    escapeCSV(row.arrival),
+                    escapeCSV(row.departure),
+                    escapeCSV(row.platform)
+                ].join(','));
+            });
+
+            var filename = sanitizeFilename(timetable.service_name || 'timetable') + '_thirdrails.csv';
+            downloadCSV(lines.join('\n'), filename);
+        }
+
+        // Warn before leaving with unsaved changes
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        loadData();
+    </script>
+</body>
+</html>

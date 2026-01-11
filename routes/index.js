@@ -1,5 +1,6 @@
 'use strict';
 const { serveFile, sendJson } = require('../utils/http');
+const countryController = require('../controllers/countryController');
 const routeController = require('../controllers/routeController');
 const trainController = require('../controllers/trainController');
 const timetableController = require('../controllers/timetableController');
@@ -33,6 +34,97 @@ async function handleRoutes(req, res) {
     if (pathname === '/routes') {
         serveFile(res, 'routes/index.html', 'text/html');
         return true;
+    }
+
+    // Route show page /routes/:id
+    const routeShowMatch = pathname.match(/^\/routes\/(\d+)$/);
+    if (routeShowMatch) {
+        serveFile(res, 'routes/show.html', 'text/html');
+        return true;
+    }
+
+    // Trains list page
+    if (pathname === '/trains') {
+        serveFile(res, 'trains/index.html', 'text/html');
+        return true;
+    }
+
+    // Train show page /trains/:id
+    const trainShowMatch = pathname.match(/^\/trains\/(\d+)$/);
+    if (trainShowMatch) {
+        serveFile(res, 'trains/show.html', 'text/html');
+        return true;
+    }
+
+    // Timetables list page
+    if (pathname === '/timetables') {
+        serveFile(res, 'timetables/index.html', 'text/html');
+        return true;
+    }
+
+    // Timetable show page /timetables/:id
+    const timetableShowMatch = pathname.match(/^\/timetables\/(\d+)$/);
+    if (timetableShowMatch) {
+        serveFile(res, 'timetables/show.html', 'text/html');
+        return true;
+    }
+
+    // Countries list page
+    if (pathname === '/countries') {
+        serveFile(res, 'countries/index.html', 'text/html');
+        return true;
+    }
+
+    // Country show page /countries/:id
+    const countryShowMatch = pathname.match(/^\/countries\/(\d+)$/);
+    if (countryShowMatch) {
+        serveFile(res, 'countries/show.html', 'text/html');
+        return true;
+    }
+
+    // ============================================
+    // Country API Routes
+    // ============================================
+
+    if (pathname === '/api/countries') {
+        if (method === 'GET') {
+            await countryController.getAll(req, res);
+            return true;
+        }
+        if (method === 'POST') {
+            await countryController.create(req, res);
+            return true;
+        }
+    }
+
+    // Single country operations
+    const countryMatch = pathname.match(/^\/api\/countries\/(\d+)$/);
+    if (countryMatch) {
+        const id = parseInt(countryMatch[1]);
+
+        if (method === 'GET') {
+            await countryController.getById(req, res, id);
+            return true;
+        }
+        if (method === 'PUT') {
+            await countryController.update(req, res, id);
+            return true;
+        }
+        if (method === 'DELETE') {
+            await countryController.delete(req, res, id);
+            return true;
+        }
+    }
+
+    // Country routes API
+    const countryRoutesMatch = pathname.match(/^\/api\/countries\/(\d+)\/routes$/);
+    if (countryRoutesMatch) {
+        const countryId = parseInt(countryRoutesMatch[1]);
+
+        if (method === 'GET') {
+            await countryController.getRoutes(req, res, countryId);
+            return true;
+        }
     }
 
     // ============================================
