@@ -30,10 +30,22 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    if (pathname === '/routes') {
+        serveFile(res, 'routes/index.html', 'text/html');
+        return true;
+    }
+
     // ============================================
     // Route API Routes
     // ============================================
     
+
+    // Paginated routes endpoint
+    if (pathname === '/api/routes/paginated' && method === 'GET') {
+        await routeController.getPaginated(req, res);
+        return true;
+    }
+
     if (pathname === '/api/routes') {
         if (method === 'GET') {
             await routeController.getAll(req, res);

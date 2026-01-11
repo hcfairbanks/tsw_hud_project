@@ -116,9 +116,9 @@ function sendJson(res, data, statusCode = 200) {
  */
 function serveFile(res, filePath, contentType) {
     // Try appDir first (for compiled exe), then project root (for dev)
-    let fullPath = path.join(appDir, 'public', filePath);
+    let fullPath = path.join(appDir, 'views', filePath);
     if (!fs.existsSync(fullPath)) {
-        fullPath = path.join(__dirname, '..', 'public', filePath);
+        fullPath = path.join(__dirname, '..', 'views', filePath);
     }
     if (fs.existsSync(fullPath)) {
         res.writeHead(200, { 'Content-Type': contentType });

@@ -201,6 +201,55 @@ const routeDb = {
         stmt.free();
         return results;
     },
+    getPaginated: (page = 1, limit = 10, search = '') => {
+        const offset = (page - 1) * limit;
+        let countQuery = 'SELECT COUNT(*) as total FROM routes';
+        let dataQuery = 'SELECT * FROM routes';
+
+        if (search) {
+            const whereClause = ' WHERE name LIKE ? OR country LIKE ?';
+            countQuery += whereClause;
+            dataQuery += whereClause;
+        }
+
+        dataQuery += ' ORDER BY id DESC LIMIT ? OFFSET ?';
+
+        // Get total count
+        let total = 0;
+        if (search) {
+            const searchPattern = '%' + search + '%';
+            const countResult = db.exec(countQuery, [searchPattern, searchPattern]);
+            total = countResult.length > 0 ? countResult[0].values[0][0] : 0;
+        } else {
+            const countResult = db.exec(countQuery);
+            total = countResult.length > 0 ? countResult[0].values[0][0] : 0;
+        }
+
+        // Get paginated data
+        const stmt = db.prepare(dataQuery);
+        if (search) {
+            const searchPattern = '%' + search + '%';
+            stmt.bind([searchPattern, searchPattern, limit, offset]);
+        } else {
+            stmt.bind([limit, offset]);
+        }
+
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+
+        return {
+            data: results,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    },
     getById: (id) => {
         const stmt = db.prepare('SELECT * FROM routes WHERE id = ?');
         stmt.bind([id]);

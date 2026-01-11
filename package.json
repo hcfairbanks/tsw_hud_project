@@ -15,7 +15,7 @@
     ],
     "outputPath": "dist",
     "assets": [
-      "public/**/*",
+      "views/**/*",
       "node_modules/sql.js/dist/sql-wasm.wasm"
     ]
   },

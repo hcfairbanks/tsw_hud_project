@@ -9,6 +9,19 @@ const routeController = {
         sendJson(res, routes);
     },
 
+    // GET /api/routes/paginated?page=1&limit=10&search=term
+    getPaginated: async (req, res) => {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const page = parseInt(url.searchParams.get('page')) || 1;
+        const limit = parseInt(url.searchParams.get('limit')) || 10;
+        const search = url.searchParams.get('search') || '';
+
+        const result = routeDb.getPaginated(page, limit, search);
+        sendJson(res, result);
+    },
+
+
+
     // POST /api/routes
     create: async (req, res) => {
         const body = await parseBody(req);

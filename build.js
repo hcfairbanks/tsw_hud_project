@@ -94,12 +94,12 @@ if (fs.existsSync(nodeFetchSrc)) {
     console.log('✓ Copied node-fetch package');
 }
 
-// Copy public folder
-const publicSrc = path.join(__dirname, 'public');
-const publicDest = path.join(distDir, 'public');
-if (fs.existsSync(publicSrc)) {
-    copyDirRecursive(publicSrc, publicDest);
-    console.log('✓ Copied public folder');
+// Copy views folder
+const viewsSrc = path.join(__dirname, 'views');
+const viewsDest = path.join(distDir, 'views');
+if (fs.existsSync(viewsSrc)) {
+    copyDirRecursive(viewsSrc, viewsDest);
+    console.log('✓ Copied views folder');
 }
 
 // Build the exe
