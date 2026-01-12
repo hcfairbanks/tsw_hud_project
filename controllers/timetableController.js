@@ -203,12 +203,41 @@ const timetableController = {
         const result = timetableDb.create(serviceName, routeId, trainId);
         const timetableId = result.lastInsertRowid;
         console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId);
-        
-        // Step 2: Create all entries if provided
+
+        // Step 2: Deduplicate entries based on unique time values
+        // An entry is considered duplicate if it has the same action and time1/time2 combination
+        let entries = body.entries || [];
+        if (entries.length > 0) {
+            const seenTimes = new Set();
+            const uniqueEntries = [];
+
+            for (const entry of entries) {
+                // Create a unique key based on action + time1 + time2
+                const time1 = (entry.time1 || '').trim();
+                const time2 = (entry.time2 || '').trim();
+                const action = (entry.action || '').trim();
+
+                // Use the relevant time field(s) as the unique key
+                // For most entries, time1 is the primary time
+                const timeKey = `${action}|${time1}|${time2}`;
+
+                if (!seenTimes.has(timeKey)) {
+                    seenTimes.add(timeKey);
+                    uniqueEntries.push(entry);
+                } else {
+                    console.log(`Skipping duplicate entry: ${action} at ${time1 || time2}`);
+                }
+            }
+
+            console.log(`Deduplicated entries: ${entries.length} -> ${uniqueEntries.length}`);
+            entries = uniqueEntries;
+        }
+
+        // Step 3: Create all entries
         const savedEntries = [];
-        if (body.entries && Array.isArray(body.entries)) {
-            console.log(`Creating ${body.entries.length} entries...`);
-            body.entries.forEach((entry, index) => {
+        if (entries.length > 0) {
+            console.log(`Creating ${entries.length} entries...`);
+            entries.forEach((entry, index) => {
                 const entryResult = entryDb.create(timetableId, entry, index);
                 console.log(`Entry ${index + 1} created with ID: ${entryResult.lastInsertRowid}, timetable_id: ${timetableId}`);
                 savedEntries.push({
@@ -227,11 +256,11 @@ const timetableController = {
             });
         }
 
-        // Step 3: Generate JSON file in unprocessed_routes folder
+        // Step 4: Generate JSON file in unprocessed_routes folder
         // Uses identical logic to extract.js writeToJSONRouteSkeleton
         let jsonFilePath = null;
-        if (body.entries && body.entries.length > 0) {
-            jsonFilePath = writeToJSONRouteSkeleton(body.entries, serviceName, routeId, timetableId);
+        if (entries.length > 0) {
+            jsonFilePath = writeToJSONRouteSkeleton(entries, serviceName, routeId, timetableId);
             if (jsonFilePath) {
                 console.log(`JSON skeleton file created: ${jsonFilePath}`);
             }

@@ -1,0 +1,101 @@
+{
+  "routeName": "IND4: Milton Keynes - London Euston                            05:18 01:03",
+  "totalPoints": 0,
+  "totalMarkers": 0,
+  "duration": 0,
+  "requestCount": 0,
+  "coordinates": [],
+  "markers": [],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "",
+      "arrival": "05:18:00",
+      "departure": "05:20:00",
+      "platform": "",
+      "apiName": "",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 1,
+      "destination": "Bletchley",
+      "arrival": "05:24:30",
+      "departure": "05:25:00",
+      "platform": "4",
+      "apiName": "Bletchley Platform 4",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 2,
+      "destination": "Leighton Buzzard",
+      "arrival": "05:31:30",
+      "departure": "05:32:00",
+      "platform": "4",
+      "apiName": "Leighton Buzzard Platform 4",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 3,
+      "destination": "Tring",
+      "arrival": "05:42:30",
+      "departure": "05:43:00",
+      "platform": "5",
+      "apiName": "Tring Platform 5",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 4,
+      "destination": "Berkhamsted",
+      "arrival": "05:48:30",
+      "departure": "05:49:00",
+      "platform": "4",
+      "apiName": "Berkhamsted Platform 4",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 5,
+      "destination": "Hemel Hempstead",
+      "arrival": "05:53:30",
+      "departure": "05:54:00",
+      "platform": "4",
+      "apiName": "Hemel Hempstead Platform 4",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 6,
+      "destination": "Watford Junction",
+      "arrival": "06:01:30",
+      "departure": "06:02:00",
+      "platform": "9",
+      "apiName": "Watford Jn Platform 9",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 7,
+      "destination": "Harrow & Wealdstone",
+      "arrival": "06:08:30",
+      "departure": "06:09:00",
+      "platform": "6",
+      "apiName": "Harrow & Wealdstone Platform 6",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 8,
+      "destination": "London Euston",
+      "arrival": "06:21:30",
+      "departure": "",
+      "platform": "8",
+      "apiName": "Euston Platform 8",
+      "longitude": null,
+      "latitude": null
+    }
+  ]
+}

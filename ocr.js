@@ -429,13 +429,36 @@ async function processImages(imageBuffers, onProgress) {
         });
     }
 
+    // Deduplicate rows based on unique time values
+    // An entry is considered duplicate if it has the same action and time1/time2 combination
+    const seenTimes = new Set();
+    const uniqueRows = [];
+
+    for (const row of allRows) {
+        const time1 = (row.time1 || '').trim();
+        const time2 = (row.time2 || '').trim();
+        const action = (row.action || '').trim();
+
+        // Create unique key based on action + times
+        const timeKey = `${action}|${time1}|${time2}`;
+
+        if (!seenTimes.has(timeKey)) {
+            seenTimes.add(timeKey);
+            uniqueRows.push(row);
+        } else {
+            console.log(`OCR: Skipping duplicate entry: ${action} at ${time1 || time2}`);
+        }
+    }
+
+    console.log(`OCR: Deduplicated rows: ${allRows.length} -> ${uniqueRows.length}`);
+
     // Save raw OCR output
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const outputDir = path.join(appDir, 'ocr_output');
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
     }
-    
+
     const rawOutputPath = path.join(outputDir, `ocr_raw_${timestamp}.txt`);
     let rawContent = '';
     results.forEach((r, i) => {
@@ -454,7 +477,7 @@ async function processImages(imageBuffers, onProgress) {
 
     return {
         serviceName: serviceName || 'Unknown Service',
-        rows: allRows,
+        rows: uniqueRows,
         rawResults: results,
         rawTexts: rawTexts
     };

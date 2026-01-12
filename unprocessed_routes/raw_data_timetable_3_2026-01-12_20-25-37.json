@@ -1,0 +1,51 @@
+{
+  "routeName": "1Y08: Northampton - London Euston                             07:05 0044",
+  "totalPoints": 0,
+  "totalMarkers": 0,
+  "duration": 0,
+  "requestCount": 0,
+  "coordinates": [],
+  "markers": [],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "",
+      "arrival": "07:05:00",
+      "departure": "07:06:00",
+      "platform": "",
+      "apiName": "",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 1,
+      "destination": "Bletchley",
+      "arrival": "07:11:30",
+      "departure": "07:12:00",
+      "platform": "4",
+      "apiName": "Bletchley Platform 4",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 2,
+      "destination": "Leighton Buzzard",
+      "arrival": "07:18:30",
+      "departure": "07:19:00",
+      "platform": "4",
+      "apiName": "Leighton Buzzard Platform 4",
+      "longitude": null,
+      "latitude": null
+    },
+    {
+      "index": 3,
+      "destination": "London Euston",
+      "arrival": "07:49:30",
+      "departure": "",
+      "platform": "11",
+      "apiName": "Euston Platform 11",
+      "longitude": null,
+      "latitude": null
+    }
+  ]
+}
