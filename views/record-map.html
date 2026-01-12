@@ -338,6 +338,7 @@
                 <button class="btn-success" id="startBtn" onclick="startRecording()">Start</button>
                 <button class="btn-warning" id="pauseBtn" onclick="pauseRecording()" disabled>Pause</button>
                 <button class="btn-danger" id="stopBtn" onclick="stopRecording()" disabled>Stop</button>
+                <button class="btn-secondary" id="resetBtn" onclick="resetRecording()">Reset</button>
             </div>
         </div>
 
@@ -435,78 +436,21 @@
             }
         }
 
-        // Check recording status
-        async function checkStatus() {
-            try {
-                const response = await fetch('/api/recording/status');
-                const status = await response.json();
-                updateUI(status);
 
-                if (status.isRecording || status.isPaused) {
-                    currentTimetableId = status.currentTimetableId;
-                    loadRouteData();
-                }
-            } catch (err) {
-                console.error('Failed to check status:', err);
-            }
-        }
-
-        // Update UI based on status
-        function updateUI(status) {
-            const indicator = document.getElementById('recordingIndicator');
-            const text = document.getElementById('recordingText');
-            const startBtn = document.getElementById('startBtn');
-            const pauseBtn = document.getElementById('pauseBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const saveBtn = document.getElementById('saveBtn');
-            const timetableSelector = document.getElementById('timetableSelector');
-
-            if (status.isRecording && !status.isPaused) {
-                indicator.className = 'recording-indicator';
-                text.textContent = 'Recording';
-                startBtn.disabled = true;
-                pauseBtn.disabled = false;
-                pauseBtn.textContent = 'Pause';
-                stopBtn.disabled = false;
-                saveBtn.disabled = false;
-                timetableSelector.style.display = 'none';
-            } else if (status.isPaused) {
-                indicator.className = 'recording-indicator paused';
-                text.textContent = 'Paused';
-                startBtn.disabled = true;
-                pauseBtn.disabled = false;
-                pauseBtn.textContent = 'Resume';
-                stopBtn.disabled = false;
-                saveBtn.disabled = false;
-                timetableSelector.style.display = 'none';
-            } else {
-                indicator.className = 'recording-indicator stopped';
-                text.textContent = 'Not Recording';
-                startBtn.disabled = false;
-                pauseBtn.disabled = true;
-                pauseBtn.textContent = 'Pause';
-                stopBtn.disabled = true;
-                saveBtn.disabled = true;
-                timetableSelector.style.display = 'block';
-            }
-
-            document.getElementById('coordCount').textContent = status.coordinateCount || 0;
-            document.getElementById('markerCount').textContent = status.markerCount || 0;
-        }
-
-        // Load route data
+        // Load route data (called at init and after saves to sync with backend state)
         async function loadRouteData() {
             try {
                 const response = await fetch('/api/recording/route-data');
                 const data = await response.json();
 
                 document.getElementById('routeName').textContent = data.routeName || 'No Recording';
-                document.getElementById('coordCount').textContent = data.coordinates?.length || 0;
                 document.getElementById('markerCount').textContent = data.markers?.length || 0;
 
-                // Update path
+                // Load existing path from backend (only at init or after resume)
                 if (data.coordinates && data.coordinates.length > 0) {
                     pathCoordinates = data.coordinates.map(c => [c.latitude, c.longitude]);
+                    document.getElementById('coordCount').textContent = pathCoordinates.length;
+
                     if (pathPolyline) {
                         pathPolyline.setLatLngs(pathCoordinates);
                     } else {
@@ -517,7 +461,7 @@
                         }).addTo(map);
                     }
 
-                    // Center on first load
+                    // Center on last known position
                     if (firstPosition && pathCoordinates.length > 0) {
                         const last = pathCoordinates[pathCoordinates.length - 1];
                         map.setView(last, 15);
@@ -525,32 +469,11 @@
                     }
                 }
 
-                // Update current position
-                if (data.currentPosition) {
-                    document.getElementById('currentLat').textContent = data.currentPosition.latitude.toFixed(6);
-                    document.getElementById('currentLng').textContent = data.currentPosition.longitude.toFixed(6);
-
-                    const lat = data.currentPosition.latitude;
-                    const lng = data.currentPosition.longitude;
-
-                    if (trainMarker) {
-                        trainMarker.setLatLng([lat, lng]);
-                    } else {
-                        trainMarker = L.marker([lat, lng], { icon: trainIcon })
-                            .bindPopup('Current Position')
-                            .addTo(map);
-                    }
-
-                    if (isFollowingTrain) {
-                        map.setView([lat, lng], map.getZoom());
-                    }
-                }
-
-                // Populate station dropdown
+                // Populate station dropdown and add saved station markers
                 if (data.timetable && data.timetable.length > 0) {
                     populateStationDropdown(data.timetable);
 
-                    // Add markers for stations with coordinates
+                    // Add markers for stations with saved coordinates
                     data.timetable.forEach((entry, index) => {
                         if (entry.latitude && entry.longitude) {
                             addStationMarker(index, entry.latitude, entry.longitude, entry.destination);
@@ -619,9 +542,16 @@
                 const response = await fetch(`/api/recording/start/${timetableId}`, { method: 'POST' });
                 const result = await response.json();
                 if (result.success) {
-                    currentTimetableId = timetableId;
-                    checkStatus();
-                    loadRouteData();
+                    // Reset local path display
+                    pathCoordinates = [];
+                    if (pathPolyline) {
+                        map.removeLayer(pathPolyline);
+                        pathPolyline = null;
+                    }
+                    // Clear station markers
+                    stationMarkers.forEach(m => map.removeLayer(m));
+                    stationMarkers.clear();
+                    // Stream will update the rest
                 } else {
                     alert('Failed to start recording: ' + result.error);
                 }
@@ -639,47 +569,53 @@
                 const endpoint = isPaused ? '/api/recording/resume' : '/api/recording/pause';
                 const response = await fetch(endpoint, { method: 'POST' });
                 const result = await response.json();
-                if (result.success) {
-                    checkStatus();
-                } else {
+                if (!result.success) {
                     alert('Failed: ' + result.error);
                 }
+                // Stream will update the UI
             } catch (err) {
                 alert('Error: ' + err.message);
             }
         }
 
-        // Stop recording
+        // Stop recording - TODO: implement later
         async function stopRecording() {
-            if (!confirm('Are you sure you want to stop recording? Data will be saved.')) {
+            // For now, do nothing - will be implemented later
+            alert('Stop functionality not yet implemented');
+        }
+
+        // Reset recording - clears all state for testing
+        async function resetRecording() {
+            if (!confirm('Reset all recording state? This will clear coordinates, markers, and saved positions.')) {
                 return;
             }
 
             try {
-                const response = await fetch('/api/recording/stop', { method: 'POST' });
+                const response = await fetch('/api/recording/reset', { method: 'POST' });
                 const result = await response.json();
                 if (result.success) {
-                    currentTimetableId = null;
+                    // Clear local state
                     pathCoordinates = [];
                     if (pathPolyline) {
                         map.removeLayer(pathPolyline);
                         pathPolyline = null;
                     }
-                    if (trainMarker) {
-                        map.removeLayer(trainMarker);
-                        trainMarker = null;
-                    }
+                    // Clear station markers
                     stationMarkers.forEach(m => map.removeLayer(m));
                     stationMarkers.clear();
-                    firstPosition = true;
-                    checkStatus();
-                    document.getElementById('routeName').textContent = 'No Recording Active';
+                    // Reset UI
+                    currentTimetableId = null;
+                    document.getElementById('routeName').textContent = 'No Recording';
+                    document.getElementById('coordCount').textContent = '0';
+                    document.getElementById('markerCount').textContent = '0';
                     document.getElementById('stationDropdown').innerHTML = '<option value="">-- Start recording first --</option>';
+                    updateUIFromRecording({ isRecording: false, isPaused: false });
+                    console.log('Recording state reset');
                 } else {
-                    alert('Failed to stop: ' + result.error);
+                    alert('Failed to reset: ' + result.error);
                 }
             } catch (err) {
-                alert('Error stopping: ' + err.message);
+                alert('Error resetting: ' + err.message);
             }
         }
 
@@ -706,14 +642,12 @@
                 });
                 const result = await response.json();
                 if (result.success) {
-                    addStationMarker(index, parseFloat(lat), parseFloat(lng), result.destination);
-                    // Set flag to advance to next station after reload
+                    // Set flag to advance to next station
                     const dropdown = document.getElementById('stationDropdown');
                     if (index + 1 < dropdown.options.length) {
                         nextStationIndex = index + 1;
                     }
-                    // Reload to update dropdown labels (will use nextStationIndex)
-                    loadRouteData();
+                    // Stream will update the timetable with saved coords
                 } else {
                     alert('Failed to save: ' + result.error);
                 }
@@ -740,17 +674,163 @@
             }
         }
 
-        // Poll for updates when recording
-        setInterval(() => {
-            checkStatus();
-            if (currentTimetableId) {
-                loadRouteData();
+        // SSE stream connection
+        let eventSource = null;
+
+        function connectToStream() {
+            if (eventSource) {
+                eventSource.close();
             }
-        }, 1000);
+
+            console.log('Connecting to telemetry stream...');
+            eventSource = new EventSource('/stream');
+
+            eventSource.onopen = () => {
+                console.log('SSE connection established');
+            };
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleStreamData(data);
+                } catch (err) {
+                    console.error('Failed to parse stream data:', err);
+                }
+            };
+
+            eventSource.onerror = (err) => {
+                console.error('SSE connection error:', err);
+                // Reconnect after 2 seconds
+                setTimeout(connectToStream, 2000);
+            };
+        }
+
+        // Handle incoming stream data
+        function handleStreamData(data) {
+            // Update current position display
+            if (data.playerPosition) {
+                const lat = data.playerPosition.latitude;
+                const lng = data.playerPosition.longitude;
+
+                document.getElementById('currentLat').textContent = lat.toFixed(6);
+                document.getElementById('currentLng').textContent = lng.toFixed(6);
+
+                // Update train marker
+                if (trainMarker) {
+                    trainMarker.setLatLng([lat, lng]);
+                } else {
+                    trainMarker = L.marker([lat, lng], { icon: trainIcon })
+                        .bindPopup('Current Position')
+                        .addTo(map);
+                }
+
+                // Add to path display if recording (for visual feedback)
+                // The backend is the source of truth, we just add points for smooth display
+                if (currentTimetableId && data.recording && data.recording.isRecording && !data.recording.isPaused) {
+                    const newPoint = [lat, lng];
+                    pathCoordinates.push(newPoint);
+
+                    if (pathPolyline) {
+                        pathPolyline.addLatLng(newPoint);
+                    } else {
+                        pathPolyline = L.polyline(pathCoordinates, {
+                            color: '#0066ff',
+                            weight: 4,
+                            opacity: 0.7
+                        }).addTo(map);
+                    }
+                }
+
+                // Center on first position or follow train
+                if (firstPosition) {
+                    map.setView([lat, lng], 15);
+                    firstPosition = false;
+                } else if (isFollowingTrain) {
+                    map.setView([lat, lng], map.getZoom());
+                }
+            }
+
+            // Update recording state from stream
+            if (data.recording) {
+                currentTimetableId = data.recording.timetableId;
+                document.getElementById('routeName').textContent = data.recording.routeName || 'No Recording';
+                document.getElementById('coordCount').textContent = data.recording.coordinateCount || 0;
+                document.getElementById('markerCount').textContent = data.recording.markerCount || 0;
+
+                // Update UI state
+                updateUIFromRecording(data.recording);
+
+                // Update timetable dropdown and station markers
+                if (data.recording.timetable && data.recording.timetable.length > 0) {
+                    populateStationDropdown(data.recording.timetable);
+
+                    // Add markers for stations with saved coordinates
+                    data.recording.timetable.forEach((entry, index) => {
+                        if (entry.latitude && entry.longitude) {
+                            addStationMarker(index, entry.latitude, entry.longitude, entry.destination);
+                        }
+                    });
+                }
+            } else if (currentTimetableId) {
+                // Recording stopped - clear state
+                currentTimetableId = null;
+                document.getElementById('routeName').textContent = 'No Recording Active';
+                updateUIFromRecording({ isRecording: false, isPaused: false });
+            }
+        }
+
+        // Update UI based on recording state from stream
+        function updateUIFromRecording(recording) {
+            const indicator = document.getElementById('recordingIndicator');
+            const text = document.getElementById('recordingText');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const timetableSelector = document.getElementById('timetableSelector');
+
+            if (recording.isRecording && !recording.isPaused) {
+                indicator.className = 'recording-indicator';
+                text.textContent = 'Recording';
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                pauseBtn.textContent = 'Pause';
+                stopBtn.disabled = false;
+                saveBtn.disabled = false;
+                timetableSelector.style.display = 'none';
+            } else if (recording.isPaused) {
+                indicator.className = 'recording-indicator paused';
+                text.textContent = 'Paused';
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                pauseBtn.textContent = 'Resume';
+                stopBtn.disabled = false;
+                saveBtn.disabled = false;
+                timetableSelector.style.display = 'none';
+            } else {
+                indicator.className = 'recording-indicator stopped';
+                text.textContent = 'Not Recording';
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                pauseBtn.textContent = 'Pause';
+                stopBtn.disabled = true;
+                saveBtn.disabled = true;
+                timetableSelector.style.display = 'block';
+            }
+        }
 
         // Initialize
-        loadTimetables();
-        checkStatus();
+        async function initialize() {
+            await loadTimetables();
+
+            // Load existing recording data if any (for path display on resume)
+            await loadRouteData();
+
+            // Connect to stream - all state updates come from here
+            connectToStream();
+        }
+
+        initialize();
     </script>
 </body>
 </html>

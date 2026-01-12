@@ -5,6 +5,9 @@ const { sendJson } = require('../utils/http');
 const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, stationMappingDb } = require('../db');
 const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
 
+// Recording configuration
+const SAVE_FREQUENCY = 1; // Save to file every N coordinates (1 = every coordinate, 100 = every 100th)
+
 // Recording state
 let isRecording = false;
 let isPaused = false;
@@ -17,6 +20,7 @@ let currentGradient = null;
 let currentHeight = null;
 let recordingStartTime = null;
 let routeOutputFilePath = null;
+let savedTimetableCoords = new Map(); // Stores timetable entry coordinates during recording session only
 
 // Get recording data directory
 const recordingDataDir = path.join(__dirname, '..', 'recording_data');
@@ -104,17 +108,32 @@ async function start(req, res, timetableId) {
                 discoveredMarkers.forEach(m => processedMarkers.add(m.stationName));
                 console.log(`Resuming recording: ${discoveredMarkers.length} existing markers loaded`);
             }
+            // Restore saved timetable coordinates from the file
+            savedTimetableCoords.clear();
+            if (existingData.timetable && Array.isArray(existingData.timetable)) {
+                existingData.timetable.forEach((entry, idx) => {
+                    if (entry.latitude != null && entry.longitude != null) {
+                        savedTimetableCoords.set(idx, {
+                            latitude: entry.latitude,
+                            longitude: entry.longitude
+                        });
+                    }
+                });
+                console.log(`Resuming recording: ${savedTimetableCoords.size} saved station coordinates loaded`);
+            }
         } catch (err) {
             console.warn('Could not load existing data, starting fresh:', err.message);
             routeCoordinates = [];
             discoveredMarkers = [];
             processedMarkers.clear();
+            savedTimetableCoords.clear();
         }
     } else {
         // Fresh start
         routeCoordinates = [];
         discoveredMarkers = [];
         processedMarkers.clear();
+        savedTimetableCoords.clear();
     }
 
     isRecording = true;
@@ -144,7 +163,7 @@ function stop(req, res) {
         return;
     }
 
-    // Save final data to JSON file
+    // Save final data to JSON file only (not database)
     let timetable = null;
     let routeId = null;
     if (currentTimetableId) {
@@ -154,25 +173,6 @@ function stop(req, res) {
         routeId = timetable?.route_id;
     }
 
-    // Save to database using timetable_id
-    let dbSaved = false;
-    if (currentTimetableId && routeCoordinates.length > 0) {
-        try {
-            // Save coordinates to timetable_coordinates table
-            const coordCount = timetableCoordinateDb.bulkInsert(currentTimetableId, routeCoordinates);
-            console.log(`Saved ${coordCount} coordinates to database for timetable ${currentTimetableId}`);
-
-            // Save markers to timetable_markers table
-            if (discoveredMarkers.length > 0) {
-                const markerCount = timetableMarkerDb.bulkInsert(currentTimetableId, discoveredMarkers);
-                console.log(`Saved ${markerCount} markers to database for timetable ${currentTimetableId}`);
-            }
-            dbSaved = true;
-        } catch (err) {
-            console.error('Failed to save to database:', err);
-        }
-    }
-
     const result = {
         success: true,
         message: 'Recording stopped',
@@ -180,7 +180,6 @@ function stop(req, res) {
         routeId: routeId,
         coordinateCount: routeCoordinates.length,
         markerCount: discoveredMarkers.length,
-        savedToDatabase: dbSaved,
         outputFile: routeOutputFilePath ? path.basename(routeOutputFilePath) : null
     };
 
@@ -191,6 +190,7 @@ function stop(req, res) {
     routeCoordinates = [];
     discoveredMarkers = [];
     processedMarkers.clear();
+    savedTimetableCoords.clear();
     currentPlayerPosition = null;
     currentGradient = null;
     currentHeight = null;
@@ -199,6 +199,28 @@ function stop(req, res) {
 
     console.log('Recording stopped');
     sendJson(res, result);
+}
+
+/**
+ * Reset all recording state (for testing)
+ */
+function reset(req, res) {
+    // Reset all state without saving
+    isRecording = false;
+    isPaused = false;
+    currentTimetableId = null;
+    routeCoordinates = [];
+    discoveredMarkers = [];
+    processedMarkers.clear();
+    savedTimetableCoords.clear();
+    currentPlayerPosition = null;
+    currentGradient = null;
+    currentHeight = null;
+    recordingStartTime = null;
+    routeOutputFilePath = null;
+
+    console.log('Recording state reset');
+    sendJson(res, { success: true, message: 'Recording state reset' });
 }
 
 /**
@@ -257,22 +279,37 @@ function resume(req, res) {
 
 /**
  * Get current route data for the record map
+ * Returns data from the in-memory recording state, not from the database
  */
 function getRouteData(req, res) {
     const timetable = currentTimetableId ? timetableDb.getById(currentTimetableId) : null;
     const entries = currentTimetableId ? entryDb.getByTimetableId(currentTimetableId) : [];
 
-    // Build timetable data array for the map
-    const timetableData = entries.map((entry, index) => ({
-        index,
-        destination: entry.location || entry.details || 'Unknown',
-        arrival: entry.time1 || '',
-        departure: entry.time2 || '',
-        platform: entry.platform || '',
-        apiName: entry.location || '',
-        latitude: entry.latitude ? parseFloat(entry.latitude) : null,
-        longitude: entry.longitude ? parseFloat(entry.longitude) : null
-    }));
+    // Get station name mapping for display names
+    let stationNameMapping = {};
+    if (timetable && timetable.route_id) {
+        stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
+    } else {
+        stationNameMapping = stationMappingDb.getMappingObject(null);
+    }
+
+    // Use preprocessTimetableEntries to get proper station list (same as saveRouteData)
+    const processedEntries = preprocessTimetableEntries(entries, stationNameMapping);
+
+    // Build timetable data array - use coordinates from savedTimetableCoords (recording session only)
+    const timetableData = processedEntries.map((entry, index) => {
+        const savedCoords = savedTimetableCoords.get(index);
+        return {
+            index: entry.index,
+            destination: entry.destination,
+            arrival: entry.arrival || '',
+            departure: entry.departure || '',
+            platform: entry.platform || '',
+            apiName: entry.apiName || '',
+            latitude: savedCoords ? savedCoords.latitude : null,
+            longitude: savedCoords ? savedCoords.longitude : null
+        };
+    });
 
     sendJson(res, {
         isRecording,
@@ -288,6 +325,7 @@ function getRouteData(req, res) {
 
 /**
  * Save coordinates to a timetable entry
+ * NOTE: Only saves to the recording JSON file, NOT to the database
  */
 async function saveTimetableCoords(req, res) {
     let body = '';
@@ -311,31 +349,38 @@ async function saveTimetableCoords(req, res) {
                 return;
             }
 
-            // Get timetable entries
+            // Get timetable entries to validate index and get destination name
             const entries = entryDb.getByTimetableId(currentTimetableId);
+            const timetable = timetableDb.getById(currentTimetableId);
 
-            if (index < 0 || index >= entries.length) {
-                sendJson(res, { success: false, error: `Invalid index ${index}. Must be between 0 and ${entries.length - 1}` }, 400);
+            // Get station name mapping
+            let stationNameMapping = {};
+            if (timetable && timetable.route_id) {
+                stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
+            } else {
+                stationNameMapping = stationMappingDb.getMappingObject(null);
+            }
+
+            // Process entries to get proper station list
+            const processedEntries = preprocessTimetableEntries(entries, stationNameMapping);
+
+            if (index < 0 || index >= processedEntries.length) {
+                sendJson(res, { success: false, error: `Invalid index ${index}. Must be between 0 and ${processedEntries.length - 1}` }, 400);
                 return;
             }
 
-            // Update the entry with coordinates
-            const entry = entries[index];
-            entry.latitude = latitude.toString();
-            entry.longitude = longitude.toString();
-            entryDb.update(entry.id, entry);
+            // Save coordinates to in-memory map (not database)
+            savedTimetableCoords.set(index, { latitude, longitude });
 
-            console.log(`Updated timetable entry ${index} with coordinates: ${latitude}, ${longitude}`);
+            console.log(`Saved timetable entry ${index} coordinates to recording: ${latitude}, ${longitude}`);
 
-            // Also save to the route file
-            const timetable = timetableDb.getById(currentTimetableId);
-            const updatedEntries = entryDb.getByTimetableId(currentTimetableId);
-            saveRouteData(timetable, updatedEntries);
+            // Save to the route file
+            saveRouteData(timetable, entries);
 
             sendJson(res, {
                 success: true,
-                message: `Updated timetable index ${index}`,
-                destination: entry.location || entry.details || 'Unknown'
+                message: `Saved coordinates for index ${index}`,
+                destination: processedEntries[index].destination
             });
         } catch (err) {
             sendJson(res, { success: false, error: 'Invalid JSON data' }, 400);
@@ -364,8 +409,9 @@ function processCoordinate(geoLocation, gradient, height) {
         currentHeight = height;
     }
 
+    // Default gradient to 0 if not provided
+    coordinate.gradient = (gradient !== null && gradient !== undefined) ? gradient : 0;
     if (gradient !== null && gradient !== undefined) {
-        coordinate.gradient = gradient;
         currentGradient = gradient;
     }
 
@@ -377,12 +423,14 @@ function processCoordinate(geoLocation, gradient, height) {
     if (!lastCoord || lastCoord.longitude !== coordinate.longitude || lastCoord.latitude !== coordinate.latitude) {
         routeCoordinates.push(coordinate);
 
-        // Save to file periodically (every 100 coordinates)
-        if (routeCoordinates.length % 100 === 0) {
+        // Save to file periodically based on SAVE_FREQUENCY
+        if (routeCoordinates.length % SAVE_FREQUENCY === 0) {
             const timetable = timetableDb.getById(currentTimetableId);
             const entries = entryDb.getByTimetableId(currentTimetableId);
             saveRouteData(timetable, entries);
-            console.log(`Route collection: ${routeCoordinates.length} coordinates, ${discoveredMarkers.length} markers`);
+            if (SAVE_FREQUENCY >= 100) {
+                console.log(`Route collection: ${routeCoordinates.length} coordinates, ${discoveredMarkers.length} markers`);
+            }
         }
     }
 }
@@ -390,6 +438,13 @@ function processCoordinate(geoLocation, gradient, height) {
 /**
  * Process marker data from telemetry stream
  * Called by the stream controller when recording is active
+ *
+ * Recording logic:
+ * - First encounter: Record detectedAt (our position) + distanceAheadMeters + timestamp (never overwrite)
+ * - Every subsequent encounter: Update onspot_latitude, onspot_longitude, onspot_distance (always latest)
+ *
+ * This allows post-processing to calculate actual marker position using the recorded path
+ * and the final onspot_* values (which have the smallest distance to the marker).
  */
 function processMarker(station, distanceCM) {
     if (!isRecording || isPaused || !currentPlayerPosition) return;
@@ -399,33 +454,18 @@ function processMarker(station, distanceCM) {
 
     const distanceMeters = distanceCM / 100;
 
-    // Check if we're passing over this station (within 10 meters)
-    if (distanceCM < 1000) {
-        // Get timetable entries to check if this is a timetable station
-        const entries = entryDb.getByTimetableId(currentTimetableId);
-        const timetableStop = entries.find(e => e.location === markerName || e.details === markerName);
+    // Check if marker already exists
+    const existingMarker = discoveredMarkers.find(m => m.stationName === markerName);
 
-        if (timetableStop) {
-            // Find this marker in discoveredMarkers
-            const existingMarker = discoveredMarkers.find(m => m.stationName === markerName);
-            if (existingMarker) {
-                // Record/update the on-spot position
-                existingMarker.onspot_latitude = currentPlayerPosition.latitude;
-                existingMarker.onspot_longitude = currentPlayerPosition.longitude;
-                existingMarker.onspot_timestamp = new Date().toISOString();
-                existingMarker.spoton_distance = distanceMeters;
-
-                // Save to file
-                const timetable = timetableDb.getById(currentTimetableId);
-                saveRouteData(timetable, entries);
-
-                console.log(`Recording position for ${markerName} at ${distanceMeters.toFixed(2)}m`);
-            }
-        }
-    }
-
-    // Add new marker if not already processed
-    if (!processedMarkers.has(markerName)) {
+    if (existingMarker) {
+        // Marker already discovered - update onspot_* with latest position and distance
+        // These get continuously updated as we get closer to the marker
+        existingMarker.onspot_latitude = currentPlayerPosition.latitude;
+        existingMarker.onspot_longitude = currentPlayerPosition.longitude;
+        existingMarker.onspot_timestamp = new Date().toISOString();
+        existingMarker.onspot_distance = distanceMeters;
+    } else {
+        // First time seeing this marker - record initial detection data
         const marker = {
             stationName: markerName,
             markerType: station.markerType || 'Station',
@@ -441,14 +481,13 @@ function processMarker(station, distanceCM) {
             marker.platformLength = station.platformLength;
         }
 
+        // Initialize onspot_* with first values (will be updated on subsequent calls)
+        marker.onspot_latitude = currentPlayerPosition.latitude;
+        marker.onspot_longitude = currentPlayerPosition.longitude;
+        marker.onspot_timestamp = new Date().toISOString();
+        marker.onspot_distance = distanceMeters;
+
         discoveredMarkers.push(marker);
-        processedMarkers.add(markerName);
-
-        // Save to file
-        const timetable = timetableDb.getById(currentTimetableId);
-        const entries = entryDb.getByTimetableId(currentTimetableId);
-        saveRouteData(timetable, entries);
-
         console.log(`Found marker: ${markerName} (${distanceMeters.toFixed(0)}m ahead)`);
     }
 }
@@ -478,22 +517,40 @@ function saveRouteData(timetable, entries) {
     const formattedCoordinates = routeCoordinates.map(c => ({
         latitude: c.latitude,
         longitude: c.longitude,
-        height: c.height || null,
-        gradient: c.gradient || null
+        height: c.height !== undefined ? c.height : null,
+        gradient: c.gradient !== undefined ? c.gradient : 0
     }));
 
-    // Format markers for export (same as exportDownload)
-    const exportMarkers = discoveredMarkers.map(m => ({
-        stationName: m.stationName,
-        markerType: m.markerType || 'Station',
-        latitude: m.detectedAt ? m.detectedAt.latitude : m.latitude,
-        longitude: m.detectedAt ? m.detectedAt.longitude : m.longitude,
-        platformLength: m.platformLength || null
-    }));
+    // Format markers - preserve all recording data for post-processing
+    // detectedAt + distanceAheadMeters = first sighting (backup)
+    // onspot_* = continuously updated values for calculating actual position
+    const exportMarkers = discoveredMarkers.map(m => {
+        const marker = {
+            stationName: m.stationName,
+            markerType: m.markerType || 'Station',
+            detectedAt: m.detectedAt,
+            distanceAheadMeters: m.distanceAheadMeters,
+            timestamp: m.timestamp
+        };
 
-    // Clean up entries for export (same as exportDownload)
-    // Do NOT call mapTimetableToMarkers - coordinates should only come from user input
-    const exportEntries = timetableEntries.map(e => {
+        if (m.platformLength != null) {
+            marker.platformLength = m.platformLength;
+        }
+
+        // Include onspot_* values for post-processing
+        if (m.onspot_latitude != null) {
+            marker.onspot_latitude = m.onspot_latitude;
+            marker.onspot_longitude = m.onspot_longitude;
+            marker.onspot_timestamp = m.onspot_timestamp;
+            marker.onspot_distance = m.onspot_distance;
+        }
+
+        return marker;
+    });
+
+    // Clean up entries for export
+    // Use coordinates from savedTimetableCoords (user-saved during recording session)
+    const exportEntries = timetableEntries.map((e, idx) => {
         const result = {
             index: e.index,
             destination: e.destination,
@@ -502,8 +559,12 @@ function saveRouteData(timetable, entries) {
             platform: e.platform,
             apiName: e.apiName
         };
-        if (e.latitude != null) result.latitude = e.latitude;
-        if (e.longitude != null) result.longitude = e.longitude;
+        // Get coordinates from the recording session's saved coords
+        const savedCoords = savedTimetableCoords.get(idx);
+        if (savedCoords) {
+            result.latitude = savedCoords.latitude;
+            result.longitude = savedCoords.longitude;
+        }
         return result;
     });
 
@@ -594,10 +655,60 @@ function getRecordingFile(req, res, filename) {
     }
 }
 
+/**
+ * Get recording state for stream inclusion
+ * Returns data to be merged into stream output
+ */
+function getRecordingStateForStream() {
+    if (!isRecording && !isPaused) {
+        return null;
+    }
+
+    const timetable = currentTimetableId ? timetableDb.getById(currentTimetableId) : null;
+    const entries = currentTimetableId ? entryDb.getByTimetableId(currentTimetableId) : [];
+
+    // Get station name mapping
+    let stationNameMapping = {};
+    if (timetable && timetable.route_id) {
+        stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
+    } else {
+        stationNameMapping = stationMappingDb.getMappingObject(null);
+    }
+
+    // Process entries to get proper station list
+    const processedEntries = preprocessTimetableEntries(entries, stationNameMapping);
+
+    // Build timetable data with saved coordinates
+    const timetableData = processedEntries.map((entry, idx) => {
+        const savedCoords = savedTimetableCoords.get(idx);
+        return {
+            index: entry.index,
+            destination: entry.destination,
+            arrival: entry.arrival || '',
+            departure: entry.departure || '',
+            platform: entry.platform || '',
+            apiName: entry.apiName || '',
+            latitude: savedCoords ? savedCoords.latitude : null,
+            longitude: savedCoords ? savedCoords.longitude : null
+        };
+    });
+
+    return {
+        isRecording,
+        isPaused,
+        timetableId: currentTimetableId,
+        routeName: timetable ? timetable.service_name : 'Unknown',
+        coordinateCount: routeCoordinates.length,
+        markerCount: discoveredMarkers.length,
+        timetable: timetableData
+    };
+}
+
 module.exports = {
     getStatus,
     start,
     stop,
+    reset,
     pause,
     resume,
     getRouteData,
@@ -606,5 +717,6 @@ module.exports = {
     processMarker,
     isRecordingActive,
     listRecordings,
-    getRecordingFile
+    getRecordingFile,
+    getRecordingStateForStream
 };

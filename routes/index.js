@@ -541,12 +541,6 @@ async function handleRoutes(req, res) {
     // Recording API Routes
     // ============================================
 
-    // Recording status
-    if (pathname === '/api/recording/status' && method === 'GET') {
-        recordingController.getStatus(req, res);
-        return true;
-    }
-
     // Start recording for a timetable
     const recordingStartMatch = pathname.match(/^\/api\/recording\/start\/(\d+)$/);
     if (recordingStartMatch && method === 'POST') {
@@ -558,6 +552,12 @@ async function handleRoutes(req, res) {
     // Stop recording
     if (pathname === '/api/recording/stop' && method === 'POST') {
         recordingController.stop(req, res);
+        return true;
+    }
+
+    // Reset recording (for testing)
+    if (pathname === '/api/recording/reset' && method === 'POST') {
+        recordingController.reset(req, res);
         return true;
     }
 

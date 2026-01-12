@@ -14,6 +14,7 @@
 - hud
 - map recorder
 - map player
+- See if we can display the doors status in the hud
 
 - Audio player for announcments ?
 - Maybe record the verbage differently if they use track vs platform??? in the parser???
@@ -29,3 +30,45 @@ Other Questions
 - Markers?
 - Gradiant?
 - height ?
+
+Hub Items needed
+Operations Hud Details
+
+BP: Brake Pipe pressure. This pressure runs the entire length of the train and is the main control for the train's automatic brakes. The pressure is reduced to apply the brakes and increased (recharged) to release them.
+ER: Equalizing Reservoir pressure. This acts as the "target" pressure for the automatic brake system. The engineer sets the desired pressure here, and the system automatically works to match the BP pressure to this level.
+MR: Main Reservoir pressure. This is the primary supply of compressed air on the locomotive, charged by the air compressor. This air is used to recharge the brake pipe and supply the independent brake system.
+BC: Brake Cylinder pressure. This indicates the actual amount of air pressure in the brake cylinders on the locomotive (and individual cars if indicated), which physically pushes the brake pads against the wheels. Unlike BP, this pressure increases as the brakes are applied and decreases when they are released. 
+
+Locomotive Brake => locomotiveBrakeHandle
+Brake Systems => BP, ER, MR, BC
+Power Indicator
+LZB Distance To Speed Change
+Cruise Speed
+
+Acceleerometer
+In-Cab signaling / LZB Speed Limit
+Maximum Permited SpeedTrain Door Status
+Reverser Direction
+Saftey Systems
+
+Distance to next Stop
+Expected Time at location or expected leave time
+
+
+---------------------------------------
+The apiName is built in processingController.js at lines 151-153, 181-183, and 201-202.
+
+The formula is:
+
+
+const mappedDestination = stationNameMapping[destination] || destination;
+const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+So apiName = {mapped station name} Platform {platform number}
+
+For example:
+
+destination = "Metro South"
+stationNameMapping["Metro South"] = "MetroSouth" (from station mappings)
+platform = "1"
+Result: apiName = "MetroSouth Platform 1"
+The station name mapping lookup uses the stationMappingDb which stores display name → API name translations for each route.

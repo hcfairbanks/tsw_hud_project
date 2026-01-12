@@ -267,15 +267,8 @@ function parseSubscriptionData(rawData) {
                             latitude: entry.Values.geoLocation.latitude
                         };
                         streamData.playerPosition = currentPlayerPosition;
-
-                        // Feed coordinates to recording controller if recording is active
-                        if (recordingController.isRecordingActive()) {
-                            recordingController.processCoordinate(
-                                entry.Values.geoLocation,
-                                streamData.incline,
-                                currentHeight // height from TrackData
-                            );
-                        }
+                        // Store geoLocation for recording after all entries are processed
+                        streamData._geoLocation = entry.Values.geoLocation;
                     }
                 }
                 // Extract track data for markers and height
@@ -285,20 +278,12 @@ function parseSubscriptionData(rawData) {
                         currentHeight = entry.Values.lastPlayerPosition.height;
                     }
 
-                    // Process stations and markers for recording
-                    if (recordingController.isRecordingActive()) {
-                        // Process stations
-                        if (entry.Values.stations && Array.isArray(entry.Values.stations)) {
-                            for (const station of entry.Values.stations) {
-                                recordingController.processMarker(station, station.distanceToStationCM || 0);
-                            }
-                        }
-                        // Process markers
-                        if (entry.Values.markers && Array.isArray(entry.Values.markers)) {
-                            for (const marker of entry.Values.markers) {
-                                recordingController.processMarker(marker, marker.distanceToStationCM || 0);
-                            }
-                        }
+                    // Store stations and markers for recording after all entries are processed
+                    if (entry.Values.stations && Array.isArray(entry.Values.stations)) {
+                        streamData._stations = entry.Values.stations;
+                    }
+                    if (entry.Values.markers && Array.isArray(entry.Values.markers)) {
+                        streamData._markers = entry.Values.markers;
                     }
                 }
                 // Extract speed
@@ -349,7 +334,8 @@ function parseSubscriptionData(rawData) {
                         streamData.limit = Math.round(entry.Values['speedLimit']['value'] * speedConversionFactor);
                     }
                     if (entry.Values['gradient'] !== undefined) {
-                        streamData.incline = parseFloat(entry.Values['gradient'].toFixed(1));
+                        streamData.incline = parseFloat(entry.Values['gradient'].toFixed(1)); // Rounded for display
+                        streamData._rawGradient = entry.Values['gradient']; // Raw value for recording
                     }
                     if (entry.Values['nextSpeedLimit'] && entry.Values['nextSpeedLimit']['value']) {
                         streamData.nextSpeedLimit = Math.round(entry.Values['nextSpeedLimit']['value'] * speedConversionFactor);
@@ -390,6 +376,42 @@ function parseSubscriptionData(rawData) {
                 }
             }
         }
+    }
+
+    // Process recording data after all entries are parsed (so streamData.incline is available)
+    if (recordingController.isRecordingActive()) {
+        // Record coordinate with raw gradient from stream (not rounded)
+        if (streamData._geoLocation) {
+            recordingController.processCoordinate(
+                streamData._geoLocation,
+                streamData._rawGradient, // Raw value, not rounded
+                currentHeight
+            );
+        }
+        // Record stations
+        if (streamData._stations) {
+            for (const station of streamData._stations) {
+                recordingController.processMarker(station, station.distanceToStationCM || 0);
+            }
+        }
+        // Record markers
+        if (streamData._markers) {
+            for (const marker of streamData._markers) {
+                recordingController.processMarker(marker, marker.distanceToStationCM || 0);
+            }
+        }
+    }
+
+    // Clean up temporary properties
+    delete streamData._geoLocation;
+    delete streamData._stations;
+    delete streamData._markers;
+    delete streamData._rawGradient;
+
+    // Include recording state in stream if recording is active
+    const recordingState = recordingController.getRecordingStateForStream();
+    if (recordingState) {
+        streamData.recording = recordingState;
     }
 
     // Calculate timetable display and distance

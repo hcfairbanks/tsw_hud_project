@@ -76,7 +76,7 @@ function writeToJSONRouteSkeleton(entries, serviceName, routeId, timetableId) {
 
                 // Build apiName: mapped destination + " Platform " + platform
                 const mappedDestination = stationMappings[destination] || destination;
-                const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+                const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
 
                 timetable.push({
                     index: index++,
@@ -106,7 +106,7 @@ function writeToJSONRouteSkeleton(entries, serviceName, routeId, timetableId) {
 
                 // Build apiName: mapped destination + " Platform " + platform
                 const mappedDestination = stationMappings[destination] || destination;
-                const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+                const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
 
                 timetable.push({
                     index: index++,
@@ -125,7 +125,7 @@ function writeToJSONRouteSkeleton(entries, serviceName, routeId, timetableId) {
                     const platform = entry.platform || '';
                     const arrival = entry.time1 || '';
                     const mappedDestination = stationMappings[destination] || destination;
-                    const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+                    const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
 
                     timetable.push({
                         index: index++,

@@ -150,7 +150,7 @@ function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
 
             // Build apiName: mapped destination + " Platform " + platform
             const mappedDestination = stationNameMapping[destination] || destination;
-            const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+            const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
 
             processedEntries.push({
                 index: index++,
@@ -180,7 +180,7 @@ function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
 
             // Build apiName: mapped destination + " Platform " + platform
             const mappedDestination = stationNameMapping[destination] || destination;
-            const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+            const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
 
             processedEntries.push({
                 index: index++,
@@ -199,7 +199,7 @@ function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
                 const platform = entry.platform || '';
                 const arrival = entry.time1 || '';
                 const mappedDestination = stationNameMapping[destination] || destination;
-                const apiName = (mappedDestination && platform) ? mappedDestination + ' Platform ' + platform : '';
+                const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
 
                 processedEntries.push({
                     index: index++,

@@ -1,0 +1,300 @@
+{
+  "routeName": "101 Training Center 08:00  00:10",
+  "timetableId": 5,
+  "totalPoints": 35,
+  "totalMarkers": 4,
+  "coordinates": [
+    {
+      "latitude": 51.11071642326682,
+      "longitude": 6.212270296354328,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642325835,
+      "longitude": 6.21227029645949,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642333023,
+      "longitude": 6.212270296481325,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642342851,
+      "longitude": 6.212270296457968,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642351218,
+      "longitude": 6.212270296513978,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642331181,
+      "longitude": 6.212270296168474,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716422943256,
+      "longitude": 6.212270296138336,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642301702,
+      "longitude": 6.21227029623855,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642340591,
+      "longitude": 6.212270297122137,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716423652896,
+      "longitude": 6.212270296889239,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716423269515,
+      "longitude": 6.2122702964675405,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642289372,
+      "longitude": 6.2122702961325995,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642283475,
+      "longitude": 6.212270295961725,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642303027,
+      "longitude": 6.212270296333686,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642354056,
+      "longitude": 6.212270296782625,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642362195,
+      "longitude": 6.212270296742839,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642318389,
+      "longitude": 6.2122702965599075,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642278872,
+      "longitude": 6.212270296104036,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642292805,
+      "longitude": 6.21227029619158,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716423196926,
+      "longitude": 6.212270296646334,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642362744,
+      "longitude": 6.21227029674251,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642339199,
+      "longitude": 6.212270296538657,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642304385,
+      "longitude": 6.212270296672994,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716422817426,
+      "longitude": 6.2122702966168575,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716423060296,
+      "longitude": 6.212270296672004,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716423493166,
+      "longitude": 6.212270296637218,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642357144,
+      "longitude": 6.212270296466803,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716423190695,
+      "longitude": 6.212270296385075,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716422940136,
+      "longitude": 6.212270296007706,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642324004,
+      "longitude": 6.212270296382103,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642350961,
+      "longitude": 6.212270296636229,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716423603634,
+      "longitude": 6.212270296665453,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642334232,
+      "longitude": 6.212270296297453,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110716422867014,
+      "longitude": 6.212270295933619,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11071642272613,
+      "longitude": 6.212270296011871,
+      "height": 8699.7294921875,
+      "gradient": 0
+    }
+  ],
+  "markers": [
+    {
+      "stationName": "Station One Platform 2",
+      "markerType": "Platform",
+      "detectedAt": {
+        "longitude": 6.212270296354328,
+        "latitude": 51.11071642326682
+      },
+      "distanceAheadMeters": 6335.259375,
+      "timestamp": "2026-01-12T14:20:39.082Z",
+      "platformLength": 29381.5625,
+      "onspot_latitude": 51.110716422867014,
+      "onspot_longitude": 6.212270295933619,
+      "onspot_timestamp": "2026-01-12T14:20:56.002Z",
+      "onspot_distance": 6335.259375
+    },
+    {
+      "stationName": "Main Loop West 2",
+      "markerType": "Destination",
+      "detectedAt": {
+        "longitude": 6.212270296354328,
+        "latitude": 51.11071642326682
+      },
+      "distanceAheadMeters": 7637.460625,
+      "timestamp": "2026-01-12T14:20:39.082Z",
+      "platformLength": 25002.6640625,
+      "onspot_latitude": 51.110716422867014,
+      "onspot_longitude": 6.212270295933619,
+      "onspot_timestamp": "2026-01-12T14:20:56.002Z",
+      "onspot_distance": 7637.460625
+    },
+    {
+      "stationName": "Main Loop Track 2",
+      "markerType": "Destination",
+      "detectedAt": {
+        "longitude": 6.212270296354328,
+        "latitude": 51.11071642326682
+      },
+      "distanceAheadMeters": 3197.751875,
+      "timestamp": "2026-01-12T14:20:39.082Z",
+      "platformLength": 60002.875,
+      "onspot_latitude": 51.110716422867014,
+      "onspot_longitude": 6.212270295933619,
+      "onspot_timestamp": "2026-01-12T14:20:56.002Z",
+      "onspot_distance": 3197.751875
+    },
+    {
+      "stationName": "Main Loop East 2",
+      "markerType": "Destination",
+      "detectedAt": {
+        "longitude": 6.212270296354328,
+        "latitude": 51.11071642326682
+      },
+      "distanceAheadMeters": 4558.604375,
+      "timestamp": "2026-01-12T14:20:39.082Z",
+      "platformLength": 25007.279296875,
+      "onspot_latitude": 51.110716422867014,
+      "onspot_longitude": 6.212270295933619,
+      "onspot_timestamp": "2026-01-12T14:20:56.002Z",
+      "onspot_distance": 4558.604375
+    }
+  ],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "Metro South",
+      "arrival": "08:30",
+      "departure": "08:32",
+      "platform": "1",
+      "apiName": "Metro South 1",
+      "latitude": 51.110716,
+      "longitude": 6.21227
+    },
+    {
+      "index": 1,
+      "destination": "Metro North",
+      "arrival": "08:40",
+      "departure": "",
+      "platform": "1",
+      "apiName": "Metro North 1"
+    }
+  ]
+}
