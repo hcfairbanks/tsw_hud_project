@@ -2,7 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 const { sendJson } = require('../utils/http');
-const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb } = require('../db');
+const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, stationMappingDb } = require('../db');
+const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
 
 // Recording state
 let isRecording = false;
@@ -454,31 +455,67 @@ function processMarker(station, distanceCM) {
 
 /**
  * Save route data to JSON file
+ * Uses the SAME format as timetableController.exportDownload() for consistency
+ * NOTE: Does NOT auto-populate coordinates - user must manually assign them during recording
  */
 function saveRouteData(timetable, entries) {
     if (!routeOutputFilePath) return;
 
-    // Build timetable data array
-    const timetableData = entries.map((entry, index) => ({
-        index,
-        destination: entry.location || entry.details || 'Unknown',
-        arrival: entry.time1 || '',
-        departure: entry.time2 || '',
-        platform: entry.platform || '',
-        apiName: entry.location || '',
-        latitude: entry.latitude ? parseFloat(entry.latitude) : null,
-        longitude: entry.longitude ? parseFloat(entry.longitude) : null
+    // Load station name mapping from database (same as exportDownload)
+    let stationNameMapping = {};
+    if (timetable && timetable.route_id) {
+        stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
+    } else {
+        stationNameMapping = stationMappingDb.getMappingObject(null);
+    }
+
+    // Pre-process raw timetable entries into proper station entries (same as exportDownload)
+    // NOTE: Do NOT copy coordinates from database - recording file should start fresh
+    // User will manually assign coordinates during the recording session
+    const timetableEntries = preprocessTimetableEntries(entries, stationNameMapping);
+
+    // Format coordinates (same as exportDownload)
+    const formattedCoordinates = routeCoordinates.map(c => ({
+        latitude: c.latitude,
+        longitude: c.longitude,
+        height: c.height || null,
+        gradient: c.gradient || null
     }));
 
+    // Format markers for export (same as exportDownload)
+    const exportMarkers = discoveredMarkers.map(m => ({
+        stationName: m.stationName,
+        markerType: m.markerType || 'Station',
+        latitude: m.detectedAt ? m.detectedAt.latitude : m.latitude,
+        longitude: m.detectedAt ? m.detectedAt.longitude : m.longitude,
+        platformLength: m.platformLength || null
+    }));
+
+    // Clean up entries for export (same as exportDownload)
+    // Do NOT call mapTimetableToMarkers - coordinates should only come from user input
+    const exportEntries = timetableEntries.map(e => {
+        const result = {
+            index: e.index,
+            destination: e.destination,
+            arrival: e.arrival,
+            departure: e.departure,
+            platform: e.platform,
+            apiName: e.apiName
+        };
+        if (e.latitude != null) result.latitude = e.latitude;
+        if (e.longitude != null) result.longitude = e.longitude;
+        return result;
+    });
+
+    // Build the export object (same structure as exportDownload)
     const output = {
         routeName: timetable ? timetable.service_name : 'Unknown',
         timetableId: currentTimetableId,
-        totalPoints: routeCoordinates.length,
-        totalMarkers: discoveredMarkers.length,
-        duration: recordingStartTime ? Date.now() - recordingStartTime : 0,
-        coordinates: routeCoordinates,
-        markers: discoveredMarkers,
-        timetable: timetableData
+        totalPoints: formattedCoordinates.length,
+        totalMarkers: exportMarkers.length,
+        coordinates: formattedCoordinates,
+        markers: exportMarkers,
+        timetable: exportEntries
     };
 
     try {

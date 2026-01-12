@@ -283,14 +283,20 @@ function parseTrainTimetable(text) {
     for (const line of lines) {
         const trimmedLine = line.trim();
         
-        // Extract service name from first matching line
-        if (/^[A-Za-z0-9]+(:|-)/.test(trimmedLine) && !serviceName) {
-            let extracted = trimmedLine;
-            extracted = extracted.replace(/\s*[\[\(][^\]\)]*[\]\)].*$/g, '');
-            extracted = extracted.replace(/ & /g, ' XANDX ');
-            extracted = extracted.replace(/\s*[^\w\s:-]+.*$/g, '');
-            extracted = extracted.replace(/ XANDX /g, ' & ');
-            serviceName = extracted.trim();
+        // Check if this is an action line
+        const isActionLine = trimmedLine.includes('WAIT FOR SERVICE') ||
+                            trimmedLine.includes('STOP AT LOCATION') ||
+                            trimmedLine.includes('LOAD PASSENGERS') ||
+                            trimmedLine.includes('UNLOAD PASSENGERS') ||
+                            trimmedLine.includes('GO VIA LOCATION') ||
+                            trimmedLine.includes('UNCOUPLE VEHICLES') ||
+                            trimmedLine.includes('COUPLE TO FORMATION');
+
+        // If not an action line and we don't have a service name yet, this is the service name
+        // The first image is always the service name - just take the whole line
+        if (!isActionLine && !serviceName) {
+            // Collapse multiple whitespace into single space, keep everything
+            serviceName = trimmedLine.replace(/\s{2,}/g, ' ').trim();
             continue;
         }
         
@@ -331,7 +337,7 @@ function parseTrainTimetable(text) {
             const parts = afterAction.split(/\s{2,}/);
             details = parts[0] ? parts[0].trim() : afterAction;
             
-            const platformMatch = details.match(/(.+?)\s+Platform\s+(\d+)/);
+            const platformMatch = details.match(/(.+?)\s+(?:Platform|Track)\s+(\d+)/i);
             let location = '';
             let platform = '';
             if (platformMatch) {
@@ -358,7 +364,7 @@ function parseTrainTimetable(text) {
             details = parts[0] ? parts[0].trim() : afterAction;
             
             // Extract location and platform from details
-            const platformMatch = details.match(/(.+?)\s+Platform\s+(\d+)/);
+            const platformMatch = details.match(/(.+?)\s+(?:Platform|Track)\s+(\d+)/i);
             let location = '';
             let platform = '';
             if (platformMatch) {
@@ -370,6 +376,36 @@ function parseTrainTimetable(text) {
             }
             // For STOP AT LOCATION, only use the first time (scheduled arrival)
             rows.push({ action, details, location, platform, time1, time2: '', rawLine: trimmedLine });
+        } else if (trimmedLine.includes('GO VIA LOCATION')) {
+            action = 'GO VIA LOCATION';
+            const afterAction = trimmedLine.replace('GO VIA LOCATION', '').trim();
+
+            // Details = everything up to large whitespace gap
+            const parts = afterAction.split(/\s{2,}/);
+            details = parts[0] ? parts[0].trim() : afterAction;
+
+            // Extract location from details (no platform for GO VIA)
+            let location = details.replace(/\s*-\s*\d{1,2}:\d{2}:\d{2}.*$/, '').trim();
+
+            rows.push({ action, details, location, platform: '', time1, time2: '', rawLine: trimmedLine });
+        } else if (trimmedLine.includes('UNCOUPLE VEHICLES')) {
+            action = 'UNCOUPLE VEHICLES';
+            const afterAction = trimmedLine.replace('UNCOUPLE VEHICLES', '').trim();
+
+            // Details = everything up to large whitespace gap
+            const parts = afterAction.split(/\s{2,}/);
+            details = parts[0] ? parts[0].trim() : afterAction;
+
+            rows.push({ action, details, location: '', platform: '', time1, time2: '', rawLine: trimmedLine });
+        } else if (trimmedLine.includes('COUPLE TO FORMATION')) {
+            action = 'COUPLE TO FORMATION';
+            const afterAction = trimmedLine.replace('COUPLE TO FORMATION', '').trim();
+
+            // Details = everything up to large whitespace gap
+            const parts = afterAction.split(/\s{2,}/);
+            details = parts[0] ? parts[0].trim() : afterAction;
+
+            rows.push({ action, details, location: '', platform: '', time1, time2: '', rawLine: trimmedLine });
         }
     }
 
@@ -396,7 +432,7 @@ async function processImages(imageBuffers, onProgress) {
 
         let text = '';
 
-        // First image: extract service name only (single pass, not double)
+        // First image: extract service name (single pass, not double) and any rows
         if (i === 0) {
             const sn = await extractServiceNameFromBuffer(buffer);
             if (sn) {
@@ -405,6 +441,8 @@ async function processImages(imageBuffers, onProgress) {
                 if (parsed.serviceName) {
                     serviceName = parsed.serviceName;
                 }
+                // Also collect any rows from the first image (e.g., WAIT FOR SERVICE)
+                allRows.push(...parsed.rows);
             }
         } else {
             // Other images: extract full timetable data
@@ -429,24 +467,33 @@ async function processImages(imageBuffers, onProgress) {
         });
     }
 
-    // Deduplicate rows based on unique time values
-    // An entry is considered duplicate if it has the same action and time1/time2 combination
-    const seenTimes = new Set();
+    // Deduplicate rows based on unique combination of action + times + location
+    // If times are empty, include location/details to differentiate entries
+    const seenKeys = new Set();
     const uniqueRows = [];
 
     for (const row of allRows) {
         const time1 = (row.time1 || '').trim();
         const time2 = (row.time2 || '').trim();
         const action = (row.action || '').trim();
+        const location = (row.location || '').trim();
+        const details = (row.details || '').trim();
 
-        // Create unique key based on action + times
-        const timeKey = `${action}|${time1}|${time2}`;
+        // Create unique key - include location/details if no times present
+        let uniqueKey;
+        if (time1 || time2) {
+            // If we have times, use action + times (original logic)
+            uniqueKey = `${action}|${time1}|${time2}`;
+        } else {
+            // If no times, include location/details to differentiate entries
+            uniqueKey = `${action}|${location}|${details}`;
+        }
 
-        if (!seenTimes.has(timeKey)) {
-            seenTimes.add(timeKey);
+        if (!seenKeys.has(uniqueKey)) {
+            seenKeys.add(uniqueKey);
             uniqueRows.push(row);
         } else {
-            console.log(`OCR: Skipping duplicate entry: ${action} at ${time1 || time2}`);
+            console.log(`OCR: Skipping duplicate entry: ${action} at ${time1 || time2 || location || details}`);
         }
     }
 

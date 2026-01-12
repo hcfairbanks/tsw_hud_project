@@ -10,11 +10,20 @@
     - default 5 / 6 settings
     - Miles / Feet or KM / M settings
     - Temperature settings C / F
+    - Dark or Light Mode
 - hud
 - map recorder
 - map player
-- Weather ( Yes you can !!!!)
+
 - Audio player for announcments ?
+- Maybe record the verbage differently if they use track vs platform??? in the parser???
+- we have "destination" in the json, maybe change this to location ?
+  not sure what's in the db for this
+- time 1 and time 2, we don't have headers for those in the game and it's not as easy
+  as arrive and depart because theonly thing that falls in time 2 is the initial start
+  of the service, at least from what I can observe so far.
+
+ check if color blindness settings will effect how the OCR parses data from the screen shot
 
 Other Questions 
 - Markers?

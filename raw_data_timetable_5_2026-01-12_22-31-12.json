@@ -1,5 +1,5 @@
 {
-  "routeName": "2T17: London Euston - Tring                                      08:30 00:10",
+  "routeName": "101 Training Center 08:00  00:10",
   "totalPoints": 0,
   "totalMarkers": 0,
   "duration": 0,
@@ -10,8 +10,8 @@
     {
       "index": 0,
       "destination": "StationOne",
-      "arrival": "",
-      "departure": "08:32:00",
+      "arrival": "08:30",
+      "departure": "08:32",
       "platform": "1",
       "apiName": "StationOne Platform 1",
       "longitude": null,
@@ -20,7 +20,7 @@
     {
       "index": 1,
       "destination": "StationOne",
-      "arrival": "08:40:00",
+      "arrival": "08:40",
       "departure": "",
       "platform": "2",
       "apiName": "StationOne Platform 2",

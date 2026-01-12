@@ -285,24 +285,43 @@ function calculateMarkerPositions(markers, coordinates) {
 }
 
 /**
- * Map timetable entries to marker coordinates using EXACT apiName matching
- * apiName must be 100% identical to marker stationName for a match
+ * Normalize platform/track naming for consistent matching
+ * Converts "Track X" to "Platform X" for matching purposes
+ */
+function normalizePlatformName(name) {
+    if (!name) return name;
+    // Replace "Track" with "Platform" for consistent matching (case insensitive)
+    return name.replace(/\bTrack\b/gi, 'Platform');
+}
+
+/**
+ * Map timetable entries to marker coordinates using apiName matching
+ * Treats "Platform" and "Track" as interchangeable for matching
  * Returns updated timetable entries with coordinates
  */
 function mapTimetableToMarkers(timetableEntries, markers) {
     const markerMap = new Map();
 
     // Build a map of marker names to coordinates
+    // Normalize names to treat Platform/Track interchangeably
     for (const marker of markers) {
         if (marker.latitude && marker.longitude) {
-            markerMap.set(marker.stationName, {
+            const normalizedName = normalizePlatformName(marker.stationName);
+            markerMap.set(normalizedName, {
                 latitude: marker.latitude,
                 longitude: marker.longitude
             });
+            // Also store original if different (for exact matches)
+            if (normalizedName !== marker.stationName) {
+                markerMap.set(marker.stationName, {
+                    latitude: marker.latitude,
+                    longitude: marker.longitude
+                });
+            }
         }
     }
 
-    // Map coordinates to timetable entries using EXACT apiName matching only
+    // Map coordinates to timetable entries using apiName matching
     for (const entry of timetableEntries) {
         // Skip if entry already has user-entered coordinates
         if (entry.latitude && entry.longitude) {
@@ -314,8 +333,12 @@ function mapTimetableToMarkers(timetableEntries, markers) {
             continue;
         }
 
-        // EXACT match only - apiName must be 100% identical to marker stationName
-        const coords = markerMap.get(entry.apiName);
+        // Try exact match first, then normalized match
+        let coords = markerMap.get(entry.apiName);
+        if (!coords) {
+            const normalizedApiName = normalizePlatformName(entry.apiName);
+            coords = markerMap.get(normalizedApiName);
+        }
 
         if (coords) {
             entry.latitude = coords.latitude;
