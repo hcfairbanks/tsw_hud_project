@@ -1,482 +1,488 @@
 [
     {
-        "tsw_version":  1,
-        "name":  "NEC: New York",
-        "id":  1,
-        "country":  "USA"
+        "tsw_version": 1,
+        "name": "NEC: New York",
+        "id": 1,
+        "country_id": 3
     },
     {
-        "tsw_version":  2,
-        "name":  "S-Bahn Zentralschweiz",
-        "id":  2,
-        "country":  "Switzerland"
+        "tsw_version": 2,
+        "name": "S-Bahn Zentralschweiz",
+        "id": 2,
+        "country_id": 6
     },
     {
-        "tsw_version":  2,
-        "name":  "Bakerloo Line",
-        "id":  3,
-        "country":  "United Kingdom"
+        "tsw_version": 2,
+        "name": "Bakerloo Line",
+        "id": 3,
+        "country_id": 1
     },
     {
-        "tsw_version":  2,
-        "name":  "Brighton Main Line",
-        "id":  4,
-        "country":  "United Kingdom"
+        "tsw_version": 2,
+        "name": "Brighton Main Line",
+        "id": 4,
+        "country_id": 1
     },
     {
-        "tsw_version":  2,
-        "name":  "Cane Creek",
-        "id":  5,
-        "country":  "USA"
+        "tsw_version": 2,
+        "name": "Cane Creek",
+        "id": 5,
+        "country_id": 3
     },
     {
-        "tsw_version":  2,
-        "name":  "NEC: Boston - Providence",
-        "id":  6,
-        "country":  "USA"
+        "tsw_version": 2,
+        "name": "NEC: Boston - Providence",
+        "id": 6,
+        "country_id": 3
     },
     {
-        "tsw_version":  2,
-        "name":  "Sherman Hill",
-        "id":  7,
-        "country":  "USA"
+        "tsw_version": 2,
+        "name": "Sherman Hill",
+        "id": 7,
+        "country_id": 3
     },
     {
-        "tsw_version":  2,
-        "name":  "Horseshoe Curve",
-        "id":  8,
-        "country":  "USA"
+        "tsw_version": 2,
+        "name": "Horseshoe Curve",
+        "id": 8,
+        "country_id": 3
     },
     {
-        "tsw_version":  3,
-        "name":  "Arosalinie",
-        "id":  9,
-        "country":  "Switzerland"
+        "tsw_version": 3,
+        "name": "Arosalinie",
+        "id": 9,
+        "country_id": 6
     },
     {
-        "tsw_version":  3,
-        "name":  "Bahnstrecke Bremen - Oldenburg",
-        "id":  10,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Bahnstrecke Bremen - Oldenburg",
+        "id": 10,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Birmingham Cross - City Line",
-        "id":  11,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Birmingham Cross - City Line",
+        "id": 11,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Boston Sprinter",
-        "id":  12,
-        "country":  "USA"
+        "tsw_version": 3,
+        "name": "Boston Sprinter",
+        "id": 12,
+        "country_id": 3
     },
     {
-        "tsw_version":  3,
-        "name":  "Cajon Pass",
-        "id":  13,
-        "country":  "USA"
+        "tsw_version": 3,
+        "name": "Cajon Pass",
+        "id": 13,
+        "country_id": 3
     },
     {
-        "tsw_version":  3,
-        "name":  "Cathcart Circle Line",
-        "id":  14,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Cathcart Circle Line",
+        "id": 14,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Clinchfield Railroad",
-        "id":  15,
-        "country":  "USA"
+        "tsw_version": 3,
+        "name": "Clinchfield Railroad",
+        "id": 15,
+        "country_id": 3
     },
     {
-        "tsw_version":  3,
-        "name":  "Diesel Legends of the Great Western",
-        "id":  16,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Diesel Legends of the Great Western",
+        "id": 16,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "East Coastway",
-        "id":  17,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "East Coastway",
+        "id": 17,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Glossop Line",
-        "id":  18,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Glossop Line",
+        "id": 18,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Great Western Express",
-        "id":  19,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Great Western Express",
+        "id": 19,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Harlem Line",
-        "id":  20,
-        "country":  "USA"
+        "tsw_version": 3,
+        "name": "Harlem Line",
+        "id": 20,
+        "country_id": 3
     },
     {
-        "tsw_version":  3,
-        "name":  "Hauptstrecke Hamburg - Lübeck",
-        "id":  21,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Hauptstrecke Hamburg - Lübeck",
+        "id": 21,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Hauptstrecke München - Augsburg",
-        "id":  22,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Hauptstrecke München - Augsburg",
+        "id": 22,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Hauptstrecke Rhein - Ruhr",
-        "id":  23,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Hauptstrecke Rhein - Ruhr",
+        "id": 23,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Isle of Wight 2022",
-        "id":  24,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Isle of Wight 2022",
+        "id": 24,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "LGV Mediterranee",
-        "id":  25,
-        "country":  "France"
+        "tsw_version": 3,
+        "name": "LGV Mediterranee",
+        "id": 25,
+        "country_id": 4
     },
     {
-        "tsw_version":  3,
-        "name":  "Linke Rheinstrecke",
-        "id":  26,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Linke Rheinstrecke",
+        "id": 26,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "London Commuter",
-        "id":  27,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "London Commuter",
+        "id": 27,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "London Underground Bakerloo Line",
-        "id":  28,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "London Underground Bakerloo Line",
+        "id": 28,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Long Island Rail Road",
-        "id":  29,
-        "country":  "USA"
+        "tsw_version": 3,
+        "name": "Long Island Rail Road",
+        "id": 29,
+        "country_id": 3
     },
     {
-        "tsw_version":  3,
-        "name":  "Luzern - Sursee",
-        "id":  30,
-        "country":  "Switzerland"
+        "tsw_version": 3,
+        "name": "Luzern - Sursee",
+        "id": 30,
+        "country_id": 6
     },
     {
-        "tsw_version":  3,
-        "name":  "Main-Spessart Bahn",
-        "id":  31,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Main-Spessart Bahn",
+        "id": 31,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Nahverkehr Dresden",
-        "id":  32,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Nahverkehr Dresden",
+        "id": 32,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "NEC New York - Trenton",
-        "id":  33,
-        "country":  "USA"
+        "tsw_version": 3,
+        "name": "NEC New York - Trenton",
+        "id": 33,
+        "country_id": 3
     },
     {
-        "tsw_version":  3,
-        "name":  "Niddertalbahn",
-        "id":  34,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Niddertalbahn",
+        "id": 34,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Northern Trans-Pennine",
-        "id":  35,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Northern Trans-Pennine",
+        "id": 35,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Oakville Subdivision",
-        "id":  36,
-        "country":  "Canada"
+        "tsw_version": 3,
+        "name": "Oakville Subdivision",
+        "id": 36,
+        "country_id": 9
     },
     {
-        "tsw_version":  3,
-        "name":  "Peninsula Corridor",
-        "id":  37,
-        "country":  "USA"
+        "tsw_version": 3,
+        "name": "Peninsula Corridor",
+        "id": 37,
+        "country_id": 3
     },
     {
-        "tsw_version":  3,
-        "name":  "Rapid Transit 2017",
-        "id":  38,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Rapid Transit 2017",
+        "id": 38,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Rapid Transit 2021",
-        "id":  39,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Rapid Transit 2021",
+        "id": 39,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Rhein-Ruhr Osten",
-        "id":  40,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Rhein-Ruhr Osten",
+        "id": 40,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Ruhr-Sieg Nord",
-        "id":  41,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Ruhr-Sieg Nord",
+        "id": 41,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Sand Patch Grade",
-        "id":  42,
-        "country":  "USA"
+        "tsw_version": 3,
+        "name": "Sand Patch Grade",
+        "id": 42,
+        "country_id": 3
     },
     {
-        "tsw_version":  3,
-        "name":  "Schnellfahrstrecke Kassel - Würzburg",
-        "id":  43,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Schnellfahrstrecke Kassel - Würzburg",
+        "id": 43,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Schnellfahrstrecke Köln - Aachen",
-        "id":  44,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Schnellfahrstrecke Köln - Aachen",
+        "id": 44,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "Southeastern High Speed",
-        "id":  45,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Southeastern High Speed",
+        "id": 45,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Spirit of Steam Liverpool - Crewe",
-        "id":  46,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Spirit of Steam Liverpool - Crewe",
+        "id": 46,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Tees Valley Line",
-        "id":  47,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "Tees Valley Line",
+        "id": 47,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "Tharandter Rampe",
-        "id":  48,
-        "country":  "Germany"
+        "tsw_version": 3,
+        "name": "Tharandter Rampe",
+        "id": 48,
+        "country_id": 2
     },
     {
-        "tsw_version":  3,
-        "name":  "West Cornwall Local",
-        "id":  49,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "West Cornwall Local",
+        "id": 49,
+        "country_id": 1
     },
     {
-        "tsw_version":  3,
-        "name":  "West Somerset Railway",
-        "id":  50,
-        "country":  "United Kingdom"
+        "tsw_version": 3,
+        "name": "West Somerset Railway",
+        "id": 50,
+        "country_id": 1
     },
     {
-        "tsw_version":  4,
-        "name":  "S-Bahn Vorarlberg",
-        "id":  51,
-        "country":  "Austria"
+        "tsw_version": 4,
+        "name": "S-Bahn Vorarlberg",
+        "id": 51,
+        "country_id": 5
     },
     {
-        "tsw_version":  4,
-        "name":  "Semmeringbahn",
-        "id":  52,
-        "country":  "Austria"
+        "tsw_version": 4,
+        "name": "Semmeringbahn",
+        "id": 52,
+        "country_id": 5
     },
     {
-        "tsw_version":  4,
-        "name":  "Maintalbahn",
-        "id":  53,
-        "country":  "Germany"
+        "tsw_version": 4,
+        "name": "Maintalbahn",
+        "id": 53,
+        "country_id": 2
     },
     {
-        "tsw_version":  4,
-        "name":  "Bahnstrecke Salzburg-Rosenheim",
-        "id":  54,
-        "country":  "Germany"
+        "tsw_version": 4,
+        "name": "Bahnstrecke Salzburg-Rosenheim",
+        "id": 54,
+        "country_id": 2
     },
     {
-        "tsw_version":  4,
-        "name":  "Berninalinie",
-        "id":  55,
-        "country":  "Switzerland"
+        "tsw_version": 4,
+        "name": "Berninalinie",
+        "id": 55,
+        "country_id": 6
     },
     {
-        "tsw_version":  4,
-        "name":  "East Coast Main Line: Peterborough - Doncaster",
-        "id":  56,
-        "country":  "United Kingdom"
+        "tsw_version": 4,
+        "name": "East Coast Main Line: Peterborough - Doncaster",
+        "id": 56,
+        "country_id": 1
     },
     {
-        "tsw_version":  4,
-        "name":  "Blackpool Branches",
-        "id":  57,
-        "country":  "United Kingdom"
+        "tsw_version": 4,
+        "name": "Blackpool Branches",
+        "id": 57,
+        "country_id": 1
     },
     {
-        "tsw_version":  4,
-        "name":  "London Overground Suffragette Line",
-        "id":  58,
-        "country":  "United Kingdom"
+        "tsw_version": 4,
+        "name": "London Overground Suffragette Line",
+        "id": 58,
+        "country_id": 1
     },
     {
-        "tsw_version":  4,
-        "name":  "Fife Circle Line \u0026 Levenmouth Rail Link",
-        "id":  59,
-        "country":  "United Kingdom"
+        "tsw_version": 4,
+        "name": "Fife Circle Line \u0026 Levenmouth Rail Link",
+        "id": 59,
+        "country_id": 1
     },
     {
-        "tsw_version":  4,
-        "name":  "Antelope Valley Line",
-        "id":  60,
-        "country":  "USA"
+        "tsw_version": 4,
+        "name": "Antelope Valley Line",
+        "id": 60,
+        "country_id": 3
     },
     {
-        "tsw_version":  4,
-        "name":  "LIRR Commuter",
-        "id":  61,
-        "country":  "USA"
+        "tsw_version": 4,
+        "name": "LIRR Commuter",
+        "id": 61,
+        "country_id": 3
     },
     {
-        "tsw_version":  5,
-        "name":  "Mittenwaldbahn",
-        "id":  62,
-        "country":  "Austria"
+        "tsw_version": 5,
+        "name": "Mittenwaldbahn",
+        "id": 62,
+        "country_id": 5
     },
     {
-        "tsw_version":  5,
-        "name":  "Kinzigtalbahn",
-        "id":  63,
-        "country":  "Germany"
+        "tsw_version": 5,
+        "name": "Kinzigtalbahn",
+        "id": 63,
+        "country_id": 2
     },
     {
-        "tsw_version":  5,
-        "name":  "Pfälzische Ludwigsbahn",
-        "id":  64,
-        "country":  "Germany"
+        "tsw_version": 5,
+        "name": "Pfälzische Ludwigsbahn",
+        "id": 64,
+        "country_id": 2
     },
     {
-        "tsw_version":  5,
-        "name":  "Frankfurt S-Bahn",
-        "id":  65,
-        "country":  "Germany"
+        "tsw_version": 5,
+        "name": "Frankfurt S-Bahn",
+        "id": 65,
+        "country_id": 2
     },
     {
-        "tsw_version":  5,
-        "name":  "Spoorlijn Zwolle - Groningen",
-        "id":  66,
-        "country":  "Netherlands"
+        "tsw_version": 5,
+        "name": "Spoorlijn Zwolle - Groningen",
+        "id": 66,
+        "country_id": 7
     },
     {
-        "tsw_version":  5,
-        "name":  "West Coast Main Line: London Euston - Milton Keynes",
-        "id":  67,
-        "country":  "United Kingdom"
+        "tsw_version": 5,
+        "name": "West Coast Main Line: London Euston - Milton Keynes",
+        "id": 67,
+        "country_id": 1
     },
     {
-        "tsw_version":  5,
-        "name":  "West Coast Main Line: Preston - Carlisle",
-        "id":  68,
-        "country":  "United Kingdom"
+        "tsw_version": 5,
+        "name": "West Coast Main Line: Preston - Carlisle",
+        "id": 68,
+        "country_id": 1
     },
     {
-        "tsw_version":  5,
-        "name":  "London Overground Mildmay Line",
-        "id":  69,
-        "country":  "United Kingdom"
+        "tsw_version": 5,
+        "name": "London Overground Mildmay Line",
+        "id": 69,
+        "country_id": 1
     },
     {
-        "tsw_version":  5,
-        "name":  "Cardiff City Network",
-        "id":  70,
-        "country":  "United Kingdom"
+        "tsw_version": 5,
+        "name": "Cardiff City Network",
+        "id": 70,
+        "country_id": 1
     },
     {
-        "tsw_version":  5,
-        "name":  "Manchester Airport Commuter",
-        "id":  71,
-        "country":  "United Kingdom"
+        "tsw_version": 5,
+        "name": "Manchester Airport Commuter",
+        "id": 71,
+        "country_id": 1
     },
     {
-        "tsw_version":  5,
-        "name":  "San Bernardino Line",
-        "id":  72,
-        "country":  "USA"
+        "tsw_version": 5,
+        "name": "San Bernardino Line",
+        "id": 72,
+        "country_id": 3
     },
     {
-        "tsw_version":  5,
-        "name":  "MBTA Commuter: Boston - Framingham/Worcester Line",
-        "id":  73,
-        "country":  "USA"
+        "tsw_version": 5,
+        "name": "MBTA Commuter: Boston - Framingham/Worcester Line",
+        "id": 73,
+        "country_id": 3
     },
     {
-        "tsw_version":  6,
-        "name":  "Bahnstrecke Leipzig - Dresden",
-        "id":  74,
-        "country":  "Germany"
+        "tsw_version": 6,
+        "name": "Bahnstrecke Leipzig - Dresden",
+        "id": 74,
+        "country_id": 2
     },
     {
-        "tsw_version":  6,
-        "name":  "Frankenbahn Stuttgart - Heilbronn",
-        "id":  75,
-        "country":  "Germany"
+        "tsw_version": 6,
+        "name": "Frankenbahn Stuttgart - Heilbronn",
+        "id": 75,
+        "country_id": 2
     },
     {
-        "tsw_version":  6,
-        "name":  "Riviera Line",
-        "id":  76,
-        "country":  "United Kingdom"
+        "tsw_version": 6,
+        "name": "Riviera Line",
+        "id": 76,
+        "country_id": 1
     },
     {
-        "tsw_version":  6,
-        "name":  "West Coast Main Line: Birmingham - Crewe",
-        "id":  77,
-        "country":  "United Kingdom"
+        "tsw_version": 6,
+        "name": "West Coast Main Line: Birmingham - Crewe",
+        "id": 77,
+        "country_id": 1
     },
     {
-        "tsw_version":  6,
-        "name":  "West Coast Main Line: Crewe - Preston",
-        "id":  78,
-        "country":  "United Kingdom"
+        "tsw_version": 6,
+        "name": "West Coast Main Line: Crewe - Preston",
+        "id": 78,
+        "country_id": 1
     },
     {
-        "tsw_version":  6,
-        "name":  "Morristown Line",
-        "id":  79,
-        "country":  "USA"
+        "tsw_version": 6,
+        "name": "Morristown Line",
+        "id": 79,
+        "country_id": 3
     },
     {
-        "tsw_version":  6,
-        "name":  "NEC: New York - Stamford",
-        "id":  80,
-        "country":  "USA"
+        "tsw_version": 6,
+        "name": "NEC: New York - Stamford",
+        "id": 80,
+        "country_id": 3
+    },
+    {
+        "tsw_version": 3,
+        "name": "Training Center",
+        "id": 81,
+        "country_id": 2
     }
 ]

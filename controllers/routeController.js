@@ -9,14 +9,15 @@ const routeController = {
         sendJson(res, routes);
     },
 
-    // GET /api/routes/paginated?page=1&limit=10&search=term
+    // GET /api/routes/paginated?page=1&limit=10&search=term&country_id=1
     getPaginated: async (req, res) => {
         const url = new URL(req.url, `http://${req.headers.host}`);
         const page = parseInt(url.searchParams.get('page')) || 1;
         const limit = parseInt(url.searchParams.get('limit')) || 10;
         const search = url.searchParams.get('search') || '';
+        const countryId = url.searchParams.get('country_id') ? parseInt(url.searchParams.get('country_id')) : null;
 
-        const result = routeDb.getPaginated(page, limit, search);
+        const result = routeDb.getPaginated(page, limit, search, countryId);
         sendJson(res, result);
     },
 
@@ -25,12 +26,11 @@ const routeController = {
     // POST /api/routes
     create: async (req, res) => {
         const body = await parseBody(req);
-        const result = routeDb.create(body.name, body.country, body.tsw_version || 3, body.country_id || null);
+        const result = routeDb.create(body.name, body.country_id, body.tsw_version || 3);
         sendJson(res, {
             id: result.lastInsertRowid,
             name: body.name,
-            country: body.country,
-            country_id: body.country_id || null,
+            country_id: body.country_id,
             tsw_version: body.tsw_version || 3
         }, 201);
     },
@@ -48,8 +48,8 @@ const routeController = {
     // PUT /api/routes/:id
     update: async (req, res, id) => {
         const body = await parseBody(req);
-        routeDb.update(id, body.name, body.country, body.tsw_version, body.country_id || null);
-        sendJson(res, { id, name: body.name, country: body.country, country_id: body.country_id || null, tsw_version: body.tsw_version });
+        routeDb.update(id, body.name, body.country_id, body.tsw_version);
+        sendJson(res, { id, name: body.name, country_id: body.country_id, tsw_version: body.tsw_version });
     },
 
     // DELETE /api/routes/:id

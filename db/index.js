@@ -60,10 +60,9 @@ async function initDatabase() {
         CREATE TABLE IF NOT EXISTS routes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            country TEXT NOT NULL,
-            country_id INTEGER,
+            country_id INTEGER NOT NULL,
             tsw_version INTEGER NOT NULL DEFAULT 3,
-            FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE SET NULL
+            FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE RESTRICT
         )
     `);
     
@@ -129,7 +128,7 @@ async function initDatabase() {
     try {
         db.run('ALTER TABLE timetable_entries ADD COLUMN api_name TEXT');
     } catch (e) { /* column already exists */ }
-    
+
     // Add tsw_version column to routes if it doesn't exist (migration for existing databases)
     try {
         db.run('ALTER TABLE routes ADD COLUMN tsw_version INTEGER NOT NULL DEFAULT 3');
@@ -141,11 +140,6 @@ async function initDatabase() {
     } catch (e) { /* column already exists */ }
     try {
         db.run('ALTER TABLE timetables ADD COLUMN train_id INTEGER REFERENCES trains(id) ON DELETE SET NULL');
-    } catch (e) { /* column already exists */ }
-
-    // Add country_id column to routes if it doesn't exist (migration)
-    try {
-        db.run('ALTER TABLE routes ADD COLUMN country_id INTEGER REFERENCES countries(id) ON DELETE SET NULL');
     } catch (e) { /* column already exists */ }
 
     // Weather presets table
@@ -164,16 +158,12 @@ async function initDatabase() {
         )
     `);
 
-    // Timetable coordinates table - stores GPS coordinates for a timetable recording
+    // Timetable coordinates table - stores GPS coordinates as JSON string
     db.run(`
         CREATE TABLE IF NOT EXISTS timetable_coordinates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timetable_id INTEGER NOT NULL,
-            latitude REAL NOT NULL,
-            longitude REAL NOT NULL,
-            height REAL,
-            gradient REAL,
-            sort_order INTEGER NOT NULL,
+            timetable_id INTEGER NOT NULL UNIQUE,
+            coordinates TEXT NOT NULL,
             FOREIGN KEY (timetable_id) REFERENCES timetables(id) ON DELETE CASCADE
         )
     `);
@@ -214,9 +204,6 @@ async function initDatabase() {
 
     // Seed default countries
     seedCountries();
-
-    // Migrate existing country text values to countries table
-    migrateCountries();
 
     // Seed default weather presets
     seedWeatherPresets();
@@ -278,45 +265,6 @@ function seedCountries() {
     console.log(`✓ ${countries.length} countries seeded`);
 }
 
-// Migrate existing country text values to countries table and link routes
-function migrateCountries() {
-    // Get all unique countries from routes
-    const countriesResult = db.exec('SELECT DISTINCT country FROM routes WHERE country IS NOT NULL AND country != ""');
-    if (countriesResult.length === 0 || countriesResult[0].values.length === 0) {
-        return;
-    }
-
-    const existingCountries = db.exec('SELECT COUNT(*) FROM countries');
-    if (existingCountries[0].values[0][0] > 0) {
-        // Countries already migrated
-        return;
-    }
-
-    console.log('Migrating countries...');
-
-    // Insert unique countries
-    for (const row of countriesResult[0].values) {
-        const countryName = row[0];
-        if (countryName) {
-            try {
-                db.run('INSERT OR IGNORE INTO countries (name) VALUES (?)', [countryName]);
-            } catch (e) { /* ignore duplicates */ }
-        }
-    }
-
-    // Update routes to reference country_id
-    const countries = db.exec('SELECT id, name FROM countries');
-    if (countries.length > 0) {
-        for (const row of countries[0].values) {
-            const countryId = row[0];
-            const countryName = row[1];
-            db.run('UPDATE routes SET country_id = ? WHERE country = ?', [countryId, countryName]);
-        }
-    }
-
-    console.log('✓ Countries migrated');
-}
-
 // Seed database with routes and trains from JSON files
 async function seedDatabase() {
     const routesFile = path.join(__dirname, 'seed_routes.json');
@@ -350,9 +298,9 @@ async function seedDatabase() {
     console.log(`  ✓ Inserted ${trains.length} trains`);
     
     // Insert routes
-    const routeStmt = db.prepare('INSERT INTO routes (id, name, country, tsw_version) VALUES (?, ?, ?, ?)');
+    const routeStmt = db.prepare('INSERT INTO routes (id, name, country_id, tsw_version) VALUES (?, ?, ?, ?)');
     for (const route of routes) {
-        routeStmt.run([route.id, route.name, route.country, route.tsw_version]);
+        routeStmt.run([route.id, route.name, route.country_id, route.tsw_version]);
     }
     routeStmt.free();
     console.log(`  ✓ Inserted ${routes.length} routes`);
@@ -370,6 +318,64 @@ async function seedDatabase() {
 
     // Seed station name mappings after routes are seeded
     seedStationMappings();
+
+    // Seed timetables after routes and trains are seeded
+    seedTimetables();
+}
+
+// Seed timetables from JSON files
+function seedTimetables() {
+    const timetablesFile = path.join(__dirname, 'seed_timetables.json');
+    const entriesFile = path.join(__dirname, 'seed_timetable_entries.json');
+
+    if (!fs.existsSync(timetablesFile) || !fs.existsSync(entriesFile)) {
+        console.log('⚠ Timetable seed files not found, skipping timetable seeding');
+        return;
+    }
+
+    // Check if already seeded
+    const timetableCount = db.exec('SELECT COUNT(*) as count FROM timetables')[0]?.values[0][0] || 0;
+    if (timetableCount > 0) {
+        console.log(`✓ Database already has ${timetableCount} timetables, skipping timetable seed`);
+        return;
+    }
+
+    console.log('Seeding timetables...');
+
+    const timetables = JSON.parse(fs.readFileSync(timetablesFile, 'utf8'));
+    const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf8'));
+
+    // Insert timetables
+    const ttStmt = db.prepare('INSERT INTO timetables (id, service_name, route_id, train_id) VALUES (?, ?, ?, ?)');
+    for (const tt of timetables) {
+        ttStmt.run([tt.id, tt.service_name, tt.route_id, tt.train_id]);
+    }
+    ttStmt.free();
+    console.log(`  ✓ Inserted ${timetables.length} timetables`);
+
+    // Insert timetable entries
+    const entryStmt = db.prepare('INSERT INTO timetable_entries (id, timetable_id, action, details, location, platform, time1, time2, latitude, longitude, sort_order, api_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    for (const entry of entries) {
+        entryStmt.run([
+            entry.id,
+            entry.timetable_id,
+            entry.action,
+            entry.details || '',
+            entry.location || '',
+            entry.platform || '',
+            entry.time1 || '',
+            entry.time2 || '',
+            entry.latitude || '',
+            entry.longitude || '',
+            entry.sort_order,
+            entry.api_name
+        ]);
+    }
+    entryStmt.free();
+    console.log(`  ✓ Inserted ${entries.length} timetable entries`);
+
+    saveDatabase();
+    console.log('✓ Timetables seeded successfully');
 }
 
 // Seed station name mappings from JSON file
@@ -503,24 +509,40 @@ const routeDb = {
         stmt.free();
         return results;
     },
-    getPaginated: (page = 1, limit = 10, search = '') => {
+    getPaginated: (page = 1, limit = 10, search = '', countryId = null) => {
         const offset = (page - 1) * limit;
         let countQuery = 'SELECT COUNT(*) as total FROM routes';
         let dataQuery = 'SELECT * FROM routes';
+        const conditions = [];
+        const countParams = [];
+        const dataParams = [];
 
         if (search) {
-            const whereClause = ' WHERE name LIKE ? OR country LIKE ?';
+            conditions.push('name LIKE ?');
+            const searchPattern = '%' + search + '%';
+            countParams.push(searchPattern);
+            dataParams.push(searchPattern);
+        }
+
+        if (countryId) {
+            conditions.push('country_id = ?');
+            countParams.push(countryId);
+            dataParams.push(countryId);
+        }
+
+        if (conditions.length > 0) {
+            const whereClause = ' WHERE ' + conditions.join(' AND ');
             countQuery += whereClause;
             dataQuery += whereClause;
         }
 
         dataQuery += ' ORDER BY id DESC LIMIT ? OFFSET ?';
+        dataParams.push(limit, offset);
 
         // Get total count
         let total = 0;
-        if (search) {
-            const searchPattern = '%' + search + '%';
-            const countResult = db.exec(countQuery, [searchPattern, searchPattern]);
+        if (countParams.length > 0) {
+            const countResult = db.exec(countQuery, countParams);
             total = countResult.length > 0 ? countResult[0].values[0][0] : 0;
         } else {
             const countResult = db.exec(countQuery);
@@ -529,12 +551,7 @@ const routeDb = {
 
         // Get paginated data
         const stmt = db.prepare(dataQuery);
-        if (search) {
-            const searchPattern = '%' + search + '%';
-            stmt.bind([searchPattern, searchPattern, limit, offset]);
-        } else {
-            stmt.bind([limit, offset]);
-        }
+        stmt.bind(dataParams);
 
         const results = [];
         while (stmt.step()) {
@@ -562,14 +579,14 @@ const routeDb = {
         stmt.free();
         return result;
     },
-    create: (name, country, tsw_version = 3, country_id = null) => {
-        db.run('INSERT INTO routes (name, country, tsw_version, country_id) VALUES (?, ?, ?, ?)', [name, country, tsw_version, country_id]);
+    create: (name, country_id, tsw_version = 3) => {
+        db.run('INSERT INTO routes (name, country_id, tsw_version) VALUES (?, ?, ?)', [name, country_id, tsw_version]);
         saveDatabase();
         const lastId = db.exec('SELECT last_insert_rowid() as id')[0].values[0][0];
         return { lastInsertRowid: lastId };
     },
-    update: (id, name, country, tsw_version, country_id = null) => {
-        db.run('UPDATE routes SET name = ?, country = ?, tsw_version = ?, country_id = ? WHERE id = ?', [name, country, tsw_version, country_id, id]);
+    update: (id, name, country_id, tsw_version) => {
+        db.run('UPDATE routes SET name = ?, country_id = ?, tsw_version = ? WHERE id = ?', [name, country_id, tsw_version, id]);
         saveDatabase();
     },
     delete: (id) => {
@@ -747,6 +764,23 @@ const entryDb = {
     delete: (id) => {
         db.run('DELETE FROM timetable_entries WHERE id = ?', [id]);
         saveDatabase();
+    },
+    // Update coordinates and apiName for an entry by matching timetable_id and location
+    updateCoordinatesByLocation: (timetableId, location, latitude, longitude, apiName) => {
+        db.run(
+            'UPDATE timetable_entries SET latitude = ?, longitude = ?, api_name = ? WHERE timetable_id = ? AND location = ?',
+            [latitude.toString(), longitude.toString(), apiName || '', timetableId, location]
+        );
+        saveDatabase();
+    },
+    // Update coordinates and apiName for an entry by matching timetable_id, sort_order, and action
+    // Used for WAIT FOR SERVICE entries that may have empty location
+    updateCoordinatesBySortOrderAndAction: (timetableId, sortOrder, action, latitude, longitude, apiName) => {
+        db.run(
+            'UPDATE timetable_entries SET latitude = ?, longitude = ?, api_name = ? WHERE timetable_id = ? AND sort_order = ? AND action = ?',
+            [latitude.toString(), longitude.toString(), apiName || '', timetableId, sortOrder, action]
+        );
+        saveDatabase();
     }
 };
 
@@ -808,34 +842,35 @@ const weatherPresetDb = {
 // Timetable coordinates CRUD operations
 const timetableCoordinateDb = {
     getByTimetableId: (timetableId) => {
-        const stmt = db.prepare('SELECT * FROM timetable_coordinates WHERE timetable_id = ? ORDER BY sort_order');
+        const stmt = db.prepare('SELECT coordinates FROM timetable_coordinates WHERE timetable_id = ?');
         stmt.bind([timetableId]);
-        const results = [];
-        while (stmt.step()) {
-            results.push(stmt.getAsObject());
+        let coordinates = [];
+        if (stmt.step()) {
+            const row = stmt.getAsObject();
+            try {
+                coordinates = JSON.parse(row.coordinates);
+            } catch (e) {
+                console.error('Failed to parse coordinates JSON:', e);
+            }
         }
         stmt.free();
-        return results;
+        return coordinates;
     },
     getCount: (timetableId) => {
-        const result = db.exec('SELECT COUNT(*) FROM timetable_coordinates WHERE timetable_id = ?', [timetableId]);
-        return result.length > 0 ? result[0].values[0][0] : 0;
+        const coords = timetableCoordinateDb.getByTimetableId(timetableId);
+        return coords.length;
     },
     deleteByTimetableId: (timetableId) => {
         db.run('DELETE FROM timetable_coordinates WHERE timetable_id = ?', [timetableId]);
         saveDatabase();
     },
-    bulkInsert: (timetableId, coordinates) => {
+    insert: (timetableId, coordinates) => {
         // Delete existing coordinates first
         db.run('DELETE FROM timetable_coordinates WHERE timetable_id = ?', [timetableId]);
 
-        // Insert new coordinates
-        const stmt = db.prepare('INSERT INTO timetable_coordinates (timetable_id, latitude, longitude, height, gradient, sort_order) VALUES (?, ?, ?, ?, ?, ?)');
-        for (let i = 0; i < coordinates.length; i++) {
-            const coord = coordinates[i];
-            stmt.run([timetableId, coord.latitude, coord.longitude, coord.height || null, coord.gradient || null, i]);
-        }
-        stmt.free();
+        // Insert coordinates as JSON string
+        const coordsJson = JSON.stringify(coordinates);
+        db.run('INSERT INTO timetable_coordinates (timetable_id, coordinates) VALUES (?, ?)', [timetableId, coordsJson]);
         saveDatabase();
         return coordinates.length;
     }
@@ -961,15 +996,24 @@ const timetableDataDb = {
     getTimetablesWithCoordinates: () => {
         const stmt = db.prepare(`
             SELECT t.*,
-                   (SELECT COUNT(*) FROM timetable_coordinates WHERE timetable_id = t.id) as coordinate_count,
+                   tc.coordinates as coordinates_json,
                    (SELECT COUNT(*) FROM timetable_markers WHERE timetable_id = t.id) as marker_count
             FROM timetables t
-            WHERE (SELECT COUNT(*) FROM timetable_coordinates WHERE timetable_id = t.id) > 0
+            INNER JOIN timetable_coordinates tc ON tc.timetable_id = t.id
             ORDER BY t.service_name
         `);
         const results = [];
         while (stmt.step()) {
-            results.push(stmt.getAsObject());
+            const row = stmt.getAsObject();
+            // Parse JSON to get coordinate count
+            try {
+                const coords = JSON.parse(row.coordinates_json || '[]');
+                row.coordinate_count = coords.length;
+            } catch (e) {
+                row.coordinate_count = 0;
+            }
+            delete row.coordinates_json;
+            results.push(row);
         }
         stmt.free();
         return results;
@@ -979,14 +1023,24 @@ const timetableDataDb = {
     getAllWithCounts: () => {
         const stmt = db.prepare(`
             SELECT t.*,
-                   (SELECT COUNT(*) FROM timetable_coordinates WHERE timetable_id = t.id) as coordinate_count,
+                   tc.coordinates as coordinates_json,
                    (SELECT COUNT(*) FROM timetable_markers WHERE timetable_id = t.id) as marker_count
             FROM timetables t
+            LEFT JOIN timetable_coordinates tc ON tc.timetable_id = t.id
             ORDER BY t.id DESC
         `);
         const results = [];
         while (stmt.step()) {
-            results.push(stmt.getAsObject());
+            const row = stmt.getAsObject();
+            // Parse JSON to get coordinate count
+            try {
+                const coords = JSON.parse(row.coordinates_json || '[]');
+                row.coordinate_count = coords.length;
+            } catch (e) {
+                row.coordinate_count = 0;
+            }
+            delete row.coordinates_json;
+            results.push(row);
         }
         stmt.free();
         return results;

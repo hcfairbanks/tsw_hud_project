@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "service_name": "2T17: London Euston - Tring                                      08:22 00:35",
+        "route_id": 67,
+        "train_id": 124
+    },
+    {
+        "id": 2,
+        "service_name": "2N04: Milton Keynes - London Euston                            05:18 01:03",
+        "route_id": 67,
+        "train_id": 124
+    },
+    {
+        "id": 3,
+        "service_name": "1Y08: Northampton - London Euston                             07:05 0044",
+        "route_id": 67,
+        "train_id": 124
+    },
+    {
+        "id": 4,
+        "service_name": "1Y04: Northampton - London Euston                             06:40 0040",
+        "route_id": 67,
+        "train_id": 124
+    },
+    {
+        "id": 5,
+        "service_name": "101 Training Center 08:00  00:20",
+        "route_id": 81,
+        "train_id": 91
+    }
+]

@@ -665,6 +665,24 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // Save processed JSON to database
+    if (pathname === '/api/map/save-processed' && method === 'POST') {
+        await mapDataController.saveProcessedJson(req, res);
+        return true;
+    }
+
+    // List processed route files
+    if (pathname === '/api/map/processed-files' && method === 'GET') {
+        mapDataController.listProcessedRoutes(req, res);
+        return true;
+    }
+
+    // Remake processed JSON from database data
+    if (pathname === '/api/map/remake' && method === 'POST') {
+        await mapDataController.remakeProcessedJson(req, res);
+        return true;
+    }
+
     // ============================================
     // Route Processing API Routes
     // ============================================

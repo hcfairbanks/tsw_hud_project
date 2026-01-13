@@ -333,7 +333,7 @@
             <div class="controls-row">
                 <button class="btn-success" id="startBtn" onclick="startRecording()">Start</button>
                 <button class="btn-warning" id="pauseBtn" onclick="pauseRecording()" disabled>Pause</button>
-                <button class="btn-danger" id="stopBtn" onclick="stopRecording()" style="font-size: 9px;">Stop recording and save to database</button>
+                <button class="btn-danger" id="stopBtn" onclick="stopRecording()">Save Json</button>
                 <button class="btn-secondary" id="resetBtn" onclick="resetRecording()">Reset</button>
             </div>
         </div>
@@ -359,6 +359,31 @@
             <div class="controls-row">
                 <button class="btn-success" id="saveBtn" onclick="saveToTimetable()" disabled>Save Position</button>
             </div>
+        </div>
+
+        <div class="info-group" style="background: rgba(255, 165, 0, 0.1); border: 1px solid #ffaa00;">
+            <h3 style="color: #ffaa00;">Dev: Save Processed JSON to DB</h3>
+            <label class="info-label">Select Processed File:</label>
+            <select class="timetable-dropdown" id="processedFileSelect">
+                <option value="">-- Loading files... --</option>
+            </select>
+            <div class="controls-row">
+                <button class="btn-warning" id="saveToDbBtn" onclick="saveProcessedToDb()">Save to Database</button>
+                <button class="btn-secondary" onclick="loadProcessedFiles()">Refresh</button>
+            </div>
+            <div id="saveToDbStatus" style="margin-top: 8px; font-size: 12px; color: #aaa;"></div>
+        </div>
+
+        <div class="info-group" style="background: rgba(0, 200, 100, 0.1); border: 1px solid #00c864;">
+            <h3 style="color: #00c864;">Dev: Remake JSON from DB</h3>
+            <label class="info-label">Select Timetable:</label>
+            <select class="timetable-dropdown" id="remakeTimetableSelect">
+                <option value="">-- Loading... --</option>
+            </select>
+            <div class="controls-row">
+                <button class="btn-success" id="remakeBtn" onclick="remakeFromDb()">Remake</button>
+            </div>
+            <div id="remakeStatus" style="margin-top: 8px; font-size: 12px; color: #aaa;"></div>
         </div>
 
         <div class="legend">
@@ -839,12 +864,160 @@
             }
         }
 
+        // Load processed route files for the dev tool
+        async function loadProcessedFiles() {
+            const select = document.getElementById('processedFileSelect');
+            select.innerHTML = '<option value="">-- Loading... --</option>';
+
+            try {
+                const response = await fetch('/api/map/processed-files');
+                const files = await response.json();
+
+                select.innerHTML = '<option value="">-- Select a file --</option>';
+                files.forEach(f => {
+                    const option = document.createElement('option');
+                    option.value = f.filename;
+                    const date = new Date(f.modified).toLocaleString();
+                    option.textContent = `${f.filename} (${date})`;
+                    select.appendChild(option);
+                });
+
+                if (files.length === 0) {
+                    select.innerHTML = '<option value="">-- No processed files found --</option>';
+                }
+            } catch (err) {
+                console.error('Failed to load processed files:', err);
+                select.innerHTML = '<option value="">-- Error loading files --</option>';
+            }
+        }
+
+        // Save selected processed JSON to database
+        async function saveProcessedToDb() {
+            const select = document.getElementById('processedFileSelect');
+            const filename = select.value;
+            const statusEl = document.getElementById('saveToDbStatus');
+
+            if (!filename) {
+                statusEl.textContent = 'Please select a file first';
+                statusEl.style.color = '#e94560';
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveToDbBtn');
+            saveBtn.disabled = true;
+            statusEl.textContent = 'Saving...';
+            statusEl.style.color = '#aaa';
+
+            try {
+                const response = await fetch('/api/map/save-processed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    statusEl.innerHTML = `<span style="color: #28a745;">Saved!</span> ` +
+                        `Coords: ${result.coordinateCount}, ` +
+                        `Markers: ${result.markerCount}, ` +
+                        `Entry updates: ${result.entryUpdates}`;
+                } else {
+                    statusEl.textContent = 'Error: ' + result.error;
+                    statusEl.style.color = '#e94560';
+                }
+            } catch (err) {
+                console.error('Failed to save to database:', err);
+                statusEl.textContent = 'Error: ' + err.message;
+                statusEl.style.color = '#e94560';
+            } finally {
+                saveBtn.disabled = false;
+            }
+        }
+
+        // Load timetables for remake dropdown
+        async function loadRemakeTimetables() {
+            const select = document.getElementById('remakeTimetableSelect');
+            select.innerHTML = '<option value="">-- Loading... --</option>';
+
+            try {
+                const response = await fetch('/api/timetables');
+                const timetables = await response.json();
+
+                select.innerHTML = '<option value="">-- Select a timetable --</option>';
+                timetables.forEach(t => {
+                    const option = document.createElement('option');
+                    option.value = t.id;
+                    option.textContent = t.service_name;
+                    select.appendChild(option);
+                });
+
+                if (timetables.length === 0) {
+                    select.innerHTML = '<option value="">-- No timetables found --</option>';
+                }
+            } catch (err) {
+                console.error('Failed to load timetables for remake:', err);
+                select.innerHTML = '<option value="">-- Error loading --</option>';
+            }
+        }
+
+        // Remake JSON from database
+        async function remakeFromDb() {
+            const select = document.getElementById('remakeTimetableSelect');
+            const timetableId = select.value;
+            const statusEl = document.getElementById('remakeStatus');
+
+            if (!timetableId) {
+                statusEl.textContent = 'Please select a timetable first';
+                statusEl.style.color = '#e94560';
+                return;
+            }
+
+            const remakeBtn = document.getElementById('remakeBtn');
+            remakeBtn.disabled = true;
+            statusEl.textContent = 'Remaking...';
+            statusEl.style.color = '#aaa';
+
+            try {
+                const response = await fetch('/api/map/remake', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ timetableId: parseInt(timetableId) })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    statusEl.innerHTML = `<span style="color: #28a745;">Created!</span> ` +
+                        `${result.filename}<br>` +
+                        `Coords: ${result.stats.coordinates}, ` +
+                        `Markers: ${result.stats.markers}, ` +
+                        `Entries: ${result.stats.timetableEntries}`;
+                } else {
+                    statusEl.textContent = 'Error: ' + result.error;
+                    statusEl.style.color = '#e94560';
+                }
+            } catch (err) {
+                console.error('Failed to remake JSON:', err);
+                statusEl.textContent = 'Error: ' + err.message;
+                statusEl.style.color = '#e94560';
+            } finally {
+                remakeBtn.disabled = false;
+            }
+        }
+
         // Initialize
         async function initialize() {
             await loadTimetables();
 
             // Load existing recording data if any (for path display on resume)
             await loadRouteData();
+
+            // Load processed files for dev tool
+            await loadProcessedFiles();
+
+            // Load timetables for remake dropdown
+            await loadRemakeTimetables();
 
             // Connect to stream - all state updates come from here
             connectToStream();

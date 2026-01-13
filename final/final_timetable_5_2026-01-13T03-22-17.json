@@ -1,0 +1,267 @@
+{
+  "routeName": "101 Training Center 08:30  00:10",
+  "timetableId": 5,
+  "totalPoints": 37,
+  "coordinates": [
+    {
+      "latitude": 51.11052892684047,
+      "longitude": 6.230011714424876,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.10992993058885,
+      "longitude": 6.228979622231239,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.109753437461286,
+      "longitude": 6.2286173362988215,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.10960016059535,
+      "longitude": 6.228237743912034,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.10946465556139,
+      "longitude": 6.227806078322315,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.10936561317015,
+      "longitude": 6.2273778099800285,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.10929353565402,
+      "longitude": 6.2269141884377905,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.10925378723701,
+      "longitude": 6.2264211008532975,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.1092516096653,
+      "longitude": 6.225892165274766,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.1092885609029,
+      "longitude": 6.225386855344613,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.10936804979334,
+      "longitude": 6.224867470654481,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.10947836049015,
+      "longitude": 6.224401927352298,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.109626460732706,
+      "longitude": 6.223948600974545,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.109805416373064,
+      "longitude": 6.223531542821438,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11001281707873,
+      "longitude": 6.223153436677335,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11024332186002,
+      "longitude": 6.222821258442342,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110399035008086,
+      "longitude": 6.222636242869301,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11036487655018,
+      "longitude": 6.222703598809618,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110513523262924,
+      "longitude": 6.222538778217517,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.110670925805756,
+      "longitude": 6.222405195814701,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11074341658762,
+      "longitude": 6.222299856938607,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11086715469812,
+      "longitude": 6.222203825007611,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11115229537891,
+      "longitude": 6.222039668222152,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.111479763584796,
+      "longitude": 6.221917312407087,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11184603263252,
+      "longitude": 6.22184006697854,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.111839067525736,
+      "longitude": 6.221859684793981,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.113088540677964,
+      "longitude": 6.2217408171408515,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.113469018489006,
+      "longitude": 6.221741793891553,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11388756063366,
+      "longitude": 6.22179405387934,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.114150304742424,
+      "longitude": 6.221892833658316,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11438875542139,
+      "longitude": 6.222023034858893,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.1146257467264,
+      "longitude": 6.222194758447646,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.114863136663764,
+      "longitude": 6.222415263658705,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11507286715347,
+      "longitude": 6.222658240156463,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.115264488989,
+      "longitude": 6.222929368021132,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11544115175675,
+      "longitude": 6.22323336316925,
+      "height": 8699.7294921875,
+      "gradient": 0
+    },
+    {
+      "latitude": 51.11560201672575,
+      "longitude": 6.223572485159394,
+      "height": 8699.7294921875,
+      "gradient": 0
+    }
+  ],
+  "markers": [
+    {
+      "stationName": "Metro South",
+      "markerType": "Platform",
+      "platformLength": 17038.421875,
+      "latitude": 51.11560201672575,
+      "longitude": 6.223572485159394
+    },
+    {
+      "stationName": "Metro North",
+      "markerType": "Platform",
+      "platformLength": 28383.150390625,
+      "latitude": 51.11560201672575,
+      "longitude": 6.223572485159394
+    }
+  ],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "Metro South",
+      "arrival": "08:30",
+      "departure": "08:32",
+      "platform": "1",
+      "apiName": "Metro South 1",
+      "latitude": 51.110529,
+      "longitude": 6.230012
+    },
+    {
+      "index": 1,
+      "destination": "Metro North",
+      "arrival": "08:40",
+      "departure": "",
+      "platform": "1",
+      "apiName": "Metro North 1",
+      "latitude": 51.115602,
+      "longitude": 6.223572
+    }
+  ]
+}

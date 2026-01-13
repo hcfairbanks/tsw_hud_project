@@ -37,7 +37,8 @@
         #editForm { display: none; }
         #editForm.active { display: block; }
         .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
-        .search-box input { flex: 1; }
+        .search-box input { flex: 2; }
+        .search-box select { width: 150px; flex-shrink: 0; }
         .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .pagination button { min-width: 40px; }
         .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -92,7 +93,10 @@
     <div class="card">
         <h2>Routes</h2>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search routes by name or country...">
+            <input type="text" id="searchInput" placeholder="Search routes by name...">
+            <select id="countryFilter" onchange="filterByCountry()">
+                <option value="">All Countries</option>
+            </select>
             <button class="btn-primary" onclick="search()">Search</button>
             <button class="btn-secondary" onclick="clearSearch()">Clear</button>
         </div>
@@ -101,7 +105,7 @@
     </div>
     <script>
         const API_URL = '/api/routes';
-        let currentPage = 1, currentLimit = 10, currentSearch = '';
+        let currentPage = 1, currentLimit = 10, currentSearch = '', currentCountryId = '';
         let allCountries = [];
 
         async function loadCountries() {
@@ -117,10 +121,12 @@
         function populateCountryDropdowns() {
             const addSelect = document.getElementById('country');
             const editSelect = document.getElementById('editCountry');
+            const filterSelect = document.getElementById('countryFilter');
 
             // Clear existing options except the first
             addSelect.innerHTML = '<option value="">Select a country...</option>';
             editSelect.innerHTML = '<option value="">Select a country...</option>';
+            filterSelect.innerHTML = '<option value="">All Countries</option>';
 
             allCountries.forEach(function(c) {
                 const option1 = document.createElement('option');
@@ -132,15 +138,21 @@
                 option2.value = c.id;
                 option2.textContent = c.name;
                 editSelect.appendChild(option2);
+
+                const option3 = document.createElement('option');
+                option3.value = c.id;
+                option3.textContent = c.name;
+                filterSelect.appendChild(option3);
             });
         }
 
-        async function loadRoutes(page, limit, search) {
-            page = page || 1; limit = limit || 10; search = search || '';
-            currentPage = page; currentLimit = limit; currentSearch = search;
+        async function loadRoutes(page, limit, search, countryId) {
+            page = page || 1; limit = limit || 10; search = search || ''; countryId = countryId || '';
+            currentPage = page; currentLimit = limit; currentSearch = search; currentCountryId = countryId;
             try {
                 const params = new URLSearchParams({ page, limit });
                 if (search) params.set('search', search);
+                if (countryId) params.set('country_id', countryId);
                 const response = await fetch(API_URL + '/paginated?' + params);
                 const result = await response.json();
                 renderRoutes(result.data);
@@ -187,10 +199,19 @@
             container.innerHTML = html;
         }
 
-        function goToPage(page) { loadRoutes(page, currentLimit, currentSearch); }
-        function changeLimit(limit) { loadRoutes(1, parseInt(limit), currentSearch); }
-        function search() { loadRoutes(1, currentLimit, document.getElementById('searchInput').value.trim()); }
-        function clearSearch() { document.getElementById('searchInput').value = ''; loadRoutes(1, currentLimit, ''); }
+        function goToPage(page) { loadRoutes(page, currentLimit, currentSearch, currentCountryId); }
+        function changeLimit(limit) { loadRoutes(1, parseInt(limit), currentSearch, currentCountryId); }
+        function search() {
+            var searchVal = document.getElementById('searchInput').value.trim();
+            var countryVal = document.getElementById('countryFilter').value;
+            loadRoutes(1, currentLimit, searchVal, countryVal);
+        }
+        function filterByCountry() {
+            var searchVal = document.getElementById('searchInput').value.trim();
+            var countryVal = document.getElementById('countryFilter').value;
+            loadRoutes(1, currentLimit, searchVal, countryVal);
+        }
+        function clearSearch() { document.getElementById('searchInput').value = ''; document.getElementById('countryFilter').value = ''; loadRoutes(1, currentLimit, '', ''); }
         document.getElementById('searchInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') search(); });
 
         function escapeHtml(text) { var div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
@@ -203,10 +224,10 @@
             var country = allCountries.find(function(c) { return c.id == countryId; });
             var countryName = country ? country.name : '';
             try {
-                await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, country: countryName, country_id: parseInt(countryId) }) });
+                await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, country_id: parseInt(countryId) }) });
                 document.getElementById('name').value = '';
                 document.getElementById('country').value = '';
-                loadRoutes(1, currentLimit, currentSearch);
+                loadRoutes(1, currentLimit, currentSearch, currentCountryId);
             } catch (error) { console.error('Error adding route:', error); alert('Error adding route'); }
         });
 
@@ -228,9 +249,9 @@
             var country = allCountries.find(function(c) { return c.id == countryId; });
             var countryName = country ? country.name : '';
             try {
-                await fetch(API_URL + '/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, country: countryName, country_id: parseInt(countryId) }) });
+                await fetch(API_URL + '/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, country_id: parseInt(countryId) }) });
                 cancelEdit();
-                loadRoutes(currentPage, currentLimit, currentSearch);
+                loadRoutes(currentPage, currentLimit, currentSearch, currentCountryId);
             } catch (error) { console.error('Error updating route:', error); alert('Error updating route'); }
         });
 
@@ -238,7 +259,7 @@
             if (!confirm('Are you sure you want to delete this route?')) return;
             try {
                 await fetch(API_URL + '/' + id, { method: 'DELETE' });
-                loadRoutes(currentPage, currentLimit, currentSearch);
+                loadRoutes(currentPage, currentLimit, currentSearch, currentCountryId);
             } catch (error) { console.error('Error deleting route:', error); alert('Error deleting route'); }
         }
 
