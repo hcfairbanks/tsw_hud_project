@@ -682,7 +682,7 @@
             console.log('Selected timetable:', timetableId);
         }
 
-        // Load selected timetable data from database
+        // Load selected timetable data from database and display directly (no reload)
         async function loadSelectedTimetable() {
             const timetableId = document.getElementById('timetableSelect').value;
             const statusMessage = document.getElementById('routeStatusMessage');
@@ -697,53 +697,72 @@
             statusMessage.className = 'status-message';
 
             try {
-                const response = await fetch(`/api/map/timetables/${timetableId}/data`);
-                const timetableData = await response.json();
+                // Fetch route data directly from database
+                const response = await fetch(`/api/map/route-data/${timetableId}`);
+                const data = await response.json();
 
-                if (timetableData.error) {
-                    throw new Error(timetableData.error);
+                if (data.error) {
+                    throw new Error(data.error);
                 }
 
                 // Log to console
-                console.log('=== TIMETABLE DATA FROM DATABASE ===');
-                console.log('Service Name:', timetableData.routeName);
-                console.log('Timetable ID:', timetableData.timetableId);
-                console.log('Total Coordinates:', timetableData.totalPoints);
-                console.log('Total Markers:', timetableData.totalMarkers);
-                console.log('Timetable Entries:', timetableData.timetable?.length || 0);
-                console.log('Coordinates sample:', timetableData.coordinates?.slice(0, 3));
-                console.log('Markers:', timetableData.markers);
-                console.log('Timetable stations:', timetableData.timetable);
-                console.log('Full Data:', timetableData);
+                console.log('=== ROUTE DATA FROM DATABASE ===');
+                console.log('Service Name:', data.routeName);
+                console.log('Timetable ID:', data.timetableId);
+                console.log('Total Coordinates:', data.totalPoints);
+                console.log('Timetable Entries:', data.timetable?.length || 0);
                 console.log('=====================================');
 
-                // Send to server to set as active route
+                // Send to server to set as active route (for telemetry tracking)
                 const uploadRes = await fetch('/api/upload-route', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         filename: `db_timetable_${timetableId}.json`,
-                        routeData: timetableData
+                        routeData: data
                     })
                 });
 
                 const result = await uploadRes.json();
-                if (result.success) {
-                    localStorage.setItem('customRoute', JSON.stringify(timetableData));
-                    localStorage.setItem('customRouteFilename', timetableData.routeName);
-
-                    statusMessage.textContent = `Loaded: ${timetableData.routeName}`;
-                    statusMessage.className = 'status-message success';
-
-                    setTimeout(() => location.reload(), 500);
-                } else {
-                    throw new Error(result.error || 'Failed to load timetable');
+                if (!result.success) {
+                    console.warn('Failed to set route on server:', result.error);
                 }
+
+                // Store in localStorage for persistence across page loads
+                localStorage.setItem('customRoute', JSON.stringify(data));
+                localStorage.setItem('customRouteFilename', data.routeName);
+
+                // Clear existing route display
+                clearRouteDisplay();
+
+                // Display the route directly without reloading
+                routeData = data;
+                initializeRoute(data);
+
+                statusMessage.textContent = `Loaded: ${data.routeName}`;
+                statusMessage.className = 'status-message success';
+
             } catch (err) {
                 console.error('Failed to load timetable:', err);
                 statusMessage.textContent = `Error: ${err.message}`;
                 statusMessage.className = 'status-message error';
             }
+        }
+
+        // Clear existing route display from the map
+        function clearRouteDisplay() {
+            // Remove existing polyline
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+                routePolyline = null;
+            }
+
+            // Remove existing station markers
+            markerLayers.forEach(marker => map.removeLayer(marker));
+            markerLayers = [];
+
+            // Reset route data
+            routeData = null;
         }
 
         // Load routes on page load

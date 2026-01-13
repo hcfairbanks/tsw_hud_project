@@ -204,34 +204,86 @@ async function saveProcessedJson(req, res) {
 }
 
 /**
- * List available processed route files
+ * Get route data from database for live map display (no file creation)
+ * Returns the same structure as remakeProcessedJson but directly as JSON response
  */
-function listProcessedRoutes(req, res) {
+async function getRouteDataFromDb(req, res, timetableId) {
     try {
-        const processedRoutesDir = path.join(__dirname, '..', 'processed_routes');
-
-        if (!fs.existsSync(processedRoutesDir)) {
-            sendJson(res, []);
+        if (!timetableId) {
+            sendJson(res, { error: 'timetableId is required' }, 400);
             return;
         }
 
-        const files = fs.readdirSync(processedRoutesDir)
-            .filter(f => f.endsWith('.json'))
-            .map(f => {
-                const filePath = path.join(processedRoutesDir, f);
-                const stat = fs.statSync(filePath);
-                return {
-                    filename: f,
-                    size: stat.size,
-                    modified: stat.mtime
-                };
-            })
-            .sort((a, b) => new Date(b.modified) - new Date(a.modified));
+        // Get timetable info
+        const timetable = timetableDb.getById(timetableId);
+        if (!timetable) {
+            sendJson(res, { error: `Timetable ${timetableId} not found` }, 404);
+            return;
+        }
 
-        sendJson(res, files);
+        // Get coordinates from timetable_coordinates
+        const coordinates = timetableCoordinateDb.getByTimetableId(timetableId);
+
+        // Get markers from timetable_markers
+        const markers = timetableMarkerDb.getByTimetableId(timetableId);
+
+        // Get entries from timetable_entries
+        const entries = entryDb.getByTimetableId(timetableId);
+
+        // Build timetable array from entries
+        const timetableArray = [];
+        let entryIndex = 0;
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            if (entry.latitude && entry.longitude && entry.latitude !== '' && entry.longitude !== '') {
+                let arrival = '';
+                let departure = '';
+
+                if (entry.action === 'WAIT FOR SERVICE') {
+                    arrival = entry.time2 || '';
+                } else {
+                    arrival = entry.time1 || '';
+                }
+
+                if (i + 1 < entries.length) {
+                    departure = entries[i + 1].time1 || '';
+                }
+
+                timetableArray.push({
+                    index: entryIndex,
+                    destination: entry.location || '',
+                    arrival: arrival,
+                    departure: departure,
+                    platform: entry.platform || '',
+                    apiName: entry.api_name || '',
+                    latitude: parseFloat(entry.latitude),
+                    longitude: parseFloat(entry.longitude)
+                });
+                entryIndex++;
+            }
+        }
+
+        // Build the route data structure
+        const routeData = {
+            routeName: timetable.service_name,
+            timetableId: timetableId,
+            totalPoints: coordinates.length,
+            coordinates: coordinates,
+            markers: markers.map(m => ({
+                stationName: m.station_name,
+                markerType: m.marker_type,
+                platformLength: m.platform_length,
+                latitude: m.latitude,
+                longitude: m.longitude
+            })),
+            timetable: timetableArray
+        };
+
+        sendJson(res, routeData);
+
     } catch (err) {
-        console.error('Error listing processed routes:', err);
-        sendJson(res, { error: 'Failed to list files: ' + err.message }, 500);
+        console.error('Error getting route data from DB:', err);
+        sendJson(res, { error: 'Failed to get route data: ' + err.message }, 500);
     }
 }
 
@@ -368,6 +420,6 @@ module.exports = {
     getTimetableData,
     importFromRecording,
     saveProcessedJson,
-    listProcessedRoutes,
+    getRouteDataFromDb,
     remakeProcessedJson
 };

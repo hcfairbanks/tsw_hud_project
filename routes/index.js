@@ -671,9 +671,11 @@ async function handleRoutes(req, res) {
         return true;
     }
 
-    // List processed route files
-    if (pathname === '/api/map/processed-files' && method === 'GET') {
-        mapDataController.listProcessedRoutes(req, res);
+    // Get route data from database for live map (no file)
+    const routeDataFromDbMatch = pathname.match(/^\/api\/map\/route-data\/(\d+)$/);
+    if (routeDataFromDbMatch && method === 'GET') {
+        const timetableId = parseInt(routeDataFromDbMatch[1]);
+        await mapDataController.getRouteDataFromDb(req, res, timetableId);
         return true;
     }
 
