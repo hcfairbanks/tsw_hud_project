@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { sendJson, parseBody } = require('../utils/http');
-const { getRouteData, loadRouteFromFile, loadRouteFromData } = require('./telemetryController');
+const { getRouteData, loadRouteFromFile, loadRouteFromData, clearRoute } = require('./telemetryController');
 
 // Get the app directory
 const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
@@ -171,10 +171,19 @@ async function getCurrentRoute(req, res) {
     sendJson(res, routeData);
 }
 
+/**
+ * Clear the currently loaded route
+ */
+async function clearCurrentRoute(req, res) {
+    clearRoute();
+    sendJson(res, { success: true, message: 'Route cleared' });
+}
+
 module.exports = {
     listRoutes,
     browseDirectory,
     loadRoute,
     uploadRoute,
-    getCurrentRoute
+    getCurrentRoute,
+    clearCurrentRoute
 };

@@ -72,3 +72,10 @@ stationNameMapping["Metro South"] = "MetroSouth" (from station mappings)
 platform = "1"
 Result: apiName = "MetroSouth Platform 1"
 The station name mapping lookup uses the stationMappingDb which stores display name → API name translations for each route.
+
+
+
+
+Set the epsilon for path percision
+controllers\routeProcessingController.js
+const SIMPLIFY_EPSILON = 5; // meters

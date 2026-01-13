@@ -529,8 +529,7 @@ function saveRouteData(timetable, entries) {
             stationName: m.stationName,
             markerType: m.markerType || 'Station',
             detectedAt: m.detectedAt,
-            distanceAheadMeters: m.distanceAheadMeters,
-            timestamp: m.timestamp
+            distanceAheadMeters: m.distanceAheadMeters
         };
 
         if (m.platformLength != null) {
@@ -541,7 +540,6 @@ function saveRouteData(timetable, entries) {
         if (m.onspot_latitude != null) {
             marker.onspot_latitude = m.onspot_latitude;
             marker.onspot_longitude = m.onspot_longitude;
-            marker.onspot_timestamp = m.onspot_timestamp;
             marker.onspot_distance = m.onspot_distance;
         }
 
@@ -573,7 +571,6 @@ function saveRouteData(timetable, entries) {
         routeName: timetable ? timetable.service_name : 'Unknown',
         timetableId: currentTimetableId,
         totalPoints: formattedCoordinates.length,
-        totalMarkers: exportMarkers.length,
         coordinates: formattedCoordinates,
         markers: exportMarkers,
         timetable: exportEntries

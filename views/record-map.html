@@ -319,10 +319,6 @@
                     <div class="stat-value" id="coordCount">0</div>
                     <div class="stat-label">Coordinates</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-value" id="markerCount">0</div>
-                    <div class="stat-label">Markers</div>
-                </div>
             </div>
         </div>
 
@@ -337,7 +333,7 @@
             <div class="controls-row">
                 <button class="btn-success" id="startBtn" onclick="startRecording()">Start</button>
                 <button class="btn-warning" id="pauseBtn" onclick="pauseRecording()" disabled>Pause</button>
-                <button class="btn-danger" id="stopBtn" onclick="stopRecording()" disabled>Stop</button>
+                <button class="btn-danger" id="stopBtn" onclick="stopRecording()" style="font-size: 9px;">Stop recording and save to database</button>
                 <button class="btn-secondary" id="resetBtn" onclick="resetRecording()">Reset</button>
             </div>
         </div>
@@ -444,7 +440,6 @@
                 const data = await response.json();
 
                 document.getElementById('routeName').textContent = data.routeName || 'No Recording';
-                document.getElementById('markerCount').textContent = data.markers?.length || 0;
 
                 // Load existing path from backend (only at init or after resume)
                 if (data.coordinates && data.coordinates.length > 0) {
@@ -578,10 +573,30 @@
             }
         }
 
-        // Stop recording - TODO: implement later
+        // Process the recording file
         async function stopRecording() {
-            // For now, do nothing - will be implemented later
-            alert('Stop functionality not yet implemented');
+            const stopBtn = document.getElementById('stopBtn');
+            stopBtn.disabled = true;
+            stopBtn.textContent = 'Processing...';
+
+            try {
+                const processResponse = await fetch('/api/route-processing/process-latest', { method: 'POST' });
+                const processResult = await processResponse.json();
+
+                if (!processResult.success) {
+                    throw new Error(processResult.error || 'Failed to process recording');
+                }
+
+                console.log('Recording processed:', processResult);
+                alert(`Processing complete!\n\nOutput: ${processResult.outputFile}\nCoordinates: ${processResult.stats.coordinates}\nMarkers: ${processResult.stats.markers}`);
+
+            } catch (err) {
+                console.error('Error processing recording:', err);
+                alert('Error: ' + err.message);
+            } finally {
+                stopBtn.textContent = 'Stop recording and save to database';
+                stopBtn.disabled = false;
+            }
         }
 
         // Reset recording - clears all state for testing
@@ -607,7 +622,6 @@
                     currentTimetableId = null;
                     document.getElementById('routeName').textContent = 'No Recording';
                     document.getElementById('coordCount').textContent = '0';
-                    document.getElementById('markerCount').textContent = '0';
                     document.getElementById('stationDropdown').innerHTML = '<option value="">-- Start recording first --</option>';
                     updateUIFromRecording({ isRecording: false, isPaused: false });
                     console.log('Recording state reset');
@@ -622,10 +636,14 @@
         // Save current position to timetable
         async function saveToTimetable() {
             const index = parseInt(document.getElementById('stationDropdown').value);
-            const lat = document.getElementById('currentLat').textContent;
-            const lng = document.getElementById('currentLng').textContent;
+            const latEl = document.getElementById('currentLat');
+            const lngEl = document.getElementById('currentLng');
 
-            if (lat === '-' || lng === '-') {
+            // Use full precision values stored in dataset, not truncated display text
+            const lat = latEl.dataset.fullValue;
+            const lng = lngEl.dataset.fullValue;
+
+            if (!lat || !lng || latEl.textContent === '-') {
                 alert('No current position available');
                 return;
             }
@@ -712,8 +730,11 @@
                 const lat = data.playerPosition.latitude;
                 const lng = data.playerPosition.longitude;
 
+                // Store full precision for saving, display truncated
                 document.getElementById('currentLat').textContent = lat.toFixed(6);
                 document.getElementById('currentLng').textContent = lng.toFixed(6);
+                document.getElementById('currentLat').dataset.fullValue = lat;
+                document.getElementById('currentLng').dataset.fullValue = lng;
 
                 // Update train marker
                 if (trainMarker) {
@@ -755,7 +776,6 @@
                 currentTimetableId = data.recording.timetableId;
                 document.getElementById('routeName').textContent = data.recording.routeName || 'No Recording';
                 document.getElementById('coordCount').textContent = data.recording.coordinateCount || 0;
-                document.getElementById('markerCount').textContent = data.recording.markerCount || 0;
 
                 // Update UI state
                 updateUIFromRecording(data.recording);

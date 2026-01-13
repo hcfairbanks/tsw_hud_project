@@ -14,6 +14,7 @@ const recordingController = require('../controllers/recordingController');
 const processingController = require('../controllers/processingController');
 const mapDataController = require('../controllers/mapDataController');
 const stationMappingController = require('../controllers/stationMappingController');
+const routeProcessingController = require('../controllers/routeProcessingController');
 
 /**
  * Route handler - maps URL patterns to controller methods
@@ -491,6 +492,12 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // Clear current route
+    if (pathname === '/api/clear-route' && method === 'POST') {
+        await hudController.clearCurrentRoute(req, res);
+        return true;
+    }
+
     // ============================================
     // Weather API Routes
     // ============================================
@@ -655,6 +662,29 @@ async function handleRoutes(req, res) {
     // Import recording data into a timetable
     if (pathname === '/api/map/import-recording' && method === 'POST') {
         await mapDataController.importFromRecording(req, res);
+        return true;
+    }
+
+    // ============================================
+    // Route Processing API Routes
+    // ============================================
+
+    // Process the most recent recording file
+    if (pathname === '/api/route-processing/process-latest' && method === 'POST') {
+        routeProcessingController.processLatestRecording(req, res);
+        return true;
+    }
+
+    // List processed route files
+    if (pathname === '/api/route-processing/list' && method === 'GET') {
+        routeProcessingController.listProcessedRoutes(req, res);
+        return true;
+    }
+
+    // Get a specific processed route file
+    if (pathname === '/api/route-processing/file' && method === 'GET') {
+        const filename = url.searchParams.get('file');
+        routeProcessingController.getProcessedRoute(req, res, filename);
         return true;
     }
 

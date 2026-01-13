@@ -113,6 +113,7 @@ async function initDatabase() {
             time2 TEXT,
             latitude TEXT,
             longitude TEXT,
+            api_name TEXT,
             sort_order INTEGER,
             FOREIGN KEY (timetable_id) REFERENCES timetables(id) ON DELETE CASCADE
         )
@@ -124,6 +125,9 @@ async function initDatabase() {
     } catch (e) { /* column already exists */ }
     try {
         db.run('ALTER TABLE timetable_entries ADD COLUMN longitude TEXT');
+    } catch (e) { /* column already exists */ }
+    try {
+        db.run('ALTER TABLE timetable_entries ADD COLUMN api_name TEXT');
     } catch (e) { /* column already exists */ }
     
     // Add tsw_version column to routes if it doesn't exist (migration for existing databases)
@@ -184,7 +188,6 @@ async function initDatabase() {
             latitude REAL,
             longitude REAL,
             platform_length REAL,
-            is_timetable_station INTEGER DEFAULT 0,
             FOREIGN KEY (timetable_id) REFERENCES timetables(id) ON DELETE CASCADE
         )
     `);
@@ -720,24 +723,24 @@ const entryDb = {
     create: (timetableId, entry, sortOrder) => {
         console.log(`  -> INSERT timetable_entries: timetable_id=${timetableId}, action=${entry.action}, sort_order=${sortOrder}`);
         db.run(
-            'INSERT INTO timetable_entries (timetable_id, action, details, location, platform, time1, time2, latitude, longitude, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [timetableId, entry.action, entry.details || '', entry.location || '', entry.platform || '', entry.time1 || '', entry.time2 || '', entry.latitude || '', entry.longitude || '', sortOrder]
+            'INSERT INTO timetable_entries (timetable_id, action, details, location, platform, time1, time2, latitude, longitude, api_name, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [timetableId, entry.action, entry.details || '', entry.location || '', entry.platform || '', entry.time1 || '', entry.time2 || '', entry.latitude || '', entry.longitude || '', entry.api_name || '', sortOrder]
         );
         // Get the ID immediately after insert, before saveDatabase
         const result = db.exec('SELECT last_insert_rowid() as id');
         const lastId = result.length > 0 && result[0].values.length > 0 ? result[0].values[0][0] : 0;
         saveDatabase();
-        
+
         // Verify what was actually inserted
         const verify = db.exec(`SELECT id, timetable_id, action FROM timetable_entries WHERE id = ${lastId}`);
         console.log(`  -> VERIFY inserted row:`, verify[0]?.values[0]);
-        
+
         return { lastInsertRowid: lastId };
     },
     update: (id, entry) => {
         db.run(
-            'UPDATE timetable_entries SET action = ?, details = ?, location = ?, platform = ?, time1 = ?, time2 = ?, latitude = ?, longitude = ? WHERE id = ?',
-            [entry.action, entry.details || '', entry.location || '', entry.platform || '', entry.time1 || '', entry.time2 || '', entry.latitude || '', entry.longitude || '', id]
+            'UPDATE timetable_entries SET action = ?, details = ?, location = ?, platform = ?, time1 = ?, time2 = ?, latitude = ?, longitude = ?, api_name = ? WHERE id = ?',
+            [entry.action, entry.details || '', entry.location || '', entry.platform || '', entry.time1 || '', entry.time2 || '', entry.latitude || '', entry.longitude || '', entry.api_name || '', id]
         );
         saveDatabase();
     },
@@ -863,7 +866,7 @@ const timetableMarkerDb = {
         db.run('DELETE FROM timetable_markers WHERE timetable_id = ?', [timetableId]);
 
         // Insert new markers
-        const stmt = db.prepare('INSERT INTO timetable_markers (timetable_id, station_name, marker_type, latitude, longitude, platform_length, is_timetable_station) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        const stmt = db.prepare('INSERT INTO timetable_markers (timetable_id, station_name, marker_type, latitude, longitude, platform_length) VALUES (?, ?, ?, ?, ?, ?)');
         for (const marker of markers) {
             stmt.run([
                 timetableId,
@@ -871,8 +874,7 @@ const timetableMarkerDb = {
                 marker.markerType || marker.marker_type || 'Station',
                 marker.latitude || null,
                 marker.longitude || null,
-                marker.platformLength || marker.platform_length || null,
-                marker.isTimetableStation || marker.is_timetable_station ? 1 : 0
+                marker.platformLength || marker.platform_length || null
             ]);
         }
         stmt.free();

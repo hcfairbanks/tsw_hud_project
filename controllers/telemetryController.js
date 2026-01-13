@@ -542,6 +542,17 @@ function hasRouteLoaded() {
 }
 
 /**
+ * Clear loaded route data
+ */
+function clearRoute() {
+    loadedRouteData = null;
+    routeFilePath = null;
+    timetableData = [];
+    currentTimetableIndex = 0;
+    console.log('Route data cleared');
+}
+
+/**
  * Get current player position
  */
 function getPlayerPosition() {
@@ -555,6 +566,7 @@ module.exports = {
     loadRouteFromData,
     getRouteData,
     hasRouteLoaded,
+    clearRoute,
     getPlayerPosition,
     loadTimetable,
     calculateDistance,

@@ -301,6 +301,15 @@
             </select>
             <button id="loadRouteBtn" onclick="loadSelectedTimetable()" disabled style="margin-top: 10px;">Load Timetable</button>
             <div class="status-message" id="routeStatusMessage"></div>
+
+        </div>
+
+        <div class="dev-tools" style="background: rgba(255, 0, 0, 0.15); border: 2px solid rgba(255, 0, 0, 0.4); border-radius: 6px; padding: 12px; margin-top: 15px;">
+            <h3 style="color: #cc0000; margin: 0 0 10px 0; font-size: 14px;">Development Tools</h3>
+            <label style="font-size: 11px; color: #666;">Load JSON File:</label>
+            <input type="file" id="jsonFileInput" accept=".json" onchange="handleFileSelect()" style="width: 100%; margin-top: 5px; font-size: 11px;">
+            <button onclick="clearLoadedRoute()" style="width: 100%; margin-top: 8px; padding: 6px; background: #cc0000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Clear Loaded Route</button>
+            <div class="status-message" id="devStatusMessage" style="margin-top: 8px;"></div>
         </div>
 
         <div class="info-group">
@@ -449,12 +458,43 @@
             iconAnchor: [10, 10]
         });
 
-        // Handle file selection from native file picker
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
+        // Clear loaded route from localStorage and server
+        async function clearLoadedRoute() {
+            const statusMessage = document.getElementById('devStatusMessage');
+            statusMessage.textContent = 'Clearing...';
+            statusMessage.className = 'status-message';
+
+            try {
+                // Clear from server
+                await fetch('/api/clear-route', { method: 'POST' });
+
+                // Clear from localStorage
+                localStorage.removeItem('customRoute');
+                localStorage.removeItem('customRouteFilename');
+
+                // Clear file input
+                document.getElementById('jsonFileInput').value = '';
+
+                statusMessage.textContent = 'Route cleared';
+                statusMessage.className = 'status-message success';
+
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            } catch (err) {
+                console.error('Failed to clear route:', err);
+                statusMessage.textContent = 'Error clearing route';
+                statusMessage.className = 'status-message error';
+            }
+        }
+
+        // Handle file selection from native file picker (Dev Tools)
+        function handleFileSelect() {
+            const fileInput = document.getElementById('jsonFileInput');
+            const file = fileInput.files[0];
             if (!file) return;
 
-            const statusMessage = document.getElementById('routeStatusMessage');
+            const statusMessage = document.getElementById('devStatusMessage');
             statusMessage.textContent = 'Loading file...';
             statusMessage.className = 'status-message';
 
