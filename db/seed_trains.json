@@ -17,7 +17,7 @@
     },
     {
         "id":  5,
-        "name":  "BR Class 377"
+        "name":  "Class 377/2 SN"
     },
     {
         "id":  6,
@@ -361,11 +361,11 @@
     },
     {
         "id":  91,
-        "name":  "GP38-2 CNR"
+        "name":  "GP38-2 CN"
     },
     {
         "id":  92,
-        "name":  "GP9RM"
+        "name":  "GP9RM CN"
     },
     {
         "id":  93,
@@ -493,7 +493,7 @@
     },
     {
         "id":  124,
-        "name":  "BR Class 66"
+        "name":  "Class 66 DB"
     },
     {
         "id":  125,
@@ -581,7 +581,7 @@
     },
     {
         "id":  146,
-        "name":  "BR Class 350"
+        "name":  "Class 350/1"
     },
     {
         "id":  147,
@@ -642,5 +642,9 @@
     {
         "id":  161,
         "name":  "M8"
+    },
+    {
+        "id":  162,
+        "name":  "Class 390 AWC"
     }
 ]
