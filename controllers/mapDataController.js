@@ -289,7 +289,7 @@ async function getRouteDataFromDb(req, res, timetableId) {
 
 /**
  * Remake processed JSON from database data only
- * Creates a final JSON file in the 'final' folder using data from:
+ * Creates a JSON file in the 'exported_routes' folder using data from:
  * - timetables table (service_name)
  * - timetable_coordinates table (coordinates JSON)
  * - timetable_markers table (markers)
@@ -361,8 +361,8 @@ async function remakeProcessedJson(req, res) {
             }
         }
 
-        // Build the final JSON structure
-        const finalJson = {
+        // Build the exported JSON structure
+        const exportedJson = {
             routeName: timetable.service_name,
             timetableId: timetableId,
             totalPoints: coordinates.length,
@@ -377,21 +377,21 @@ async function remakeProcessedJson(req, res) {
             timetable: timetableArray
         };
 
-        // Ensure final folder exists
-        const finalDir = path.join(__dirname, '..', 'final');
-        if (!fs.existsSync(finalDir)) {
-            fs.mkdirSync(finalDir, { recursive: true });
+        // Ensure output folder exists
+        const exportDir = path.join(__dirname, '..', 'Remake JSON from DB');
+        if (!fs.existsSync(exportDir)) {
+            fs.mkdirSync(exportDir, { recursive: true });
         }
 
         // Create filename with timestamp
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-        const filename = `final_timetable_${timetableId}_${timestamp}.json`;
-        const filePath = path.join(finalDir, filename);
+        const filename = `exported_timetable_${timetableId}_${timestamp}.json`;
+        const filePath = path.join(exportDir, filename);
 
         // Write the file
-        fs.writeFileSync(filePath, JSON.stringify(finalJson, null, 2));
+        fs.writeFileSync(filePath, JSON.stringify(exportedJson, null, 2));
 
-        console.log(`Created final JSON: ${filename}`);
+        console.log(`Created exported JSON: ${filename}`);
         console.log(`  - Coordinates: ${coordinates.length}`);
         console.log(`  - Markers: ${markers.length}`);
         console.log(`  - Timetable entries: ${timetableArray.length}`);

@@ -34,6 +34,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             z-index: 1000;
             min-width: 320px;
+            max-width: 350px;
         }
 
         .info-panel h2 {
@@ -273,12 +274,51 @@
         #fileInput {
             display: none;
         }
+
+        .typeahead-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .typeahead-item:last-child {
+            border-bottom: none;
+        }
+
+        .typeahead-item:hover,
+        .typeahead-item.highlighted {
+            background: #f0f0f0;
+        }
+
+        .typeahead-item .route-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .typeahead-item .country-name {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .nav-link {
+            display: inline-block;
+            color: #0066ff;
+            text-decoration: none;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
 
     <div class="info-panel">
+        <a href="/" class="nav-link">Back to Home</a>
         <h2><span class="status-indicator" id="statusIndicator"></span>Tracking</h2>
 
         <div class="info-item" style="margin-bottom: 15px; display: none;" id="connectionStatusItem">
@@ -288,9 +328,13 @@
         <div class="route-selector">
             <h3>Load Timetable</h3>
             <label style="font-size: 11px; color: #666;">Route:</label>
-            <select id="routeSelect" onchange="handleRouteChange()">
-                <option value="">-- Select a route --</option>
-            </select>
+            <div class="typeahead-container" style="position: relative;">
+                <input type="text" id="routeInput" placeholder="Type to search routes..." autocomplete="off"
+                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                <div id="routeDropdown" class="typeahead-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: white; border: 1px solid #ddd; border-top: none; border-radius: 0 0 4px 4px; z-index: 1001;">
+                </div>
+                <input type="hidden" id="routeSelect" value="">
+            </div>
             <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;">Train:</label>
             <select id="trainSelect" onchange="handleTrainChange()" disabled>
                 <option value="">-- Select a train --</option>
@@ -558,27 +602,109 @@
         // Cascading Selectors: Route → Train → Timetable
         // =============================================
 
-        // Load routes into dropdown
-        async function loadRoutes() {
-            const select = document.getElementById('routeSelect');
+        let allRoutes = [];
+        let highlightedIndex = -1;
 
+        // Load routes for typeahead
+        async function loadRoutes() {
             try {
                 const response = await fetch('/api/routes');
-                const routes = await response.json();
-
-                select.innerHTML = '<option value="">-- Select a route --</option>';
-
-                routes.forEach(route => {
-                    const option = document.createElement('option');
-                    option.value = route.id;
-                    option.textContent = route.name;
-                    select.appendChild(option);
-                });
-
-                console.log('Routes loaded:', routes.length);
+                allRoutes = await response.json();
+                console.log('Routes loaded:', allRoutes.length);
             } catch (err) {
                 console.error('Failed to load routes:', err);
             }
+        }
+
+        // Setup typeahead for route input
+        function setupRouteTypeahead() {
+            const input = document.getElementById('routeInput');
+            const dropdown = document.getElementById('routeDropdown');
+            const hiddenSelect = document.getElementById('routeSelect');
+
+            // Show dropdown on focus
+            input.addEventListener('focus', function() {
+                showRouteDropdown(this.value);
+            });
+
+            // Filter on input
+            input.addEventListener('input', function() {
+                highlightedIndex = -1;
+                showRouteDropdown(this.value);
+            });
+
+            // Keyboard navigation
+            input.addEventListener('keydown', function(e) {
+                const items = dropdown.querySelectorAll('.typeahead-item');
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightedIndex = Math.min(highlightedIndex + 1, items.length - 1);
+                    updateHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightedIndex = Math.max(highlightedIndex - 1, 0);
+                    updateHighlight(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (highlightedIndex >= 0 && items[highlightedIndex]) {
+                        items[highlightedIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Hide dropdown on click outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.typeahead-container')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function updateHighlight(items) {
+            items.forEach((item, idx) => {
+                item.classList.toggle('highlighted', idx === highlightedIndex);
+            });
+            if (highlightedIndex >= 0 && items[highlightedIndex]) {
+                items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showRouteDropdown(filter) {
+            const dropdown = document.getElementById('routeDropdown');
+            const filterLower = filter.toLowerCase();
+
+            const filtered = allRoutes.filter(route =>
+                route.name.toLowerCase().includes(filterLower) ||
+                (route.country_name && route.country_name.toLowerCase().includes(filterLower))
+            );
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: #999;">No routes found</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(route => `
+                    <div class="typeahead-item" data-id="${route.id}" data-name="${route.name}">
+                        <div class="route-name">${route.name}</div>
+                        ${route.country_name ? `<div class="country-name">${route.country_name}</div>` : ''}
+                    </div>
+                `).join('');
+
+                // Add click handlers
+                dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        const name = this.dataset.name;
+                        document.getElementById('routeInput').value = name;
+                        document.getElementById('routeSelect').value = id;
+                        dropdown.style.display = 'none';
+                        handleRouteChange();
+                    });
+                });
+            }
+
+            dropdown.style.display = 'block';
         }
 
         // Handle route selection - load trains for this route
@@ -635,39 +761,20 @@
                 const response = await fetch(`/api/timetables?route_id=${routeId}&train_id=${trainId}`);
                 const timetables = await response.json();
 
-                if (timetables.length > 0) {
+                // Only show timetables with recorded data
+                const withData = timetables.filter(t => t.coordinate_count > 0);
+
+                if (withData.length > 0) {
                     timetableSelect.disabled = false;
-
-                    // Group by those with recorded data vs without
-                    const withData = timetables.filter(t => t.coordinate_count > 0);
-                    const withoutData = timetables.filter(t => !t.coordinate_count || t.coordinate_count === 0);
-
-                    if (withData.length > 0) {
-                        const group = document.createElement('optgroup');
-                        group.label = 'With Recorded Data';
-                        withData.forEach(tt => {
-                            const option = document.createElement('option');
-                            option.value = tt.id;
-                            option.textContent = `${tt.service_name} (${tt.coordinate_count} pts)`;
-                            group.appendChild(option);
-                        });
-                        timetableSelect.appendChild(group);
-                    }
-
-                    if (withoutData.length > 0) {
-                        const group = document.createElement('optgroup');
-                        group.label = 'Without Data';
-                        withoutData.forEach(tt => {
-                            const option = document.createElement('option');
-                            option.value = tt.id;
-                            option.textContent = tt.service_name;
-                            group.appendChild(option);
-                        });
-                        timetableSelect.appendChild(group);
-                    }
+                    withData.forEach(tt => {
+                        const option = document.createElement('option');
+                        option.value = tt.id;
+                        option.textContent = `${tt.service_name} (${tt.coordinate_count} pts)`;
+                        timetableSelect.appendChild(option);
+                    });
                 }
 
-                console.log('Timetables loaded:', timetables.length);
+                console.log('Timetables with data:', withData.length);
             } catch (err) {
                 console.error('Failed to load timetables:', err);
             }
@@ -765,8 +872,26 @@
             routeData = null;
         }
 
+        // Load config and hide dev tools if needed
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                if (!config.developmentMode) {
+                    const devTools = document.querySelector('.dev-tools');
+                    if (devTools) {
+                        devTools.style.display = 'none';
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load config:', err);
+            }
+        }
+
         // Load routes on page load
         loadRoutes();
+        setupRouteTypeahead();
+        loadConfig();
 
         // Check if we have a custom route in localStorage
         const customRoute = localStorage.getItem('customRoute');

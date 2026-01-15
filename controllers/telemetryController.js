@@ -250,7 +250,12 @@ function parseSubscriptionData(rawData) {
             GroundSnow: null,
             PiledSnow: null,
             FogDensity: null
-        }
+        },
+        // Door status
+        doorBackRight: null,
+        doorBackLeft: null,
+        // Reverser position (0=reverse, 1=neutral, 2=forward, -1=handle removed)
+        reverser: null
     };
 
     if (rawData.Entries && rawData.Entries.length > 0) {
@@ -290,9 +295,24 @@ function parseSubscriptionData(rawData) {
                 else if (entry.Path === 'CurrentDrivableActor.Function.HUD_GetSpeed' && entry.Values['Speed (ms)']) {
                     streamData.speed = Math.round(entry.Values['Speed (ms)'] * speedConversionFactor);
                 }
-                // Extract direction
-                else if (entry.Path === 'CurrentDrivableActor.Function.HUD_GetDirection' && entry.Values['Direction'] !== undefined) {
-                    streamData.direction = entry.Values['Direction'];
+                // Extract direction and reverser from HUD_GetDirection
+                else if (entry.Path === 'CurrentDrivableActor.Function.HUD_GetDirection') {
+                    if (entry.Values['Direction'] !== undefined) {
+                        streamData.direction = entry.Values['Direction'];
+                    }
+                    // Also use this for reverser (IsActive: false = handle removed, Direction: -1=reverse, 0=neutral, 1=forward)
+                    if (entry.Values['IsActive'] === false) {
+                        streamData.reverser = -1; // Handle removed (show X)
+                    } else if (entry.Values['Direction'] !== undefined) {
+                        const direction = entry.Values['Direction'];
+                        if (direction < 0) {
+                            streamData.reverser = 0; // Reverse
+                        } else if (direction === 0) {
+                            streamData.reverser = 1; // Neutral
+                        } else {
+                            streamData.reverser = 2; // Forward
+                        }
+                    }
                 }
                 // Extract power handle
                 else if (entry.Path === 'CurrentDrivableActor.Function.HUD_GetPowerHandle' && entry.Values['Power'] !== undefined) {
@@ -372,6 +392,37 @@ function parseSubscriptionData(rawData) {
                     }
                     if (entry.Values.FogDensity !== undefined) {
                         streamData.weather.FogDensity = entry.Values.FogDensity;
+                    }
+                }
+                // Extract back right door status
+                else if (entry.Path === 'CurrentFormation/1/Door_PassengerDoor_BR.Function.GetCurrentOutputValue' && entry.Values['ReturnValue'] !== undefined) {
+                    streamData.doorBackRight = entry.Values['ReturnValue'];
+                }
+                // Extract back left door status
+                else if (entry.Path === 'CurrentFormation/1/Door_PassengerDoor_BL.Function.GetCurrentOutputValue' && entry.Values['ReturnValue'] !== undefined) {
+                    streamData.doorBackLeft = entry.Values['ReturnValue'];
+                }
+                // Fallback: DriverInput reverser for diesel/steam trains
+                else if (entry.Path === 'DriverInput/Reverser.Function.GetCurrentNotchIndex' && entry.Values['ReturnValue'] !== undefined) {
+                    if (streamData.reverser === null) {
+                        streamData.reverser = entry.Values['ReturnValue'];
+                    }
+                }
+                // Fallback: CurrentDrivableActor reverser
+                else if (entry.Path === 'CurrentDrivableActor/Reverser.Function.GetCurrentNotchIndex' && entry.Values['ReturnValue'] !== undefined) {
+                    if (streamData.reverser === null) {
+                        streamData.reverser = entry.Values['ReturnValue'];
+                    }
+                }
+                // Fallback: VirtualRailDriver.Reverser (0=forward, 0.5=neutral, 1=reverse)
+                else if (entry.Path === 'VirtualRailDriver.Reverser' && entry.Values['Reverser'] !== undefined && streamData.reverser === null) {
+                    const reverserValue = entry.Values['Reverser'];
+                    if (reverserValue > 0.75) {
+                        streamData.reverser = 0; // Reverse (value ~1)
+                    } else if (reverserValue > 0.25) {
+                        streamData.reverser = 1; // Neutral (value ~0.5)
+                    } else {
+                        streamData.reverser = 2; // Forward (value ~0)
                     }
                 }
             }

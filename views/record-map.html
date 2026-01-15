@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a2e;
+            background: #f5f5f5;
         }
 
         @keyframes recording-glow {
@@ -40,7 +40,7 @@
         }
 
         .recording-indicator.stopped {
-            color: #666;
+            color: #999;
             animation: none;
         }
 
@@ -53,37 +53,35 @@
 
         .info-panel {
             position: absolute;
-            top: 10px;
+            top: 120px;
             right: 10px;
-            background: #16213e;
-            padding: 15px;
+            background: white;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             z-index: 1000;
-            min-width: 300px;
+            min-width: 320px;
             max-width: 350px;
-            color: #eee;
-            border: 1px solid #0f3460;
         }
 
         .info-panel h2 {
             margin: 0 0 15px 0;
-            color: #00d4ff;
+            color: #333;
             font-size: 18px;
-            border-bottom: 2px solid #0f3460;
+            border-bottom: 2px solid #0066ff;
             padding-bottom: 10px;
         }
 
         .info-group {
-            margin-bottom: 12px;
-            padding: 10px;
-            background: #1a1a2e;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
             border-radius: 6px;
         }
 
         .info-group h3 {
             font-size: 14px;
-            color: #00d4ff;
+            color: #333;
             margin-bottom: 10px;
             font-weight: 600;
         }
@@ -96,52 +94,13 @@
         }
 
         .info-label {
-            color: #aaa;
+            color: #666;
             font-weight: 500;
         }
 
         .info-value {
-            color: #eee;
+            color: #333;
             font-weight: bold;
-        }
-
-        .timetable-display {
-            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
-            color: white;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
-            border: 1px solid #00d4ff;
-        }
-
-        .route-name {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #00d4ff;
-        }
-
-        .stats-row {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 10px;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #00d4ff;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #aaa;
-            text-transform: uppercase;
         }
 
         button {
@@ -155,30 +114,30 @@
         }
 
         .btn-primary {
-            background: #00d4ff;
-            color: #1a1a2e;
+            background: #0066ff;
+            color: white;
         }
 
         .btn-primary:hover {
-            background: #00b8e6;
+            background: #0052cc;
         }
 
         .btn-danger {
-            background: #e94560;
+            background: #dc3545;
             color: #fff;
         }
 
         .btn-danger:hover {
-            background: #d63850;
+            background: #c82333;
         }
 
         .btn-warning {
-            background: #ffaa00;
-            color: #1a1a2e;
+            background: #ffc107;
+            color: #212529;
         }
 
         .btn-warning:hover {
-            background: #e69900;
+            background: #e0a800;
         }
 
         .btn-success {
@@ -191,41 +150,41 @@
         }
 
         .btn-secondary {
-            background: #0f3460;
-            color: #eee;
+            background: #6c757d;
+            color: #fff;
         }
 
         .btn-secondary:hover {
-            background: #1a4a7a;
+            background: #5a6268;
         }
 
         .timetable-dropdown {
             width: 100%;
             padding: 8px;
-            border: 1px solid #0f3460;
+            border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 13px;
             margin-top: 8px;
-            background: #1a1a2e;
-            color: #eee;
+            background: white;
+            color: #333;
             cursor: pointer;
         }
 
         .timetable-dropdown:focus {
             outline: none;
-            border-color: #00d4ff;
+            border-color: #0066ff;
         }
 
         .legend {
             margin-top: 15px;
             padding: 12px;
-            background: #1a1a2e;
+            background: #f8f9fa;
             border-radius: 6px;
         }
 
         .legend h3 {
             font-size: 14px;
-            color: #00d4ff;
+            color: #555;
             margin-bottom: 10px;
             font-weight: 600;
         }
@@ -235,7 +194,7 @@
             align-items: center;
             margin: 6px 0;
             font-size: 12px;
-            color: #aaa;
+            color: #666;
         }
 
         .legend-color {
@@ -255,7 +214,7 @@
         }
 
         .follow-btn {
-            background: #0f3460;
+            background: #2563eb;
             color: white;
             border: none;
             padding: 8px 12px;
@@ -268,20 +227,20 @@
         }
 
         .follow-btn:hover {
-            background: #1a4a7a;
+            background: #1d4ed8;
         }
 
         .follow-btn.following {
-            background: #e94560;
+            background: #dc2626;
         }
 
         .follow-btn.following:hover {
-            background: #d63850;
+            background: #b91c1c;
         }
 
         .nav-link {
             display: inline-block;
-            color: #00d4ff;
+            color: #0066ff;
             text-decoration: none;
             margin-bottom: 10px;
             font-size: 13px;
@@ -301,7 +260,7 @@
         .position-display {
             font-family: 'Courier New', monospace;
             font-size: 11px;
-            color: #00d4ff;
+            color: #333;
         }
     </style>
 </head>
@@ -312,18 +271,12 @@
         <a href="/" class="nav-link">Back to Home</a>
         <h2><span class="recording-indicator stopped" id="recordingIndicator">●</span> <span id="recordingText">Not Recording</span></h2>
 
-        <div class="timetable-display">
-            <div class="route-name" id="routeName">No Recording Active</div>
-            <div class="stats-row">
-                <div class="stat">
-                    <div class="stat-value" id="coordCount">0</div>
-                    <div class="stat-label">Coordinates</div>
-                </div>
-            </div>
+        <div class="info-item" style="margin-bottom: 15px;">
+            <span class="info-label">Coordinates:</span>
+            <span class="info-value" id="coordCount">0</span>
         </div>
 
         <div class="info-group">
-            <h3>Recording Controls</h3>
             <div id="timetableSelector" style="margin-bottom: 10px;">
                 <label class="info-label">Select Timetable:</label>
                 <select class="timetable-dropdown" id="timetableSelect">
@@ -333,7 +286,7 @@
             <div class="controls-row">
                 <button class="btn-success" id="startBtn" onclick="startRecording()">Start</button>
                 <button class="btn-warning" id="pauseBtn" onclick="pauseRecording()" disabled>Pause</button>
-                <button class="btn-danger" id="stopBtn" onclick="stopRecording()">Save Json</button>
+                <button class="btn-danger" id="stopBtn" onclick="stopRecording()">Save</button>
                 <button class="btn-secondary" id="resetBtn" onclick="resetRecording()">Reset</button>
             </div>
         </div>
@@ -361,14 +314,17 @@
             </div>
         </div>
 
-        <div class="info-group" style="background: rgba(0, 200, 100, 0.1); border: 1px solid #00c864;">
-            <h3 style="color: #00c864;">Dev: Remake JSON from DB</h3>
+        <div class="dev-tools" style="background: rgba(255, 0, 0, 0.15); border: 2px solid rgba(255, 0, 0, 0.4); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+            <h3 style="color: #cc0000; margin: 0 0 10px 0; font-size: 14px;">Development Tools</h3>
+            <div style="margin-bottom: 10px;">
+                <label style="font-size: 12px; color: #aaa; font-weight: 600;">Remake JSON from DB</label>
+            </div>
             <label class="info-label">Select Timetable:</label>
             <select class="timetable-dropdown" id="remakeTimetableSelect">
                 <option value="">-- Loading... --</option>
             </select>
             <div class="controls-row">
-                <button class="btn-success" id="remakeBtn" onclick="remakeFromDb()">Remake</button>
+                <button class="btn-danger" id="remakeBtn" onclick="remakeFromDb()">Remake</button>
             </div>
             <div id="remakeStatus" style="margin-top: 8px; font-size: 12px; color: #aaa;"></div>
         </div>
@@ -450,8 +406,6 @@
             try {
                 const response = await fetch('/api/recording/route-data');
                 const data = await response.json();
-
-                document.getElementById('routeName').textContent = data.routeName || 'No Recording';
 
                 // Load existing path from backend (only at init or after resume)
                 if (data.coordinates && data.coordinates.length > 0) {
@@ -643,7 +597,7 @@
                 console.error('Error processing/saving recording:', err);
                 alert('Error: ' + err.message);
             } finally {
-                stopBtn.textContent = 'Save Json';
+                stopBtn.textContent = 'Save';
                 stopBtn.disabled = false;
             }
         }
@@ -669,7 +623,6 @@
                     stationMarkers.clear();
                     // Reset UI
                     currentTimetableId = null;
-                    document.getElementById('routeName').textContent = 'No Recording';
                     document.getElementById('coordCount').textContent = '0';
                     document.getElementById('stationDropdown').innerHTML = '<option value="">-- Start recording first --</option>';
                     updateUIFromRecording({ isRecording: false, isPaused: false });
@@ -823,7 +776,6 @@
             // Update recording state from stream
             if (data.recording) {
                 currentTimetableId = data.recording.timetableId;
-                document.getElementById('routeName').textContent = data.recording.routeName || 'No Recording';
                 document.getElementById('coordCount').textContent = data.recording.coordinateCount || 0;
 
                 // Update UI state
@@ -843,7 +795,6 @@
             } else if (currentTimetableId) {
                 // Recording stopped - clear state
                 currentTimetableId = null;
-                document.getElementById('routeName').textContent = 'No Recording Active';
                 updateUIFromRecording({ isRecording: false, isPaused: false });
             }
         }
@@ -959,6 +910,22 @@
             }
         }
 
+        // Load config and hide dev tools if needed
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                if (!config.developmentMode) {
+                    const devTools = document.querySelector('.dev-tools');
+                    if (devTools) {
+                        devTools.style.display = 'none';
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load config:', err);
+            }
+        }
+
         // Initialize
         async function initialize() {
             await loadTimetables();
@@ -968,6 +935,9 @@
 
             // Load timetables for remake dropdown
             await loadRemakeTimetables();
+
+            // Load config to hide dev tools if needed
+            await loadConfig();
 
             // Connect to stream - all state updates come from here
             connectToStream();

@@ -488,6 +488,37 @@ function drawSpeedLimitBox(options, speedLimit) {
     options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
 }
 
+function drawDoorIndicators(options, doorLeft, doorRight) {
+    var boxX = 1400 - 188 - 26; // Same X as speed limit box
+    var boxY = 26; // Same Y as speed limit box
+    var centerY = boxY + 61; // Vertically centered with speed limit box
+
+    options.ctx.font = 'bold 50px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    // Only show if we have data (not null)
+    if (doorLeft !== null && doorLeft !== undefined) {
+        // L - Left door (BL = Back Left)
+        if (doorLeft > 0) {
+            options.ctx.fillStyle = "rgb(255, 255, 255)"; // White when open
+        } else {
+            options.ctx.fillStyle = "rgb(100, 100, 100)"; // Grey when closed
+        }
+        options.ctx.fillText('L', boxX - 120, centerY);
+    }
+
+    if (doorRight !== null && doorRight !== undefined) {
+        // R - Right door (BR = Back Right)
+        if (doorRight > 0) {
+            options.ctx.fillStyle = "rgb(255, 255, 255)"; // White when open
+        } else {
+            options.ctx.fillStyle = "rgb(100, 100, 100)"; // Grey when closed
+        }
+        options.ctx.fillText('R', boxX - 60, centerY);
+    }
+}
+
 function drawPowerHandleBox(options, powerHandle, isTractionLocked) {
     var boxWidth = 188;
     var boxHeight = 123;
@@ -529,6 +560,53 @@ function drawGradientBox(options, incline) {
 
     var displayValue = incline !== undefined && incline !== null ? incline.toFixed(1) + '%' : '--';
     options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+function drawReverserIndicator(options, reverser) {
+    // Position to the left of gradient box (same Y level)
+    var centerX = 1400 - 188 - 26 - 80; // Left of gradient box
+    var centerY = 26 + 123 + 18 + 123 + 18 + 61; // Center of gradient box row
+
+    options.ctx.fillStyle = "rgb(255, 255, 255)";
+    options.ctx.strokeStyle = "rgb(255, 255, 255)";
+
+    if (reverser === -1) {
+        // X symbol (Handle removed)
+        options.ctx.lineWidth = 16;
+        options.ctx.beginPath();
+        options.ctx.moveTo(centerX - 25, centerY - 25);
+        options.ctx.lineTo(centerX + 25, centerY + 25);
+        options.ctx.stroke();
+        options.ctx.beginPath();
+        options.ctx.moveTo(centerX + 25, centerY - 25);
+        options.ctx.lineTo(centerX - 25, centerY + 25);
+        options.ctx.stroke();
+    } else if (reverser === 0) {
+        // Down arrow with stem (Reverse)
+        // Triangle pointing down
+        options.ctx.beginPath();
+        options.ctx.moveTo(centerX, centerY + 35); // Bottom point
+        options.ctx.lineTo(centerX - 30, centerY); // Top left
+        options.ctx.lineTo(centerX + 30, centerY); // Top right
+        options.ctx.closePath();
+        options.ctx.fill();
+        // Stem going up
+        options.ctx.fillRect(centerX - 8, centerY - 40, 16, 40);
+    } else if (reverser === 1) {
+        // Horizontal bar (Neutral)
+        options.ctx.fillRect(centerX - 30, centerY - 8, 60, 16);
+    } else if (reverser === 2) {
+        // Up arrow with stem (Forward)
+        // Triangle pointing up
+        options.ctx.beginPath();
+        options.ctx.moveTo(centerX, centerY - 35); // Top point
+        options.ctx.lineTo(centerX - 30, centerY); // Bottom left
+        options.ctx.lineTo(centerX + 30, centerY); // Bottom right
+        options.ctx.closePath();
+        options.ctx.fill();
+        // Stem going down
+        options.ctx.fillRect(centerX - 8, centerY, 16, 40);
+    }
 }
 
 function drawNextSpeedLimitBox(options, nextSpeedLimit) {
@@ -723,7 +801,7 @@ function drawRefreshButton(options, isHovered, isPressed) {
     options.ctx.fillText('REFRESH', boxX + boxWidth / 2, boxY + boxHeight / 2);
 }
 
-function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLimit, distanceToNextSpeedLimit, trainBrakeValue, trainBrakeActive, locomotiveBrakeValue, locomotiveBrakeActive, electricDynamicBrakeValue, electricBrakeActive, isTractionLocked, localTime, timetableTime, timetableLabel, distanceToStation) {
+function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLimit, distanceToNextSpeedLimit, trainBrakeValue, trainBrakeActive, locomotiveBrakeValue, locomotiveBrakeActive, electricDynamicBrakeValue, electricBrakeActive, isTractionLocked, localTime, timetableTime, timetableLabel, distanceToStation, reverser, doorLeft, doorRight) {
     var canvas = document.getElementById('tutorial');
     if (canvas !== null && canvas.getContext) {
         var options = buildOptionsAsJSON(canvas, iSpeed);
@@ -747,8 +825,10 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             drawElectricDynamicBrakeBox(options, electricDynamicBrakeValue);
         }
         drawSpeedLimitBox(options, speedLimit);
+        drawDoorIndicators(options, doorLeft, doorRight);
         drawPowerHandleBox(options, powerHandle, isTractionLocked);
         drawGradientBox(options, incline);
+        drawReverserIndicator(options, reverser);
         if (distanceToNextSpeedLimit !== undefined && distanceToNextSpeedLimit !== null && distanceToNextSpeedLimit > 1) {
             drawNextSpeedLimitBox(options, nextSpeedLimit);
             drawDistanceToNextSpeedLimitBox(options, distanceToNextSpeedLimit);
@@ -826,7 +906,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
 
         function redrawButtons() {
             if (currentData) {
-                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation);
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight);
             } else {
                 draw(0);
             }
@@ -878,7 +958,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         // Redraw at regular intervals to support flashing
         setInterval(function() {
             if (currentData) {
-                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation);
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight);
             }
         }, 100);
 
@@ -886,7 +966,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             const data = JSON.parse(event.data);
             currentData = data;
             document.getElementById('display').innerText = JSON.stringify(data, null, 2);
-            draw(Math.round(data.speed), data.limit, data.isSlipping, data.powerHandle, data.incline, data.nextSpeedLimit, data.distanceToNextSpeedLimit, data.trainBreak, data.trainBrakeActive, data.locomotiveBrakeHandle, data.locomotiveBrakeActive, data.electricDynamicBrake, data.electricBrakeActive, data.isTractionLocked, data.localTime, data.timetableTime, data.timetableLabel, data.distanceToStation);
+            draw(Math.round(data.speed), data.limit, data.isSlipping, data.powerHandle, data.incline, data.nextSpeedLimit, data.distanceToNextSpeedLimit, data.trainBreak, data.trainBrakeActive, data.locomotiveBrakeHandle, data.locomotiveBrakeActive, data.electricDynamicBrake, data.electricBrakeActive, data.isTractionLocked, data.localTime, data.timetableTime, data.timetableLabel, data.distanceToStation, data.reverser, data.doorBackLeft, data.doorBackRight);
         };
 
         eventSource.onerror = () => {

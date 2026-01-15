@@ -1,0 +1,40 @@
+{
+  "routeName": "1Y04: Northampton - London Euston                             06:40 0040",
+  "timetableId": 4,
+  "totalPoints": 1,
+  "coordinates": [
+    {
+      "latitude": 52.03389536374665,
+      "longitude": -0.7738715111621741,
+      "height": 8091.23828125,
+      "gradient": 0.22730204463005066
+    }
+  ],
+  "markers": [],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "Milton Keynes Central",
+      "arrival": "06:40:00",
+      "departure": "06:42:00",
+      "platform": "1",
+      "apiName": "Milton Keynes Central 1"
+    },
+    {
+      "index": 1,
+      "destination": "Leighton Buzzard",
+      "arrival": "06:51:30",
+      "departure": "06:52:00",
+      "platform": "2",
+      "apiName": "Leighton Buzzard 2"
+    },
+    {
+      "index": 2,
+      "destination": "London Euston",
+      "arrival": "07:20:30",
+      "departure": "",
+      "platform": "10",
+      "apiName": "Euston 10"
+    }
+  ]
+}

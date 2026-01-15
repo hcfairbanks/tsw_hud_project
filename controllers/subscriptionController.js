@@ -25,6 +25,9 @@ const subscriptionEndpoints = [
     '/subscription/CurrentDrivableActor.Function.HUD_GetLocomotiveBrakeHandle?Subscription=1',
     '/subscription/CurrentDrivableActor.Function.HUD_GetTrainBrakeHandle?Subscription=1',
     '/subscription/CurrentDrivableActor.Function.HUD_GetIsTractionLocked?Subscription=1',
+    '/subscription/CurrentFormation/1/Door_PassengerDoor_BR.Function.GetCurrentOutputValue?Subscription=1',
+    '/subscription/CurrentFormation/1/Door_PassengerDoor_BL.Function.GetCurrentOutputValue?Subscription=1',
+    '/subscription/CurrentDrivableActor.Function.HUD_GetDirection?Subscription=1',
     '/subscription/WeatherManager.Data?Subscription=1'
 ];
 

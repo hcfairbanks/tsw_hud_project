@@ -8,47 +8,6 @@ const { getRouteData, loadRouteFromFile, loadRouteFromData, clearRoute } = requi
 const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
 
 /**
- * List available routes
- */
-async function listRoutes(req, res) {
-    try {
-        const processedRoutesDir = path.join(appDir, 'processed_routes');
-        const unprocessedRoutesDir = path.join(appDir, 'unprocessed_routes');
-
-        const routes = {
-            processed: [],
-            unprocessed: []
-        };
-
-        // Get processed routes
-        if (fs.existsSync(processedRoutesDir)) {
-            routes.processed = fs.readdirSync(processedRoutesDir)
-                .filter(f => f.startsWith('route_') && f.endsWith('.json'))
-                .map(filename => ({
-                    filename: filename,
-                    name: filename.replace('route_', '').replace('.json', ''),
-                    type: 'processed'
-                }));
-        }
-
-        // Get unprocessed routes
-        if (fs.existsSync(unprocessedRoutesDir)) {
-            routes.unprocessed = fs.readdirSync(unprocessedRoutesDir)
-                .filter(f => f.startsWith('route_') && f.endsWith('.json'))
-                .map(filename => ({
-                    filename: filename,
-                    name: filename.replace('route_', '').replace('.json', ''),
-                    type: 'unprocessed'
-                }));
-        }
-
-        sendJson(res, routes);
-    } catch (err) {
-        sendJson(res, { error: err.message }, 500);
-    }
-}
-
-/**
  * Browse directory for route files
  */
 async function browseDirectory(req, res, requestedPath) {
@@ -109,7 +68,7 @@ async function browseDirectory(req, res, requestedPath) {
 /**
  * Load a route file
  */
-async function loadRoute(req, res, filename, type, filePath) {
+async function loadRoute(req, res, filePath) {
     try {
         let newRoutePath;
 
@@ -120,13 +79,8 @@ async function loadRoute(req, res, filename, type, filePath) {
                 sendJson(res, { error: 'Access denied' }, 403);
                 return;
             }
-        } else if (filename) {
-            const routesDir = type === 'processed'
-                ? path.join(appDir, 'processed_routes')
-                : path.join(appDir, 'unprocessed_routes');
-            newRoutePath = path.join(routesDir, filename);
         } else {
-            sendJson(res, { error: 'Missing filename or path parameter' }, 400);
+            sendJson(res, { error: 'Missing path parameter' }, 400);
             return;
         }
 
@@ -180,7 +134,6 @@ async function clearCurrentRoute(req, res) {
 }
 
 module.exports = {
-    listRoutes,
     browseDirectory,
     loadRoute,
     uploadRoute,

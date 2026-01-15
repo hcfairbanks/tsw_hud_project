@@ -106,7 +106,6 @@ function followRoutePath(coordinates, startIndex, distanceMeters) {
 
 /**
  * Pre-process raw timetable entries into proper station entries
- * Following the logic from extract.js writeToJSONRouteSkeleton:
  * - WAIT FOR SERVICE + LOAD PASSENGERS = First station (arrival from WAIT, departure from LOAD)
  * - STOP AT LOCATION + LOAD PASSENGERS = Station stop (arrival from STOP, departure from LOAD)
  * - UNLOAD PASSENGERS = Final stop
@@ -117,8 +116,7 @@ function followRoutePath(coordinates, startIndex, distanceMeters) {
  * @returns {Array} Processed station entries with proper arrival/departure times and apiName
  */
 function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
-    // Same logic as writeToJSONRouteSkeleton in timetableController.js
-    // and ThirdRails export in show.html
+    // Same logic as ThirdRails export in show.html
     const processedEntries = [];
     let index = 0;
 

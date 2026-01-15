@@ -15,6 +15,7 @@ const processingController = require('../controllers/processingController');
 const mapDataController = require('../controllers/mapDataController');
 const stationMappingController = require('../controllers/stationMappingController');
 const routeProcessingController = require('../controllers/routeProcessingController');
+const configController = require('../controllers/configController');
 
 /**
  * Route handler - maps URL patterns to controller methods
@@ -43,6 +44,12 @@ async function handleRoutes(req, res) {
     // HUD dashboard page
     if (pathname === '/hud' || pathname === '/hud.html') {
         serveFile(res, 'hud.html', 'text/html');
+        return true;
+    }
+
+    // Live data page
+    if (pathname === '/data' || pathname === '/data.html') {
+        serveFile(res, 'data.html', 'text/html');
         return true;
     }
 
@@ -121,10 +128,22 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // Settings page
+    if (pathname === '/settings' || pathname === '/settings.html') {
+        serveFile(res, 'settings.html', 'text/html');
+        return true;
+    }
+
     // Weather preset show page /weather-presets/:id
     const weatherPresetShowMatch = pathname.match(/^\/weather-presets\/(\d+)$/);
     if (weatherPresetShowMatch) {
         serveFile(res, 'weather-presets/show.html', 'text/html');
+        return true;
+    }
+
+    // CSS files
+    if (pathname.startsWith('/css/') && pathname.endsWith('.css')) {
+        serveFile(res, pathname.substring(1), 'text/css');
         return true;
     }
 
@@ -464,12 +483,6 @@ async function handleRoutes(req, res) {
         return true;
     }
 
-    // List available route files
-    if (pathname === '/api/hud/routes' && method === 'GET') {
-        await hudController.listRoutes(req, res);
-        return true;
-    }
-
     // Browse directory for routes
     if (pathname.startsWith('/api/hud/browse') && method === 'GET') {
         const requestedPath = url.searchParams.get('path') || '';
@@ -479,10 +492,8 @@ async function handleRoutes(req, res) {
 
     // Load a specific route
     if (pathname.startsWith('/api/hud/load-route') && method === 'GET') {
-        const filename = url.searchParams.get('file');
-        const type = url.searchParams.get('type') || 'processed';
         const filePath = url.searchParams.get('path');
-        await hudController.loadRoute(req, res, filename, type, filePath);
+        await hudController.loadRoute(req, res, filePath);
         return true;
     }
 
@@ -683,6 +694,21 @@ async function handleRoutes(req, res) {
     if (pathname === '/api/map/remake' && method === 'POST') {
         await mapDataController.remakeProcessedJson(req, res);
         return true;
+    }
+
+    // ============================================
+    // Config API Routes
+    // ============================================
+
+    if (pathname === '/api/config') {
+        if (method === 'GET') {
+            configController.getConfig(req, res);
+            return true;
+        }
+        if (method === 'PUT') {
+            await configController.updateConfig(req, res);
+            return true;
+        }
     }
 
     // ============================================

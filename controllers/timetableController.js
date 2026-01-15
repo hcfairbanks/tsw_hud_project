@@ -1,169 +1,7 @@
 'use strict';
-const fs = require('fs');
-const path = require('path');
 const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, routeDb, trainDb, stationMappingDb } = require('../db');
 const { sendJson, parseBody } = require('../utils/http');
 const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
-
-// Get the directory where the app is running from
-const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
-const OUTPUT_UNPROCESSED_DIR = path.join(appDir, 'unprocessed_routes');
-
-/**
- * Write timetable data to a JSON file in unprocessed_routes folder
- * Logic copied from ThirdRails export in show.html, with added fields:
- * - index: row number
- * - apiName: Destination + " Platform " + Platform
- * - longitude/latitude: null for now
- *
- * @param {Array} entries - Raw timetable entries from database
- * @param {string} serviceName - The service/route name
- * @param {number} routeId - Optional route ID for station name mapping
- * @param {number} timetableId - The timetable ID
- * @returns {string|null} The output file path, or null if failed
- */
-function writeToJSONRouteSkeleton(entries, serviceName, routeId, timetableId) {
-    try {
-        // Ensure output directory exists
-        if (!fs.existsSync(OUTPUT_UNPROCESSED_DIR)) {
-            fs.mkdirSync(OUTPUT_UNPROCESSED_DIR, { recursive: true });
-        }
-
-        // Generate filename
-        const now = new Date();
-        const dateStr = now.toISOString().slice(0, 10) + '_' + now.toTimeString().slice(0, 8).replace(/:/g, '-');
-        const filename = `raw_data_timetable_${timetableId}_${dateStr}.json`;
-        const outputFile = path.join(OUTPUT_UNPROCESSED_DIR, filename);
-
-        // Load station name mapping from database
-        let stationMappings = {};
-        if (routeId) {
-            stationMappings = stationMappingDb.getMappingObject(routeId);
-        } else {
-            stationMappings = stationMappingDb.getMappingObject(null);
-        }
-
-        // Build timetable - copied from ThirdRails export logic in show.html
-        // Combine STOP/WAIT entries with following LOAD PASSENGERS
-        const timetable = [];
-        let index = 0;
-
-        for (let i = 0; i < entries.length; i++) {
-            const entry = entries[i];
-            const action = (entry.action || '').toUpperCase().trim();
-
-            if (action === 'WAIT FOR SERVICE') {
-                const destination = entry.location || '';
-                const platform = entry.platform || '';
-                // WAIT FOR SERVICE: arrival is time2
-                const arrival = entry.time2 || '';
-                let departure = '';
-
-                // Look for following LOAD PASSENGERS to get departure time
-                if (i + 1 < entries.length) {
-                    const nextEntry = entries[i + 1];
-                    if ((nextEntry.action || '').toUpperCase().trim() === 'LOAD PASSENGERS') {
-                        departure = nextEntry.time1 || '';
-                        i++; // Skip the LOAD PASSENGERS entry
-                    } else {
-                        // No LOAD PASSENGERS after: departure = time2 (same as arrival)
-                        departure = arrival;
-                    }
-                } else {
-                    // No next entry: departure = time2 (same as arrival)
-                    departure = arrival;
-                }
-
-                // Build apiName: mapped destination + " Platform " + platform
-                const mappedDestination = stationMappings[destination] || destination;
-                const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
-
-                timetable.push({
-                    index: index++,
-                    destination: destination,
-                    arrival: arrival,
-                    departure: departure,
-                    platform: platform,
-                    apiName: apiName,
-                    longitude: null,
-                    latitude: null
-                });
-            } else if (action === 'STOP AT LOCATION') {
-                const destination = entry.location || '';
-                const platform = entry.platform || '';
-                // STOP AT LOCATION: arrival is time1
-                const arrival = entry.time1 || '';
-                let departure = '';
-
-                // Look for following LOAD PASSENGERS to get departure time
-                if (i + 1 < entries.length) {
-                    const nextEntry = entries[i + 1];
-                    if ((nextEntry.action || '').toUpperCase().trim() === 'LOAD PASSENGERS') {
-                        departure = nextEntry.time1 || '';
-                        i++; // Skip the LOAD PASSENGERS entry
-                    }
-                }
-
-                // Build apiName: mapped destination + " Platform " + platform
-                const mappedDestination = stationMappings[destination] || destination;
-                const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
-
-                timetable.push({
-                    index: index++,
-                    destination: destination,
-                    arrival: arrival,
-                    departure: departure,
-                    platform: platform,
-                    apiName: apiName,
-                    longitude: null,
-                    latitude: null
-                });
-            } else if (action === 'UNLOAD PASSENGERS') {
-                // UNLOAD PASSENGERS with location = final stop
-                const destination = entry.location || '';
-                if (destination && destination !== '-') {
-                    const platform = entry.platform || '';
-                    const arrival = entry.time1 || '';
-                    const mappedDestination = stationMappings[destination] || destination;
-                    const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
-
-                    timetable.push({
-                        index: index++,
-                        destination: destination,
-                        arrival: arrival,
-                        departure: '',
-                        platform: platform,
-                        apiName: apiName,
-                        longitude: null,
-                        latitude: null
-                    });
-                }
-            }
-            // LOAD PASSENGERS alone is skipped - handled above with WAIT/STOP
-        }
-
-        // Create the route skeleton JSON
-        const routeSkeleton = {
-            routeName: serviceName || 'Unknown Route',
-            totalPoints: 0,
-            totalMarkers: 0,
-            duration: 0,
-            requestCount: 0,
-            coordinates: [],
-            markers: [],
-            timetable: timetable
-        };
-
-        // Write the JSON file
-        fs.writeFileSync(outputFile, JSON.stringify(routeSkeleton, null, 2));
-        console.log(`Route skeleton JSON created: ${outputFile}`);
-
-        return outputFile;
-    } catch (err) {
-        console.error('Error writing route skeleton JSON:', err);
-        return null;
-    }
-}
 
 const timetableController = {
     // GET /api/timetables
@@ -256,24 +94,13 @@ const timetableController = {
             });
         }
 
-        // Step 4: Generate JSON file in unprocessed_routes folder
-        // Uses identical logic to extract.js writeToJSONRouteSkeleton
-        let jsonFilePath = null;
-        if (entries.length > 0) {
-            jsonFilePath = writeToJSONRouteSkeleton(entries, serviceName, routeId, timetableId);
-            if (jsonFilePath) {
-                console.log(`JSON skeleton file created: ${jsonFilePath}`);
-            }
-        }
-
         console.log('=== TIMETABLE CREATION COMPLETE ===');
         sendJson(res, {
             id: timetableId,
             service_name: serviceName,
             route_id: routeId,
             train_id: trainId,
-            entries: savedEntries,
-            json_file: jsonFilePath
+            entries: savedEntries
         }, 201);
     },
 
