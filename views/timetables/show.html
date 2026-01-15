@@ -190,7 +190,7 @@
             var input;
             if (field === 'action') {
                 input = document.createElement('select');
-                var actions = ['WAIT FOR SERVICE', 'STOP AT LOCATION', 'LOAD PASSENGERS', 'UNLOAD PASSENGERS'];
+                var actions = ['WAIT FOR SERVICE', 'STOP AT LOCATION', 'LOAD PASSENGERS', 'UNLOAD PASSENGERS', 'GO VIA LOCATION', 'UNCOUPLE VEHICLES', 'COUPLE TO FORMATION'];
                 actions.forEach(function(action) {
                     var option = document.createElement('option');
                     option.value = action;

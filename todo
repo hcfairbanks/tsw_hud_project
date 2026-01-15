@@ -184,3 +184,45 @@ in the record-map
 "Remake JSON from DB"
 should also be removed with the accociated code and folder
 ------------------------------------------------------
+
+Future Goals
+
+Have all features of TSW HUD in the application
+Create a HUD for steam engines
+Create specific pages dedicated to different gui interfaces of specific trains
+Create an .exe file to run the program
+Missing Features
+
+Reverse -Brake Systems
+Power Indicator
+LZB Distance To Speed
+Cruise Speed
+Accelerometer
+In-Cab Signaling / LBZ Speed Limit
+Train Door Status
+Safety Systems
+Current Time
+Time expected
+Load passengers progress bar
+Stop at location indicator with distance
+
+
+Missing Subscriptions (15 total)
+Most missing ones are steam locomotive-specific, but HUD_GetAlerter, HUD_GetAmmeter, HUD_GetEngineRPM, and HUD_GetGearIndex would be useful for diesel and electric locos too.
+
+Function	Description
+HUD_GetAlerter	Alerter/deadman warning state
+HUD_GetAmmeter	Electrical current reading
+HUD_GetEngineRPM	Diesel engine RPM
+HUD_GetGearIndex	Current gear (diesel-mechanical)
+HUD_GetSteamBoilerPressure	Steam: Boiler pressure
+HUD_GetSteamChestPressure	Steam: Chest pressure
+HUD_GetCylinderCocks	Steam: Cylinder cocks state
+HUD_GetBoilerWaterLevel	Steam: Water level in boiler
+HUD_GetFireboxCoalLevel	Steam: Coal in firebox
+HUD_GetBlowerFlow	Steam: Blower setting
+HUD_GetDamperFlow	Steam: Damper setting
+HUD_GetReverserCutoff	Steam: Reverser cutoff %
+HUD_GetWaterTankLevel	Steam: Tank water level
+HUD_GetCoalBunkerLevel	Steam: Bunker coal level
+HUD_GetIsSteamRequired	Steam: Is locomotive steam?

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TSW Live Data</title>
+    <title>TSW Raw Data</title>
     <style>
         * {
             box-sizing: border-box;
@@ -19,11 +19,6 @@
             color: #00d4ff;
             text-align: center;
             margin-bottom: 10px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #888;
-            margin-bottom: 20px;
         }
         .nav {
             text-align: center;
@@ -55,128 +50,17 @@
             background: #4a1515;
             color: #f5a5a5;
         }
-        .data-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .card {
-            background: #16213e;
-            border-radius: 8px;
-            padding: 20px;
-            border: 1px solid #0f3460;
-        }
-        .card h2 {
-            color: #00d4ff;
-            margin: 0 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #0f3460;
-            font-size: 16px;
-        }
-        .data-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #0f3460;
-        }
-        .data-row:last-child {
-            border-bottom: none;
-        }
-        .data-label {
-            color: #888;
-            font-size: 14px;
-        }
-        .data-value {
-            color: #fff;
-            font-weight: bold;
-            font-size: 14px;
-            font-family: 'Consolas', monospace;
-        }
-        .data-value.positive {
-            color: #4ade80;
-        }
-        .data-value.negative {
-            color: #f87171;
-        }
-        .data-value.warning {
-            color: #fbbf24;
-        }
-        .data-value.active {
-            color: #00d4ff;
-        }
-        .big-value {
-            font-size: 48px;
-            text-align: center;
-            color: #fff;
-            margin: 10px 0;
-        }
-        .big-label {
-            text-align: center;
-            color: #888;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-        .speed-card .big-value {
-            color: #00d4ff;
-        }
-        .door-indicator {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-        .door-indicator.open {
-            background: #4ade80;
-            box-shadow: 0 0 10px #4ade80;
-        }
-        .door-indicator.closed {
-            background: #666;
-        }
-        .reverser-display {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .reverser-notch {
-            padding: 8px 16px;
-            background: #0f3460;
-            border-radius: 4px;
-            color: #666;
-            font-weight: bold;
-        }
-        .reverser-notch.active {
-            background: #00d4ff;
-            color: #1a1a2e;
-        }
-        .weather-bar {
-            height: 8px;
-            background: #0f3460;
-            border-radius: 4px;
-            margin-top: 5px;
-            overflow: hidden;
-        }
-        .weather-bar-fill {
-            height: 100%;
-            background: #00d4ff;
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
         .json-display {
             background: #0d1b2a;
             border: 1px solid #0f3460;
             border-radius: 4px;
             padding: 15px;
             font-family: 'Consolas', monospace;
-            font-size: 12px;
+            font-size: 13px;
             white-space: pre-wrap;
             word-break: break-all;
-            max-height: 400px;
-            overflow-y: auto;
+            max-width: 1200px;
+            margin: 0 auto;
             color: #8be9fd;
         }
         .json-key {
@@ -197,8 +81,7 @@
     </style>
 </head>
 <body>
-    <h1>TSW Live Data</h1>
-    <p class="subtitle">Real-time telemetry from Train Sim World</p>
+    <h1>Raw JSON Data</h1>
 
     <nav class="nav">
         <a href="/">Home</a>
@@ -209,234 +92,11 @@
 
     <div id="status" class="status disconnected">Connecting...</div>
 
-    <div class="data-grid">
-        <!-- Speed & Movement -->
-        <div class="card speed-card">
-            <h2>Speed & Movement</h2>
-            <div class="big-value" id="speed">--</div>
-            <div class="big-label">km/h</div>
-            <div class="data-row">
-                <span class="data-label">Speed Limit</span>
-                <span class="data-value" id="limit">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Next Speed Limit</span>
-                <span class="data-value" id="nextSpeedLimit">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Distance to Limit</span>
-                <span class="data-value" id="distanceToNextSpeedLimit">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Direction</span>
-                <span class="data-value" id="direction">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Gradient</span>
-                <span class="data-value" id="incline">--</span>
-            </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="card">
-            <h2>Controls</h2>
-            <div class="data-row">
-                <span class="data-label">Power Handle</span>
-                <span class="data-value" id="powerHandle">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Reverser</span>
-                <span class="data-value" id="reverser">--</span>
-            </div>
-            <div class="reverser-display">
-                <span class="reverser-notch" id="rev-reverse">R</span>
-                <span class="reverser-notch" id="rev-neutral">N</span>
-                <span class="reverser-notch" id="rev-forward">F</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Traction Locked</span>
-                <span class="data-value" id="isTractionLocked">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Wheel Slip</span>
-                <span class="data-value" id="isSlipping">--</span>
-            </div>
-        </div>
-
-        <!-- Brakes -->
-        <div class="card">
-            <h2>Brakes</h2>
-            <div class="data-row">
-                <span class="data-label">Train Brake</span>
-                <span class="data-value" id="trainBreak">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Train Brake Active</span>
-                <span class="data-value" id="trainBrakeActive">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Locomotive Brake</span>
-                <span class="data-value" id="locomotiveBrakeHandle">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Loco Brake Active</span>
-                <span class="data-value" id="locomotiveBrakeActive">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Dynamic Brake</span>
-                <span class="data-value" id="electricDynamicBrake">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Dynamic Active</span>
-                <span class="data-value" id="electricBrakeActive">--</span>
-            </div>
-        </div>
-
-        <!-- Doors -->
-        <div class="card">
-            <h2>Doors</h2>
-            <div class="data-row">
-                <span class="data-label">Back Right Door</span>
-                <span class="data-value">
-                    <span id="doorBackRight">--</span>
-                    <span class="door-indicator closed" id="doorBackRightIndicator"></span>
-                </span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Back Left Door</span>
-                <span class="data-value">
-                    <span id="doorBackLeft">--</span>
-                    <span class="door-indicator closed" id="doorBackLeftIndicator"></span>
-                </span>
-            </div>
-        </div>
-
-        <!-- Position -->
-        <div class="card">
-            <h2>Position</h2>
-            <div class="data-row">
-                <span class="data-label">Latitude</span>
-                <span class="data-value" id="latitude">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Longitude</span>
-                <span class="data-value" id="longitude">--</span>
-            </div>
-        </div>
-
-        <!-- Time & Timetable -->
-        <div class="card">
-            <h2>Time & Timetable</h2>
-            <div class="data-row">
-                <span class="data-label">Local Time</span>
-                <span class="data-value" id="localTime">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Timetable Time</span>
-                <span class="data-value" id="timetableTime">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Timetable Label</span>
-                <span class="data-value" id="timetableLabel">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Distance to Station</span>
-                <span class="data-value" id="distanceToStation">--</span>
-            </div>
-        </div>
-
-        <!-- Weather -->
-        <div class="card">
-            <h2>Weather</h2>
-            <div class="data-row">
-                <span class="data-label">Temperature</span>
-                <span class="data-value" id="temperature">--</span>
-            </div>
-            <div class="data-row">
-                <span class="data-label">Cloudiness</span>
-                <span class="data-value" id="cloudiness">--</span>
-            </div>
-            <div class="weather-bar"><div class="weather-bar-fill" id="cloudinessBar" style="width: 0%"></div></div>
-            <div class="data-row">
-                <span class="data-label">Precipitation</span>
-                <span class="data-value" id="precipitation">--</span>
-            </div>
-            <div class="weather-bar"><div class="weather-bar-fill" id="precipitationBar" style="width: 0%"></div></div>
-            <div class="data-row">
-                <span class="data-label">Wetness</span>
-                <span class="data-value" id="wetness">--</span>
-            </div>
-            <div class="weather-bar"><div class="weather-bar-fill" id="wetnessBar" style="width: 0%"></div></div>
-            <div class="data-row">
-                <span class="data-label">Fog Density</span>
-                <span class="data-value" id="fogDensity">--</span>
-            </div>
-            <div class="weather-bar"><div class="weather-bar-fill" id="fogDensityBar" style="width: 0%"></div></div>
-        </div>
-
-        <!-- Raw JSON -->
-        <div class="card" style="grid-column: 1 / -1;">
-            <h2>Raw JSON Data</h2>
-            <div class="json-display" id="jsonDisplay">Waiting for data...</div>
-        </div>
-    </div>
+    <div class="json-display" id="jsonDisplay">Waiting for data...</div>
 
     <script>
         const eventSource = new EventSource('/stream');
         const statusEl = document.getElementById('status');
-
-        function formatValue(value, suffix = '') {
-            if (value === null || value === undefined) return '--';
-            return value + suffix;
-        }
-
-        function formatBoolean(value) {
-            if (value === null || value === undefined) return '--';
-            return value ? 'YES' : 'NO';
-        }
-
-        function formatTime(isoTime) {
-            if (!isoTime) return '--';
-            try {
-                return isoTime.split('T')[1].split('.')[0];
-            } catch (e) {
-                return '--';
-            }
-        }
-
-        function formatPercent(value) {
-            if (value === null || value === undefined) return '--';
-            return (value * 100).toFixed(0) + '%';
-        }
-
-        function updateReverserDisplay(index) {
-            const revReverse = document.getElementById('rev-reverse');
-            const revNeutral = document.getElementById('rev-neutral');
-            const revForward = document.getElementById('rev-forward');
-
-            revReverse.classList.remove('active');
-            revNeutral.classList.remove('active');
-            revForward.classList.remove('active');
-
-            if (index === 0) {
-                revReverse.classList.add('active');
-            } else if (index === 1) {
-                revNeutral.classList.add('active');
-            } else if (index === 2) {
-                revForward.classList.add('active');
-            }
-        }
-
-        function updateDoorIndicator(elementId, value) {
-            const indicator = document.getElementById(elementId);
-            if (value !== null && value !== undefined && value > 0) {
-                indicator.classList.add('open');
-                indicator.classList.remove('closed');
-            } else {
-                indicator.classList.remove('open');
-                indicator.classList.add('closed');
-            }
-        }
 
         function syntaxHighlight(json) {
             if (typeof json !== 'string') {
@@ -460,91 +120,6 @@
             });
         }
 
-        function updateData(data) {
-            // Speed & Movement
-            document.getElementById('speed').textContent = formatValue(data.speed);
-            document.getElementById('limit').textContent = formatValue(data.limit, ' km/h');
-            document.getElementById('nextSpeedLimit').textContent = formatValue(data.nextSpeedLimit, ' km/h');
-            document.getElementById('distanceToNextSpeedLimit').textContent = formatValue(data.distanceToNextSpeedLimit, ' m');
-            document.getElementById('direction').textContent = formatValue(data.direction);
-
-            const inclineEl = document.getElementById('incline');
-            inclineEl.textContent = formatValue(data.incline, '%');
-            inclineEl.className = 'data-value';
-            if (data.incline > 0) inclineEl.classList.add('positive');
-            else if (data.incline < 0) inclineEl.classList.add('negative');
-
-            // Controls
-            const powerEl = document.getElementById('powerHandle');
-            powerEl.textContent = formatValue(data.powerHandle, '%');
-            powerEl.className = 'data-value';
-            if (data.powerHandle > 0) powerEl.classList.add('positive');
-            else if (data.powerHandle < 0) powerEl.classList.add('warning');
-
-            document.getElementById('reverser').textContent = data.reverser !== null ? data.reverser : '--';
-            updateReverserDisplay(data.reverser);
-
-            const tractionEl = document.getElementById('isTractionLocked');
-            tractionEl.textContent = formatBoolean(data.isTractionLocked);
-            if (data.isTractionLocked) tractionEl.classList.add('warning');
-            else tractionEl.className = 'data-value';
-
-            const slipEl = document.getElementById('isSlipping');
-            slipEl.textContent = formatBoolean(data.isSlipping);
-            if (data.isSlipping) slipEl.classList.add('negative');
-            else slipEl.className = 'data-value';
-
-            // Brakes
-            document.getElementById('trainBreak').textContent = formatValue(data.trainBreak, '%');
-            document.getElementById('trainBrakeActive').textContent = formatBoolean(data.trainBrakeActive);
-            document.getElementById('locomotiveBrakeHandle').textContent = formatPercent(data.locomotiveBrakeHandle);
-            document.getElementById('locomotiveBrakeActive').textContent = formatBoolean(data.locomotiveBrakeActive);
-            document.getElementById('electricDynamicBrake').textContent = formatValue(data.electricDynamicBrake, '%');
-            document.getElementById('electricBrakeActive').textContent = formatBoolean(data.electricBrakeActive);
-
-            // Doors
-            document.getElementById('doorBackRight').textContent = data.doorBackRight !== null ? data.doorBackRight.toFixed(2) : '--';
-            document.getElementById('doorBackLeft').textContent = data.doorBackLeft !== null ? data.doorBackLeft.toFixed(2) : '--';
-            updateDoorIndicator('doorBackRightIndicator', data.doorBackRight);
-            updateDoorIndicator('doorBackLeftIndicator', data.doorBackLeft);
-
-            // Position
-            if (data.playerPosition) {
-                document.getElementById('latitude').textContent = data.playerPosition.latitude ? data.playerPosition.latitude.toFixed(6) : '--';
-                document.getElementById('longitude').textContent = data.playerPosition.longitude ? data.playerPosition.longitude.toFixed(6) : '--';
-            }
-
-            // Time & Timetable
-            document.getElementById('localTime').textContent = formatTime(data.localTime);
-            document.getElementById('timetableTime').textContent = data.timetableTime || '--';
-            document.getElementById('timetableLabel').textContent = data.timetableLabel || '--';
-            document.getElementById('distanceToStation').textContent = data.distanceToStation ? data.distanceToStation + ' m' : '--';
-
-            // Weather
-            if (data.weather) {
-                document.getElementById('temperature').textContent = data.weather.Temperature !== null ? data.weather.Temperature.toFixed(1) + ' C' : '--';
-
-                const cloudiness = data.weather.Cloudiness;
-                document.getElementById('cloudiness').textContent = cloudiness !== null ? (cloudiness * 100).toFixed(0) + '%' : '--';
-                document.getElementById('cloudinessBar').style.width = cloudiness !== null ? (cloudiness * 100) + '%' : '0%';
-
-                const precipitation = data.weather.Precipitation;
-                document.getElementById('precipitation').textContent = precipitation !== null ? (precipitation * 100).toFixed(0) + '%' : '--';
-                document.getElementById('precipitationBar').style.width = precipitation !== null ? (precipitation * 100) + '%' : '0%';
-
-                const wetness = data.weather.Wetness;
-                document.getElementById('wetness').textContent = wetness !== null ? (wetness * 100).toFixed(0) + '%' : '--';
-                document.getElementById('wetnessBar').style.width = wetness !== null ? (wetness * 100) + '%' : '0%';
-
-                const fog = data.weather.FogDensity;
-                document.getElementById('fogDensity').textContent = fog !== null ? (fog * 100).toFixed(0) + '%' : '--';
-                document.getElementById('fogDensityBar').style.width = fog !== null ? (fog * 100) + '%' : '0%';
-            }
-
-            // Raw JSON
-            document.getElementById('jsonDisplay').innerHTML = syntaxHighlight(data);
-        }
-
         eventSource.onopen = function() {
             statusEl.textContent = 'Connected';
             statusEl.className = 'status connected';
@@ -556,7 +131,7 @@
 
             try {
                 const data = JSON.parse(event.data);
-                updateData(data);
+                document.getElementById('jsonDisplay').innerHTML = syntaxHighlight(data);
             } catch (e) {
                 console.error('Failed to parse data:', e);
             }

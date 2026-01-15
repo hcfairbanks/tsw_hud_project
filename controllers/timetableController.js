@@ -3,6 +3,55 @@ const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, routeDb,
 const { sendJson, parseBody } = require('../utils/http');
 const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
 
+// Helper function to generate CSV data from raw entries
+function generateCsvData(entries) {
+    const csvRows = [];
+
+    entries.forEach((entry, index) => {
+        let action = entry.action || '';
+        const location = entry.location || '';
+        const platform = entry.platform || '';
+        const details = entry.details || '';
+        let arrival = '';
+        let departure = '';
+        const latitude = (entry.latitude !== null && entry.latitude !== undefined && entry.latitude !== '')
+            ? String(entry.latitude) : '';
+        const longitude = (entry.longitude !== null && entry.longitude !== undefined && entry.longitude !== '')
+            ? String(entry.longitude) : '';
+
+        // Map times based on action type
+        if (action === 'WAIT FOR SERVICE') {
+            arrival = entry.time2 || entry.time1 || '';
+        } else if (action === 'STOP AT LOCATION') {
+            arrival = entry.time1 || '';
+        } else if (action === 'LOAD PASSENGERS') {
+            departure = entry.time1 || '';
+        } else if (action === 'UNLOAD PASSENGERS') {
+            departure = entry.time1 || '';
+        } else if (action === 'GO VIA LOCATION') {
+            arrival = entry.time1 || '';
+        } else if (action === 'UNCOUPLE VEHICLES') {
+            arrival = entry.time1 || '';
+        } else if (action === 'COUPLE TO FORMATION') {
+            arrival = entry.time1 || '';
+        }
+
+        csvRows.push({
+            index,
+            action,
+            location,
+            platform,
+            arrival,
+            departure,
+            details,
+            latitude,
+            longitude
+        });
+    });
+
+    return csvRows;
+}
+
 const timetableController = {
     // GET /api/timetables
     // Supports query params: route_id, train_id
@@ -213,6 +262,9 @@ const timetableController = {
             return result;
         });
 
+        // Generate CSV data from raw entries
+        const csvData = generateCsvData(entries);
+
         // Build the export object (same format as processed routes)
         const exportData = {
             routeName: timetable.service_name,
@@ -236,7 +288,8 @@ const timetableController = {
                 longitude: m.longitude,
                 platformLength: m.platform_length
             })),
-            timetable: exportEntries
+            timetable: exportEntries,
+            csvData: csvData
         };
 
         sendJson(res, exportData);
@@ -311,6 +364,9 @@ const timetableController = {
             return result;
         });
 
+        // Generate CSV data from raw entries
+        const csvData = generateCsvData(entries);
+
         // Build the export object
         const exportData = {
             routeName: timetable.service_name,
@@ -330,7 +386,8 @@ const timetableController = {
                 longitude: m.longitude,
                 platformLength: m.platform_length
             })),
-            timetable: exportEntries
+            timetable: exportEntries,
+            csvData: csvData
         };
 
         // Create a safe filename
