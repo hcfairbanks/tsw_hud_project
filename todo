@@ -226,3 +226,90 @@ HUD_GetReverserCutoff	Steam: Reverser cutoff %
 HUD_GetWaterTankLevel	Steam: Tank water level
 HUD_GetCoalBunkerLevel	Steam: Bunker coal level
 HUD_GetIsSteamRequired	Steam: Is locomotive steam?
+
+----------------------------------------------------
+Lanuage may be an issue too what happens when this is in German ?
+
+controllers/processingController.js
+views/trains/show.html
+views/extract.html
+controllers/mapDataController.js
+controllers/processingController.js
+
+
+
+WAIT FOR SERVICE
+LOAD PASSENGERS
+STOP AT LOCATION
+UNLOAD PASSENGERS
+GO VIA LOCATION
+UNCOUPLE VEHICLES
+COUPLE TO FORMATION
+
+
+
+
+Files Missing Actions
+controllers/processingController.js - Missing:
+
+GO VIA LOCATION
+UNCOUPLE VEHICLES
+COUPLE TO FORMATION
+This file preprocesses timetable entries and only handles WAIT FOR SERVICE, STOP AT LOCATION, LOAD PASSENGERS, and UNLOAD PASSENGERS.
+
+controllers/mapDataController.js - Missing:
+
+STOP AT LOCATION
+LOAD PASSENGERS
+UNLOAD PASSENGERS
+GO VIA LOCATION
+UNCOUPLE VEHICLES
+COUPLE TO FORMATION
+Only explicitly references WAIT FOR SERVICE.
+
+views/extract.html - Missing:
+
+WAIT FOR SERVICE
+LOAD PASSENGERS
+UNLOAD PASSENGERS
+GO VIA LOCATION
+UNCOUPLE VEHICLES
+COUPLE TO FORMATION
+Only has a default of STOP AT LOCATION.
+
+views/trains/show.html - Missing:
+
+WAIT FOR SERVICE
+LOAD PASSENGERS
+UNLOAD PASSENGERS
+GO VIA LOCATION
+UNCOUPLE VEHICLES
+COUPLE TO FORMATION
+Only has a default of STOP AT LOCATION.
+
+Files That Are Complete
+ocr.js - Has all 7 actions
+controllers/timetableController.js - Has all 7 actions (just updated)
+views/timetables/show.html - Has all 7 actions (just updated)
+
+
+Service is scheduled to start at
+Track
+Platform
+ -  (instead of time)
+08:57:30 ( Time Format )
+
+
+apiName vs Station Names
+First Screenshot is always the Timetable name
+Be carefull of excess space around the screenshots
+
+
+The exports will still require work
+CSV => Should be identical to the original
+Thridrails => Follow the thridrails format,
+  might not be possible for frieght as frieght
+  often doesn't have time on it's schedule or location
+
+
+------------------------------------
