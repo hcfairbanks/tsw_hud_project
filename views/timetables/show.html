@@ -369,38 +369,25 @@
                 return;
             }
 
-            var lines = ['Action,Location,Platform,Arrival,Departure,Latitude,Longitude'];
+            var lines = ['Action,Location,Platform,Time1,Time2,Details,Latitude,Longitude'];
 
             entries.forEach(function(entry) {
                 var action = entry.action || '';
                 var location = entry.location || '';
                 var platform = entry.platform || '';
-                var arrival = '';
-                var departure = '';
+                var time1 = entry.time1 || '';
+                var time2 = entry.time2 || '';
+                var details = entry.details || '';
                 var latitude = (entry.latitude !== null && entry.latitude !== undefined) ? String(entry.latitude) : '';
                 var longitude = (entry.longitude !== null && entry.longitude !== undefined) ? String(entry.longitude) : '';
-
-                // Map actions and times based on format
-                if (action === 'WAIT FOR SERVICE') {
-                    action = 'WAIT FOR SERVICE';
-                    arrival = entry.time2 || entry.time1 || '';
-                } else if (action === 'STOP AT LOCATION') {
-                    action = 'STOP';
-                    arrival = entry.time1 || '';
-                } else if (action === 'LOAD PASSENGERS') {
-                    action = 'LOAD PASSENGERS';
-                    departure = entry.time1 || '';
-                } else if (action === 'UNLOAD PASSENGERS') {
-                    action = 'UNLOAD PASSENGERS';
-                    departure = entry.time1 || '';
-                }
 
                 lines.push([
                     escapeCSV(action),
                     escapeCSV(location),
                     escapeCSV(platform),
-                    escapeCSV(arrival),
-                    escapeCSV(departure),
+                    escapeCSV(time1),
+                    escapeCSV(time2),
+                    escapeCSV(details),
                     escapeCSV(latitude),
                     escapeCSV(longitude)
                 ].join(','));

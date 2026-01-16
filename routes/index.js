@@ -314,6 +314,12 @@ async function handleRoutes(req, res) {
         }
     }
 
+    // Import timetable from JSON (must come before single timetable operations)
+    if (pathname === '/api/timetables/import' && method === 'POST') {
+        await timetableController.import(req, res);
+        return true;
+    }
+
     // Timetable export endpoints (must come before single timetable operations)
     const timetableExportDownloadMatch = pathname.match(/^\/api\/timetables\/(\d+)\/export\/download$/);
     if (timetableExportDownloadMatch && method === 'GET') {

@@ -579,6 +579,16 @@ const routeDb = {
         stmt.free();
         return result;
     },
+    getByName: (name) => {
+        const stmt = db.prepare('SELECT * FROM routes WHERE name = ?');
+        stmt.bind([name]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
     create: (name, country_id, tsw_version = 3) => {
         db.run('INSERT INTO routes (name, country_id, tsw_version) VALUES (?, ?, ?)', [name, country_id, tsw_version]);
         saveDatabase();
@@ -696,6 +706,16 @@ const timetableDb = {
     getById: (id) => {
         const stmt = db.prepare('SELECT * FROM timetables WHERE id = ?');
         stmt.bind([id]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
+    getByServiceName: (serviceName) => {
+        const stmt = db.prepare('SELECT * FROM timetables WHERE service_name = ?');
+        stmt.bind([serviceName]);
         let result = null;
         if (stmt.step()) {
             result = stmt.getAsObject();

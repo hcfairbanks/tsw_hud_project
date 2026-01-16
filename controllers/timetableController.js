@@ -1,55 +1,25 @@
 'use strict';
-const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, routeDb, trainDb, stationMappingDb } = require('../db');
+const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, routeDb, trainDb, stationMappingDb, saveDatabase } = require('../db');
 const { sendJson, parseBody } = require('../utils/http');
 const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
 
-// Helper function to generate CSV data from raw entries
-function generateCsvData(entries) {
-    const csvRows = [];
-
-    entries.forEach((entry, index) => {
-        let action = entry.action || '';
-        const location = entry.location || '';
-        const platform = entry.platform || '';
-        const details = entry.details || '';
-        let arrival = '';
-        let departure = '';
-        const latitude = (entry.latitude !== null && entry.latitude !== undefined && entry.latitude !== '')
-            ? String(entry.latitude) : '';
-        const longitude = (entry.longitude !== null && entry.longitude !== undefined && entry.longitude !== '')
-            ? String(entry.longitude) : '';
-
-        // Map times based on action type
-        if (action === 'WAIT FOR SERVICE') {
-            arrival = entry.time2 || entry.time1 || '';
-        } else if (action === 'STOP AT LOCATION') {
-            arrival = entry.time1 || '';
-        } else if (action === 'LOAD PASSENGERS') {
-            departure = entry.time1 || '';
-        } else if (action === 'UNLOAD PASSENGERS') {
-            departure = entry.time1 || '';
-        } else if (action === 'GO VIA LOCATION') {
-            arrival = entry.time1 || '';
-        } else if (action === 'UNCOUPLE VEHICLES') {
-            arrival = entry.time1 || '';
-        } else if (action === 'COUPLE TO FORMATION') {
-            arrival = entry.time1 || '';
-        }
-
-        csvRows.push({
-            index,
-            action,
-            location,
-            platform,
-            arrival,
-            departure,
-            details,
-            latitude,
-            longitude
-        });
-    });
-
-    return csvRows;
+// Helper function to generate raw entry data for export
+// Preserves the original database structure (time1/time2) for accurate import
+function generateRawEntryData(entries) {
+    return entries.map((entry, index) => ({
+        index,
+        action: entry.action || '',
+        location: entry.location || '',
+        platform: entry.platform || '',
+        time1: entry.time1 || '',
+        time2: entry.time2 || '',
+        details: entry.details || '',
+        latitude: (entry.latitude !== null && entry.latitude !== undefined && entry.latitude !== '')
+            ? String(entry.latitude) : '',
+        longitude: (entry.longitude !== null && entry.longitude !== undefined && entry.longitude !== '')
+            ? String(entry.longitude) : '',
+        api_name: entry.api_name || ''
+    }));
 }
 
 const timetableController = {
@@ -263,7 +233,7 @@ const timetableController = {
         });
 
         // Generate CSV data from raw entries
-        const csvData = generateCsvData(entries);
+        const csvData = generateRawEntryData(entries);
 
         // Build the export object (same format as processed routes)
         const exportData = {
@@ -278,8 +248,8 @@ const timetableController = {
             coordinates: coordinates.map(c => ({
                 latitude: c.latitude,
                 longitude: c.longitude,
-                height: c.height || null,
-                gradient: c.gradient || null
+                height: c.height != null ? c.height : null,
+                gradient: c.gradient != null ? c.gradient : null
             })),
             markers: markers.map(m => ({
                 stationName: m.station_name,
@@ -308,6 +278,18 @@ const timetableController = {
         const entries = entryDb.getByTimetableId(id);
         const coordinates = timetableCoordinateDb.getByTimetableId(id);
         const markers = timetableMarkerDb.getByTimetableId(id);
+
+        // Get route and train names for export
+        let routeName = null;
+        let trainName = null;
+        if (timetable.route_id) {
+            const route = routeDb.getById(timetable.route_id);
+            routeName = route ? route.name : null;
+        }
+        if (timetable.train_id) {
+            const train = trainDb.getById(timetable.train_id);
+            trainName = train ? train.name : null;
+        }
 
         // Load station name mapping from database
         let stationNameMapping = {};
@@ -365,19 +347,20 @@ const timetableController = {
         });
 
         // Generate CSV data from raw entries
-        const csvData = generateCsvData(entries);
+        const csvData = generateRawEntryData(entries);
 
         // Build the export object
         const exportData = {
-            routeName: timetable.service_name,
-            timetableId: timetable.id,
+            serviceName: timetable.service_name,
+            routeName: routeName,
+            trainName: trainName,
             totalPoints: coordinates.length,
             totalMarkers: markers.length,
             coordinates: coordinates.map(c => ({
                 latitude: c.latitude,
                 longitude: c.longitude,
-                height: c.height || null,
-                gradient: c.gradient || null
+                height: c.height != null ? c.height : null,
+                gradient: c.gradient != null ? c.gradient : null
             })),
             markers: markers.map(m => ({
                 stationName: m.station_name,
@@ -403,6 +386,123 @@ const timetableController = {
             'Content-Disposition': `attachment; filename="${filename}"`
         });
         res.end(JSON.stringify(exportData, null, 2));
+    },
+
+    // POST /api/timetables/import
+    // Import a timetable from exported JSON format
+    import: async (req, res) => {
+        const body = await parseBody(req);
+        console.log('=== IMPORT TIMETABLE ===');
+
+        // Validate required fields - support both old (routeName) and new (serviceName) formats
+        const serviceName = body.serviceName || body.routeName;
+        if (!serviceName) {
+            sendJson(res, { error: 'Missing required field: serviceName or routeName' }, 400);
+            return;
+        }
+
+        // Check if a timetable with this service name already exists
+        const existingTimetable = timetableDb.getByServiceName(serviceName);
+        if (existingTimetable) {
+            console.log(`Import rejected: Timetable with service name "${serviceName}" already exists (ID: ${existingTimetable.id})`);
+            sendJson(res, {
+                error: `A timetable with the service name "${serviceName}" already exists`,
+                existingId: existingTimetable.id
+            }, 409);
+            return;
+        }
+
+        // Step 1: Look up or create route by name
+        let routeId = null;
+        let routeCreated = false;
+        if (body.routeName) {
+            const existingRoute = routeDb.getByName(body.routeName);
+            if (existingRoute) {
+                routeId = existingRoute.id;
+                console.log(`Found existing route: ${body.routeName} (ID: ${routeId})`);
+            } else {
+                // Create new route with default country (1 = UK) and TSW version 3
+                const routeResult = routeDb.create(body.routeName, 1, 3);
+                routeId = routeResult.lastInsertRowid;
+                routeCreated = true;
+                console.log(`Created new route: ${body.routeName} (ID: ${routeId})`);
+            }
+        }
+
+        // Step 2: Look up or create train by name
+        let trainId = null;
+        let trainCreated = false;
+        if (body.trainName) {
+            const existingTrain = trainDb.getByName(body.trainName);
+            if (existingTrain) {
+                trainId = existingTrain.id;
+                console.log(`Found existing train: ${body.trainName} (ID: ${trainId})`);
+            } else {
+                // Create new train
+                const trainResult = trainDb.create(body.trainName);
+                trainId = trainResult.lastInsertRowid;
+                trainCreated = true;
+                console.log(`Created new train: ${body.trainName} (ID: ${trainId})`);
+            }
+        }
+
+        // Step 3: Create the timetable with route and train IDs
+        const result = timetableDb.create(serviceName, routeId, trainId);
+        const timetableId = result.lastInsertRowid;
+        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId);
+
+        // Step 4: Import coordinates if present
+        if (body.coordinates && Array.isArray(body.coordinates) && body.coordinates.length > 0) {
+            console.log(`Importing ${body.coordinates.length} coordinates...`);
+            timetableCoordinateDb.insert(timetableId, body.coordinates);
+        }
+
+        // Step 5: Import markers if present
+        if (body.markers && Array.isArray(body.markers) && body.markers.length > 0) {
+            console.log(`Importing ${body.markers.length} markers...`);
+            timetableMarkerDb.bulkInsert(timetableId, body.markers);
+        }
+
+        // Step 6: Import entries from csvData (the raw timetable entries)
+        // Supports both new format (time1/time2) and old format (arrival/departure)
+        if (body.csvData && Array.isArray(body.csvData) && body.csvData.length > 0) {
+            console.log(`Importing ${body.csvData.length} entries from csvData...`);
+            for (let i = 0; i < body.csvData.length; i++) {
+                const csvEntry = body.csvData[i];
+                // New format uses time1/time2 directly, old format uses arrival/departure
+                const hasNewFormat = csvEntry.time1 !== undefined || csvEntry.time2 !== undefined;
+                const entry = {
+                    action: csvEntry.action || '',
+                    details: csvEntry.details || '',
+                    location: csvEntry.location || '',
+                    platform: csvEntry.platform || '',
+                    time1: hasNewFormat ? (csvEntry.time1 || '') : (csvEntry.arrival || ''),
+                    time2: hasNewFormat ? (csvEntry.time2 || '') : (csvEntry.departure || ''),
+                    latitude: csvEntry.latitude || '',
+                    longitude: csvEntry.longitude || '',
+                    api_name: csvEntry.api_name || ''
+                };
+                entryDb.create(timetableId, entry, i);
+            }
+        }
+
+        saveDatabase();
+
+        console.log('=== TIMETABLE IMPORT COMPLETE ===');
+        sendJson(res, {
+            id: timetableId,
+            service_name: serviceName,
+            route_id: routeId,
+            route_name: body.routeName || null,
+            route_created: routeCreated,
+            train_id: trainId,
+            train_name: body.trainName || null,
+            train_created: trainCreated,
+            message: 'Timetable imported successfully',
+            coordinatesImported: body.coordinates ? body.coordinates.length : 0,
+            markersImported: body.markers ? body.markers.length : 0,
+            entriesImported: body.csvData ? body.csvData.length : 0
+        }, 201);
     }
 };
 
