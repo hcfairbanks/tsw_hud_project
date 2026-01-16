@@ -622,6 +622,27 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // Check for any existing recording file (most recent)
+    if (pathname === '/api/recording/check-any-existing' && method === 'GET') {
+        recordingController.checkAnyExistingRecording(req, res);
+        return true;
+    }
+
+    // Check for existing recording file for a timetable
+    const checkExistingMatch = pathname.match(/^\/api\/recording\/check-existing\/(\d+)$/);
+    if (checkExistingMatch && method === 'GET') {
+        const timetableId = parseInt(checkExistingMatch[1]);
+        recordingController.checkExistingRecording(req, res, timetableId);
+        return true;
+    }
+
+    // Load a specific recording file
+    if (pathname === '/api/recording/load-file' && method === 'POST') {
+        const filename = url.searchParams.get('file');
+        recordingController.loadRecordingFile(req, res, filename);
+        return true;
+    }
+
     // ============================================
     // Processing API Routes
     // ============================================

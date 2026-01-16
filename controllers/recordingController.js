@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { sendJson } = require('../utils/http');
-const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, stationMappingDb } = require('../db');
+const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, stationMappingDb, routeDb, trainDb, countryDb } = require('../db');
 const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
 
 // Recording configuration
@@ -566,9 +566,29 @@ function saveRouteData(timetable, entries) {
         return result;
     });
 
+    // Get route, train, and country names for export (same as timetableController exportDownload)
+    let routeName = null;
+    let trainName = null;
+    let countryName = null;
+    if (timetable && timetable.route_id) {
+        const route = routeDb.getById(timetable.route_id);
+        routeName = route ? route.name : null;
+        if (route && route.country_id) {
+            const country = countryDb.getById(route.country_id);
+            countryName = country ? country.name : null;
+        }
+    }
+    if (timetable && timetable.train_id) {
+        const train = trainDb.getById(timetable.train_id);
+        trainName = train ? train.name : null;
+    }
+
     // Build the export object (same structure as exportDownload)
     const output = {
-        routeName: timetable ? timetable.service_name : 'Unknown',
+        serviceName: timetable ? timetable.service_name : 'Unknown',
+        routeName: routeName,
+        countryName: countryName,
+        trainName: trainName,
         timetableId: currentTimetableId,
         totalPoints: formattedCoordinates.length,
         coordinates: formattedCoordinates,
@@ -701,6 +721,170 @@ function getRecordingStateForStream() {
     };
 }
 
+/**
+ * Check for existing recording file for a timetable
+ * Returns the most recent recording file if one exists
+ */
+function checkExistingRecording(req, res, timetableId) {
+    if (!fs.existsSync(recordingDataDir)) {
+        sendJson(res, { exists: false });
+        return;
+    }
+
+    const existingFiles = fs.readdirSync(recordingDataDir)
+        .filter(f => f.startsWith(`raw_data_timetable_${timetableId}_`) && f.endsWith('.json'))
+        .sort()
+        .reverse();
+
+    if (existingFiles.length === 0) {
+        sendJson(res, { exists: false });
+        return;
+    }
+
+    const filePath = path.join(recordingDataDir, existingFiles[0]);
+    try {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        sendJson(res, {
+            exists: true,
+            filename: existingFiles[0],
+            routeName: data.routeName || 'Unknown',
+            coordinateCount: data.coordinates ? data.coordinates.length : 0,
+            markerCount: data.markers ? data.markers.length : 0,
+            timetableEntryCount: data.timetable ? data.timetable.length : 0
+        });
+    } catch (err) {
+        sendJson(res, { exists: false, error: 'Could not read file' });
+    }
+}
+
+/**
+ * Check for any existing recording file in the recording_data folder
+ * Returns the most recent file regardless of timetable
+ */
+function checkAnyExistingRecording(req, res) {
+    if (!fs.existsSync(recordingDataDir)) {
+        sendJson(res, { exists: false });
+        return;
+    }
+
+    const existingFiles = fs.readdirSync(recordingDataDir)
+        .filter(f => f.startsWith('raw_data_timetable_') && f.endsWith('.json'))
+        .map(f => {
+            const filePath = path.join(recordingDataDir, f);
+            const stats = fs.statSync(filePath);
+            return { filename: f, mtime: stats.mtime };
+        })
+        .sort((a, b) => b.mtime - a.mtime); // Sort by modification time, newest first
+
+    if (existingFiles.length === 0) {
+        sendJson(res, { exists: false });
+        return;
+    }
+
+    const mostRecent = existingFiles[0];
+    const filePath = path.join(recordingDataDir, mostRecent.filename);
+
+    try {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        sendJson(res, {
+            exists: true,
+            filename: mostRecent.filename,
+            timetableId: data.timetableId || null,
+            routeName: data.routeName || 'Unknown',
+            coordinateCount: data.coordinates ? data.coordinates.length : 0,
+            markerCount: data.markers ? data.markers.length : 0,
+            timetableEntryCount: data.timetable ? data.timetable.length : 0,
+            modifiedAt: mostRecent.mtime
+        });
+    } catch (err) {
+        sendJson(res, { exists: false, error: 'Could not read file' });
+    }
+}
+
+/**
+ * Load a specific recording file into memory for resuming
+ * This allows resuming from a specific file rather than just the most recent
+ */
+function loadRecordingFile(req, res, filename) {
+    if (!filename) {
+        sendJson(res, { success: false, error: 'Filename is required' }, 400);
+        return;
+    }
+
+    const filePath = path.join(recordingDataDir, filename);
+    if (!fs.existsSync(filePath)) {
+        sendJson(res, { success: false, error: 'File not found' }, 404);
+        return;
+    }
+
+    try {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+        // Extract timetable ID from filename or data
+        const timetableId = data.timetableId || null;
+
+        if (!timetableId) {
+            sendJson(res, { success: false, error: 'Could not determine timetable ID from file' }, 400);
+            return;
+        }
+
+        // Load the data into recording state
+        currentTimetableId = timetableId;
+        routeOutputFilePath = filePath;
+
+        if (data.coordinates && Array.isArray(data.coordinates)) {
+            routeCoordinates = data.coordinates;
+        } else {
+            routeCoordinates = [];
+        }
+
+        if (data.markers && Array.isArray(data.markers)) {
+            discoveredMarkers = data.markers;
+            processedMarkers.clear();
+            discoveredMarkers.forEach(m => processedMarkers.add(m.stationName));
+        } else {
+            discoveredMarkers = [];
+            processedMarkers.clear();
+        }
+
+        // Restore saved timetable coordinates
+        savedTimetableCoords.clear();
+        if (data.timetable && Array.isArray(data.timetable)) {
+            data.timetable.forEach((entry, idx) => {
+                if (entry.latitude != null && entry.longitude != null) {
+                    savedTimetableCoords.set(idx, {
+                        latitude: entry.latitude,
+                        longitude: entry.longitude
+                    });
+                }
+            });
+        }
+
+        // Set state to paused (ready to resume)
+        isRecording = true;
+        isPaused = true;
+        recordingStartTime = Date.now();
+
+        console.log(`Loaded recording file: ${filename}`);
+        console.log(`  Coordinates: ${routeCoordinates.length}`);
+        console.log(`  Markers: ${discoveredMarkers.length}`);
+        console.log(`  Saved stations: ${savedTimetableCoords.size}`);
+
+        sendJson(res, {
+            success: true,
+            message: 'Recording file loaded',
+            timetableId,
+            filename,
+            coordinateCount: routeCoordinates.length,
+            markerCount: discoveredMarkers.length,
+            savedStationCount: savedTimetableCoords.size
+        });
+    } catch (err) {
+        console.error('Error loading recording file:', err);
+        sendJson(res, { success: false, error: 'Could not parse file: ' + err.message }, 500);
+    }
+}
+
 module.exports = {
     getStatus,
     start,
@@ -715,5 +899,8 @@ module.exports = {
     isRecordingActive,
     listRecordings,
     getRecordingFile,
-    getRecordingStateForStream
+    getRecordingStateForStream,
+    checkExistingRecording,
+    checkAnyExistingRecording,
+    loadRecordingFile
 };

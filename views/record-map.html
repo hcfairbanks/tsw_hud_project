@@ -53,8 +53,9 @@
 
         .info-panel {
             position: absolute;
-            top: 120px;
+            top: 10px;
             right: 10px;
+            bottom: 10px;
             background: white;
             padding: 20px;
             border-radius: 8px;
@@ -62,6 +63,7 @@
             z-index: 1000;
             min-width: 320px;
             max-width: 350px;
+            overflow-y: auto;
         }
 
         .info-panel h2 {
@@ -278,9 +280,17 @@
 
         <div class="info-group">
             <div id="timetableSelector" style="margin-bottom: 10px;">
-                <label class="info-label">Select Timetable:</label>
-                <select class="timetable-dropdown" id="timetableSelect">
-                    <option value="">-- Select a timetable --</option>
+                <label class="info-label">Select Route:</label>
+                <select class="timetable-dropdown" id="routeSelect">
+                    <option value="">-- Select a route --</option>
+                </select>
+                <label class="info-label" style="margin-top: 8px;">Select Train:</label>
+                <select class="timetable-dropdown" id="trainSelect" disabled>
+                    <option value="">-- Select a route first --</option>
+                </select>
+                <label class="info-label" style="margin-top: 8px;">Select Timetable:</label>
+                <select class="timetable-dropdown" id="timetableSelect" disabled>
+                    <option value="">-- Select a train first --</option>
                 </select>
             </div>
             <div class="controls-row">
@@ -316,17 +326,56 @@
 
         <div class="dev-tools" style="background: rgba(255, 0, 0, 0.15); border: 2px solid rgba(255, 0, 0, 0.4); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
             <h3 style="color: #cc0000; margin: 0 0 10px 0; font-size: 14px;">Development Tools</h3>
-            <div style="margin-bottom: 10px;">
-                <label style="font-size: 12px; color: #aaa; font-weight: 600;">Remake JSON from DB</label>
+
+            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 0, 0, 0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleLoadFile()">
+                    <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;">Load Recording File</label>
+                    <span id="loadFileToggle" style="font-size: 12px; color: #aaa;">▼</span>
+                </div>
+                <div id="loadFileContent" style="margin-top: 10px;">
+                    <select class="timetable-dropdown" id="recordingFileSelect">
+                        <option value="">-- Loading... --</option>
+                    </select>
+                    <div class="controls-row">
+                        <button class="btn-warning" id="loadFileBtn" onclick="loadSelectedFile()">Load File</button>
+                        <input type="file" id="browseFileInput" accept=".json" style="display: none;" onchange="handleFileBrowse(event)">
+                        <button class="btn-secondary" onclick="document.getElementById('browseFileInput').click()">Browse...</button>
+                    </div>
+                    <div id="loadFileStatus" style="margin-top: 8px; font-size: 12px; color: #aaa;"></div>
+                </div>
             </div>
-            <label class="info-label">Select Timetable:</label>
-            <select class="timetable-dropdown" id="remakeTimetableSelect">
-                <option value="">-- Loading... --</option>
-            </select>
-            <div class="controls-row">
-                <button class="btn-danger" id="remakeBtn" onclick="remakeFromDb()">Remake</button>
+
+            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 0, 0, 0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleRemakeJson()">
+                    <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;">Remake JSON from DB</label>
+                    <span id="remakeJsonToggle" style="font-size: 12px; color: #aaa;">▼</span>
+                </div>
+                <div id="remakeJsonContent" style="margin-top: 10px;">
+                    <label class="info-label">Select Timetable:</label>
+                    <select class="timetable-dropdown" id="remakeTimetableSelect">
+                        <option value="">-- Loading... --</option>
+                    </select>
+                    <div class="controls-row">
+                        <button class="btn-danger" id="remakeBtn" onclick="remakeFromDb()">Remake</button>
+                    </div>
+                    <div id="remakeStatus" style="margin-top: 8px; font-size: 12px; color: #aaa;"></div>
+                </div>
             </div>
-            <div id="remakeStatus" style="margin-top: 8px; font-size: 12px; color: #aaa;"></div>
+
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleCoordinatesPicker()">
+                    <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;">Coordinates Picker</label>
+                    <span id="coordsToggle" style="font-size: 12px; color: #aaa;">▼</span>
+                </div>
+                <div id="coordsPickerContent" style="margin-top: 10px;">
+                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Click on map to capture coordinates</div>
+                    <div id="pickedCoords" style="font-family: 'Courier New', monospace; font-size: 12px; color: #333; background: #f8f9fa; padding: 8px; border-radius: 4px; min-height: 40px; white-space: pre-wrap;">No coordinates selected</div>
+                    <div class="controls-row">
+                        <button class="btn-primary" onclick="copyPickedCoords(event)">Copy</button>
+                        <button class="btn-secondary" onclick="clearPickedCoords()">Clear</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="legend">
@@ -382,23 +431,134 @@
             iconAnchor: [10, 10]
         });
 
-        // Load timetables for selector
-        async function loadTimetables() {
+        // Store all timetables for filtering
+        let allTimetables = [];
+
+        // Load routes that have timetables for selector
+        async function loadRoutesWithTimetables() {
             try {
-                const response = await fetch('/api/timetables');
-                const timetables = await response.json();
-                const select = document.getElementById('timetableSelect');
-                select.innerHTML = '<option value="">-- Select a timetable --</option>';
-                timetables.forEach(t => {
+                // Load all timetables first
+                const timetablesResponse = await fetch('/api/timetables');
+                allTimetables = await timetablesResponse.json();
+
+                // Get unique route IDs that have timetables
+                const routeIdsWithTimetables = [...new Set(allTimetables.map(t => t.route_id))];
+
+                if (routeIdsWithTimetables.length === 0) {
+                    const routeSelect = document.getElementById('routeSelect');
+                    routeSelect.innerHTML = '<option value="">-- No routes with timetables --</option>';
+                    return;
+                }
+
+                // Load all routes
+                const routesResponse = await fetch('/api/routes');
+                const allRoutes = await routesResponse.json();
+
+                // Filter to only routes that have timetables
+                const routesWithTimetables = allRoutes.filter(r => routeIdsWithTimetables.includes(r.id));
+
+                const routeSelect = document.getElementById('routeSelect');
+                routeSelect.innerHTML = '<option value="">-- Select a route --</option>';
+                routesWithTimetables.forEach(r => {
                     const option = document.createElement('option');
-                    option.value = t.id;
-                    option.textContent = t.service_name;
-                    select.appendChild(option);
+                    option.value = r.id;
+                    option.textContent = r.name;
+                    routeSelect.appendChild(option);
                 });
             } catch (err) {
-                console.error('Failed to load timetables:', err);
+                console.error('Failed to load routes:', err);
             }
         }
+
+        // Load trains for selected route
+        async function loadTrainsForRoute(routeId) {
+            const trainSelect = document.getElementById('trainSelect');
+            const timetableSelect = document.getElementById('timetableSelect');
+
+            // Reset train and timetable dropdowns
+            trainSelect.innerHTML = '<option value="">-- Loading... --</option>';
+            trainSelect.disabled = true;
+            timetableSelect.innerHTML = '<option value="">-- Select a train first --</option>';
+            timetableSelect.disabled = true;
+
+            if (!routeId) {
+                trainSelect.innerHTML = '<option value="">-- Select a route first --</option>';
+                return;
+            }
+
+            // Get unique train IDs from timetables for this route
+            const timetablesForRoute = allTimetables.filter(t => t.route_id == routeId);
+            const trainIdsForRoute = [...new Set(timetablesForRoute.map(t => t.train_id))];
+
+            if (trainIdsForRoute.length === 0) {
+                trainSelect.innerHTML = '<option value="">-- No trains for this route --</option>';
+                return;
+            }
+
+            try {
+                // Load all trains
+                const trainsResponse = await fetch('/api/trains');
+                const allTrains = await trainsResponse.json();
+
+                // Filter to trains that have timetables on this route
+                const trainsForRoute = allTrains.filter(t => trainIdsForRoute.includes(t.id));
+
+                trainSelect.innerHTML = '<option value="">-- Select a train --</option>';
+                trainsForRoute.forEach(t => {
+                    const option = document.createElement('option');
+                    option.value = t.id;
+                    option.textContent = t.name;
+                    trainSelect.appendChild(option);
+                });
+                trainSelect.disabled = false;
+            } catch (err) {
+                console.error('Failed to load trains:', err);
+                trainSelect.innerHTML = '<option value="">-- Error loading trains --</option>';
+            }
+        }
+
+        // Load timetables for selected route and train
+        function loadTimetablesForRouteAndTrain(routeId, trainId) {
+            const timetableSelect = document.getElementById('timetableSelect');
+
+            if (!routeId || !trainId) {
+                timetableSelect.innerHTML = '<option value="">-- Select a train first --</option>';
+                timetableSelect.disabled = true;
+                return;
+            }
+
+            // Filter timetables for this route and train
+            const timetables = allTimetables.filter(t => t.route_id == routeId && t.train_id == trainId);
+
+            if (timetables.length === 0) {
+                timetableSelect.innerHTML = '<option value="">-- No timetables found --</option>';
+                timetableSelect.disabled = true;
+                return;
+            }
+
+            timetableSelect.innerHTML = '<option value="">-- Select a timetable --</option>';
+            timetables.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t.id;
+                option.textContent = t.service_name;
+                timetableSelect.appendChild(option);
+            });
+            timetableSelect.disabled = false;
+        }
+
+        // Event listeners for cascading dropdowns
+        document.getElementById('routeSelect').addEventListener('change', function() {
+            const routeId = this.value;
+            loadTrainsForRoute(routeId);
+            document.getElementById('startBtn').textContent = 'Start';
+        });
+
+        document.getElementById('trainSelect').addEventListener('change', function() {
+            const routeId = document.getElementById('routeSelect').value;
+            const trainId = this.value;
+            loadTimetablesForRouteAndTrain(routeId, trainId);
+            document.getElementById('startBtn').textContent = 'Start';
+        });
 
 
         // Load route data (called at init and after saves to sync with backend state)
@@ -432,7 +592,8 @@
 
                 // Populate station dropdown and add saved station markers
                 if (data.timetable && data.timetable.length > 0) {
-                    populateStationDropdown(data.timetable);
+                    // Select next unsaved station on initial load
+                    populateStationDropdown(data.timetable, true);
 
                     // Add markers for stations with saved coordinates
                     data.timetable.forEach((entry, index) => {
@@ -446,18 +607,25 @@
             }
         }
 
-        // Populate station dropdown - preserves current selection
-        function populateStationDropdown(timetable) {
+        // Populate station dropdown - preserves current selection or selects next unsaved
+        function populateStationDropdown(timetable, selectNextUnsaved = false) {
             const dropdown = document.getElementById('stationDropdown');
             const currentValue = dropdown.value; // Preserve current selection
 
             dropdown.innerHTML = '';
+            let firstUnsavedIndex = null;
+
             timetable.forEach((entry, index) => {
                 const option = document.createElement('option');
                 option.value = index;
                 const hasCoords = entry.latitude && entry.longitude;
                 option.textContent = `${index + 1}. ${entry.destination}${hasCoords ? ' [SAVED]' : ''}`;
                 dropdown.appendChild(option);
+
+                // Track the first unsaved station
+                if (firstUnsavedIndex === null && !hasCoords) {
+                    firstUnsavedIndex = index;
+                }
             });
 
             // If we need to advance to next station after a save
@@ -465,9 +633,17 @@
                 dropdown.value = nextStationIndex;
                 nextStationIndex = null; // Reset the flag
             }
+            // If explicitly selecting next unsaved (e.g., on initial load)
+            else if (selectNextUnsaved && firstUnsavedIndex !== null) {
+                dropdown.value = firstUnsavedIndex;
+            }
             // Otherwise restore previous selection if it was valid
             else if (currentValue !== '' && currentValue !== null && parseInt(currentValue) < timetable.length) {
                 dropdown.value = currentValue;
+            }
+            // Default: select the first unsaved if no previous selection
+            else if (firstUnsavedIndex !== null) {
+                dropdown.value = firstUnsavedIndex;
             }
         }
 
@@ -625,6 +801,19 @@
                     currentTimetableId = null;
                     document.getElementById('coordCount').textContent = '0';
                     document.getElementById('stationDropdown').innerHTML = '<option value="">-- Start recording first --</option>';
+                    // Reset all cascading dropdowns
+                    document.getElementById('routeSelect').value = '';
+                    document.getElementById('trainSelect').innerHTML = '<option value="">-- Select a route first --</option>';
+                    document.getElementById('trainSelect').disabled = true;
+                    document.getElementById('timetableSelect').innerHTML = '<option value="">-- Select a train first --</option>';
+                    document.getElementById('timetableSelect').disabled = true;
+                    // Reset Start button text
+                    document.getElementById('startBtn').textContent = 'Start';
+                    // Reset dev tools status
+                    const statusEl = document.getElementById('loadFileStatus');
+                    if (statusEl) {
+                        statusEl.textContent = '';
+                    }
                     updateUIFromRecording({ isRecording: false, isPaused: false });
                     console.log('Recording state reset');
                 } else {
@@ -926,18 +1115,359 @@
             }
         }
 
+        // Load recording files list for the dev tools dropdown
+        async function loadRecordingFiles() {
+            const select = document.getElementById('recordingFileSelect');
+            select.innerHTML = '<option value="">-- Loading... --</option>';
+
+            try {
+                const response = await fetch('/api/recording/list');
+                const files = await response.json();
+
+                select.innerHTML = '<option value="">-- Select a file --</option>';
+                files.forEach(f => {
+                    const option = document.createElement('option');
+                    option.value = f.filename;
+                    option.textContent = `${f.routeName} (${f.coordinateCount} pts) - ${f.filename}`;
+                    select.appendChild(option);
+                });
+
+                if (files.length === 0) {
+                    select.innerHTML = '<option value="">-- No recording files --</option>';
+                }
+            } catch (err) {
+                console.error('Failed to load recording files:', err);
+                select.innerHTML = '<option value="">-- Error loading --</option>';
+            }
+        }
+
+        // Load selected file from dropdown
+        async function loadSelectedFile() {
+            const select = document.getElementById('recordingFileSelect');
+            const filename = select.value;
+            const statusEl = document.getElementById('loadFileStatus');
+
+            if (!filename) {
+                statusEl.textContent = 'Please select a file first';
+                statusEl.style.color = '#e94560';
+                return;
+            }
+
+            await loadRecordingFileByName(filename);
+        }
+
+        // Handle file browse input
+        async function handleFileBrowse(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusEl = document.getElementById('loadFileStatus');
+            statusEl.textContent = 'Reading file...';
+            statusEl.style.color = '#aaa';
+
+            try {
+                const text = await file.text();
+                const data = JSON.parse(text);
+
+                if (!data.timetableId) {
+                    statusEl.textContent = 'Error: File does not contain timetableId';
+                    statusEl.style.color = '#e94560';
+                    return;
+                }
+
+                // Upload the file to the server first, then load it
+                // For now, we'll use the file directly if it matches an existing file
+                // or show an error
+                statusEl.textContent = `File: ${file.name} (timetable ${data.timetableId})`;
+                statusEl.style.color = '#28a745';
+
+                // Check if this file exists on server
+                const response = await fetch(`/api/recording/file?file=${encodeURIComponent(file.name)}`);
+                if (response.ok) {
+                    await loadRecordingFileByName(file.name);
+                } else {
+                    statusEl.innerHTML = `<span style="color: #ffc107;">File not on server.</span> Copy to recording_data folder first.`;
+                }
+            } catch (err) {
+                statusEl.textContent = 'Error: ' + err.message;
+                statusEl.style.color = '#e94560';
+            }
+
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Load a recording file by name
+        async function loadRecordingFileByName(filename) {
+            const statusEl = document.getElementById('loadFileStatus');
+            statusEl.textContent = 'Loading...';
+            statusEl.style.color = '#aaa';
+
+            try {
+                const response = await fetch(`/api/recording/load-file?file=${encodeURIComponent(filename)}`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    statusEl.innerHTML = `<span style="color: #28a745;">Loaded!</span> ${result.coordinateCount} coords, ${result.markerCount} markers`;
+
+                    // Update the cascading dropdowns to match the timetable
+                    await selectTimetableById(result.timetableId);
+
+                    // Update Start button to show Resume
+                    document.getElementById('startBtn').textContent = 'Resume';
+
+                    // Load the route data to display on map
+                    await loadRouteData();
+                } else {
+                    statusEl.textContent = 'Error: ' + result.error;
+                    statusEl.style.color = '#e94560';
+                }
+            } catch (err) {
+                statusEl.textContent = 'Error: ' + err.message;
+                statusEl.style.color = '#e94560';
+            }
+        }
+
+        // Check for existing recording when timetable is selected
+        async function checkForExistingRecording(timetableId) {
+            if (!timetableId) return;
+
+            try {
+                const response = await fetch(`/api/recording/check-existing/${timetableId}`);
+                const result = await response.json();
+
+                const startBtn = document.getElementById('startBtn');
+
+                if (result.exists) {
+                    startBtn.textContent = 'Resume';
+                    console.log(`Found existing recording: ${result.filename} with ${result.coordinateCount} coordinates`);
+                } else {
+                    startBtn.textContent = 'Start';
+                }
+            } catch (err) {
+                console.error('Error checking for existing recording:', err);
+            }
+        }
+
+        // Add event listener for timetable select change
+        document.getElementById('timetableSelect').addEventListener('change', function() {
+            const timetableId = this.value;
+            if (timetableId) {
+                checkForExistingRecording(timetableId);
+            } else {
+                document.getElementById('startBtn').textContent = 'Start';
+            }
+        });
+
+        // Helper to select route/train/timetable by timetable ID
+        async function selectTimetableById(timetableId) {
+            // Find the timetable in our cached list
+            const timetable = allTimetables.find(t => t.id == timetableId);
+            if (!timetable) return false;
+
+            // Set route dropdown and trigger train load
+            const routeSelect = document.getElementById('routeSelect');
+            routeSelect.value = timetable.route_id;
+            await loadTrainsForRoute(timetable.route_id);
+
+            // Set train dropdown and trigger timetable load
+            const trainSelect = document.getElementById('trainSelect');
+            trainSelect.value = timetable.train_id;
+            loadTimetablesForRouteAndTrain(timetable.route_id, timetable.train_id);
+
+            // Set timetable dropdown
+            const timetableSelect = document.getElementById('timetableSelect');
+            timetableSelect.value = timetableId;
+
+            return true;
+        }
+
+        // Check for any existing recording file and auto-load it
+        async function checkAndLoadExistingRecording() {
+            try {
+                const response = await fetch('/api/recording/check-any-existing');
+                const result = await response.json();
+
+                if (result.exists && result.filename) {
+                    console.log(`Found existing recording: ${result.filename}`);
+                    console.log(`  Route: ${result.routeName}, Coords: ${result.coordinateCount}, Markers: ${result.markerCount}`);
+
+                    // Auto-load the file
+                    const loadResponse = await fetch(`/api/recording/load-file?file=${encodeURIComponent(result.filename)}`, {
+                        method: 'POST'
+                    });
+                    const loadResult = await loadResponse.json();
+
+                    if (loadResult.success) {
+                        // Update the cascading dropdowns to match the timetable
+                        await selectTimetableById(loadResult.timetableId);
+
+                        // Update Start button to show Resume
+                        document.getElementById('startBtn').textContent = 'Resume';
+
+                        // Update dev tools status
+                        const statusEl = document.getElementById('loadFileStatus');
+                        if (statusEl) {
+                            statusEl.innerHTML = `<span style="color: #28a745;">Auto-loaded:</span> ${result.filename}`;
+                        }
+
+                        console.log(`Auto-loaded recording: ${loadResult.coordinateCount} coords, ${loadResult.markerCount} markers`);
+                        return true;
+                    }
+                }
+                return false;
+            } catch (err) {
+                console.error('Error checking for existing recording:', err);
+                return false;
+            }
+        }
+
+        // Coordinates picker state
+        let pickedLat = null;
+        let pickedLng = null;
+        let coordsPickerMarker = null;
+
+        // Toggle load file section visibility
+        function toggleLoadFile() {
+            const content = document.getElementById('loadFileContent');
+            const toggle = document.getElementById('loadFileToggle');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▶';
+            }
+        }
+
+        // Toggle remake JSON section visibility
+        function toggleRemakeJson() {
+            const content = document.getElementById('remakeJsonContent');
+            const toggle = document.getElementById('remakeJsonToggle');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▶';
+            }
+        }
+
+        // Toggle coordinates picker visibility
+        function toggleCoordinatesPicker() {
+            const content = document.getElementById('coordsPickerContent');
+            const toggle = document.getElementById('coordsToggle');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▶';
+            }
+        }
+
+        // Map click handler for coordinates picker
+        function setupCoordinatesPicker() {
+            map.on('click', function(e) {
+                pickedLat = e.latlng.lat;
+                pickedLng = e.latlng.lng;
+                updatePickedCoords();
+
+                // Add or move marker
+                if (coordsPickerMarker) {
+                    coordsPickerMarker.setLatLng(e.latlng);
+                } else {
+                    const pickerIcon = L.divIcon({
+                        className: 'picker-marker',
+                        html: '<div style="background: #ff00ff; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px rgba(255,0,255,0.6);"></div>',
+                        iconSize: [14, 14],
+                        iconAnchor: [7, 7]
+                    });
+                    coordsPickerMarker = L.marker(e.latlng, { icon: pickerIcon }).addTo(map);
+                }
+            });
+        }
+
+        // Update picked coordinates display
+        function updatePickedCoords() {
+            const display = document.getElementById('pickedCoords');
+            if (pickedLat !== null && pickedLng !== null) {
+                display.textContent = `Latitude: ${pickedLat}\nLongitude: ${pickedLng}`;
+            } else {
+                display.textContent = 'No coordinates selected';
+            }
+        }
+
+        // Copy picked coordinates in JSON format
+        function copyPickedCoords(e) {
+            if (pickedLat === null || pickedLng === null) {
+                alert('No coordinates to copy. Click on the map first.');
+                return;
+            }
+            const text = `"longitude": ${pickedLng},\n"latitude": ${pickedLat},`;
+            const btn = e ? e.target : document.querySelector('#coordsPickerContent .btn-primary');
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.textContent = originalText; }, 1500);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                // Fallback - still show success if text was likely copied
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.textContent = originalText; }, 1500);
+            });
+        }
+
+        // Clear picked coordinates
+        function clearPickedCoords() {
+            pickedLat = null;
+            pickedLng = null;
+            updatePickedCoords();
+            if (coordsPickerMarker) {
+                map.removeLayer(coordsPickerMarker);
+                coordsPickerMarker = null;
+            }
+        }
+
         // Initialize
         async function initialize() {
-            await loadTimetables();
+            await loadRoutesWithTimetables();
 
-            // Load existing recording data if any (for path display on resume)
+            // Setup coordinates picker click handler
+            setupCoordinatesPicker();
+
+            // Check for any existing recording file and auto-load it
+            const hasExisting = await checkAndLoadExistingRecording();
+
+            // Load existing recording data if any (for path display)
             await loadRouteData();
 
             // Load timetables for remake dropdown
             await loadRemakeTimetables();
 
+            // Load recording files for dev tools
+            await loadRecordingFiles();
+
             // Load config to hide dev tools if needed
             await loadConfig();
+
+            // Check URL parameters for pre-selected timetable
+            const urlParams = new URLSearchParams(window.location.search);
+            const routeId = urlParams.get('route_id');
+            const trainId = urlParams.get('train_id');
+
+            // If we have route/train params, try to find a matching timetable
+            if (routeId || trainId) {
+                // Find timetables that match the route/train
+                const timetableSelect = document.getElementById('timetableSelect');
+                // The select is already populated, we could filter or highlight matching ones
+                // For now, just log
+                console.log(`Record map opened with route_id=${routeId}, train_id=${trainId}`);
+            }
 
             // Connect to stream - all state updates come from here
             connectToStream();
