@@ -57,6 +57,7 @@
         <a href="/routes">Routes</a>
         <a href="/trains">Trains</a>
         <a href="/extract">Extract Timetable</a>
+        <a href="#" id="recordRouteBtn" style="display: none;">Record Route</a>
     </nav>
 
     <div class="back-link" id="backLink">
@@ -184,6 +185,10 @@
                         document.getElementById('contextInfo').style.display = 'block';
                         document.getElementById('contextInfo').innerHTML = 'Showing timetables for this train on <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
                         document.getElementById('backLink').innerHTML = '<a href="/routes/' + currentRoute.id + '">&larr; Back to ' + escapeHtml(currentRoute.name) + '</a>';
+
+                        // Show Record Route link
+                        document.getElementById('recordRouteBtn').style.display = 'inline-block';
+                        document.getElementById('recordRouteBtn').href = '/record-map?route_id=' + fromRouteId + '&train_id=' + trainId;
                     }
                 }
             } catch (error) {

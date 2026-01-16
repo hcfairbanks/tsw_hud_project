@@ -12,6 +12,13 @@ const trainController = {
     // POST /api/trains
     create: async (req, res) => {
         const body = await parseBody(req);
+
+        // Check if train name already exists
+        const existing = trainDb.getByName(body.name);
+        if (existing) {
+            return sendJson(res, { error: 'A train with this name already exists' }, 409);
+        }
+
         const result = trainDb.create(body.name);
         sendJson(res, { id: result.lastInsertRowid, name: body.name }, 201);
     },
@@ -29,6 +36,13 @@ const trainController = {
     // PUT /api/trains/:id
     update: async (req, res, id) => {
         const body = await parseBody(req);
+
+        // Check if another train with this name already exists (excluding current train)
+        const existing = trainDb.getByName(body.name);
+        if (existing && existing.id !== parseInt(id)) {
+            return sendJson(res, { error: 'A train with this name already exists' }, 409);
+        }
+
         trainDb.update(id, body.name);
         sendJson(res, { id, name: body.name });
     },

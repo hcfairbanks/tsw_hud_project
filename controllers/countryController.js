@@ -52,6 +52,12 @@ const countryController = {
             return;
         }
 
+        // Check if another country with this name already exists (excluding current country)
+        const existing = countryDb.getByName(name);
+        if (existing && existing.id !== parseInt(id)) {
+            return sendJson(res, { error: 'A country with this name already exists' }, 409);
+        }
+
         countryDb.update(id, name, code);
         sendJson(res, { id, name, code });
     },

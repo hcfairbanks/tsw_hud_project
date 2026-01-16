@@ -59,12 +59,17 @@ async function initDatabase() {
     db.run(`
         CREATE TABLE IF NOT EXISTS routes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
+            name TEXT NOT NULL UNIQUE,
             country_id INTEGER NOT NULL,
             tsw_version INTEGER NOT NULL DEFAULT 3,
             FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE RESTRICT
         )
     `);
+
+    // Add UNIQUE constraint to routes.name if it doesn't exist (migration for existing databases)
+    try {
+        db.run('CREATE UNIQUE INDEX IF NOT EXISTS idx_routes_name ON routes(name)');
+    } catch (e) { /* index may already exist */ }
     
     // Trains table
     db.run(`
@@ -474,7 +479,9 @@ const countryDb = {
     create: (name, code = null) => {
         db.run('INSERT INTO countries (name, code) VALUES (?, ?)', [name, code]);
         const result = db.exec('SELECT last_insert_rowid() as id');
+        console.log('countryDb.create last_insert_rowid result:', JSON.stringify(result));
         const lastId = result.length > 0 && result[0].values.length > 0 ? result[0].values[0][0] : 0;
+        console.log('countryDb.create returning lastId:', lastId);
         saveDatabase();
         return { lastInsertRowid: lastId };
     },
@@ -590,9 +597,14 @@ const routeDb = {
         return result;
     },
     create: (name, country_id, tsw_version = 3) => {
+        console.log('routeDb.create called with:', { name, country_id, tsw_version });
         db.run('INSERT INTO routes (name, country_id, tsw_version) VALUES (?, ?, ?)', [name, country_id, tsw_version]);
+        // Get ID immediately after insert, before saveDatabase
+        const result = db.exec('SELECT last_insert_rowid() as id');
+        console.log('routeDb.create last_insert_rowid result:', JSON.stringify(result));
+        const lastId = result.length > 0 && result[0].values.length > 0 ? result[0].values[0][0] : 0;
+        console.log('routeDb.create returning lastId:', lastId);
         saveDatabase();
-        const lastId = db.exec('SELECT last_insert_rowid() as id')[0].values[0][0];
         return { lastInsertRowid: lastId };
     },
     update: (id, name, country_id, tsw_version) => {

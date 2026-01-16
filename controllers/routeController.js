@@ -1,5 +1,5 @@
 'use strict';
-const { routeDb } = require('../db');
+const { routeDb, countryDb } = require('../db');
 const { sendJson, parseBody } = require('../utils/http');
 
 const routeController = {
@@ -26,6 +26,13 @@ const routeController = {
     // POST /api/routes
     create: async (req, res) => {
         const body = await parseBody(req);
+
+        // Check if route name already exists
+        const existing = routeDb.getByName(body.name);
+        if (existing) {
+            return sendJson(res, { error: 'A route with this name already exists' }, 409);
+        }
+
         const result = routeDb.create(body.name, body.country_id, body.tsw_version || 3);
         sendJson(res, {
             id: result.lastInsertRowid,
@@ -39,7 +46,13 @@ const routeController = {
     getById: async (req, res, id) => {
         const route = routeDb.getById(id);
         if (route) {
-            sendJson(res, route);
+            // Add country name to the response
+            let countryName = null;
+            if (route.country_id) {
+                const country = countryDb.getById(route.country_id);
+                countryName = country ? country.name : null;
+            }
+            sendJson(res, { ...route, country: countryName });
         } else {
             sendJson(res, { error: 'Route not found' }, 404);
         }
@@ -48,6 +61,13 @@ const routeController = {
     // PUT /api/routes/:id
     update: async (req, res, id) => {
         const body = await parseBody(req);
+
+        // Check if another route with this name already exists (excluding current route)
+        const existing = routeDb.getByName(body.name);
+        if (existing && existing.id !== parseInt(id)) {
+            return sendJson(res, { error: 'A route with this name already exists' }, 409);
+        }
+
         routeDb.update(id, body.name, body.country_id, body.tsw_version);
         sendJson(res, { id, name: body.name, country_id: body.country_id, tsw_version: body.tsw_version });
     },

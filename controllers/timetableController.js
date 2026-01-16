@@ -1,5 +1,5 @@
 'use strict';
-const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, routeDb, trainDb, stationMappingDb, saveDatabase } = require('../db');
+const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, routeDb, trainDb, countryDb, stationMappingDb, saveDatabase } = require('../db');
 const { sendJson, parseBody } = require('../utils/http');
 const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
 
@@ -279,12 +279,18 @@ const timetableController = {
         const coordinates = timetableCoordinateDb.getByTimetableId(id);
         const markers = timetableMarkerDb.getByTimetableId(id);
 
-        // Get route and train names for export
+        // Get route, train, and country names for export
         let routeName = null;
         let trainName = null;
+        let countryName = null;
         if (timetable.route_id) {
             const route = routeDb.getById(timetable.route_id);
             routeName = route ? route.name : null;
+            // Get country name from route's country_id
+            if (route && route.country_id) {
+                const country = countryDb.getById(route.country_id);
+                countryName = country ? country.name : null;
+            }
         }
         if (timetable.train_id) {
             const train = trainDb.getById(timetable.train_id);
@@ -353,6 +359,7 @@ const timetableController = {
         const exportData = {
             serviceName: timetable.service_name,
             routeName: routeName,
+            countryName: countryName,
             trainName: trainName,
             totalPoints: coordinates.length,
             totalMarkers: markers.length,
@@ -412,7 +419,30 @@ const timetableController = {
             return;
         }
 
-        // Step 1: Look up or create route by name
+        // Step 1: Look up or create country by name
+        // Country is required when routeName is provided (since routes need a country)
+        let countryId = null;
+        let countryCreated = false;
+        if (body.routeName && !body.countryName) {
+            sendJson(res, { error: 'Country of route missing in import file' }, 400);
+            return;
+        }
+        if (body.countryName) {
+            const existingCountry = countryDb.getByName(body.countryName);
+            if (existingCountry) {
+                countryId = existingCountry.id;
+                console.log(`Found existing country: ${body.countryName} (ID: ${countryId})`);
+            } else {
+                // Create new country
+                const countryResult = countryDb.create(body.countryName);
+                countryId = countryResult.lastInsertRowid;
+                countryCreated = true;
+                console.log(`Created new country: ${body.countryName} (ID: ${countryId})`);
+            }
+        }
+        console.log(`After country step: countryId = ${countryId}`);
+
+        // Step 2: Look up or create route by name
         let routeId = null;
         let routeCreated = false;
         if (body.routeName) {
@@ -421,15 +451,16 @@ const timetableController = {
                 routeId = existingRoute.id;
                 console.log(`Found existing route: ${body.routeName} (ID: ${routeId})`);
             } else {
-                // Create new route with default country (1 = UK) and TSW version 3
-                const routeResult = routeDb.create(body.routeName, 1, 3);
+                // Create new route with the country from import and TSW version 3
+                console.log(`Creating new route "${body.routeName}" with countryId: ${countryId}`);
+                const routeResult = routeDb.create(body.routeName, countryId, 3);
                 routeId = routeResult.lastInsertRowid;
                 routeCreated = true;
-                console.log(`Created new route: ${body.routeName} (ID: ${routeId})`);
+                console.log(`Created new route: ${body.routeName} (ID: ${routeId}, country_id: ${countryId})`);
             }
         }
 
-        // Step 2: Look up or create train by name
+        // Step 3: Look up or create train by name
         let trainId = null;
         let trainCreated = false;
         if (body.trainName) {
@@ -446,24 +477,24 @@ const timetableController = {
             }
         }
 
-        // Step 3: Create the timetable with route and train IDs
+        // Step 4: Create the timetable with route and train IDs
         const result = timetableDb.create(serviceName, routeId, trainId);
         const timetableId = result.lastInsertRowid;
         console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId);
 
-        // Step 4: Import coordinates if present
+        // Step 5: Import coordinates if present
         if (body.coordinates && Array.isArray(body.coordinates) && body.coordinates.length > 0) {
             console.log(`Importing ${body.coordinates.length} coordinates...`);
             timetableCoordinateDb.insert(timetableId, body.coordinates);
         }
 
-        // Step 5: Import markers if present
+        // Step 6: Import markers if present
         if (body.markers && Array.isArray(body.markers) && body.markers.length > 0) {
             console.log(`Importing ${body.markers.length} markers...`);
             timetableMarkerDb.bulkInsert(timetableId, body.markers);
         }
 
-        // Step 6: Import entries from csvData (the raw timetable entries)
+        // Step 7: Import entries from csvData (the raw timetable entries)
         // Supports both new format (time1/time2) and old format (arrival/departure)
         if (body.csvData && Array.isArray(body.csvData) && body.csvData.length > 0) {
             console.log(`Importing ${body.csvData.length} entries from csvData...`);
@@ -492,6 +523,9 @@ const timetableController = {
         sendJson(res, {
             id: timetableId,
             service_name: serviceName,
+            country_id: countryId,
+            country_name: body.countryName || null,
+            country_created: countryCreated,
             route_id: routeId,
             route_name: body.routeName || null,
             route_created: routeCreated,

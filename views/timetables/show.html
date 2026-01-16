@@ -99,14 +99,16 @@
         let entries = [];
         let allRoutes = [];
         let allTrains = [];
+        let allCountries = [];
         let hasUnsavedChanges = false;
 
         async function loadData() {
             try {
-                const [timetableRes, routesRes, trainsRes] = await Promise.all([
+                const [timetableRes, routesRes, trainsRes, countriesRes] = await Promise.all([
                     fetch('/api/timetables/' + timetableId),
                     fetch('/api/routes'),
-                    fetch('/api/trains')
+                    fetch('/api/trains'),
+                    fetch('/api/countries')
                 ]);
 
                 if (!timetableRes.ok) {
@@ -118,6 +120,7 @@
                 timetable = await timetableRes.json();
                 allRoutes = await routesRes.json();
                 allTrains = await trainsRes.json();
+                allCountries = await countriesRes.json();
                 entries = timetable.entries || [];
 
                 renderTimetable();
