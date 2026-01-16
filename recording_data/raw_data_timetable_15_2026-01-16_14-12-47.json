@@ -1,0 +1,76 @@
+{
+  "timetableId": 15,
+  "serviceName": "2C07 Exeter St Davids to Penzance 07:25 01:06",
+  "routeName": "Riviera Line",
+  "countryName": "United Kingdom",
+  "trainName": "Class 802 GWR",
+  "totalPoints": 1,
+  "totalMarkers": 0,
+  "coordinates": [
+    {
+      "latitude": 50.72851515038773,
+      "longitude": -3.54356497762289,
+      "height": 1162.5888671875,
+      "gradient": 0.5464527606964111
+    }
+  ],
+  "markers": [],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "Exeter St. Davis ",
+      "arrival": "07:25:00",
+      "departure": "07:27:00",
+      "platform": "1",
+      "apiName": "Exeter St. Davis  1"
+    },
+    {
+      "index": 1,
+      "destination": "Dawlish",
+      "arrival": "07:38:30",
+      "departure": "07:39:00",
+      "platform": "1",
+      "apiName": "Dawlish 1"
+    },
+    {
+      "index": 2,
+      "destination": "Teignmouth",
+      "arrival": "07:43:00",
+      "departure": "07:43:30",
+      "platform": "1",
+      "apiName": "Teignmouth 1"
+    },
+    {
+      "index": 3,
+      "destination": "Newton Abbot",
+      "arrival": "07:49:30",
+      "departure": "07:50:30",
+      "platform": "2",
+      "apiName": "Newton Abbot 2"
+    },
+    {
+      "index": 4,
+      "destination": "Totnes",
+      "arrival": "08:02:00",
+      "departure": "08:03:00",
+      "platform": "1",
+      "apiName": "Totnes 1"
+    },
+    {
+      "index": 5,
+      "destination": "Ivybridge",
+      "arrival": "08:16:30",
+      "departure": "08:17:00",
+      "platform": "1",
+      "apiName": "Ivybridge 1"
+    },
+    {
+      "index": 6,
+      "destination": "Plymouth",
+      "arrival": "08:31:00",
+      "departure": "",
+      "platform": "7",
+      "apiName": "Plymouth 7"
+    }
+  ]
+}

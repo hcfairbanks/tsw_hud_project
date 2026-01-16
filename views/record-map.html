@@ -1006,7 +1006,6 @@
                 pauseBtn.textContent = 'Pause';
                 stopBtn.disabled = false;
                 saveBtn.disabled = false;
-                timetableSelector.style.display = 'none';
             } else if (recording.isPaused) {
                 indicator.className = 'recording-indicator paused';
                 text.textContent = 'Paused';
@@ -1015,7 +1014,6 @@
                 pauseBtn.textContent = 'Resume';
                 stopBtn.disabled = false;
                 saveBtn.disabled = false;
-                timetableSelector.style.display = 'none';
             } else {
                 indicator.className = 'recording-indicator stopped';
                 text.textContent = 'Not Recording';
@@ -1024,7 +1022,6 @@
                 pauseBtn.textContent = 'Pause';
                 stopBtn.disabled = true;
                 saveBtn.disabled = true;
-                timetableSelector.style.display = 'block';
             }
         }
 

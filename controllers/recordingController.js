@@ -2,8 +2,9 @@
 const fs = require('fs');
 const path = require('path');
 const { sendJson } = require('../utils/http');
-const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, stationMappingDb, routeDb, trainDb, countryDb } = require('../db');
-const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
+const { timetableDb, entryDb, stationMappingDb } = require('../db');
+const { preprocessTimetableEntries } = require('./processingController');
+const { buildTimetableExportJson } = require('./timetableController');
 
 // Recording configuration
 const SAVE_FREQUENCY = 1; // Save to file every N coordinates (1 = every coordinate, 100 = every 100th)
@@ -44,20 +45,37 @@ function getStatus(req, res) {
  * Start recording for a specific timetable
  */
 async function start(req, res, timetableId) {
-    if (isRecording && !isPaused) {
-        sendJson(res, { error: 'Recording already in progress' }, 400);
+    // Ensure timetableId is a number for consistent comparison
+    const numTimetableId = parseInt(timetableId, 10);
+
+    // If already recording the same timetable (not paused), just return success
+    if (isRecording && !isPaused && currentTimetableId === numTimetableId) {
+        console.log(`Recording already active for timetable ${numTimetableId}`);
+        sendJson(res, {
+            success: true,
+            message: 'Recording already active',
+            timetableId: numTimetableId,
+            coordinateCount: routeCoordinates.length,
+            markerCount: discoveredMarkers.length
+        });
+        return;
+    }
+
+    // If recording a different timetable, reject
+    if (isRecording && !isPaused && currentTimetableId !== numTimetableId) {
+        sendJson(res, { error: 'Recording already in progress for a different timetable' }, 400);
         return;
     }
 
     // Validate timetable exists
-    const timetable = timetableDb.getById(timetableId);
+    const timetable = timetableDb.getById(numTimetableId);
     if (!timetable) {
         sendJson(res, { error: 'Timetable not found' }, 404);
         return;
     }
 
     // Get timetable entries
-    const entries = entryDb.getByTimetableId(timetableId);
+    const entries = entryDb.getByTimetableId(numTimetableId);
 
     // Create recording data directory if it doesn't exist
     if (!fs.existsSync(recordingDataDir)) {
@@ -65,15 +83,15 @@ async function start(req, res, timetableId) {
     }
 
     // Check if we're resuming a paused recording
-    if (isPaused && currentTimetableId === timetableId) {
+    if (isPaused && currentTimetableId === numTimetableId) {
         // Resume from paused state
         isPaused = false;
         isRecording = true;
-        console.log(`Resumed recording for timetable ${timetableId}`);
+        console.log(`Resumed recording for timetable ${numTimetableId}`);
         sendJson(res, {
             success: true,
             message: 'Recording resumed',
-            timetableId,
+            timetableId: numTimetableId,
             coordinateCount: routeCoordinates.length,
             markerCount: discoveredMarkers.length
         });
@@ -81,16 +99,16 @@ async function start(req, res, timetableId) {
     }
 
     // Start new recording (or resume from file if exists)
-    currentTimetableId = timetableId;
+    currentTimetableId = numTimetableId;
 
     // Generate output file path
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
-    const fileName = `raw_data_timetable_${timetableId}_${timestamp}.json`;
+    const fileName = `raw_data_timetable_${numTimetableId}_${timestamp}.json`;
     routeOutputFilePath = path.join(recordingDataDir, fileName);
 
     // Check for existing recording file to resume
     const existingFiles = fs.readdirSync(recordingDataDir)
-        .filter(f => f.startsWith(`raw_data_timetable_${timetableId}_`) && f.endsWith('.json'))
+        .filter(f => f.startsWith(`raw_data_timetable_${numTimetableId}_`) && f.endsWith('.json'))
         .sort()
         .reverse();
 
@@ -143,12 +161,12 @@ async function start(req, res, timetableId) {
     // Save initial data with timetable info
     saveRouteData(timetable, entries);
 
-    console.log(`Started recording for timetable ${timetableId}: ${timetable.service_name}`);
+    console.log(`Started recording for timetable ${numTimetableId}: ${timetable.service_name}`);
 
     sendJson(res, {
         success: true,
         message: 'Recording started',
-        timetableId,
+        timetableId: numTimetableId,
         serviceName: timetable.service_name,
         outputFile: path.basename(routeOutputFilePath)
     });
@@ -494,107 +512,24 @@ function processMarker(station, distanceCM) {
 
 /**
  * Save route data to JSON file
- * Uses the SAME format as timetableController.exportDownload() for consistency
+ * Uses the shared buildTimetableExportJson function from timetableController
  * NOTE: Does NOT auto-populate coordinates - user must manually assign them during recording
  */
 function saveRouteData(timetable, entries) {
     if (!routeOutputFilePath) return;
 
-    // Load station name mapping from database (same as exportDownload)
-    let stationNameMapping = {};
-    if (timetable && timetable.route_id) {
-        stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
-    } else {
-        stationNameMapping = stationMappingDb.getMappingObject(null);
-    }
-
-    // Pre-process raw timetable entries into proper station entries (same as exportDownload)
-    // NOTE: Do NOT copy coordinates from database - recording file should start fresh
-    // User will manually assign coordinates during the recording session
-    const timetableEntries = preprocessTimetableEntries(entries, stationNameMapping);
-
-    // Format coordinates (same as exportDownload)
-    const formattedCoordinates = routeCoordinates.map(c => ({
-        latitude: c.latitude,
-        longitude: c.longitude,
-        height: c.height !== undefined ? c.height : null,
-        gradient: c.gradient !== undefined ? c.gradient : 0
-    }));
-
-    // Format markers - preserve all recording data for post-processing
-    // detectedAt + distanceAheadMeters = first sighting (backup)
-    // onspot_* = continuously updated values for calculating actual position
-    const exportMarkers = discoveredMarkers.map(m => {
-        const marker = {
-            stationName: m.stationName,
-            markerType: m.markerType || 'Station',
-            detectedAt: m.detectedAt,
-            distanceAheadMeters: m.distanceAheadMeters
-        };
-
-        if (m.platformLength != null) {
-            marker.platformLength = m.platformLength;
-        }
-
-        // Include onspot_* values for post-processing
-        if (m.onspot_latitude != null) {
-            marker.onspot_latitude = m.onspot_latitude;
-            marker.onspot_longitude = m.onspot_longitude;
-            marker.onspot_distance = m.onspot_distance;
-        }
-
-        return marker;
+    // Use the shared function to build export JSON
+    // Pass in recording-specific data (in-memory coordinates, markers, saved coords)
+    // timetableId is already included at the top of the export by buildTimetableExportJson
+    const output = buildTimetableExportJson({
+        timetable,
+        entries,
+        coordinates: routeCoordinates,
+        markers: discoveredMarkers,
+        savedTimetableCoords: savedTimetableCoords,
+        includeCsvData: false,  // Recording doesn't need csvData
+        includeMarkerProcessing: false  // Recording markers already have their data
     });
-
-    // Clean up entries for export
-    // Use coordinates from savedTimetableCoords (user-saved during recording session)
-    const exportEntries = timetableEntries.map((e, idx) => {
-        const result = {
-            index: e.index,
-            destination: e.destination,
-            arrival: e.arrival,
-            departure: e.departure,
-            platform: e.platform,
-            apiName: e.apiName
-        };
-        // Get coordinates from the recording session's saved coords
-        const savedCoords = savedTimetableCoords.get(idx);
-        if (savedCoords) {
-            result.latitude = savedCoords.latitude;
-            result.longitude = savedCoords.longitude;
-        }
-        return result;
-    });
-
-    // Get route, train, and country names for export (same as timetableController exportDownload)
-    let routeName = null;
-    let trainName = null;
-    let countryName = null;
-    if (timetable && timetable.route_id) {
-        const route = routeDb.getById(timetable.route_id);
-        routeName = route ? route.name : null;
-        if (route && route.country_id) {
-            const country = countryDb.getById(route.country_id);
-            countryName = country ? country.name : null;
-        }
-    }
-    if (timetable && timetable.train_id) {
-        const train = trainDb.getById(timetable.train_id);
-        trainName = train ? train.name : null;
-    }
-
-    // Build the export object (same structure as exportDownload)
-    const output = {
-        serviceName: timetable ? timetable.service_name : 'Unknown',
-        routeName: routeName,
-        countryName: countryName,
-        trainName: trainName,
-        timetableId: currentTimetableId,
-        totalPoints: formattedCoordinates.length,
-        coordinates: formattedCoordinates,
-        markers: exportMarkers,
-        timetable: exportEntries
-    };
 
     try {
         fs.writeFileSync(routeOutputFilePath, JSON.stringify(output, null, 2));

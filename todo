@@ -312,8 +312,14 @@ Thridrails => Follow the thridrails format,
   often doesn't have time on it's schedule or location
 
 
-------------------------------------
+------------------------------------------------------------------------
+
+BIG BIG BIG
+There is a feature in train sim world that lets AI take over.
+If we could identify in the recording when the train stops, say buy gps coordinates in the same place for over a minute then we could identify the gps for that stop. whence it would do the recordings automatically.
+------------------------------------------------------------------------
 Record-map
+Importing from a json will need to ignore the timetable id
 
 change the url to /record
 
@@ -327,8 +333,8 @@ when we "save" and the developer tools are turned on.
 "longitude": -3.697148838931739,
 "latitude": 50.42905955505016,
 
-BIG BIG BIG
-There is a feature in train sim world that lets AI take over.
-If we could identify in the recording when the train stops, say buy gps coordinates in the same place for over a minute then we could identify the gps for that stop. whence it would do the recordings automatically.
 
 raw data file generated for record-map will need the service name in the file
+
+
+

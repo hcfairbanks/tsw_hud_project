@@ -22,6 +22,189 @@ function generateRawEntryData(entries) {
     }));
 }
 
+/**
+ * Get timetable metadata for export (serviceName, routeName, countryName, trainName)
+ * @param {Object} timetable - Timetable object with route_id and train_id
+ * @returns {Object} - { serviceName, routeName, countryName, trainName }
+ */
+function getTimetableExportMetadata(timetable) {
+    let routeName = null;
+    let trainName = null;
+    let countryName = null;
+
+    if (timetable && timetable.route_id) {
+        const route = routeDb.getById(timetable.route_id);
+        routeName = route ? route.name : null;
+        if (route && route.country_id) {
+            const country = countryDb.getById(route.country_id);
+            countryName = country ? country.name : null;
+        }
+    }
+    if (timetable && timetable.train_id) {
+        const train = trainDb.getById(timetable.train_id);
+        trainName = train ? train.name : null;
+    }
+
+    return {
+        serviceName: timetable ? timetable.service_name : 'Unknown',
+        routeName: routeName,
+        countryName: countryName,
+        trainName: trainName
+    };
+}
+
+/**
+ * Build the complete export JSON for a timetable
+ * This is the SINGLE source of truth for timetable export format.
+ * Used by both timetableController.exportDownload and recordingController.saveRouteData
+ *
+ * @param {Object} options - Export options
+ * @param {Object} options.timetable - Timetable object (required)
+ * @param {Array} options.entries - Raw timetable entries from database (required)
+ * @param {Array} options.coordinates - Coordinate array (from DB or recording)
+ * @param {Array} options.markers - Marker array (from DB or recording)
+ * @param {Map|null} options.savedTimetableCoords - Optional Map of index -> {latitude, longitude} for recording
+ * @param {boolean} options.includeCsvData - Whether to include csvData (default: true)
+ * @param {boolean} options.includeMarkerProcessing - Whether to process markers (default: true for DB, false for recording)
+ * @returns {Object} - Complete export JSON object
+ */
+function buildTimetableExportJson(options) {
+    const {
+        timetable,
+        entries,
+        coordinates = [],
+        markers = [],
+        savedTimetableCoords = null,
+        includeCsvData = true,
+        includeMarkerProcessing = true
+    } = options;
+
+    // Get metadata (serviceName, routeName, countryName, trainName)
+    const metadata = getTimetableExportMetadata(timetable);
+
+    // Load station name mapping from database
+    let stationNameMapping = {};
+    if (timetable && timetable.route_id) {
+        stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
+    } else {
+        stationNameMapping = stationMappingDb.getMappingObject(null);
+    }
+
+    // Pre-process raw timetable entries into proper station entries
+    const timetableEntries = preprocessTimetableEntries(entries, stationNameMapping);
+
+    // Preserve any user-entered coordinates from original entries (for DB export)
+    if (!savedTimetableCoords) {
+        for (const entry of timetableEntries) {
+            if (!entry.destination || !entry.destination.trim()) {
+                continue;
+            }
+            const originalEntry = entries.find(e =>
+                (e.location || e.details) === entry.destination &&
+                e.latitude && e.longitude
+            );
+            if (originalEntry) {
+                entry.latitude = parseFloat(originalEntry.latitude);
+                entry.longitude = parseFloat(originalEntry.longitude);
+            }
+        }
+    }
+
+    // Process markers if requested (for DB export with calculated positions)
+    let processedMarkers = markers;
+    if (includeMarkerProcessing && coordinates.length > 0 && markers.length > 0) {
+        // Calculate marker positions from coordinates
+        calculateMarkerPositions(markers, coordinates);
+
+        // Map timetable entries to marker coordinates
+        const markerData = markers.map(m => ({
+            stationName: m.station_name || m.stationName,
+            latitude: m.latitude,
+            longitude: m.longitude
+        }));
+        mapTimetableToMarkers(timetableEntries, markerData);
+    }
+
+    // Build export entries
+    const exportEntries = timetableEntries.map((e, idx) => {
+        const result = {
+            index: e.index,
+            destination: e.destination,
+            arrival: e.arrival,
+            departure: e.departure,
+            platform: e.platform,
+            apiName: e.apiName
+        };
+
+        // Use savedTimetableCoords if provided (recording), otherwise use entry coords
+        if (savedTimetableCoords) {
+            const savedCoords = savedTimetableCoords.get(idx);
+            if (savedCoords) {
+                result.latitude = savedCoords.latitude;
+                result.longitude = savedCoords.longitude;
+            }
+        } else {
+            if (e.latitude != null) result.latitude = e.latitude;
+            if (e.longitude != null) result.longitude = e.longitude;
+        }
+        return result;
+    });
+
+    // Format coordinates
+    const formattedCoordinates = coordinates.map(c => ({
+        latitude: c.latitude,
+        longitude: c.longitude,
+        height: c.height != null ? c.height : null,
+        gradient: c.gradient != null ? c.gradient : (c.gradient === 0 ? 0 : null)
+    }));
+
+    // Format markers - handle both DB format (station_name) and recording format (stationName)
+    const exportMarkers = markers.map(m => {
+        const marker = {
+            stationName: m.station_name || m.stationName,
+            markerType: m.marker_type || m.markerType || 'Station'
+        };
+
+        // Include position data
+        if (m.latitude != null) marker.latitude = m.latitude;
+        if (m.longitude != null) marker.longitude = m.longitude;
+        if (m.platform_length != null) marker.platformLength = m.platform_length;
+        if (m.platformLength != null) marker.platformLength = m.platformLength;
+
+        // Include recording-specific data if present
+        if (m.detectedAt) marker.detectedAt = m.detectedAt;
+        if (m.distanceAheadMeters != null) marker.distanceAheadMeters = m.distanceAheadMeters;
+        if (m.onspot_latitude != null) {
+            marker.onspot_latitude = m.onspot_latitude;
+            marker.onspot_longitude = m.onspot_longitude;
+            marker.onspot_distance = m.onspot_distance;
+        }
+
+        return marker;
+    });
+
+    // Build the export object
+    const exportData = {
+        timetableId: timetable ? timetable.id : null,
+        serviceName: metadata.serviceName,
+        routeName: metadata.routeName,
+        countryName: metadata.countryName,
+        trainName: metadata.trainName,
+        totalPoints: formattedCoordinates.length,
+        totalMarkers: exportMarkers.length,
+        coordinates: formattedCoordinates,
+        markers: exportMarkers,
+        timetable: exportEntries
+    };
+
+    // Include csvData if requested (for DB export/download)
+    if (includeCsvData) {
+        exportData.csvData = generateRawEntryData(entries);
+    }
+
+    return exportData;
+}
+
 const timetableController = {
     // GET /api/timetables
     // Supports query params: route_id, train_id
@@ -279,106 +462,15 @@ const timetableController = {
         const coordinates = timetableCoordinateDb.getByTimetableId(id);
         const markers = timetableMarkerDb.getByTimetableId(id);
 
-        // Get route, train, and country names for export
-        let routeName = null;
-        let trainName = null;
-        let countryName = null;
-        if (timetable.route_id) {
-            const route = routeDb.getById(timetable.route_id);
-            routeName = route ? route.name : null;
-            // Get country name from route's country_id
-            if (route && route.country_id) {
-                const country = countryDb.getById(route.country_id);
-                countryName = country ? country.name : null;
-            }
-        }
-        if (timetable.train_id) {
-            const train = trainDb.getById(timetable.train_id);
-            trainName = train ? train.name : null;
-        }
-
-        // Load station name mapping from database
-        let stationNameMapping = {};
-        if (timetable.route_id) {
-            stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
-        } else {
-            stationNameMapping = stationMappingDb.getMappingObject(null);
-        }
-
-        // Pre-process raw timetable entries into proper station entries
-        const timetableEntries = preprocessTimetableEntries(entries, stationNameMapping);
-
-        // Preserve any user-entered coordinates from original entries
-        // Only match if destination is not empty to avoid false matches
-        for (const entry of timetableEntries) {
-            if (!entry.destination || !entry.destination.trim()) {
-                continue; // Skip entries with empty destination
-            }
-            const originalEntry = entries.find(e =>
-                (e.location || e.details) === entry.destination &&
-                e.latitude && e.longitude
-            );
-            if (originalEntry) {
-                entry.latitude = parseFloat(originalEntry.latitude);
-                entry.longitude = parseFloat(originalEntry.longitude);
-            }
-        }
-
-        // Calculate marker positions if we have coordinates
-        if (coordinates.length > 0) {
-            calculateMarkerPositions(markers, coordinates);
-        }
-
-        // Map timetable entries to marker coordinates (EXACT apiName matching only)
-        const processedMarkers = markers.map(m => ({
-            stationName: m.station_name,
-            latitude: m.latitude,
-            longitude: m.longitude
-        }));
-        mapTimetableToMarkers(timetableEntries, processedMarkers);
-
-        // Clean up entries for export (remove internal fields)
-        const exportEntries = timetableEntries.map(e => {
-            const result = {
-                index: e.index,
-                destination: e.destination,
-                arrival: e.arrival,
-                departure: e.departure,
-                platform: e.platform,
-                apiName: e.apiName
-            };
-            if (e.latitude != null) result.latitude = e.latitude;
-            if (e.longitude != null) result.longitude = e.longitude;
-            return result;
+        // Use the shared function to build export JSON
+        const exportData = buildTimetableExportJson({
+            timetable,
+            entries,
+            coordinates,
+            markers,
+            includeCsvData: true,
+            includeMarkerProcessing: true
         });
-
-        // Generate CSV data from raw entries
-        const csvData = generateRawEntryData(entries);
-
-        // Build the export object
-        const exportData = {
-            serviceName: timetable.service_name,
-            routeName: routeName,
-            countryName: countryName,
-            trainName: trainName,
-            totalPoints: coordinates.length,
-            totalMarkers: markers.length,
-            coordinates: coordinates.map(c => ({
-                latitude: c.latitude,
-                longitude: c.longitude,
-                height: c.height != null ? c.height : null,
-                gradient: c.gradient != null ? c.gradient : null
-            })),
-            markers: markers.map(m => ({
-                stationName: m.station_name,
-                markerType: m.marker_type,
-                latitude: m.latitude,
-                longitude: m.longitude,
-                platformLength: m.platform_length
-            })),
-            timetable: exportEntries,
-            csvData: csvData
-        };
 
         // Create a safe filename
         const safeServiceName = timetable.service_name
@@ -541,3 +633,7 @@ const timetableController = {
 };
 
 module.exports = timetableController;
+
+// Export helper functions for use by other controllers (e.g., recordingController)
+module.exports.getTimetableExportMetadata = getTimetableExportMetadata;
+module.exports.buildTimetableExportJson = buildTimetableExportJson;
