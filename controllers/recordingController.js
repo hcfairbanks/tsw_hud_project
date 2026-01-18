@@ -106,17 +106,29 @@ async function start(req, res, timetableId) {
     const fileName = `raw_data_timetable_${numTimetableId}_${timestamp}.json`;
     routeOutputFilePath = path.join(recordingDataDir, fileName);
 
-    // Check for existing recording file to resume
+    // Check for existing INCOMPLETE recording file to resume
+    // Only resume from files that are not marked as completed
     const existingFiles = fs.readdirSync(recordingDataDir)
         .filter(f => f.startsWith(`raw_data_timetable_${numTimetableId}_`) && f.endsWith('.json'))
         .sort()
         .reverse();
 
-    if (existingFiles.length > 0) {
-        // Resume from existing file
-        routeOutputFilePath = path.join(recordingDataDir, existingFiles[0]);
+    let foundIncompleteFile = false;
+    for (const file of existingFiles) {
+        const filePath = path.join(recordingDataDir, file);
         try {
-            const existingData = JSON.parse(fs.readFileSync(routeOutputFilePath, 'utf8'));
+            const existingData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+            // Skip completed files - only resume from incomplete ones
+            if (existingData.completed === true) {
+                console.log(`Skipping completed recording file: ${file}`);
+                continue;
+            }
+
+            // Found an incomplete file - resume from it
+            routeOutputFilePath = filePath;
+            foundIncompleteFile = true;
+
             if (existingData.coordinates && Array.isArray(existingData.coordinates)) {
                 routeCoordinates = existingData.coordinates;
                 console.log(`Resuming recording: ${routeCoordinates.length} existing coordinates loaded`);
@@ -139,15 +151,15 @@ async function start(req, res, timetableId) {
                 });
                 console.log(`Resuming recording: ${savedTimetableCoords.size} saved station coordinates loaded`);
             }
+            break;  // Found incomplete file, stop searching
         } catch (err) {
-            console.warn('Could not load existing data, starting fresh:', err.message);
-            routeCoordinates = [];
-            discoveredMarkers = [];
-            processedMarkers.clear();
-            savedTimetableCoords.clear();
+            console.warn(`Could not parse file ${file}:`, err.message);
+            continue;
         }
-    } else {
-        // Fresh start
+    }
+
+    if (!foundIncompleteFile) {
+        // Fresh start - no incomplete file found
         routeCoordinates = [];
         discoveredMarkers = [];
         processedMarkers.clear();
@@ -181,13 +193,13 @@ function stop(req, res) {
         return;
     }
 
-    // Save final data to JSON file only (not database)
+    // Save final data to JSON file only (not database) - mark as completed
     let timetable = null;
     let routeId = null;
     if (currentTimetableId) {
         timetable = timetableDb.getById(currentTimetableId);
         const entries = entryDb.getByTimetableId(currentTimetableId);
-        saveRouteData(timetable, entries);
+        saveRouteData(timetable, entries, true);  // Mark as completed
         routeId = timetable?.route_id;
     }
 
@@ -419,7 +431,8 @@ function processCoordinate(geoLocation, gradient, height) {
 
     const coordinate = {
         longitude: geoLocation.longitude,
-        latitude: geoLocation.latitude
+        latitude: geoLocation.latitude,
+        timestamp: new Date().toISOString()
     };
 
     if (height !== null && height !== undefined) {
@@ -514,8 +527,11 @@ function processMarker(station, distanceCM) {
  * Save route data to JSON file
  * Uses the shared buildTimetableExportJson function from timetableController
  * NOTE: Does NOT auto-populate coordinates - user must manually assign them during recording
+ * @param {Object} timetable - Timetable object
+ * @param {Array} entries - Timetable entries
+ * @param {boolean} completed - Whether recording is complete (default: false)
  */
-function saveRouteData(timetable, entries) {
+function saveRouteData(timetable, entries, completed = false) {
     if (!routeOutputFilePath) return;
 
     // Use the shared function to build export JSON
@@ -528,7 +544,8 @@ function saveRouteData(timetable, entries) {
         markers: discoveredMarkers,
         savedTimetableCoords: savedTimetableCoords,
         includeCsvData: false,  // Recording doesn't need csvData
-        includeMarkerProcessing: false  // Recording markers already have their data
+        includeMarkerProcessing: false,  // Recording markers already have their data
+        completed: completed  // Mark as incomplete during recording, complete on stop
     });
 
     try {
@@ -657,8 +674,9 @@ function getRecordingStateForStream() {
 }
 
 /**
- * Check for existing recording file for a timetable
- * Returns the most recent recording file if one exists
+ * Check for existing INCOMPLETE recording file for a timetable
+ * Returns the most recent incomplete recording file if one exists
+ * Only returns files where completed !== true
  */
 function checkExistingRecording(req, res, timetableId) {
     if (!fs.existsSync(recordingDataDir)) {
@@ -671,30 +689,42 @@ function checkExistingRecording(req, res, timetableId) {
         .sort()
         .reverse();
 
-    if (existingFiles.length === 0) {
-        sendJson(res, { exists: false });
-        return;
+    // Find the most recent INCOMPLETE file for this timetable
+    for (const filename of existingFiles) {
+        const filePath = path.join(recordingDataDir, filename);
+        try {
+            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+            // Skip completed files
+            if (data.completed === true) {
+                continue;
+            }
+
+            // Found an incomplete file
+            sendJson(res, {
+                exists: true,
+                filename: filename,
+                routeName: data.routeName || 'Unknown',
+                coordinateCount: data.coordinates ? data.coordinates.length : 0,
+                markerCount: data.markers ? data.markers.length : 0,
+                timetableEntryCount: data.timetable ? data.timetable.length : 0,
+                completed: data.completed || false
+            });
+            return;
+        } catch (err) {
+            console.warn(`Could not parse file ${filename}:`, err.message);
+            continue;
+        }
     }
 
-    const filePath = path.join(recordingDataDir, existingFiles[0]);
-    try {
-        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        sendJson(res, {
-            exists: true,
-            filename: existingFiles[0],
-            routeName: data.routeName || 'Unknown',
-            coordinateCount: data.coordinates ? data.coordinates.length : 0,
-            markerCount: data.markers ? data.markers.length : 0,
-            timetableEntryCount: data.timetable ? data.timetable.length : 0
-        });
-    } catch (err) {
-        sendJson(res, { exists: false, error: 'Could not read file' });
-    }
+    // No incomplete files found for this timetable
+    sendJson(res, { exists: false });
 }
 
 /**
- * Check for any existing recording file in the recording_data folder
- * Returns the most recent file regardless of timetable
+ * Check for any INCOMPLETE recording file in the recording_data folder
+ * Returns the most recent incomplete file regardless of timetable
+ * Only returns files where completed !== true
  */
 function checkAnyExistingRecording(req, res) {
     if (!fs.existsSync(recordingDataDir)) {
@@ -707,33 +737,42 @@ function checkAnyExistingRecording(req, res) {
         .map(f => {
             const filePath = path.join(recordingDataDir, f);
             const stats = fs.statSync(filePath);
-            return { filename: f, mtime: stats.mtime };
+            return { filename: f, mtime: stats.mtime, filePath };
         })
         .sort((a, b) => b.mtime - a.mtime); // Sort by modification time, newest first
 
-    if (existingFiles.length === 0) {
-        sendJson(res, { exists: false });
-        return;
+    // Find the most recent INCOMPLETE file
+    for (const file of existingFiles) {
+        try {
+            const data = JSON.parse(fs.readFileSync(file.filePath, 'utf8'));
+
+            // Skip completed files
+            if (data.completed === true) {
+                continue;
+            }
+
+            // Found an incomplete file
+            sendJson(res, {
+                exists: true,
+                filename: file.filename,
+                timetableId: data.timetableId || null,
+                routeName: data.routeName || 'Unknown',
+                serviceName: data.serviceName || 'Unknown',
+                coordinateCount: data.coordinates ? data.coordinates.length : 0,
+                markerCount: data.markers ? data.markers.length : 0,
+                timetableEntryCount: data.timetable ? data.timetable.length : 0,
+                modifiedAt: file.mtime,
+                completed: data.completed || false
+            });
+            return;
+        } catch (err) {
+            console.warn(`Could not parse file ${file.filename}:`, err.message);
+            continue;
+        }
     }
 
-    const mostRecent = existingFiles[0];
-    const filePath = path.join(recordingDataDir, mostRecent.filename);
-
-    try {
-        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        sendJson(res, {
-            exists: true,
-            filename: mostRecent.filename,
-            timetableId: data.timetableId || null,
-            routeName: data.routeName || 'Unknown',
-            coordinateCount: data.coordinates ? data.coordinates.length : 0,
-            markerCount: data.markers ? data.markers.length : 0,
-            timetableEntryCount: data.timetable ? data.timetable.length : 0,
-            modifiedAt: mostRecent.mtime
-        });
-    } catch (err) {
-        sendJson(res, { exists: false, error: 'Could not read file' });
-    }
+    // No incomplete files found
+    sendJson(res, { exists: false });
 }
 
 /**

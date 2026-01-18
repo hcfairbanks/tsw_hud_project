@@ -66,6 +66,7 @@ function getTimetableExportMetadata(timetable) {
  * @param {Map|null} options.savedTimetableCoords - Optional Map of index -> {latitude, longitude} for recording
  * @param {boolean} options.includeCsvData - Whether to include csvData (default: true)
  * @param {boolean} options.includeMarkerProcessing - Whether to process markers (default: true for DB, false for recording)
+ * @param {boolean|null} options.completed - Recording completion status (null = not a recording file, false = in progress, true = completed)
  * @returns {Object} - Complete export JSON object
  */
 function buildTimetableExportJson(options) {
@@ -76,7 +77,8 @@ function buildTimetableExportJson(options) {
         markers = [],
         savedTimetableCoords = null,
         includeCsvData = true,
-        includeMarkerProcessing = true
+        includeMarkerProcessing = true,
+        completed = null
     } = options;
 
     // Get metadata (serviceName, routeName, countryName, trainName)
@@ -150,13 +152,20 @@ function buildTimetableExportJson(options) {
         return result;
     });
 
-    // Format coordinates
-    const formattedCoordinates = coordinates.map(c => ({
-        latitude: c.latitude,
-        longitude: c.longitude,
-        height: c.height != null ? c.height : null,
-        gradient: c.gradient != null ? c.gradient : (c.gradient === 0 ? 0 : null)
-    }));
+    // Format coordinates (preserve timestamp if present)
+    const formattedCoordinates = coordinates.map(c => {
+        const coord = {
+            latitude: c.latitude,
+            longitude: c.longitude,
+            height: c.height != null ? c.height : null,
+            gradient: c.gradient != null ? c.gradient : (c.gradient === 0 ? 0 : null)
+        };
+        // Preserve timestamp if it exists (from recording)
+        if (c.timestamp) {
+            coord.timestamp = c.timestamp;
+        }
+        return coord;
+    });
 
     // Format markers - handle both DB format (station_name) and recording format (stationName)
     const exportMarkers = markers.map(m => {
@@ -186,6 +195,7 @@ function buildTimetableExportJson(options) {
     // Build the export object
     const exportData = {
         timetableId: timetable ? timetable.id : null,
+        completed: completed,
         serviceName: metadata.serviceName,
         routeName: metadata.routeName,
         countryName: metadata.countryName,

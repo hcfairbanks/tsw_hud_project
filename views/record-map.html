@@ -294,8 +294,7 @@
                 </select>
             </div>
             <div class="controls-row">
-                <button class="btn-success" id="startBtn" onclick="startRecording()">Start</button>
-                <button class="btn-warning" id="pauseBtn" onclick="pauseRecording()" disabled>Pause</button>
+                <button class="btn-success" id="mainBtn" onclick="handleMainButton()">Start</button>
                 <button class="btn-danger" id="stopBtn" onclick="stopRecording()">Save</button>
                 <button class="btn-secondary" id="resetBtn" onclick="resetRecording()">Reset</button>
             </div>
@@ -550,14 +549,14 @@
         document.getElementById('routeSelect').addEventListener('change', function() {
             const routeId = this.value;
             loadTrainsForRoute(routeId);
-            document.getElementById('startBtn').textContent = 'Start';
+            document.getElementById('mainBtn').textContent = 'Start';
         });
 
         document.getElementById('trainSelect').addEventListener('change', function() {
             const routeId = document.getElementById('routeSelect').value;
             const trainId = this.value;
             loadTimetablesForRouteAndTrain(routeId, trainId);
-            document.getElementById('startBtn').textContent = 'Start';
+            document.getElementById('mainBtn').textContent = 'Start';
         });
 
 
@@ -667,28 +666,79 @@
             stationMarkers.set(index, marker);
         }
 
-        // Start recording
-        async function startRecording() {
+        // Main button handler - handles Start, Resume, and Pause states
+        // Button states:
+        // - "Start": No recording, no incomplete file - starts fresh recording
+        // - "Resume": No recording, but incomplete file exists - resumes from file
+        // - "Pause": Recording is active - pauses the recording
+        // - "Resume": Recording is paused - resumes the paused recording
+        async function handleMainButton() {
+            const mainBtn = document.getElementById('mainBtn');
+            const btnText = mainBtn.textContent;
+
+            console.log(`Main button clicked: "${btnText}", state: ${currentRecordingState}`);
+
+            // If recording is active (button shows "Pause"), pause the recording
+            if (currentRecordingState === 'recording') {
+                try {
+                    const response = await fetch('/api/recording/pause', { method: 'POST' });
+                    const result = await response.json();
+                    if (!result.success) {
+                        alert('Failed to pause: ' + result.error);
+                    }
+                    // Stream will update the UI
+                } catch (err) {
+                    alert('Error pausing: ' + err.message);
+                }
+                return;
+            }
+
+            // If recording is paused, resume it
+            if (currentRecordingState === 'paused') {
+                try {
+                    const response = await fetch('/api/recording/resume', { method: 'POST' });
+                    const result = await response.json();
+                    if (!result.success) {
+                        alert('Failed to resume: ' + result.error);
+                    }
+                    // Stream will update the UI
+                } catch (err) {
+                    alert('Error resuming: ' + err.message);
+                }
+                return;
+            }
+
+            // Otherwise, we're starting or resuming from file (state is 'stopped')
             const timetableId = document.getElementById('timetableSelect').value;
             if (!timetableId) {
                 alert('Please select a timetable first');
                 return;
             }
 
+            const isResumeFromFile = btnText === 'Resume';
+
             try {
                 const response = await fetch(`/api/recording/start/${timetableId}`, { method: 'POST' });
                 const result = await response.json();
                 if (result.success) {
-                    // Reset local path display
-                    pathCoordinates = [];
-                    if (pathPolyline) {
-                        map.removeLayer(pathPolyline);
-                        pathPolyline = null;
+                    if (isResumeFromFile) {
+                        // Resuming from file - show popup and DON'T clear existing data
+                        alert(`Recording resumed!\n\nExisting data: ${result.coordinateCount} coordinates, ${result.markerCount} markers\n\nNew coordinates will be added to the recording.`);
+                    } else {
+                        // Fresh start - clear local display
+                        pathCoordinates = [];
+                        if (pathPolyline) {
+                            map.removeLayer(pathPolyline);
+                            pathPolyline = null;
+                        }
+                        // Clear station markers
+                        stationMarkers.forEach(m => map.removeLayer(m));
+                        stationMarkers.clear();
                     }
-                    // Clear station markers
-                    stationMarkers.forEach(m => map.removeLayer(m));
-                    stationMarkers.clear();
                     // Stream will update the rest
+
+                    // Refresh recording files dropdown
+                    await loadRecordingFiles();
                 } else {
                     alert('Failed to start recording: ' + result.error);
                 }
@@ -697,23 +747,11 @@
             }
         }
 
-        // Pause/Resume recording
-        async function pauseRecording() {
-            const btn = document.getElementById('pauseBtn');
-            const isPaused = btn.textContent === 'Resume';
-
-            try {
-                const endpoint = isPaused ? '/api/recording/resume' : '/api/recording/pause';
-                const response = await fetch(endpoint, { method: 'POST' });
-                const result = await response.json();
-                if (!result.success) {
-                    alert('Failed: ' + result.error);
-                }
-                // Stream will update the UI
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
-        }
+        // Track current recording state for button logic
+        // 'stopped' = not recording (can start fresh or resume from file)
+        // 'recording' = actively recording (can pause)
+        // 'paused' = recording paused (can resume)
+        let currentRecordingState = 'stopped';
 
         // Stop recording, process file, and save to database
         async function stopRecording() {
@@ -769,6 +807,9 @@
                     `Markers: ${saveResult.markerCount}\n` +
                     `Entry updates: ${saveResult.entryUpdates}`);
 
+                // Refresh recording files dropdown
+                await loadRecordingFiles();
+
             } catch (err) {
                 console.error('Error processing/saving recording:', err);
                 alert('Error: ' + err.message);
@@ -799,6 +840,7 @@
                     stationMarkers.clear();
                     // Reset UI
                     currentTimetableId = null;
+                    currentRecordingState = 'stopped';
                     document.getElementById('coordCount').textContent = '0';
                     document.getElementById('stationDropdown').innerHTML = '<option value="">-- Start recording first --</option>';
                     // Reset all cascading dropdowns
@@ -807,14 +849,20 @@
                     document.getElementById('trainSelect').disabled = true;
                     document.getElementById('timetableSelect').innerHTML = '<option value="">-- Select a train first --</option>';
                     document.getElementById('timetableSelect').disabled = true;
-                    // Reset Start button text
-                    document.getElementById('startBtn').textContent = 'Start';
+                    // Reset main button
+                    const mainBtn = document.getElementById('mainBtn');
+                    mainBtn.textContent = 'Start';
+                    mainBtn.className = 'btn-success';
+                    mainBtn.disabled = false;
                     // Reset dev tools status
                     const statusEl = document.getElementById('loadFileStatus');
                     if (statusEl) {
                         statusEl.textContent = '';
                     }
+                    // Update UI state
                     updateUIFromRecording({ isRecording: false, isPaused: false });
+                    // Refresh recording files dropdown
+                    await loadRecordingFiles();
                     console.log('Recording state reset');
                 } else {
                     alert('Failed to reset: ' + result.error);
@@ -992,36 +1040,44 @@
         function updateUIFromRecording(recording) {
             const indicator = document.getElementById('recordingIndicator');
             const text = document.getElementById('recordingText');
-            const startBtn = document.getElementById('startBtn');
-            const pauseBtn = document.getElementById('pauseBtn');
+            const mainBtn = document.getElementById('mainBtn');
             const stopBtn = document.getElementById('stopBtn');
             const saveBtn = document.getElementById('saveBtn');
-            const timetableSelector = document.getElementById('timetableSelector');
 
             if (recording.isRecording && !recording.isPaused) {
+                // Recording is active
+                currentRecordingState = 'recording';
                 indicator.className = 'recording-indicator';
                 text.textContent = 'Recording';
-                startBtn.disabled = true;
-                pauseBtn.disabled = false;
-                pauseBtn.textContent = 'Pause';
+                mainBtn.textContent = 'Pause';
+                mainBtn.className = 'btn-warning';
+                mainBtn.disabled = false;
                 stopBtn.disabled = false;
-                saveBtn.disabled = false;
+                if (saveBtn) saveBtn.disabled = false;
             } else if (recording.isPaused) {
+                // Recording is paused
+                currentRecordingState = 'paused';
                 indicator.className = 'recording-indicator paused';
                 text.textContent = 'Paused';
-                startBtn.disabled = true;
-                pauseBtn.disabled = false;
-                pauseBtn.textContent = 'Resume';
+                mainBtn.textContent = 'Resume';
+                mainBtn.className = 'btn-success';
+                mainBtn.disabled = false;
                 stopBtn.disabled = false;
-                saveBtn.disabled = false;
+                if (saveBtn) saveBtn.disabled = false;
             } else {
+                // Not recording - check if there's an incomplete file to resume
+                currentRecordingState = 'stopped';
                 indicator.className = 'recording-indicator stopped';
                 text.textContent = 'Not Recording';
-                startBtn.disabled = false;
-                pauseBtn.disabled = true;
-                pauseBtn.textContent = 'Pause';
+                // Button text (Start vs Resume) is set by checkForExistingRecording
+                // Keep current text if it's already "Resume", otherwise default to "Start"
+                if (mainBtn.textContent !== 'Resume') {
+                    mainBtn.textContent = 'Start';
+                }
+                mainBtn.className = 'btn-success';
+                mainBtn.disabled = false;
                 stopBtn.disabled = true;
-                saveBtn.disabled = true;
+                if (saveBtn) saveBtn.disabled = true;
             }
         }
 
@@ -1214,10 +1270,13 @@
                     await selectTimetableById(result.timetableId);
 
                     // Update Start button to show Resume
-                    document.getElementById('startBtn').textContent = 'Resume';
+                    document.getElementById('mainBtn').textContent = 'Resume';
 
                     // Load the route data to display on map
                     await loadRouteData();
+
+                    // Refresh recording files dropdown
+                    await loadRecordingFiles();
                 } else {
                     statusEl.textContent = 'Error: ' + result.error;
                     statusEl.style.color = '#e94560';
@@ -1236,13 +1295,13 @@
                 const response = await fetch(`/api/recording/check-existing/${timetableId}`);
                 const result = await response.json();
 
-                const startBtn = document.getElementById('startBtn');
+                const mainBtn = document.getElementById('mainBtn');
 
                 if (result.exists) {
-                    startBtn.textContent = 'Resume';
+                    mainBtn.textContent = 'Resume';
                     console.log(`Found existing recording: ${result.filename} with ${result.coordinateCount} coordinates`);
                 } else {
-                    startBtn.textContent = 'Start';
+                    mainBtn.textContent = 'Start';
                 }
             } catch (err) {
                 console.error('Error checking for existing recording:', err);
@@ -1255,7 +1314,7 @@
             if (timetableId) {
                 checkForExistingRecording(timetableId);
             } else {
-                document.getElementById('startBtn').textContent = 'Start';
+                document.getElementById('mainBtn').textContent = 'Start';
             }
         });
 
@@ -1303,7 +1362,7 @@
                         await selectTimetableById(loadResult.timetableId);
 
                         // Update Start button to show Resume
-                        document.getElementById('startBtn').textContent = 'Resume';
+                        document.getElementById('mainBtn').textContent = 'Resume';
 
                         // Update dev tools status
                         const statusEl = document.getElementById('loadFileStatus');
