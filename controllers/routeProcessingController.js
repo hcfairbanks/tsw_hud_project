@@ -2,15 +2,18 @@
 const fs = require('fs');
 const path = require('path');
 const { sendJson } = require('../utils/http');
+const { loadConfig } = require('./configController');
 
 // Directories
 const recordingDataDir = path.join(__dirname, '..', 'recording_data');
 const processedRoutesDir = path.join(__dirname, '..', 'processed_routes');
 
-// Ensure processed_routes directory exists
-if (!fs.existsSync(processedRoutesDir)) {
-    fs.mkdirSync(processedRoutesDir, { recursive: true });
-}
+// Stop detection configuration
+const STOP_DETECTION_CONFIG = {
+    MIN_STOP_DURATION_MS: 30000,    // 30 seconds minimum to consider a stop
+    GPS_NOISE_RADIUS_METERS: 10,    // Max distance for "same location"
+    MIN_POINTS_FOR_STOP: 10         // Minimum coordinate points to form valid stop
+};
 
 /**
  * Calculate distance between two lat/lng points using Haversine formula
@@ -171,6 +174,264 @@ function travelAlongPath(coordinates, startIndex, targetDistanceMeters) {
 }
 
 /**
+ * Detect stops in coordinate data based on timestamps and spatial clustering
+ * Uses a rolling centroid approach to handle GPS drift better
+ *
+ * @param {Array} coordinates - Array of coordinate objects with latitude, longitude, timestamp
+ * @param {Object} config - Stop detection configuration
+ * @returns {Array} Array of detected stops with centroid positions
+ */
+function detectStops(coordinates, config = STOP_DETECTION_CONFIG) {
+    if (!coordinates || coordinates.length < config.MIN_POINTS_FOR_STOP) {
+        return [];
+    }
+
+    // Filter coordinates that have timestamps
+    const coordsWithTime = coordinates.filter(c => c.timestamp);
+    if (coordsWithTime.length < config.MIN_POINTS_FOR_STOP) {
+        console.log('  Stop detection: Not enough coordinates with timestamps');
+        return [];
+    }
+
+    const coordsWithoutTime = coordinates.length - coordsWithTime.length;
+    console.log(`  Stop detection: Analyzing ${coordsWithTime.length} coordinates with timestamps`);
+    if (coordsWithoutTime > 0) {
+        console.log(`  WARNING: ${coordsWithoutTime} coordinates have NO timestamp (stop detection won't work on these)`);
+    }
+
+    const detectedStops = [];
+    let i = 0;
+
+    while (i < coordsWithTime.length) {
+        // Start a potential stop group
+        let groupCoords = [coordsWithTime[i]];
+        let sumLat = coordsWithTime[i].latitude;
+        let sumLng = coordsWithTime[i].longitude;
+
+        // Try to extend the group using a rolling centroid approach
+        for (let j = i + 1; j < coordsWithTime.length; j++) {
+            const coord = coordsWithTime[j];
+
+            // Calculate centroid of current group
+            const centroidLat = sumLat / groupCoords.length;
+            const centroidLng = sumLng / groupCoords.length;
+
+            // Check if this coordinate is within noise radius of the centroid
+            const distFromCentroid = haversineDistance(
+                centroidLat, centroidLng,
+                coord.latitude, coord.longitude
+            );
+
+            // Use a slightly larger radius (2x) to account for GPS drift
+            if (distFromCentroid <= config.GPS_NOISE_RADIUS_METERS * 2) {
+                groupCoords.push(coord);
+                sumLat += coord.latitude;
+                sumLng += coord.longitude;
+            } else {
+                // Point is too far from centroid, stop extending
+                break;
+            }
+        }
+
+        // Check if this group forms a valid stop
+        if (groupCoords.length >= config.MIN_POINTS_FOR_STOP) {
+            const startTime = new Date(groupCoords[0].timestamp);
+            const endTime = new Date(groupCoords[groupCoords.length - 1].timestamp);
+            const durationMs = endTime - startTime;
+
+            if (durationMs >= config.MIN_STOP_DURATION_MS) {
+                const centroid = {
+                    latitude: sumLat / groupCoords.length,
+                    longitude: sumLng / groupCoords.length
+                };
+
+                detectedStops.push({
+                    startIndex: i,
+                    endIndex: i + groupCoords.length - 1,
+                    startTime: groupCoords[0].timestamp,
+                    endTime: groupCoords[groupCoords.length - 1].timestamp,
+                    durationSeconds: Math.round(durationMs / 1000),
+                    centroid: centroid,
+                    pointCount: groupCoords.length
+                });
+
+                console.log(`  Detected stop: ${Math.round(durationMs / 1000)}s at (${centroid.latitude.toFixed(6)}, ${centroid.longitude.toFixed(6)}) [${groupCoords.length} points]`);
+
+                // Skip past this stop
+                i += groupCoords.length;
+                continue;
+            }
+        }
+
+        // Move to next coordinate
+        i++;
+    }
+
+    console.log(`\n  === DETECTED STOPS SUMMARY ===`);
+    console.log(`  Total stops found: ${detectedStops.length}`);
+    console.log(`  Threshold: ${config.MIN_STOP_DURATION_MS / 1000}s minimum duration`);
+    detectedStops.forEach((stop, idx) => {
+        console.log(`  Stop ${idx}: ${stop.durationSeconds}s at (${stop.centroid.latitude.toFixed(6)}, ${stop.centroid.longitude.toFixed(6)})`);
+    });
+    console.log(`  ==============================\n`);
+    return detectedStops;
+}
+
+/**
+ * Match detected stops to timetable entries that are missing coordinates
+ * Uses proximity matching: for each entry without coords, find the nearest unmatched stop.
+ * Stops are consumed in order (can't skip back) to maintain route progression.
+ *
+ * @param {Array} detectedStops - Array of detected stops from detectStops()
+ * @param {Array} timetable - Array of timetable entries
+ * @returns {Array} Updated timetable with coordinates filled in from detected stops
+ */
+function matchStopsToTimetable(detectedStops, timetable, coordinates = []) {
+    if (!detectedStops || detectedStops.length === 0 || !timetable || timetable.length === 0) {
+        return timetable;
+    }
+
+    console.log(`\n  === TIMETABLE INPUT STATUS ===`);
+    const entriesWithCoords = timetable.filter(e => e.latitude != null && e.longitude != null);
+    const entriesWithoutCoords = timetable.filter(e => e.latitude == null || e.longitude == null);
+    console.log(`  Entries WITH coordinates: ${entriesWithCoords.length}`);
+    entriesWithCoords.forEach((e, i) => {
+        const idx = timetable.indexOf(e);
+        console.log(`    [${idx}] ${e.destination}: ${e.latitude?.toFixed(6)}, ${e.longitude?.toFixed(6)}`);
+    });
+    console.log(`  Entries WITHOUT coordinates: ${entriesWithoutCoords.length}`);
+    entriesWithoutCoords.forEach((e, i) => {
+        const idx = timetable.indexOf(e);
+        console.log(`    [${idx}] ${e.destination}`);
+    });
+    console.log(`  ==============================\n`);
+
+    console.log(`  Matching ${detectedStops.length} detected stops to ${entriesWithoutCoords.length} entries needing coordinates`);
+
+    // Track which stops have been used and store match info
+    const usedStops = new Set();
+    const entryMatchInfo = new Map(); // entryIndex -> { stopIdx, distance, stop }
+
+    // For entries WITH coordinates, find and mark the closest stop as "used"
+    // This ensures we don't assign that stop to a different entry
+    timetable.forEach((entry, entryIndex) => {
+        if (entry.latitude != null && entry.longitude != null) {
+            let bestStopIdx = -1;
+            let bestDist = Infinity;
+
+            for (let stopIdx = 0; stopIdx < detectedStops.length; stopIdx++) {
+                if (usedStops.has(stopIdx)) continue;
+
+                const stop = detectedStops[stopIdx];
+                const dist = haversineDistance(
+                    entry.latitude, entry.longitude,
+                    stop.centroid.latitude, stop.centroid.longitude
+                );
+
+                // Must be within 250m to be considered a match
+                if (dist < bestDist && dist < 250) {
+                    bestDist = dist;
+                    bestStopIdx = stopIdx;
+                }
+            }
+
+            if (bestStopIdx >= 0) {
+                usedStops.add(bestStopIdx);
+                entryMatchInfo.set(entryIndex, {
+                    stopIdx: bestStopIdx,
+                    distance: Math.round(bestDist),
+                    stop: detectedStops[bestStopIdx]
+                });
+                console.log(`  Entry ${entryIndex} "${entry.destination}": Has coords, matched to stop ${bestStopIdx} (${Math.round(bestDist)}m away)`);
+            } else {
+                console.log(`  Entry ${entryIndex} "${entry.destination}": Has coords, no nearby stop found`);
+            }
+        }
+    });
+
+    // Now match entries WITHOUT coordinates to remaining stops
+    // Process in order, assigning the first available (unused) stop
+    let nextAvailableStopIdx = 0;
+
+    const updatedTimetable = timetable.map((entry, entryIndex) => {
+        const result = { ...entry };
+
+        // For entries that already have coordinates, add the match distance info
+        if (entry.latitude != null && entry.longitude != null) {
+            const matchInfo = entryMatchInfo.get(entryIndex);
+            if (matchInfo) {
+                result._matchedStopDistance = matchInfo.distance;
+                result._stopDurationSeconds = matchInfo.stop.durationSeconds;
+            }
+            return result;
+        }
+
+        // Find the next unused stop
+        while (nextAvailableStopIdx < detectedStops.length && usedStops.has(nextAvailableStopIdx)) {
+            nextAvailableStopIdx++;
+        }
+
+        if (nextAvailableStopIdx >= detectedStops.length) {
+            console.log(`  Entry ${entryIndex} "${entry.destination}": No more stops available`);
+            return result;
+        }
+
+        const stop = detectedStops[nextAvailableStopIdx];
+        usedStops.add(nextAvailableStopIdx);
+
+        // Match this entry to the stop
+        result.latitude = stop.centroid.latitude;
+        result.longitude = stop.centroid.longitude;
+        result._autoDetected = true;
+        result._stopDurationSeconds = stop.durationSeconds;
+
+        console.log(`  Entry ${entryIndex} "${entry.destination}": Auto-matched to stop ${nextAvailableStopIdx} at (${stop.centroid.latitude.toFixed(6)}, ${stop.centroid.longitude.toFixed(6)}) [${stop.durationSeconds}s]`);
+
+        nextAvailableStopIdx++;
+        return result;
+    });
+
+    // Log summary of matching
+    console.log(`\n  === STOP MATCHING SUMMARY ===`);
+    console.log(`  Stops used: ${usedStops.size}/${detectedStops.length}`);
+    const unusedCount = detectedStops.length - usedStops.size;
+    if (unusedCount > 0) {
+        console.log(`  Unused stops: ${unusedCount}`);
+        for (let i = 0; i < detectedStops.length; i++) {
+            if (!usedStops.has(i)) {
+                const stop = detectedStops[i];
+                console.log(`    - Stop ${i}: ${stop.durationSeconds}s at (${stop.centroid.latitude.toFixed(6)}, ${stop.centroid.longitude.toFixed(6)})`);
+            }
+        }
+    }
+
+    // Check if the LAST timetable entry is still missing coordinates
+    // If so, use the very last coordinate from the recording
+    // This handles the case where the final stop was less than 30 seconds
+    const lastEntryIdx = updatedTimetable.length - 1;
+    if (lastEntryIdx >= 0 && coordinates.length > 0) {
+        const lastEntry = updatedTimetable[lastEntryIdx];
+        if (lastEntry.latitude == null || lastEntry.longitude == null) {
+            const lastCoord = coordinates[coordinates.length - 1];
+            if (lastCoord && lastCoord.latitude != null && lastCoord.longitude != null) {
+                updatedTimetable[lastEntryIdx] = {
+                    ...lastEntry,
+                    latitude: lastCoord.latitude,
+                    longitude: lastCoord.longitude,
+                    _autoDetected: true,
+                    _usedLastCoordinate: true
+                };
+                console.log(`  Final entry "${lastEntry.destination}": Used last coordinate (${lastCoord.latitude.toFixed(6)}, ${lastCoord.longitude.toFixed(6)})`);
+            }
+        }
+    }
+
+    console.log(`  =============================\n`);
+
+    return updatedTimetable;
+}
+
+/**
  * Calculate marker position from raw data
  * Uses onspot_* data if available, otherwise falls back to detectedAt
  */
@@ -215,12 +476,14 @@ function processRawData(rawData) {
     console.log(`  Coordinates: ${rawData.coordinates?.length || 0}`);
     console.log(`  Markers: ${rawData.markers?.length || 0}`);
     console.log(`  Timetable entries: ${rawData.timetable?.length || 0}`);
+    console.log(`  Recording mode: ${rawData.recordingMode || 'unknown'}`);
 
     const coordinates = rawData.coordinates || [];
     const markers = rawData.markers || [];
     const timetable = rawData.timetable || [];
+    const isAutomatic = rawData.recordingMode === 'automatic';
 
-    // Process markers - calculate positions and clean up
+    // Step 1: Process markers - calculate positions and clean up
     const processedMarkers = markers.map(marker => {
         const position = calculateMarkerPosition(marker, coordinates);
 
@@ -244,9 +507,29 @@ function processRawData(rawData) {
         return cleanMarker;
     });
 
-    // Match markers to timetable entries by stationName -> apiName
+    // Step 2: Detect stops (ONLY if automatic mode)
+    // This must happen while we have all the dense coordinate data (before simplification)
+    let detectedStops = [];
+    if (isAutomatic) {
+        console.log('\n  Automatic mode: Running stop detection...');
+        detectedStops = detectStops(coordinates, STOP_DETECTION_CONFIG);
+    } else {
+        console.log('\n  Manual mode: Skipping stop detection');
+    }
+
+    // Step 3: Match detected stops to timetable entries (ONLY if automatic mode)
+    // This runs FIRST so stop detection has priority over marker matching
     // Only fill in coordinates if timetable entry doesn't already have them
-    const processedTimetable = timetable.map(entry => {
+    let processedTimetable = timetable.map(entry => ({ ...entry }));
+
+    if (isAutomatic && detectedStops.length > 0) {
+        processedTimetable = matchStopsToTimetable(detectedStops, processedTimetable, coordinates);
+    }
+
+    // Step 4: Match markers to timetable entries by stationName -> apiName
+    // Only fill in coordinates if timetable entry doesn't already have them
+    // This is a fallback for entries that weren't matched by stop detection
+    processedTimetable = processedTimetable.map(entry => {
         const result = { ...entry };
 
         // Check if this entry needs coordinates
@@ -268,14 +551,37 @@ function processRawData(rawData) {
                 console.log(`  Matched timetable "${entry.destination}" (${entry.apiName}) -> marker "${matchingMarker.stationName}"`);
             }
         } else {
-            console.log(`  Timetable "${entry.destination}" already has coordinates`);
+            const source = entry._autoDetected ? '(from stop detection)' : '(user-entered)';
+            console.log(`  Timetable "${entry.destination}" already has coordinates ${source}`);
         }
 
         return result;
     });
 
-    // Simplify coordinates to reduce file size while preserving path accuracy
+    // Step 5: Print final timetable status and check for missing coordinates
+    console.log('\n  === TIMETABLE COORDINATE STATUS ===');
+    let missingCount = 0;
+    processedTimetable.forEach((entry, idx) => {
+        const hasCoords = entry.latitude != null && entry.longitude != null;
+        const source = entry._autoDetected ? '(auto-detected)' : (hasCoords ? '(from recording)' : '(MISSING)');
+        if (hasCoords) {
+            console.log(`  [${idx}] ${entry.destination}: ${entry.latitude.toFixed(6)}, ${entry.longitude.toFixed(6)} ${source}`);
+        } else {
+            console.log(`  [${idx}] ${entry.destination}: NO COORDINATES ${source}`);
+            missingCount++;
+        }
+    });
+    console.log(`  =====================================`);
+
+    if (missingCount > 0) {
+        console.log(`  WARNING: ${missingCount} timetable entries are missing coordinates!`);
+    } else {
+        console.log(`  All ${processedTimetable.length} timetable entries have coordinates`);
+    }
+
+    // Step 6: Simplify coordinates to reduce file size while preserving path accuracy
     // Epsilon of 1 meter means points within 1m of the simplified line are removed
+    // This happens AFTER stop detection so we have full data for stop analysis
     const SIMPLIFY_EPSILON = 1; // meters
     const simplifiedCoordinates = simplifyPath(coordinates, SIMPLIFY_EPSILON);
     console.log(`  Simplified coordinates: ${coordinates.length} -> ${simplifiedCoordinates.length} (${((1 - simplifiedCoordinates.length / coordinates.length) * 100).toFixed(1)}% reduction)`);
@@ -287,14 +593,15 @@ function processRawData(rawData) {
         totalPoints: simplifiedCoordinates.length,
         coordinates: simplifiedCoordinates,
         markers: processedMarkers,
-        timetable: processedTimetable
+        timetable: processedTimetable,
+        detectedStops: detectedStops.length  // Include count for reference
     };
 
     return processed;
 }
 
 /**
- * Process a raw recording file and save to processed_routes
+ * Process a raw recording file and save to processed_routes (only in development mode)
  */
 function processRecordingFile(inputFilename) {
     const inputPath = path.join(recordingDataDir, inputFilename);
@@ -314,9 +621,17 @@ function processRecordingFile(inputFilename) {
     const outputFilename = inputFilename.replace('raw_data_', 'processed_');
     const outputPath = path.join(processedRoutesDir, outputFilename);
 
-    // Write processed data
-    fs.writeFileSync(outputPath, JSON.stringify(processedData, null, 2));
-    console.log(`  Saved processed file: ${outputFilename}`);
+    // Only save to processed_routes in development mode
+    const config = loadConfig();
+    if (config.developmentMode) {
+        if (!fs.existsSync(processedRoutesDir)) {
+            fs.mkdirSync(processedRoutesDir, { recursive: true });
+        }
+        fs.writeFileSync(outputPath, JSON.stringify(processedData, null, 2));
+        console.log(`  Saved processed file: ${outputFilename}`);
+    } else {
+        console.log(`  Skipping processed file save (not in development mode)`);
+    }
 
     return {
         inputFile: inputFilename,

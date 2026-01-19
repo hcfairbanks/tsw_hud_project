@@ -3,6 +3,7 @@ const { createWorker } = require('tesseract.js');
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
+const { loadConfig } = require('./controllers/configController');
 
 // App directory
 const appDir = __dirname;
@@ -254,16 +255,6 @@ async function extractTimetableFromBuffer(imageBuffer, onProgress) {
 async function extractServiceNameFromBuffer(imageBuffer) {
     try {
         const imageInput = await qualityPreprocessBuffer(imageBuffer, false);
-        
-        // Save debug image
-        const debugPath = path.join(appDir, 'ocr_output', 'debug_servicename.png');
-        const debugDir = path.dirname(debugPath);
-        if (!fs.existsSync(debugDir)) {
-            fs.mkdirSync(debugDir, { recursive: true });
-        }
-        fs.writeFileSync(debugPath, imageInput);
-        console.log(`  Saved preprocessed service name: ${debugPath}`);
-        
         return await recognizeImage(imageInput);
     } catch (error) {
         console.error('Error extracting service name:', error);
@@ -499,20 +490,23 @@ async function processImages(imageBuffers, onProgress) {
 
     console.log(`OCR: Deduplicated rows: ${allRows.length} -> ${uniqueRows.length}`);
 
-    // Save raw OCR output
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const outputDir = path.join(appDir, 'ocr_output');
-    if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-    }
+    // Save raw OCR output only in development mode
+    const config = loadConfig();
+    if (config.developmentMode) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const outputDir = path.join(appDir, 'ocr_output');
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
 
-    const rawOutputPath = path.join(outputDir, `ocr_raw_${timestamp}.txt`);
-    let rawContent = '';
-    results.forEach((r, i) => {
-        rawContent += `${'='.repeat(70)}\nFile: Image ${i + 1}${i === 0 ? ' (Service Name)' : ''}\n${'='.repeat(70)}\n${r.rawText}\n\n`;
-    });
-    fs.writeFileSync(rawOutputPath, rawContent);
-    console.log(`Raw OCR output saved to: ${rawOutputPath}`);
+        const rawOutputPath = path.join(outputDir, `ocr_raw_${timestamp}.txt`);
+        let rawContent = '';
+        results.forEach((r, i) => {
+            rawContent += `${'='.repeat(70)}\nFile: Image ${i + 1}${i === 0 ? ' (Service Name)' : ''}\n${'='.repeat(70)}\n${r.rawText}\n\n`;
+        });
+        fs.writeFileSync(rawOutputPath, rawContent);
+        console.log(`Raw OCR output saved to: ${rawOutputPath}`);
+    }
 
     progressCallback({ status: 'Complete!', progress: 100 });
 

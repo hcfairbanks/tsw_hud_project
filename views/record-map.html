@@ -301,6 +301,23 @@
         </div>
 
         <div class="info-group">
+            <h3>Recording Mode</h3>
+            <div style="display: flex; gap: 15px; margin-bottom: 5px;">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="radio" name="recordMode" value="manual" onchange="handleModeChange(this.value)" style="margin-right: 5px;">
+                    Manual
+                </label>
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="radio" name="recordMode" value="automatic" checked onchange="handleModeChange(this.value)" style="margin-right: 5px;">
+                    Automatic
+                </label>
+            </div>
+            <div id="autoModeInfo" style="font-size: 11px; color: #666;">
+                Auto-stops after 5 min of no movement
+            </div>
+        </div>
+
+        <div class="info-group">
             <h3>Current Position</h3>
             <div class="info-item">
                 <span class="info-label">Latitude:</span>
@@ -341,23 +358,6 @@
                         <button class="btn-secondary" onclick="document.getElementById('browseFileInput').click()">Browse...</button>
                     </div>
                     <div id="loadFileStatus" style="margin-top: 8px; font-size: 12px; color: #aaa;"></div>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 0, 0, 0.3);">
-                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleRemakeJson()">
-                    <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;">Remake JSON from DB</label>
-                    <span id="remakeJsonToggle" style="font-size: 12px; color: #aaa;">▼</span>
-                </div>
-                <div id="remakeJsonContent" style="margin-top: 10px;">
-                    <label class="info-label">Select Timetable:</label>
-                    <select class="timetable-dropdown" id="remakeTimetableSelect">
-                        <option value="">-- Loading... --</option>
-                    </select>
-                    <div class="controls-row">
-                        <button class="btn-danger" id="remakeBtn" onclick="remakeFromDb()">Remake</button>
-                    </div>
-                    <div id="remakeStatus" style="margin-top: 8px; font-size: 12px; color: #aaa;"></div>
                 </div>
             </div>
 
@@ -421,6 +421,8 @@
         let firstPosition = true;
         let currentTimetableId = null;
         let nextStationIndex = null; // Used to advance dropdown after save
+        let recordingMode = 'automatic'; // 'manual' or 'automatic'
+        let pendingRawFileDelete = null; // Raw file to delete after DB save (normal mode)
 
         // Create custom train icon
         const trainIcon = L.divIcon({
@@ -666,6 +668,59 @@
             stationMarkers.set(index, marker);
         }
 
+        // Handle recording mode change (manual/automatic)
+        async function handleModeChange(mode) {
+            recordingMode = mode;
+
+            // Update UI
+            const infoDiv = document.getElementById('autoModeInfo');
+            if (mode === 'automatic') {
+                infoDiv.style.display = 'block';
+            } else {
+                infoDiv.style.display = 'none';
+            }
+
+            // Send mode change to backend
+            try {
+                const response = await fetch('/api/recording/mode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: mode })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    console.log(`Recording mode set to: ${mode}`);
+                } else {
+                    console.error('Failed to set recording mode:', result.error);
+                }
+            } catch (err) {
+                console.error('Error setting recording mode:', err);
+            }
+        }
+
+        // Load current recording mode from backend (defaults to automatic if not set)
+        async function loadRecordingMode() {
+            try {
+                const response = await fetch('/api/recording/mode');
+                const result = await response.json();
+                // Always default to automatic if mode is not explicitly set
+                recordingMode = result.mode || 'automatic';
+
+                // Update radio buttons
+                const radioButtons = document.querySelectorAll('input[name="recordMode"]');
+                radioButtons.forEach(radio => {
+                    radio.checked = (radio.value === recordingMode);
+                });
+
+                // Update info div
+                const infoDiv = document.getElementById('autoModeInfo');
+                infoDiv.style.display = recordingMode === 'automatic' ? 'block' : 'none';
+            } catch (err) {
+                console.error('Error loading recording mode:', err);
+                // On error, keep the default (automatic)
+            }
+        }
+
         // Main button handler - handles Start, Resume, and Pause states
         // Button states:
         // - "Start": No recording, no incomplete file - starts fresh recording
@@ -760,37 +815,30 @@
             stopBtn.textContent = 'Stopping...';
 
             try {
-                // Step 1: Stop the recording (if still running/paused)
-                // This ensures the raw JSON file is finalized
+                // Step 1: Stop the recording and process it (combined in backend)
                 const stopResponse = await fetch('/api/recording/stop', { method: 'POST' });
                 const stopResult = await stopResponse.json();
 
-                // It's okay if stop fails (e.g., already stopped) - we can still try to process
-                if (stopResult.success) {
-                    console.log('Recording stopped:', stopResult);
-                } else {
-                    console.log('Stop returned:', stopResult.error || 'no active recording');
+                if (!stopResult.success) {
+                    throw new Error(stopResult.error || 'Failed to stop recording');
                 }
 
-                // Step 2: Process the raw recording into processed JSON
-                stopBtn.textContent = 'Processing...';
+                console.log('Recording stopped and processed:', stopResult);
 
-                const processResponse = await fetch('/api/route-processing/process-latest', { method: 'POST' });
-                const processResult = await processResponse.json();
-
-                if (!processResult.success) {
-                    throw new Error(processResult.error || 'Failed to process recording');
+                // Check if processing failed
+                if (stopResult.processingError) {
+                    alert(`Recording stopped but processing failed:\n${stopResult.processingError}`);
+                    await loadRecordingFiles();
+                    return;
                 }
 
-                console.log('Recording processed:', processResult);
-
-                // Step 3: Save the processed JSON to the database
+                // Step 2: Save the processed JSON to the database
                 stopBtn.textContent = 'Saving to DB...';
 
                 const saveResponse = await fetch('/api/map/save-processed', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ filename: processResult.outputFile })
+                    body: JSON.stringify({ filename: stopResult.processedFile })
                 });
 
                 const saveResult = await saveResponse.json();
@@ -801,11 +849,44 @@
 
                 console.log('Saved to database:', saveResult);
 
-                alert(`Processing and save complete!\n\n` +
-                    `Output: ${processResult.outputFile}\n` +
+                // Step 3: Handle file management (delete raw file in normal mode)
+                if (stopResult.fileManagement && stopResult.fileManagement.action === 'pending_delete') {
+                    try {
+                        const rawFile = stopResult.fileManagement.rawFile;
+                        const deleteResponse = await fetch(`/api/recording/delete-file/${encodeURIComponent(rawFile)}`, {
+                            method: 'DELETE'
+                        });
+                        const deleteResult = await deleteResponse.json();
+                        if (deleteResult.success) {
+                            console.log('Raw file deleted:', rawFile);
+                        } else {
+                            console.warn('Failed to delete raw file:', deleteResult.error);
+                        }
+                    } catch (deleteErr) {
+                        console.warn('Error deleting raw file:', deleteErr);
+                    }
+                }
+
+                // Build alert message with stop detection info
+                let alertMsg = `Processing and save complete!\n\n` +
+                    `Output: ${stopResult.processedFile}\n` +
                     `Coordinates: ${saveResult.coordinateCount}\n` +
                     `Markers: ${saveResult.markerCount}\n` +
-                    `Entry updates: ${saveResult.entryUpdates}`);
+                    `Entry updates: ${saveResult.entryUpdates}`;
+
+                if (stopResult.processedStats && stopResult.processedStats.detectedStops > 0) {
+                    alertMsg += `\nAuto-detected stops: ${stopResult.processedStats.detectedStops}`;
+                }
+
+                if (stopResult.fileManagement) {
+                    if (stopResult.fileManagement.action === 'moved_to_saved') {
+                        alertMsg += `\n\nDev mode: Raw data saved to saved_raw_data/`;
+                    } else if (stopResult.fileManagement.action === 'pending_delete') {
+                        alertMsg += `\n\nRaw recording file cleaned up`;
+                    }
+                }
+
+                alert(alertMsg);
 
                 // Refresh recording files dropdown
                 await loadRecordingFiles();
@@ -969,44 +1050,68 @@
                 const lat = data.playerPosition.latitude;
                 const lng = data.playerPosition.longitude;
 
-                // Store full precision for saving, display truncated
-                document.getElementById('currentLat').textContent = lat.toFixed(6);
-                document.getElementById('currentLng').textContent = lng.toFixed(6);
-                document.getElementById('currentLat').dataset.fullValue = lat;
-                document.getElementById('currentLng').dataset.fullValue = lng;
+                // Validate coordinates - skip if they're invalid (0,0 or not real numbers)
+                // Also filter out TSW cached/stale position when game not active
+                const isStalePosition = lat === 51.380108707397724 && lng === 0.5219243867730494;
+                const isValidCoord = typeof lat === 'number' && typeof lng === 'number' &&
+                                     !isNaN(lat) && !isNaN(lng) &&
+                                     (lat !== 0 || lng !== 0) &&
+                                     !isStalePosition &&
+                                     lat >= -90 && lat <= 90 &&
+                                     lng >= -180 && lng <= 180;
 
-                // Update train marker
-                if (trainMarker) {
-                    trainMarker.setLatLng([lat, lng]);
-                } else {
-                    trainMarker = L.marker([lat, lng], { icon: trainIcon })
-                        .bindPopup('Current Position')
-                        .addTo(map);
-                }
+                if (isValidCoord) {
+                    // Store full precision for saving, display truncated
+                    document.getElementById('currentLat').textContent = lat.toFixed(6);
+                    document.getElementById('currentLng').textContent = lng.toFixed(6);
+                    document.getElementById('currentLat').dataset.fullValue = lat;
+                    document.getElementById('currentLng').dataset.fullValue = lng;
 
-                // Add to path display if recording (for visual feedback)
-                // The backend is the source of truth, we just add points for smooth display
-                if (currentTimetableId && data.recording && data.recording.isRecording && !data.recording.isPaused) {
-                    const newPoint = [lat, lng];
-                    pathCoordinates.push(newPoint);
-
-                    if (pathPolyline) {
-                        pathPolyline.addLatLng(newPoint);
+                    // Update train marker
+                    if (trainMarker) {
+                        trainMarker.setLatLng([lat, lng]);
                     } else {
-                        pathPolyline = L.polyline(pathCoordinates, {
-                            color: '#0066ff',
-                            weight: 4,
-                            opacity: 0.7
-                        }).addTo(map);
+                        trainMarker = L.marker([lat, lng], { icon: trainIcon })
+                            .bindPopup('Current Position')
+                            .addTo(map);
                     }
-                }
 
-                // Center on first position or follow train
-                if (firstPosition) {
-                    map.setView([lat, lng], 15);
-                    firstPosition = false;
-                } else if (isFollowingTrain) {
-                    map.setView([lat, lng], map.getZoom());
+                    // Add to path display if recording (for visual feedback)
+                    // The backend is the source of truth, we just add points for smooth display
+                    if (currentTimetableId && data.recording && data.recording.isRecording && !data.recording.isPaused) {
+                        const newPoint = [lat, lng];
+                        pathCoordinates.push(newPoint);
+
+                        if (pathPolyline) {
+                            pathPolyline.addLatLng(newPoint);
+                        } else {
+                            pathPolyline = L.polyline(pathCoordinates, {
+                                color: '#0066ff',
+                                weight: 4,
+                                opacity: 0.7
+                            }).addTo(map);
+                        }
+                    }
+
+                    // Center on first position or follow train
+                    if (firstPosition) {
+                        map.setView([lat, lng], 15);
+                        firstPosition = false;
+                    } else if (isFollowingTrain) {
+                        map.setView([lat, lng], map.getZoom());
+                    }
+                } else {
+                    // Reset display when coordinates are invalid (game not running)
+                    document.getElementById('currentLat').textContent = '-';
+                    document.getElementById('currentLng').textContent = '-';
+                    document.getElementById('currentLat').dataset.fullValue = '';
+                    document.getElementById('currentLng').dataset.fullValue = '';
+
+                    // Remove train marker if it exists
+                    if (trainMarker) {
+                        map.removeLayer(trainMarker);
+                        trainMarker = null;
+                    }
                 }
             }
 
@@ -1014,6 +1119,15 @@
             if (data.recording) {
                 currentTimetableId = data.recording.timetableId;
                 document.getElementById('coordCount').textContent = data.recording.coordinateCount || 0;
+
+                // Check for auto-stop trigger
+                if (data.recording.autoStopped) {
+                    console.log('Auto-stop triggered by backend');
+                    alert('Recording auto-stopped after 5 minutes of no movement.\nSaving to database...');
+                    // Trigger the save sequence
+                    stopRecording();
+                    return;
+                }
 
                 // Update UI state
                 updateUIFromRecording(data.recording);
@@ -1081,77 +1195,6 @@
             }
         }
 
-        // Load timetables for remake dropdown
-        async function loadRemakeTimetables() {
-            const select = document.getElementById('remakeTimetableSelect');
-            select.innerHTML = '<option value="">-- Loading... --</option>';
-
-            try {
-                const response = await fetch('/api/timetables');
-                const timetables = await response.json();
-
-                select.innerHTML = '<option value="">-- Select a timetable --</option>';
-                timetables.forEach(t => {
-                    const option = document.createElement('option');
-                    option.value = t.id;
-                    option.textContent = t.service_name;
-                    select.appendChild(option);
-                });
-
-                if (timetables.length === 0) {
-                    select.innerHTML = '<option value="">-- No timetables found --</option>';
-                }
-            } catch (err) {
-                console.error('Failed to load timetables for remake:', err);
-                select.innerHTML = '<option value="">-- Error loading --</option>';
-            }
-        }
-
-        // Remake JSON from database
-        async function remakeFromDb() {
-            const select = document.getElementById('remakeTimetableSelect');
-            const timetableId = select.value;
-            const statusEl = document.getElementById('remakeStatus');
-
-            if (!timetableId) {
-                statusEl.textContent = 'Please select a timetable first';
-                statusEl.style.color = '#e94560';
-                return;
-            }
-
-            const remakeBtn = document.getElementById('remakeBtn');
-            remakeBtn.disabled = true;
-            statusEl.textContent = 'Remaking...';
-            statusEl.style.color = '#aaa';
-
-            try {
-                const response = await fetch('/api/map/remake', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ timetableId: parseInt(timetableId) })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    statusEl.innerHTML = `<span style="color: #28a745;">Created!</span> ` +
-                        `${result.filename}<br>` +
-                        `Coords: ${result.stats.coordinates}, ` +
-                        `Markers: ${result.stats.markers}, ` +
-                        `Entries: ${result.stats.timetableEntries}`;
-                } else {
-                    statusEl.textContent = 'Error: ' + result.error;
-                    statusEl.style.color = '#e94560';
-                }
-            } catch (err) {
-                console.error('Failed to remake JSON:', err);
-                statusEl.textContent = 'Error: ' + err.message;
-                statusEl.style.color = '#e94560';
-            } finally {
-                remakeBtn.disabled = false;
-            }
-        }
-
         // Load config and hide dev tools if needed
         async function loadConfig() {
             try {
@@ -1161,6 +1204,12 @@
                     const devTools = document.querySelector('.dev-tools');
                     if (devTools) {
                         devTools.style.display = 'none';
+                    }
+                    // Adjust panel to be shorter and further from top when not in dev mode
+                    const infoPanel = document.querySelector('.info-panel');
+                    if (infoPanel) {
+                        infoPanel.style.top = '80px';
+                        infoPanel.style.bottom = 'auto';
                     }
                 }
             } catch (err) {
@@ -1309,14 +1358,68 @@
         }
 
         // Add event listener for timetable select change
-        document.getElementById('timetableSelect').addEventListener('change', function() {
+        document.getElementById('timetableSelect').addEventListener('change', async function() {
             const timetableId = this.value;
             if (timetableId) {
                 checkForExistingRecording(timetableId);
+                // Load timetable data from database and display station markers
+                await loadTimetableFromDb(timetableId);
             } else {
                 document.getElementById('mainBtn').textContent = 'Start';
+                // Clear station markers
+                stationMarkers.forEach(m => map.removeLayer(m));
+                stationMarkers.clear();
             }
         });
+
+        // Load timetable entries from database and display station markers
+        async function loadTimetableFromDb(timetableId) {
+            try {
+                const response = await fetch(`/api/map/route-data/${timetableId}`);
+                const data = await response.json();
+
+                console.log('Timetable data from DB:', data.timetable);
+
+                // Clear existing station markers
+                stationMarkers.forEach(m => map.removeLayer(m));
+                stationMarkers.clear();
+
+                // Populate station dropdown and add markers
+                if (data.timetable && data.timetable.length > 0) {
+                    populateStationDropdown(data.timetable, true);
+
+                    // Add markers for stations with coordinates
+                    data.timetable.forEach((entry, index) => {
+                        if (entry.latitude && entry.longitude) {
+                            addStationMarker(index, entry.latitude, entry.longitude, entry.destination);
+                        }
+                    });
+
+                    // Load coordinates if available
+                    if (data.coordinates && data.coordinates.length > 0) {
+                        pathCoordinates = data.coordinates.map(c => [c.latitude, c.longitude]);
+                        document.getElementById('coordCount').textContent = pathCoordinates.length;
+
+                        if (pathPolyline) {
+                            pathPolyline.setLatLngs(pathCoordinates);
+                        } else {
+                            pathPolyline = L.polyline(pathCoordinates, {
+                                color: '#0066ff',
+                                weight: 4,
+                                opacity: 0.7
+                            }).addTo(map);
+                        }
+
+                        // Center on first coordinate
+                        if (pathCoordinates.length > 0) {
+                            map.setView(pathCoordinates[0], 12);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading timetable from DB:', err);
+            }
+        }
 
         // Helper to select route/train/timetable by timetable ID
         async function selectTimetableById(timetableId) {
@@ -1390,19 +1493,6 @@
         function toggleLoadFile() {
             const content = document.getElementById('loadFileContent');
             const toggle = document.getElementById('loadFileToggle');
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                toggle.textContent = '▼';
-            } else {
-                content.style.display = 'none';
-                toggle.textContent = '▶';
-            }
-        }
-
-        // Toggle remake JSON section visibility
-        function toggleRemakeJson() {
-            const content = document.getElementById('remakeJsonContent');
-            const toggle = document.getElementById('remakeJsonToggle');
             if (content.style.display === 'none') {
                 content.style.display = 'block';
                 toggle.textContent = '▼';
@@ -1502,26 +1592,31 @@
             // Load existing recording data if any (for path display)
             await loadRouteData();
 
-            // Load timetables for remake dropdown
-            await loadRemakeTimetables();
-
             // Load recording files for dev tools
             await loadRecordingFiles();
 
             // Load config to hide dev tools if needed
             await loadConfig();
 
+            // Load recording mode setting
+            await loadRecordingMode();
+
             // Check URL parameters for pre-selected timetable
             const urlParams = new URLSearchParams(window.location.search);
+            const timetableIdParam = urlParams.get('timetable_id');
             const routeId = urlParams.get('route_id');
             const trainId = urlParams.get('train_id');
 
-            // If we have route/train params, try to find a matching timetable
-            if (routeId || trainId) {
-                // Find timetables that match the route/train
-                const timetableSelect = document.getElementById('timetableSelect');
-                // The select is already populated, we could filter or highlight matching ones
-                // For now, just log
+            // If we have a timetable_id param, select it directly
+            if (timetableIdParam) {
+                console.log(`Record map opened with timetable_id=${timetableIdParam}`);
+                const selected = await selectTimetableById(parseInt(timetableIdParam));
+                if (selected) {
+                    // Load the timetable data for the map
+                    await loadTimetableFromDb(timetableIdParam);
+                }
+            } else if (routeId || trainId) {
+                // If we have route/train params, try to find a matching timetable
                 console.log(`Record map opened with route_id=${routeId}, train_id=${trainId}`);
             }
 

@@ -48,6 +48,10 @@
         .service-name-input:focus { outline: none; border-color: #00d4ff; }
         .action-bar { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
         .unsaved-indicator { color: #f39c12; font-size: 12px; margin-left: 10px; }
+        .btn-warning { background: #f39c12; color: #1a1a2e; }
+        .btn-warning:hover { background: #e08e0b; }
+        .entries-header { display: flex; align-items: center; gap: 15px; }
+        .entries-header h2 { margin-bottom: 0; border-bottom: none; padding-bottom: 0; flex: 1; }
     </style>
 </head>
 <body>
@@ -73,7 +77,10 @@
     </div>
 
     <div class="card">
-        <h2>Entries <span id="unsavedIndicator" class="unsaved-indicator" style="display:none;">* Unsaved changes</span></h2>
+        <div class="entries-header">
+            <h2>Entries <span id="unsavedIndicator" class="unsaved-indicator" style="display:none;">* Unsaved changes</span></h2>
+            <button class="btn-warning" id="recordRouteBtn" onclick="goToRecordMap()" style="display:none;">Record Route</button>
+        </div>
         <div id="entriesList">
             <p class="empty-message">Loading entries...</p>
         </div>
@@ -153,6 +160,7 @@
 
             if (entries.length === 0) {
                 container.innerHTML = '<p class="empty-message">No entries in this timetable.</p>';
+                updateRecordRouteButton();
                 return;
             }
 
@@ -179,6 +187,20 @@
             document.querySelectorAll('#entriesList .editable-cell').forEach(function(cell) {
                 cell.addEventListener('click', makeCellEditable);
             });
+
+            updateRecordRouteButton();
+        }
+
+        function updateRecordRouteButton() {
+            // Show Record Route button only if no entries have valid coordinates
+            const hasCoordinates = entries.some(function(entry) {
+                // Check for actual numeric coordinates (not null, undefined, empty string, or 0)
+                const lat = parseFloat(entry.latitude);
+                const lng = parseFloat(entry.longitude);
+                return !isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0);
+            });
+            const btn = document.getElementById('recordRouteBtn');
+            btn.style.display = hasCoordinates ? 'none' : 'inline-block';
         }
 
         function makeCellEditable(e) {
@@ -472,6 +494,10 @@
         function exportJSON() {
             // Trigger download via the export/download endpoint
             window.location.href = '/api/timetables/' + timetableId + '/export/download';
+        }
+
+        function goToRecordMap() {
+            window.location.href = '/record-map?timetable_id=' + timetableId;
         }
 
         // Warn before leaving with unsaved changes

@@ -1,6 +1,6 @@
 {
   "timetableId": 15,
-  "completed": false,
+  "completed": true,
   "serviceName": "2C07 Exeter St Davids to Penzance 07:25 01:06",
   "routeName": "Riviera Line",
   "countryName": "United Kingdom",

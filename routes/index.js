@@ -643,6 +643,25 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // Delete a raw recording file (called after DB save in normal mode)
+    if (pathname.startsWith('/api/recording/delete-file/') && method === 'DELETE') {
+        const filename = pathname.replace('/api/recording/delete-file/', '');
+        recordingController.deleteRawFile(req, res, decodeURIComponent(filename));
+        return true;
+    }
+
+    // Set recording mode (manual/automatic)
+    if (pathname === '/api/recording/mode' && method === 'POST') {
+        recordingController.setMode(req, res);
+        return true;
+    }
+
+    // Get current recording mode
+    if (pathname === '/api/recording/mode' && method === 'GET') {
+        recordingController.getMode(req, res);
+        return true;
+    }
+
     // ============================================
     // Processing API Routes
     // ============================================

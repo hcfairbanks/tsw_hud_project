@@ -78,7 +78,8 @@ function buildTimetableExportJson(options) {
         savedTimetableCoords = null,
         includeCsvData = true,
         includeMarkerProcessing = true,
-        completed = null
+        completed = null,
+        recordingMode = null  // 'manual' or 'automatic'
     } = options;
 
     // Get metadata (serviceName, routeName, countryName, trainName)
@@ -196,6 +197,7 @@ function buildTimetableExportJson(options) {
     const exportData = {
         timetableId: timetable ? timetable.id : null,
         completed: completed,
+        recordingMode: recordingMode,  // 'manual' or 'automatic'
         serviceName: metadata.serviceName,
         routeName: metadata.routeName,
         countryName: metadata.countryName,

@@ -1,10 +1,12 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { sendJson } = require('../utils/http');
+const { sendJson, parseBody } = require('../utils/http');
 const { timetableDb, entryDb, stationMappingDb } = require('../db');
 const { preprocessTimetableEntries } = require('./processingController');
 const { buildTimetableExportJson } = require('./timetableController');
+const { processRecordingFile } = require('./routeProcessingController');
+const { loadConfig } = require('./configController');
 
 // Recording configuration
 const SAVE_FREQUENCY = 1; // Save to file every N coordinates (1 = every coordinate, 100 = every 100th)
@@ -25,6 +27,14 @@ let savedTimetableCoords = new Map(); // Stores timetable entry coordinates duri
 
 // Get recording data directory
 const recordingDataDir = path.join(__dirname, '..', 'recording_data');
+const savedRawDataDir = path.join(__dirname, '..', 'saved_raw_data');
+
+// Auto-stop configuration
+const AUTO_STOP_TIMEOUT_MS = 60000; // 1 minute (temporarily for testing, change back to 300000 for 5 minutes)
+let autoStopEnabled = true; // Default to automatic mode
+let lastUniqueCoordinateTime = null;
+let autoStopCheckInterval = null;
+let autoStopped = false; // Flag to notify frontend of auto-stop
 
 /**
  * Get current recording status
@@ -87,6 +97,16 @@ async function start(req, res, timetableId) {
         // Resume from paused state
         isPaused = false;
         isRecording = true;
+
+        // Restart auto-stop timer if in automatic mode
+        if (autoStopEnabled) {
+            lastUniqueCoordinateTime = Date.now();
+            if (!autoStopCheckInterval) {
+                autoStopCheckInterval = setInterval(checkAutoStop, 30000);
+                console.log('Auto-stop interval started on resume');
+            }
+        }
+
         console.log(`Resumed recording for timetable ${numTimetableId}`);
         sendJson(res, {
             success: true,
@@ -170,6 +190,20 @@ async function start(req, res, timetableId) {
     isPaused = false;
     recordingStartTime = Date.now();
 
+    // Initialize auto-stop timer if in automatic mode
+    console.log(`Auto-stop setup: autoStopEnabled=${autoStopEnabled}, interval exists=${!!autoStopCheckInterval}`);
+    if (autoStopEnabled) {
+        lastUniqueCoordinateTime = Date.now();
+        if (!autoStopCheckInterval) {
+            autoStopCheckInterval = setInterval(checkAutoStop, 30000);
+            console.log('Auto-stop interval started (30s check interval)');
+        } else {
+            console.log('Auto-stop interval already exists, resetting timestamp');
+        }
+    } else {
+        console.log('Auto-stop is DISABLED - interval not started');
+    }
+
     // Save initial data with timetable info
     saveRouteData(timetable, entries);
 
@@ -185,7 +219,7 @@ async function start(req, res, timetableId) {
 }
 
 /**
- * Stop recording and save final data
+ * Stop recording, save final data, and process the recording
  */
 function stop(req, res) {
     if (!isRecording && !isPaused) {
@@ -196,6 +230,11 @@ function stop(req, res) {
     // Save final data to JSON file only (not database) - mark as completed
     let timetable = null;
     let routeId = null;
+    const savedTimetableId = currentTimetableId;
+    const savedOutputFile = routeOutputFilePath ? path.basename(routeOutputFilePath) : null;
+    const savedCoordCount = routeCoordinates.length;
+    const savedMarkerCount = discoveredMarkers.length;
+
     if (currentTimetableId) {
         timetable = timetableDb.getById(currentTimetableId);
         const entries = entryDb.getByTimetableId(currentTimetableId);
@@ -203,17 +242,7 @@ function stop(req, res) {
         routeId = timetable?.route_id;
     }
 
-    const result = {
-        success: true,
-        message: 'Recording stopped',
-        timetableId: currentTimetableId,
-        routeId: routeId,
-        coordinateCount: routeCoordinates.length,
-        markerCount: discoveredMarkers.length,
-        outputFile: routeOutputFilePath ? path.basename(routeOutputFilePath) : null
-    };
-
-    // Reset state
+    // Reset state before processing
     isRecording = false;
     isPaused = false;
     currentTimetableId = null;
@@ -228,6 +257,79 @@ function stop(req, res) {
     routeOutputFilePath = null;
 
     console.log('Recording stopped');
+
+    // Process the recording file
+    let processedResult = null;
+    if (savedOutputFile) {
+        try {
+            processedResult = processRecordingFile(savedOutputFile);
+            console.log(`Recording processed: ${processedResult.outputFile}`);
+        } catch (err) {
+            console.error('Error processing recording:', err.message);
+            // Still return success for the stop, but include processing error
+            sendJson(res, {
+                success: true,
+                message: 'Recording stopped but processing failed',
+                timetableId: savedTimetableId,
+                routeId: routeId,
+                coordinateCount: savedCoordCount,
+                markerCount: savedMarkerCount,
+                outputFile: savedOutputFile,
+                processingError: err.message
+            });
+            return;
+        }
+    }
+
+    // File management based on development mode
+    const config = loadConfig();
+    const rawFilePath = path.join(recordingDataDir, savedOutputFile);
+    let fileManagement = { action: 'none' };
+
+    if (config.developmentMode) {
+        // Dev mode: copy to saved_raw_data folder, then delete original
+        try {
+            if (!fs.existsSync(savedRawDataDir)) {
+                fs.mkdirSync(savedRawDataDir, { recursive: true });
+            }
+            // Sanitize service name for filename
+            const serviceName = (timetable?.service_name || 'unknown')
+                .replace(/[<>:"/\\|?*]/g, '_')
+                .replace(/\s+/g, '_');
+            const destFilename = `raw_${serviceName}.json`;
+            const destPath = path.join(savedRawDataDir, destFilename);
+            fs.copyFileSync(rawFilePath, destPath);
+            fs.unlinkSync(rawFilePath);
+            fileManagement = { action: 'moved_to_saved', destination: destFilename };
+            console.log(`Dev mode: Moved raw file to saved_raw_data/${destFilename}`);
+        } catch (err) {
+            console.error('Error managing raw file (dev mode):', err.message);
+            fileManagement = { action: 'error', error: err.message };
+        }
+    } else {
+        // Normal mode: flag for frontend to delete after DB save
+        fileManagement = { action: 'pending_delete', rawFile: savedOutputFile };
+    }
+
+    const result = {
+        success: true,
+        message: 'Recording stopped and processed',
+        timetableId: savedTimetableId,
+        routeId: routeId,
+        coordinateCount: savedCoordCount,
+        markerCount: savedMarkerCount,
+        outputFile: savedOutputFile,
+        processedFile: processedResult ? processedResult.outputFile : null,
+        processedStats: processedResult ? {
+            coordinates: processedResult.data.coordinates?.length || 0,
+            markers: processedResult.data.markers?.length || 0,
+            timetableEntries: processedResult.data.timetable?.length || 0,
+            detectedStops: processedResult.data.detectedStops || 0
+        } : null,
+        fileManagement: fileManagement,
+        developmentMode: config.developmentMode
+    };
+
     sendJson(res, result);
 }
 
@@ -296,6 +398,16 @@ function resume(req, res) {
     }
 
     isPaused = false;
+
+    // Restart auto-stop timer if in automatic mode
+    if (autoStopEnabled) {
+        lastUniqueCoordinateTime = Date.now();
+        if (!autoStopCheckInterval) {
+            autoStopCheckInterval = setInterval(checkAutoStop, 30000);
+            console.log('Auto-stop interval started on resume (from pause)');
+        }
+    }
+
     console.log(`Recording resumed for timetable ${currentTimetableId}`);
 
     sendJson(res, {
@@ -326,9 +438,17 @@ function getRouteData(req, res) {
     // Use preprocessTimetableEntries to get proper station list (same as saveRouteData)
     const processedEntries = preprocessTimetableEntries(entries, stationNameMapping);
 
-    // Build timetable data array - use coordinates from savedTimetableCoords (recording session only)
+    // Build timetable data array
+    // Priority: 1) savedTimetableCoords (from current recording session), 2) database coordinates
     const timetableData = processedEntries.map((entry, index) => {
         const savedCoords = savedTimetableCoords.get(index);
+        // Find matching original entry to get database coordinates
+        const originalEntry = entries.find(e =>
+            (e.location === entry.destination || e.details?.includes(entry.destination))
+        );
+        const dbLat = originalEntry?.latitude ? parseFloat(originalEntry.latitude) : null;
+        const dbLng = originalEntry?.longitude ? parseFloat(originalEntry.longitude) : null;
+
         return {
             index: entry.index,
             destination: entry.destination,
@@ -336,8 +456,8 @@ function getRouteData(req, res) {
             departure: entry.departure || '',
             platform: entry.platform || '',
             apiName: entry.apiName || '',
-            latitude: savedCoords ? savedCoords.latitude : null,
-            longitude: savedCoords ? savedCoords.longitude : null
+            latitude: savedCoords ? savedCoords.latitude : dbLat,
+            longitude: savedCoords ? savedCoords.longitude : dbLng
         };
     });
 
@@ -429,6 +549,14 @@ function processCoordinate(geoLocation, gradient, height) {
         return;
     }
 
+    // Skip TSW cached/stale position when game not active
+    const lat = geoLocation.latitude;
+    const lng = geoLocation.longitude;
+    const isStalePosition = lat === 51.380108707397724 && lng === 0.5219243867730494;
+    if (isStalePosition || (lat === 0 && lng === 0)) {
+        return;
+    }
+
     const coordinate = {
         longitude: geoLocation.longitude,
         latitude: geoLocation.latitude,
@@ -452,6 +580,9 @@ function processCoordinate(geoLocation, gradient, height) {
     // Only add if coordinate is different from last one
     const lastCoord = routeCoordinates.length > 0 ? routeCoordinates[routeCoordinates.length - 1] : null;
     if (!lastCoord || lastCoord.longitude !== coordinate.longitude || lastCoord.latitude !== coordinate.latitude) {
+        // Update last unique coordinate time for auto-stop tracking
+        lastUniqueCoordinateTime = Date.now();
+
         routeCoordinates.push(coordinate);
 
         // Save to file periodically based on SAVE_FREQUENCY
@@ -545,7 +676,8 @@ function saveRouteData(timetable, entries, completed = false) {
         savedTimetableCoords: savedTimetableCoords,
         includeCsvData: false,  // Recording doesn't need csvData
         includeMarkerProcessing: false,  // Recording markers already have their data
-        completed: completed  // Mark as incomplete during recording, complete on stop
+        completed: completed,  // Mark as incomplete during recording, complete on stop
+        recordingMode: autoStopEnabled ? 'automatic' : 'manual'
     });
 
     try {
@@ -662,6 +794,13 @@ function getRecordingStateForStream() {
         };
     });
 
+    // Check if auto-stop was triggered
+    const wasAutoStopped = autoStopped;
+    if (autoStopped) {
+        // Reset the flag after reading (one-time notification)
+        autoStopped = false;
+    }
+
     return {
         isRecording,
         isPaused,
@@ -669,7 +808,9 @@ function getRecordingStateForStream() {
         routeName: timetable ? timetable.service_name : 'Unknown',
         coordinateCount: routeCoordinates.length,
         markerCount: discoveredMarkers.length,
-        timetable: timetableData
+        timetable: timetableData,
+        autoStopped: wasAutoStopped,
+        autoStopEnabled: autoStopEnabled
     };
 }
 
@@ -684,46 +825,44 @@ function checkExistingRecording(req, res, timetableId) {
         return;
     }
 
-    const existingFiles = fs.readdirSync(recordingDataDir)
-        .filter(f => f.startsWith(`raw_data_timetable_${timetableId}_`) && f.endsWith('.json'))
-        .sort()
-        .reverse();
-
-    // Find the most recent INCOMPLETE file for this timetable
-    for (const filename of existingFiles) {
-        const filePath = path.join(recordingDataDir, filename);
-        try {
-            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-
-            // Skip completed files
-            if (data.completed === true) {
-                continue;
-            }
-
-            // Found an incomplete file
-            sendJson(res, {
-                exists: true,
-                filename: filename,
-                routeName: data.routeName || 'Unknown',
-                coordinateCount: data.coordinates ? data.coordinates.length : 0,
-                markerCount: data.markers ? data.markers.length : 0,
-                timetableEntryCount: data.timetable ? data.timetable.length : 0,
-                completed: data.completed || false
-            });
-            return;
-        } catch (err) {
-            console.warn(`Could not parse file ${filename}:`, err.message);
-            continue;
-        }
+    // Get the first JSON file in the folder (there will only ever be one)
+    const files = fs.readdirSync(recordingDataDir).filter(f => f.endsWith('.json'));
+    if (files.length === 0) {
+        sendJson(res, { exists: false });
+        return;
     }
 
-    // No incomplete files found for this timetable
-    sendJson(res, { exists: false });
+    const filename = files[0];
+    const filePath = path.join(recordingDataDir, filename);
+
+    try {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+        // Skip completed files
+        if (data.completed === true) {
+            sendJson(res, { exists: false });
+            return;
+        }
+
+        // Found an incomplete file
+        sendJson(res, {
+            exists: true,
+            filename: filename,
+            routeName: data.routeName || 'Unknown',
+            coordinateCount: data.coordinates ? data.coordinates.length : 0,
+            markerCount: data.markers ? data.markers.length : 0,
+            timetableEntryCount: data.timetable ? data.timetable.length : 0,
+            completed: data.completed || false
+        });
+    } catch (err) {
+        console.warn(`Could not parse file ${filename}:`, err.message);
+        sendJson(res, { exists: false });
+    }
 }
 
 /**
  * Check for any INCOMPLETE recording file in the recording_data folder
- * Returns the most recent incomplete file regardless of timetable
+ * Returns the first JSON file found (there will only ever be one file)
  * Only returns files where completed !== true
  */
 function checkAnyExistingRecording(req, res) {
@@ -732,47 +871,41 @@ function checkAnyExistingRecording(req, res) {
         return;
     }
 
-    const existingFiles = fs.readdirSync(recordingDataDir)
-        .filter(f => f.startsWith('raw_data_timetable_') && f.endsWith('.json'))
-        .map(f => {
-            const filePath = path.join(recordingDataDir, f);
-            const stats = fs.statSync(filePath);
-            return { filename: f, mtime: stats.mtime, filePath };
-        })
-        .sort((a, b) => b.mtime - a.mtime); // Sort by modification time, newest first
-
-    // Find the most recent INCOMPLETE file
-    for (const file of existingFiles) {
-        try {
-            const data = JSON.parse(fs.readFileSync(file.filePath, 'utf8'));
-
-            // Skip completed files
-            if (data.completed === true) {
-                continue;
-            }
-
-            // Found an incomplete file
-            sendJson(res, {
-                exists: true,
-                filename: file.filename,
-                timetableId: data.timetableId || null,
-                routeName: data.routeName || 'Unknown',
-                serviceName: data.serviceName || 'Unknown',
-                coordinateCount: data.coordinates ? data.coordinates.length : 0,
-                markerCount: data.markers ? data.markers.length : 0,
-                timetableEntryCount: data.timetable ? data.timetable.length : 0,
-                modifiedAt: file.mtime,
-                completed: data.completed || false
-            });
-            return;
-        } catch (err) {
-            console.warn(`Could not parse file ${file.filename}:`, err.message);
-            continue;
-        }
+    // Get the first JSON file in the folder (there will only ever be one)
+    const files = fs.readdirSync(recordingDataDir).filter(f => f.endsWith('.json'));
+    if (files.length === 0) {
+        sendJson(res, { exists: false });
+        return;
     }
 
-    // No incomplete files found
-    sendJson(res, { exists: false });
+    const filename = files[0];
+    const filePath = path.join(recordingDataDir, filename);
+
+    try {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+        // Skip completed files
+        if (data.completed === true) {
+            sendJson(res, { exists: false });
+            return;
+        }
+
+        // Found an incomplete file
+        sendJson(res, {
+            exists: true,
+            filename: filename,
+            timetableId: data.timetableId || null,
+            routeName: data.routeName || 'Unknown',
+            serviceName: data.serviceName || 'Unknown',
+            coordinateCount: data.coordinates ? data.coordinates.length : 0,
+            markerCount: data.markers ? data.markers.length : 0,
+            timetableEntryCount: data.timetable ? data.timetable.length : 0,
+            completed: data.completed || false
+        });
+    } catch (err) {
+        console.warn(`Could not parse file ${filename}:`, err.message);
+        sendJson(res, { exists: false });
+    }
 }
 
 /**
@@ -859,6 +992,117 @@ function loadRecordingFile(req, res, filename) {
     }
 }
 
+/**
+ * Delete a raw recording file (called by frontend after DB save in normal mode)
+ */
+function deleteRawFile(req, res, filename) {
+    if (!filename) {
+        sendJson(res, { success: false, error: 'Filename is required' }, 400);
+        return;
+    }
+
+    const filePath = path.join(recordingDataDir, filename);
+    if (!fs.existsSync(filePath)) {
+        // File already deleted or doesn't exist - that's ok
+        sendJson(res, { success: true, message: 'File not found (may already be deleted)' });
+        return;
+    }
+
+    try {
+        fs.unlinkSync(filePath);
+        console.log(`Deleted raw file: ${filename}`);
+        sendJson(res, { success: true, message: 'File deleted' });
+    } catch (err) {
+        console.error('Error deleting raw file:', err.message);
+        sendJson(res, { success: false, error: err.message }, 500);
+    }
+}
+
+/**
+ * Set recording mode (manual/automatic)
+ * In automatic mode, recording will auto-stop after 5 minutes of no unique coordinates
+ */
+async function setMode(req, res) {
+    try {
+        const body = await parseBody(req);
+        const mode = body.mode;
+
+        if (mode !== 'manual' && mode !== 'automatic') {
+            sendJson(res, { success: false, error: 'Invalid mode. Must be "manual" or "automatic"' }, 400);
+            return;
+        }
+
+        const wasAutoStopEnabled = autoStopEnabled;
+        autoStopEnabled = (mode === 'automatic');
+
+        // Manage auto-stop interval
+        if (autoStopEnabled && !autoStopCheckInterval) {
+            // Start auto-stop checker (check every 30 seconds)
+            autoStopCheckInterval = setInterval(checkAutoStop, 30000);
+            // Initialize the timestamp if we're currently recording
+            if (isRecording && !isPaused) {
+                lastUniqueCoordinateTime = Date.now();
+            }
+            console.log('Auto-stop mode enabled');
+        } else if (!autoStopEnabled && autoStopCheckInterval) {
+            // Stop auto-stop checker
+            clearInterval(autoStopCheckInterval);
+            autoStopCheckInterval = null;
+            console.log('Auto-stop mode disabled');
+        }
+
+        sendJson(res, {
+            success: true,
+            mode: mode,
+            autoStopEnabled: autoStopEnabled,
+            message: `Recording mode set to ${mode}`
+        });
+    } catch (err) {
+        sendJson(res, { success: false, error: err.message }, 500);
+    }
+}
+
+/**
+ * Get current recording mode
+ */
+function getMode(req, res) {
+    sendJson(res, {
+        mode: autoStopEnabled ? 'automatic' : 'manual',
+        autoStopEnabled: autoStopEnabled,
+        autoStopTimeoutMs: AUTO_STOP_TIMEOUT_MS
+    });
+}
+
+/**
+ * Check if auto-stop should trigger
+ * Called periodically when auto-stop mode is enabled
+ */
+function checkAutoStop() {
+    const elapsed = lastUniqueCoordinateTime ? Math.round((Date.now() - lastUniqueCoordinateTime) / 1000) : 0;
+    console.log(`Auto-stop check: enabled=${autoStopEnabled}, recording=${isRecording}, paused=${isPaused}, elapsed=${elapsed}s, timeout=${AUTO_STOP_TIMEOUT_MS/1000}s`);
+
+    if (!autoStopEnabled || !isRecording || isPaused) {
+        return;
+    }
+
+    if (lastUniqueCoordinateTime && (Date.now() - lastUniqueCoordinateTime > AUTO_STOP_TIMEOUT_MS)) {
+        console.log('Auto-stop triggered: train stationary for configured timeout');
+        triggerAutoStop();
+    }
+}
+
+/**
+ * Trigger auto-stop - sets flag and stops recording
+ * Frontend will handle the save-to-DB sequence when it sees the flag
+ */
+function triggerAutoStop() {
+    autoStopped = true;
+    // Note: We don't call stop() here because we want the frontend to handle
+    // the full save sequence. We just set the flag which will be picked up
+    // by getRecordingStateForStream() and sent to the frontend.
+    console.log('Auto-stop flag set - frontend will handle save sequence');
+}
+
 module.exports = {
     getStatus,
     start,
@@ -876,5 +1120,8 @@ module.exports = {
     getRecordingStateForStream,
     checkExistingRecording,
     checkAnyExistingRecording,
-    loadRecordingFile
+    loadRecordingFile,
+    deleteRawFile,
+    setMode,
+    getMode
 };

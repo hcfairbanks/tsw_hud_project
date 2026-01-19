@@ -352,7 +352,6 @@
             <h3 style="color: #cc0000; margin: 0 0 10px 0; font-size: 14px;">Development Tools</h3>
             <label style="font-size: 11px; color: #666;">Load JSON File:</label>
             <input type="file" id="jsonFileInput" accept=".json" onchange="handleFileSelect()" style="width: 100%; margin-top: 5px; font-size: 11px;">
-            <button onclick="clearLoadedRoute()" style="width: 100%; margin-top: 8px; padding: 6px; background: #cc0000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Clear Loaded Route</button>
             <div class="status-message" id="devStatusMessage" style="margin-top: 8px;"></div>
         </div>
 
@@ -390,6 +389,7 @@
                     <div>Lng: <span id="currentLng">-</span></div>
                 </span>
             </div>
+            <button id="clearRouteBtn" onclick="clearLoadedRoute()" style="width: 100%; margin-top: 10px; padding: 8px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: none;">Clear Loaded Route</button>
         </div>
 
         <div class="legend">
@@ -504,7 +504,7 @@
 
         // Clear loaded route from localStorage and server
         async function clearLoadedRoute() {
-            const statusMessage = document.getElementById('devStatusMessage');
+            const statusMessage = document.getElementById('routeStatusMessage');
             statusMessage.textContent = 'Clearing...';
             statusMessage.className = 'status-message';
 
@@ -516,11 +516,15 @@
                 localStorage.removeItem('customRoute');
                 localStorage.removeItem('customRouteFilename');
 
-                // Clear file input
-                document.getElementById('jsonFileInput').value = '';
+                // Clear file input (if dev tools exist)
+                const fileInput = document.getElementById('jsonFileInput');
+                if (fileInput) fileInput.value = '';
 
                 statusMessage.textContent = 'Route cleared';
                 statusMessage.className = 'status-message success';
+
+                // Hide the clear button
+                document.getElementById('clearRouteBtn').style.display = 'none';
 
                 setTimeout(() => {
                     location.reload();
@@ -818,6 +822,7 @@
                 console.log('Timetable ID:', data.timetableId);
                 console.log('Total Coordinates:', data.totalPoints);
                 console.log('Timetable Entries:', data.timetable?.length || 0);
+                console.log('Timetable JSON:', JSON.stringify(data.timetable, null, 2));
                 console.log('=====================================');
 
                 // Send to server to set as active route (for telemetry tracking)
@@ -848,6 +853,9 @@
 
                 statusMessage.textContent = `Loaded: ${data.routeName}`;
                 statusMessage.className = 'status-message success';
+
+                // Show the clear route button
+                document.getElementById('clearRouteBtn').style.display = 'block';
 
             } catch (err) {
                 console.error('Failed to load timetable:', err);
@@ -908,6 +916,9 @@
                 if (routeNameEl && customRouteFilename) {
                     routeNameEl.textContent = customRouteFilename.replace('route_', '').replace('.json', '');
                 }
+
+                // Show clear button since a route is loaded
+                document.getElementById('clearRouteBtn').style.display = 'block';
             } catch (err) {
                 console.error('Failed to load custom route:', err);
                 localStorage.removeItem('customRoute');
@@ -974,11 +985,14 @@
 
         // Add timetable entries as station markers on the map
         function addTimetableStations(timetable) {
+            console.log('Adding station markers for', timetable.length, 'entries');
             timetable.forEach((entry, index) => {
                 // Only show stations that have coordinates
                 if (!entry.latitude || !entry.longitude) {
+                    console.log(`  [${index}] ${entry.destination}: SKIPPED - no coords`);
                     return;
                 }
+                console.log(`  [${index}] ${entry.destination}: Adding marker at ${entry.latitude}, ${entry.longitude}`);
 
                 const stationName = entry.destination || `Station ${index + 1}`;
                 const stopNumber = entry.index + 1;

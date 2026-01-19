@@ -155,9 +155,13 @@ async function saveProcessedJson(req, res) {
         // 3. Update timetable entries with lat/lng and apiName from timetable array
         // Match json.timetable[].destination to timetable_entries.location
         // Special case: index 0 with empty destination - update WAIT FOR SERVICE at sort_order 0
+        console.log(`\n=== SAVING TIMETABLE ENTRIES ===`);
+        console.log(`Total entries in processed data: ${processedData.timetable?.length || 0}`);
         if (processedData.timetable && Array.isArray(processedData.timetable)) {
             for (const entry of processedData.timetable) {
-                if (entry.latitude && entry.longitude) {
+                const hasCoords = entry.latitude && entry.longitude;
+                console.log(`  [${entry.index}] "${entry.destination}": ${hasCoords ? `${entry.latitude.toFixed(6)}, ${entry.longitude.toFixed(6)}` : 'NO COORDS'}`);
+                if (hasCoords) {
                     if (entry.destination) {
                         // Normal case: match by destination/location
                         entryDb.updateCoordinatesByLocation(
@@ -168,7 +172,7 @@ async function saveProcessedJson(req, res) {
                             entry.apiName || ''
                         );
                         entryUpdates++;
-                        console.log(`Updated entry for location "${entry.destination}" with lat=${entry.latitude}, lng=${entry.longitude}, apiName=${entry.apiName}`);
+                        console.log(`    -> Updated entry for location "${entry.destination}"`);
                     } else if (entry.index === 0) {
                         // Special case: first entry with empty destination
                         // Update the WAIT FOR SERVICE entry at sort_order 0
