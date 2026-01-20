@@ -1,0 +1,97 @@
+{
+  "routeName": "Riviera Line",
+  "timetableId": 19,
+  "totalPoints": 1,
+  "coordinates": [
+    {
+      "latitude": 50.43487117336177,
+      "longitude": -3.564819548995204,
+      "height": 415.07861328125,
+      "gradient": 0.07000073045492172,
+      "timestamp": "2026-01-19T23:19:29.286Z"
+    }
+  ],
+  "markers": [
+    {
+      "stationName": "Paignton",
+      "markerType": "Platform",
+      "platformLength": 22168.1328125,
+      "latitude": 50.43487117336177,
+      "longitude": -3.564819548995204
+    },
+    {
+      "stationName": "Torquay",
+      "markerType": "Platform",
+      "platformLength": 23223.830078125,
+      "latitude": 50.43487117336177,
+      "longitude": -3.564819548995204
+    },
+    {
+      "stationName": "Torre",
+      "markerType": "Platform",
+      "platformLength": 16049.6259765625,
+      "latitude": 50.43487117336177,
+      "longitude": -3.564819548995204
+    },
+    {
+      "stationName": "Paignton 2",
+      "markerType": "Platform",
+      "platformLength": 22168.1328125,
+      "latitude": 50.43487117336177,
+      "longitude": -3.564819548995204
+    },
+    {
+      "stationName": "Torquay 2",
+      "markerType": "Platform",
+      "platformLength": 23223.830078125,
+      "latitude": 50.43487117336177,
+      "longitude": -3.564819548995204
+    },
+    {
+      "stationName": "Torre 2",
+      "markerType": "Platform",
+      "platformLength": 16049.6259765625,
+      "latitude": 50.43487117336177,
+      "longitude": -3.564819548995204
+    }
+  ],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "Paignton Platform 2",
+      "arrival": "06:02:00",
+      "departure": "06:04:00",
+      "platform": "2",
+      "apiName": "Paignton Platform 2 2"
+    },
+    {
+      "index": 1,
+      "destination": "Torquay",
+      "arrival": "06:08:30",
+      "departure": "06:09:00",
+      "platform": "2",
+      "apiName": "Torquay 2"
+    },
+    {
+      "index": 2,
+      "destination": "Torre",
+      "arrival": "06:11:30",
+      "departure": "06:12:00",
+      "platform": "2",
+      "apiName": "Torre 2"
+    },
+    {
+      "index": 3,
+      "destination": "Newton Abbot",
+      "arrival": "06:20:00",
+      "departure": "",
+      "platform": "1",
+      "apiName": "Newton Abbot 1",
+      "latitude": 50.43487117336177,
+      "longitude": -3.564819548995204,
+      "_autoDetected": true,
+      "_usedLastCoordinate": true
+    }
+  ],
+  "detectedStops": 0
+}

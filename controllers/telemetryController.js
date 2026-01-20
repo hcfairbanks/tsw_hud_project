@@ -267,13 +267,21 @@ function parseSubscriptionData(rawData) {
                         typeof entry.Values.geoLocation.longitude === 'number' &&
                         typeof entry.Values.geoLocation.latitude === 'number') {
 
-                        currentPlayerPosition = {
-                            longitude: entry.Values.geoLocation.longitude,
-                            latitude: entry.Values.geoLocation.latitude
-                        };
-                        streamData.playerPosition = currentPlayerPosition;
-                        // Store geoLocation for recording after all entries are processed
-                        streamData._geoLocation = entry.Values.geoLocation;
+                        const lat = entry.Values.geoLocation.latitude;
+                        const lng = entry.Values.geoLocation.longitude;
+
+                        // Filter out stale Chatham position (game default when no real position)
+                        const isStalePosition = lat === 51.380108707397724 && lng === 0.5219243867730494;
+
+                        if (!isStalePosition) {
+                            currentPlayerPosition = {
+                                longitude: lng,
+                                latitude: lat
+                            };
+                            streamData.playerPosition = currentPlayerPosition;
+                            // Store geoLocation for recording after all entries are processed
+                            streamData._geoLocation = entry.Values.geoLocation;
+                        }
                     }
                 }
                 // Extract track data for markers and height

@@ -1,0 +1,19 @@
+======================================================================
+File: Image 1 (Service Name)
+======================================================================
+2F06 Paignton to Exmouth - Part                                 06:02 00:18
+
+
+======================================================================
+File: Image 2
+======================================================================
+WAIT FOR SERVICE             Service is scheduled to start at 06:02:00                                                                                                        -           6:02:00
+LOAD PASSENGERS                                                                                                                                             +06:04:00        -
+STOP AT LOCATION           Torquay Platform 2 - 06:08:30                                                                                                     +06:08:30         -
+LOAD PASSENGERS                                                                                                                                             +06:09:00        -
+STOP AT LOCATION           Torre Platform 2 - 06:11:30                                                                                                     +06:11:30         -
+LOAD PASSENGERS                                                                                                                                             +06:12:00        -
+GO VIA LOCATION              Up Torbay Line                                                                                                                                    ]
+STOP AT LOCATION           Newton Abbot Platform 1 - 06:20:00                                                                                          +06:20:00        -
+LOAD PASSENGERS                                                                                                                                                  -              -
+

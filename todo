@@ -338,3 +338,7 @@ raw data file generated for record-map will need the service name in the file
 
 
 
+
+Whay are these default lat and lng?
+"latitude": 51.380108707397724,
+"longitude": 0.52192438677304942

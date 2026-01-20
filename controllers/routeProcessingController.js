@@ -286,7 +286,7 @@ function detectStops(coordinates, config = STOP_DETECTION_CONFIG) {
  * @param {Array} timetable - Array of timetable entries
  * @returns {Array} Updated timetable with coordinates filled in from detected stops
  */
-function matchStopsToTimetable(detectedStops, timetable, coordinates = []) {
+function matchStopsToTimetable(detectedStops, timetable) {
     if (!detectedStops || detectedStops.length === 0 || !timetable || timetable.length === 0) {
         return timetable;
     }
@@ -404,28 +404,6 @@ function matchStopsToTimetable(detectedStops, timetable, coordinates = []) {
             }
         }
     }
-
-    // Check if the LAST timetable entry is still missing coordinates
-    // If so, use the very last coordinate from the recording
-    // This handles the case where the final stop was less than 30 seconds
-    const lastEntryIdx = updatedTimetable.length - 1;
-    if (lastEntryIdx >= 0 && coordinates.length > 0) {
-        const lastEntry = updatedTimetable[lastEntryIdx];
-        if (lastEntry.latitude == null || lastEntry.longitude == null) {
-            const lastCoord = coordinates[coordinates.length - 1];
-            if (lastCoord && lastCoord.latitude != null && lastCoord.longitude != null) {
-                updatedTimetable[lastEntryIdx] = {
-                    ...lastEntry,
-                    latitude: lastCoord.latitude,
-                    longitude: lastCoord.longitude,
-                    _autoDetected: true,
-                    _usedLastCoordinate: true
-                };
-                console.log(`  Final entry "${lastEntry.destination}": Used last coordinate (${lastCoord.latitude.toFixed(6)}, ${lastCoord.longitude.toFixed(6)})`);
-            }
-        }
-    }
-
     console.log(`  =============================\n`);
 
     return updatedTimetable;
@@ -523,40 +501,74 @@ function processRawData(rawData) {
     let processedTimetable = timetable.map(entry => ({ ...entry }));
 
     if (isAutomatic && detectedStops.length > 0) {
-        processedTimetable = matchStopsToTimetable(detectedStops, processedTimetable, coordinates);
+        processedTimetable = matchStopsToTimetable(detectedStops, processedTimetable);
     }
 
-    // Step 4: Match markers to timetable entries by stationName -> apiName
-    // Only fill in coordinates if timetable entry doesn't already have them
-    // This is a fallback for entries that weren't matched by stop detection
-    processedTimetable = processedTimetable.map(entry => {
-        const result = { ...entry };
+    // Step 4: Simplify coordinates to reduce file size while preserving path accuracy
+    // Epsilon of 1 meter means points within 1m of the simplified line are removed
+    // This happens AFTER stop detection so we have full data for stop analysis
+    const SIMPLIFY_EPSILON = 1; // meters
+    const simplifiedCoordinates = simplifyPath(coordinates, SIMPLIFY_EPSILON);
+    console.log(`  Simplified coordinates: ${coordinates.length} -> ${simplifiedCoordinates.length} (${((1 - simplifiedCoordinates.length / coordinates.length) * 100).toFixed(1)}% reduction)`);
 
-        // Check if this entry needs coordinates
-        const hasCoords = entry.latitude != null && entry.longitude != null;
-        if (!hasCoords) {
-            // Look for a marker that matches this entry's apiName
-            // apiName format is typically "StationName PlatformNumber" (e.g., "Metro South 1")
-            // Marker stationName is just "Metro South"
-            const matchingMarker = processedMarkers.find(m => {
-                // Check if apiName starts with marker stationName
-                return entry.apiName && m.stationName &&
-                       entry.apiName.startsWith(m.stationName) &&
-                       m.latitude != null && m.longitude != null;
-            });
+    // Step 5: In automatic mode, if the LAST timetable entry still has no coordinates,
+    // use the very last coordinate from the simplified path (accounts for GPS drift).
+    // This handles the case where the final stop was less than 30 seconds.
+    if (isAutomatic && processedTimetable.length > 0 && simplifiedCoordinates.length > 0) {
+        const lastEntryIdx = processedTimetable.length - 1;
+        const lastEntry = processedTimetable[lastEntryIdx];
 
-            if (matchingMarker) {
-                result.latitude = matchingMarker.latitude;
-                result.longitude = matchingMarker.longitude;
-                console.log(`  Matched timetable "${entry.destination}" (${entry.apiName}) -> marker "${matchingMarker.stationName}"`);
+        // Only fill in if no coordinates exist (don't overwrite user-entered data)
+        if (lastEntry.latitude == null || lastEntry.longitude == null) {
+            const lastCoord = simplifiedCoordinates[simplifiedCoordinates.length - 1];
+            if (lastCoord && lastCoord.latitude != null && lastCoord.longitude != null) {
+                processedTimetable[lastEntryIdx] = {
+                    ...lastEntry,
+                    latitude: lastCoord.latitude,
+                    longitude: lastCoord.longitude,
+                    _autoDetected: true,
+                    _usedLastCoordinate: true
+                };
+                console.log(`  Final entry "${lastEntry.destination}": Used last path coordinate (${lastCoord.latitude.toFixed(6)}, ${lastCoord.longitude.toFixed(6)})`);
             }
-        } else {
-            const source = entry._autoDetected ? '(from stop detection)' : '(user-entered)';
-            console.log(`  Timetable "${entry.destination}" already has coordinates ${source}`);
         }
+    }
 
-        return result;
-    });
+    // Step 6: Match markers to timetable entries by stationName -> apiName
+    // Only used in MANUAL mode - automatic mode uses stop detection only
+    // This is a fallback for entries that weren't matched by stop detection
+    if (!isAutomatic) {
+        console.log('\n  Manual mode: Using marker matching for coordinates');
+        processedTimetable = processedTimetable.map(entry => {
+            const result = { ...entry };
+
+            // Check if this entry needs coordinates
+            const hasCoords = entry.latitude != null && entry.longitude != null;
+            if (!hasCoords) {
+                // Look for a marker that matches this entry's apiName
+                // apiName format is typically "StationName PlatformNumber" (e.g., "Metro South 1")
+                // Marker stationName is just "Metro South"
+                const matchingMarker = processedMarkers.find(m => {
+                    // Check if apiName starts with marker stationName
+                    return entry.apiName && m.stationName &&
+                           entry.apiName.startsWith(m.stationName) &&
+                           m.latitude != null && m.longitude != null;
+                });
+
+                if (matchingMarker) {
+                    result.latitude = matchingMarker.latitude;
+                    result.longitude = matchingMarker.longitude;
+                    console.log(`  Matched timetable "${entry.destination}" (${entry.apiName}) -> marker "${matchingMarker.stationName}"`);
+                }
+            } else {
+                console.log(`  Timetable "${entry.destination}" already has coordinates (user-entered)`);
+            }
+
+            return result;
+        });
+    } else {
+        console.log('\n  Automatic mode: Skipping marker matching');
+    }
 
     // Step 5: Print final timetable status and check for missing coordinates
     console.log('\n  === TIMETABLE COORDINATE STATUS ===');
@@ -578,13 +590,6 @@ function processRawData(rawData) {
     } else {
         console.log(`  All ${processedTimetable.length} timetable entries have coordinates`);
     }
-
-    // Step 6: Simplify coordinates to reduce file size while preserving path accuracy
-    // Epsilon of 1 meter means points within 1m of the simplified line are removed
-    // This happens AFTER stop detection so we have full data for stop analysis
-    const SIMPLIFY_EPSILON = 1; // meters
-    const simplifiedCoordinates = simplifyPath(coordinates, SIMPLIFY_EPSILON);
-    console.log(`  Simplified coordinates: ${coordinates.length} -> ${simplifiedCoordinates.length} (${((1 - simplifiedCoordinates.length / coordinates.length) * 100).toFixed(1)}% reduction)`);
 
     // Build processed output
     const processed = {

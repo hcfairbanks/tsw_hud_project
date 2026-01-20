@@ -313,7 +313,7 @@
                 </label>
             </div>
             <div id="autoModeInfo" style="font-size: 11px; color: #666;">
-                Auto-stops after 5 min of no movement
+                Auto-stops after 4 min of no movement
             </div>
         </div>
 
@@ -1123,7 +1123,7 @@
                 // Check for auto-stop trigger
                 if (data.recording.autoStopped) {
                     console.log('Auto-stop triggered by backend');
-                    alert('Recording auto-stopped after 5 minutes of no movement.\nSaving to database...');
+                    alert('Recording auto-stopped after 4 minutes of no movement.\nSaving to database...');
                     // Trigger the save sequence
                     stopRecording();
                     return;

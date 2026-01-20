@@ -30,7 +30,7 @@ const recordingDataDir = path.join(__dirname, '..', 'recording_data');
 const savedRawDataDir = path.join(__dirname, '..', 'saved_raw_data');
 
 // Auto-stop configuration
-const AUTO_STOP_TIMEOUT_MS = 60000; // 1 minute (temporarily for testing, change back to 300000 for 5 minutes)
+const AUTO_STOP_TIMEOUT_MS = 240000; // 4 minutes
 let autoStopEnabled = true; // Default to automatic mode
 let lastUniqueCoordinateTime = null;
 let autoStopCheckInterval = null;
@@ -1020,7 +1020,7 @@ function deleteRawFile(req, res, filename) {
 
 /**
  * Set recording mode (manual/automatic)
- * In automatic mode, recording will auto-stop after 5 minutes of no unique coordinates
+ * In automatic mode, recording will auto-stop after 4 minutes of no unique coordinates
  */
 async function setMode(req, res) {
     try {

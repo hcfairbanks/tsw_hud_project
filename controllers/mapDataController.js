@@ -226,7 +226,12 @@ async function getRouteDataFromDb(req, res, timetableId) {
         }
 
         // Get coordinates from timetable_coordinates
-        const coordinates = timetableCoordinateDb.getByTimetableId(timetableId);
+        const rawCoordinates = timetableCoordinateDb.getByTimetableId(timetableId);
+
+        // Filter out stale Chatham position (game default when no real position)
+        const coordinates = rawCoordinates.filter(c =>
+            !(c.latitude === 51.380108707397724 && c.longitude === 0.5219243867730494)
+        );
 
         // Get markers from timetable_markers
         const markers = timetableMarkerDb.getByTimetableId(timetableId);
@@ -317,7 +322,12 @@ async function remakeProcessedJson(req, res) {
         }
 
         // Get coordinates from timetable_coordinates
-        const coordinates = timetableCoordinateDb.getByTimetableId(timetableId);
+        const rawCoordinates = timetableCoordinateDb.getByTimetableId(timetableId);
+
+        // Filter out stale Chatham position (game default when no real position)
+        const coordinates = rawCoordinates.filter(c =>
+            !(c.latitude === 51.380108707397724 && c.longitude === 0.5219243867730494)
+        );
 
         // Get markers from timetable_markers
         const markers = timetableMarkerDb.getByTimetableId(timetableId);
