@@ -111,6 +111,12 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // Timetable create page (must come before :id match)
+    if (pathname === '/timetables/create') {
+        serveFile(res, 'timetables/create.html', 'text/html');
+        return true;
+    }
+
     // Timetable show page /timetables/:id
     const timetableShowMatch = pathname.match(/^\/timetables\/(\d+)$/);
     if (timetableShowMatch) {

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Timetable</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .nav-link {
+            display: inline-block;
+            color: #0066ff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-section h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0066ff;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group.full-width {
+            flex: 100%;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #0066ff;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #0066ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0052cc;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .entries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .entries-header h2 {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .entries-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .entries-table th,
+        .entries-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .entries-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .entries-table input,
+        .entries-table select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .entries-table .action-select {
+            min-width: 140px;
+        }
+
+        .entries-table .location-input {
+            min-width: 150px;
+        }
+
+        .entries-table .platform-input {
+            width: 60px;
+        }
+
+        .entries-table .time-input {
+            width: 90px;
+        }
+
+        .entries-table .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .entries-table .actions-cell {
+            white-space: nowrap;
+        }
+
+        .no-entries {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .submit-section {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .quick-add {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .quick-add h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .quick-add-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-add-buttons .btn {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/timetables" class="nav-link">← Back to Timetables</a>
+        <h1>Create Timetable</h1>
+
+        <div id="statusMessage" class="status-message"></div>
+
+        <div class="form-section">
+            <h2>Timetable Details</h2>
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label for="serviceName">Service Name *</label>
+                    <input type="text" id="serviceName" placeholder="e.g., 2T17: London Euston - Tring 08:22 00:35">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="routeSelect">Route (Optional)</label>
+                    <select id="routeSelect">
+                        <option value="">-- No route --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="trainSelect">Train (Optional)</label>
+                    <select id="trainSelect">
+                        <option value="">-- No train --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="entries-header">
+                <h2>Timetable Entries</h2>
+                <button class="btn btn-primary" onclick="addEntry()">+ Add Entry</button>
+            </div>
+
+            <div class="quick-add">
+                <h3>Quick Add Common Entries</h3>
+                <div class="quick-add-buttons">
+                    <button class="btn btn-secondary" onclick="addQuickEntry('WAIT FOR SERVICE')">Wait for Service</button>
+                    <button class="btn btn-secondary" onclick="addQuickEntry('STOP AT LOCATION')">Stop at Location</button>
+                    <button class="btn btn-secondary" onclick="addQuickEntry('LOAD PASSENGERS')">Load Passengers</button>
+                    <button class="btn btn-secondary" onclick="addQuickEntry('UNLOAD PASSENGERS')">Unload Passengers</button>
+                    <button class="btn btn-secondary" onclick="addQuickEntry('GO VIA LOCATION')">Go Via Location</button>
+                </div>
+            </div>
+
+            <table class="entries-table" id="entriesTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Action</th>
+                        <th>Location</th>
+                        <th>Platform</th>
+                        <th>Time 1</th>
+                        <th>Time 2</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="entriesBody">
+                </tbody>
+            </table>
+
+            <div id="noEntries" class="no-entries">
+                No entries yet. Click "Add Entry" or use Quick Add to start building your timetable.
+            </div>
+        </div>
+
+        <div class="form-section submit-section">
+            <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+            <button class="btn btn-success" onclick="createTimetable()">Create Timetable</button>
+        </div>
+    </div>
+
+    <script>
+        let entries = [];
+        let entryIdCounter = 0;
+
+        const ACTIONS = [
+            'WAIT FOR SERVICE',
+            'STOP AT LOCATION',
+            'LOAD PASSENGERS',
+            'UNLOAD PASSENGERS',
+            'GO VIA LOCATION',
+            'UNCOUPLE VEHICLES',
+            'COUPLE TO FORMATION'
+        ];
+
+        // Load routes and trains
+        async function loadRoutes() {
+            try {
+                const response = await fetch('/api/routes');
+                const routes = await response.json();
+                const select = document.getElementById('routeSelect');
+                routes.forEach(route => {
+                    const option = document.createElement('option');
+                    option.value = route.id;
+                    option.textContent = route.name;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Failed to load routes:', err);
+            }
+        }
+
+        async function loadTrains() {
+            try {
+                const response = await fetch('/api/trains');
+                const trains = await response.json();
+                const select = document.getElementById('trainSelect');
+                trains.forEach(train => {
+                    const option = document.createElement('option');
+                    option.value = train.id;
+                    option.textContent = train.name;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Failed to load trains:', err);
+            }
+        }
+
+        function addEntry(action = '') {
+            const entry = {
+                id: ++entryIdCounter,
+                action: action,
+                location: '',
+                platform: '',
+                time1: '',
+                time2: ''
+            };
+            entries.push(entry);
+            renderEntries();
+        }
+
+        function addQuickEntry(action) {
+            addEntry(action);
+        }
+
+        function removeEntry(id) {
+            entries = entries.filter(e => e.id !== id);
+            renderEntries();
+        }
+
+        function moveEntryUp(id) {
+            const index = entries.findIndex(e => e.id === id);
+            if (index > 0) {
+                [entries[index - 1], entries[index]] = [entries[index], entries[index - 1]];
+                renderEntries();
+            }
+        }
+
+        function moveEntryDown(id) {
+            const index = entries.findIndex(e => e.id === id);
+            if (index < entries.length - 1) {
+                [entries[index], entries[index + 1]] = [entries[index + 1], entries[index]];
+                renderEntries();
+            }
+        }
+
+        function updateEntry(id, field, value) {
+            const entry = entries.find(e => e.id === id);
+            if (entry) {
+                entry[field] = value;
+            }
+        }
+
+        function renderEntries() {
+            const tbody = document.getElementById('entriesBody');
+            const noEntries = document.getElementById('noEntries');
+
+            if (entries.length === 0) {
+                tbody.innerHTML = '';
+                noEntries.style.display = 'block';
+                return;
+            }
+
+            noEntries.style.display = 'none';
+
+            tbody.innerHTML = entries.map((entry, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>
+                        <select class="action-select" onchange="updateEntry(${entry.id}, 'action', this.value)">
+                            <option value="">-- Select --</option>
+                            ${ACTIONS.map(a => `<option value="${a}" ${entry.action === a ? 'selected' : ''}>${a}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="location-input" value="${entry.location}"
+                            onchange="updateEntry(${entry.id}, 'location', this.value)"
+                            placeholder="Station name">
+                    </td>
+                    <td>
+                        <input type="text" class="platform-input" value="${entry.platform}"
+                            onchange="updateEntry(${entry.id}, 'platform', this.value)"
+                            placeholder="Plat">
+                    </td>
+                    <td>
+                        <input type="text" class="time-input" value="${entry.time1}"
+                            onchange="updateEntry(${entry.id}, 'time1', this.value)"
+                            placeholder="HH:MM:SS">
+                    </td>
+                    <td>
+                        <input type="text" class="time-input" value="${entry.time2}"
+                            onchange="updateEntry(${entry.id}, 'time2', this.value)"
+                            placeholder="HH:MM:SS">
+                    </td>
+                    <td class="actions-cell">
+                        <button class="btn btn-secondary btn-small" onclick="moveEntryUp(${entry.id})" ${index === 0 ? 'disabled' : ''}>↑</button>
+                        <button class="btn btn-secondary btn-small" onclick="moveEntryDown(${entry.id})" ${index === entries.length - 1 ? 'disabled' : ''}>↓</button>
+                        <button class="btn btn-danger btn-small" onclick="removeEntry(${entry.id})">×</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showStatus(message, isError = false) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = 'status-message ' + (isError ? 'error' : 'success');
+            window.scrollTo(0, 0);
+        }
+
+        function clearAll() {
+            if (!confirm('Clear all entries and start over?')) return;
+            entries = [];
+            entryIdCounter = 0;
+            document.getElementById('serviceName').value = '';
+            document.getElementById('routeSelect').value = '';
+            document.getElementById('trainSelect').value = '';
+            renderEntries();
+        }
+
+        async function createTimetable() {
+            const serviceName = document.getElementById('serviceName').value.trim();
+            const routeId = document.getElementById('routeSelect').value;
+            const trainId = document.getElementById('trainSelect').value;
+
+            if (!serviceName) {
+                showStatus('Please enter a service name.', true);
+                return;
+            }
+
+            if (entries.length === 0) {
+                showStatus('Please add at least one entry.', true);
+                return;
+            }
+
+            // Validate entries have actions
+            const invalidEntries = entries.filter(e => !e.action);
+            if (invalidEntries.length > 0) {
+                showStatus('All entries must have an action selected.', true);
+                return;
+            }
+
+            // Build the request body
+            const body = {
+                service_name: serviceName,
+                entries: entries.map(e => ({
+                    action: e.action,
+                    location: e.location,
+                    platform: e.platform,
+                    time1: e.time1,
+                    time2: e.time2,
+                    details: '',
+                    latitude: '',
+                    longitude: ''
+                }))
+            };
+
+            if (routeId) body.route_id = parseInt(routeId);
+            if (trainId) body.train_id = parseInt(trainId);
+
+            try {
+                const response = await fetch('/api/timetables', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    showStatus('Error: ' + result.error, true);
+                    return;
+                }
+
+                showStatus('Timetable created successfully! Redirecting...');
+
+                // Redirect to the new timetable
+                setTimeout(() => {
+                    window.location.href = `/timetables/${result.id}`;
+                }, 1500);
+
+            } catch (err) {
+                console.error('Failed to create timetable:', err);
+                showStatus('Failed to create timetable: ' + err.message, true);
+            }
+        }
+
+        // Initialize
+        loadRoutes();
+        loadTrains();
+        renderEntries();
+    </script>
+</body>
+</html>
