@@ -4,26 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * {
             box-sizing: border-box;
         }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #1a1a2e;
-            color: #eee;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         h1 {
-            color: #00d4ff;
+            color: var(--accent-color);
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
         }
         .subtitle {
             text-align: center;
-            color: #888;
+            color: var(--text-muted);
             margin-bottom: 30px;
         }
         .nav {
@@ -31,28 +33,30 @@
             margin-bottom: 20px;
         }
         .nav a {
-            color: #00d4ff;
+            color: var(--accent-color);
             text-decoration: none;
             margin: 0 10px;
             padding: 10px 20px;
-            background: #0f3460;
+            background: var(--bg-tertiary);
             border-radius: 4px;
             display: inline-block;
+            transition: background-color 0.2s ease;
         }
         .nav a:hover {
-            background: #1a4a7a;
+            background: var(--accent-hover);
+            color: var(--bg-primary);
         }
         .card {
-            background: #16213e;
+            background: var(--bg-secondary);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
-            border: 1px solid #0f3460;
+            border: 1px solid var(--border-color);
         }
         h2 {
-            color: #00d4ff;
+            color: var(--accent-color);
             margin-top: 0;
-            border-bottom: 1px solid #0f3460;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
         }
         .setting-row {
@@ -60,7 +64,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px 0;
-            border-bottom: 1px solid #0f3460;
+            border-bottom: 1px solid var(--border-color);
         }
         .setting-row:last-child {
             border-bottom: none;
@@ -70,12 +74,26 @@
         }
         .setting-label {
             font-size: 16px;
-            color: #eee;
+            color: var(--text-primary);
             margin-bottom: 5px;
         }
         .setting-description {
             font-size: 13px;
-            color: #888;
+            color: var(--text-muted);
+        }
+        .setting-input {
+            width: 300px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+        .setting-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
         }
         .toggle-switch {
             position: relative;
@@ -94,7 +112,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #0f3460;
+            background-color: var(--bg-tertiary);
             transition: 0.3s;
             border-radius: 26px;
         }
@@ -105,12 +123,12 @@
             width: 20px;
             left: 3px;
             bottom: 3px;
-            background-color: #eee;
+            background-color: var(--text-primary);
             transition: 0.3s;
             border-radius: 50%;
         }
         .toggle-switch input:checked + .toggle-slider {
-            background-color: #00d4ff;
+            background-color: var(--accent-color);
         }
         .toggle-switch input:checked + .toggle-slider:before {
             transform: translateX(24px);
@@ -124,19 +142,277 @@
         }
         .status-message.success {
             display: block;
-            background: rgba(0, 200, 100, 0.2);
-            color: #00c864;
+            background: var(--color-success-bg);
+            color: var(--color-success);
         }
         .status-message.error {
             display: block;
-            background: rgba(233, 69, 96, 0.2);
-            color: #e94560;
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+        }
+        .theme-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        .theme-option:hover {
+            border-color: var(--accent-color);
+        }
+        .theme-option.active {
+            border-color: var(--accent-color);
+            background: var(--bg-tertiary);
+        }
+        .theme-option input {
+            display: none;
+        }
+        .theme-preview {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        .theme-preview.dark {
+            background: linear-gradient(135deg, #1a1a2e 50%, #16213e 50%);
+        }
+        .theme-preview.light {
+            background: linear-gradient(135deg, #f5f5f5 50%, #ffffff 50%);
+        }
+        .link-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .link-row:last-child {
+            border-bottom: none;
+        }
+        .link-btn {
+            padding: 8px 16px;
+            background: var(--btn-primary-bg);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+        .link-btn:hover {
+            background: var(--btn-primary-hover);
+        }
+        .api-key-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-save {
+            padding: 8px 16px;
+            background: var(--btn-success-bg);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+        .btn-save:hover {
+            background: var(--btn-success-hover);
+        }
+        .api-key-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        .tsw-version-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tsw-version-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        .tsw-version-option:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-tertiary);
+        }
+        .tsw-version-option.active {
+            border-color: var(--accent-color);
+            background: var(--bg-tertiary);
+        }
+        .tsw-version-option input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .tsw-version-option input[type="radio"]:checked {
+            border-color: var(--accent-color);
+        }
+        .tsw-version-option input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: var(--accent-color);
+            border-radius: 50%;
+        }
+        .tsw-version-option span {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .tsw-section {
+            display: none;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+        }
+        .tsw-section.active {
+            display: block;
+            border-color: var(--accent-color);
+        }
+        .tsw-section h3 {
+            margin: 0 0 10px 0;
+            color: var(--accent-color);
+            font-size: 14px;
+        }
+        .path-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .path-input-container input {
+            flex: 1;
+        }
+        .path-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        .current-path {
+            font-size: 12px;
+            color: var(--text-muted);
+            word-break: break-all;
+            margin-top: 5px;
+        }
+        .current-key-display {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        .current-key-display h3 {
+            margin: 0 0 10px 0;
+            color: var(--accent-color);
+            font-size: 14px;
+        }
+        .current-key-value {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--text-primary);
+            word-break: break-all;
+            padding: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        .current-key-source {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        .key-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+        .key-status.valid {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+        .key-status.invalid {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+        .server-urls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .url-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .url-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            min-width: 70px;
+        }
+        .url-value {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--accent-color);
+            padding: 6px 10px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            flex: 1;
+        }
+        .url-value a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        .url-value a:hover {
+            text-decoration: underline;
+        }
+        .btn-copy {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s ease;
+        }
+        .btn-copy:hover {
+            background: var(--accent-color);
+            color: var(--bg-primary);
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <h1>Settings</h1>
-    <p class="subtitle">Configure TSW HUD Project</p>
 
     <nav class="nav">
         <a href="/">Home</a>
@@ -145,6 +421,89 @@
         <a href="/record-map">Record Map</a>
         <a href="/settings">Settings</a>
     </nav>
+
+    <div class="card">
+        <h2>Appearance</h2>
+
+        <div class="setting-row">
+            <div class="setting-info">
+                <div class="setting-label">Theme</div>
+                <div class="setting-description">Choose between dark and light mode</div>
+            </div>
+            <div class="theme-selector">
+                <label class="theme-option" id="themeDark">
+                    <input type="radio" name="theme" value="dark">
+                    <div class="theme-preview dark"></div>
+                    <span>Dark</span>
+                </label>
+                <label class="theme-option" id="themeLight">
+                    <input type="radio" name="theme" value="light">
+                    <div class="theme-preview light"></div>
+                    <span>Light</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>API Configuration</h2>
+
+        <div class="setting-row">
+            <div class="setting-info">
+                <div class="setting-label">Select TSW Version</div>
+                <div class="setting-description">Choose which Train Sim World version to use for API connection</div>
+            </div>
+        </div>
+
+        <div class="tsw-version-selector">
+            <label class="tsw-version-option" id="versionTsw5">
+                <input type="radio" name="tswVersion" value="tsw5">
+                <span>Train Sim World 5</span>
+            </label>
+            <label class="tsw-version-option" id="versionTsw6">
+                <input type="radio" name="tswVersion" value="tsw6">
+                <span>Train Sim World 6</span>
+            </label>
+        </div>
+
+        <div class="tsw-section" id="tsw5Section">
+            <h3>TSW5 API Key Path</h3>
+            <div class="path-input-container">
+                <input type="text" id="tsw5KeyPath" class="setting-input" placeholder="Custom path to CommAPIKey.txt (optional)">
+                <button class="btn-save" onclick="saveTswPath('tsw5')">Save</button>
+            </div>
+            <div class="path-note">Default: <span id="tsw5DefaultPath"></span></div>
+        </div>
+
+        <div class="tsw-section" id="tsw6Section">
+            <h3>TSW6 API Key Path</h3>
+            <div class="path-input-container">
+                <input type="text" id="tsw6KeyPath" class="setting-input" placeholder="Custom path to CommAPIKey.txt (optional)">
+                <button class="btn-save" onclick="saveTswPath('tsw6')">Save</button>
+            </div>
+            <div class="path-note">Default: <span id="tsw6DefaultPath"></span></div>
+        </div>
+
+        <div class="setting-row" style="border-top: 1px solid var(--border-color); margin-top: 10px;">
+            <div class="setting-info">
+                <div class="setting-label">Direct API Key Override</div>
+                <div class="setting-description">Manually enter API key (overrides path settings)</div>
+                <div class="api-key-note">If set, this key will be used instead of reading from the file path</div>
+            </div>
+        </div>
+        <div class="setting-row" style="padding-top: 0;">
+            <div class="api-key-container" style="width: 100%;">
+                <input type="text" id="apiKey" class="setting-input" style="flex: 1; width: auto;" placeholder="Enter API key or leave empty to use path">
+                <button class="btn-save" onclick="saveApiKey()">Save</button>
+            </div>
+        </div>
+
+        <div class="current-key-display">
+            <h3>Current API Key <span id="keyStatus" class="key-status"></span></h3>
+            <div class="current-key-value" id="currentKeyValue">Loading...</div>
+            <div class="current-key-source" id="currentKeySource"></div>
+        </div>
+    </div>
 
     <div class="card">
         <h2>General Settings</h2>
@@ -163,14 +522,176 @@
         <div id="statusMessage" class="status-message"></div>
     </div>
 
+    <div class="card">
+        <h2>Server Information</h2>
+        <div class="server-urls">
+            <div class="url-row">
+                <span class="url-label">Local:</span>
+                <div class="url-value"><a id="localUrl" href="#" target="_blank">Loading...</a></div>
+                <button class="btn-copy" onclick="copyUrl('local')">Copy</button>
+            </div>
+            <div class="url-row">
+                <span class="url-label">Network:</span>
+                <div class="url-value"><a id="networkUrl" href="#" target="_blank">Loading...</a></div>
+                <button class="btn-copy" onclick="copyUrl('network')">Copy</button>
+            </div>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 15px; margin-bottom: 0;">
+            Use the Network URL to access the dashboard from other devices on the same network.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Advanced</h2>
+
+        <div class="link-row">
+            <div class="setting-info">
+                <div class="setting-label">API Subscription Management</div>
+                <div class="setting-description">View and manage TSW API subscriptions</div>
+            </div>
+            <a href="/api-subscriptions" class="link-btn">Manage Subscriptions</a>
+        </div>
+    </div>
+
     <script>
-        // Load current settings
+        let defaultPaths = { tsw5: '', tsw6: '' };
+        let serverUrls = { local: '', network: '' };
+
+        // Load server URLs
+        async function loadServerUrls() {
+            try {
+                const response = await fetch('/api/config/server-urls');
+                serverUrls = await response.json();
+
+                const localEl = document.getElementById('localUrl');
+                const networkEl = document.getElementById('networkUrl');
+
+                localEl.textContent = serverUrls.local;
+                localEl.href = serverUrls.local;
+
+                networkEl.textContent = serverUrls.network;
+                networkEl.href = serverUrls.network;
+            } catch (err) {
+                console.error('Failed to load server URLs:', err);
+            }
+        }
+
+        // Copy URL to clipboard
+        function copyUrl(type) {
+            const url = type === 'local' ? serverUrls.local : serverUrls.network;
+            navigator.clipboard.writeText(url).then(() => {
+                showStatus('URL copied to clipboard', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showStatus('Failed to copy URL', 'error');
+            });
+        }
+
+        // Apply theme immediately on page load
+        function applyTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+
+            // Update theme selector UI
+            document.querySelectorAll('.theme-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            if (theme === 'dark') {
+                document.getElementById('themeDark').classList.add('active');
+            } else {
+                document.getElementById('themeLight').classList.add('active');
+            }
+        }
+
+        // Apply TSW version selection UI
+        function applyTswVersion(version) {
+            document.querySelectorAll('.tsw-version-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            document.querySelectorAll('.tsw-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+
+            // Check the correct radio button
+            const tsw5Radio = document.querySelector('#versionTsw5 input[type="radio"]');
+            const tsw6Radio = document.querySelector('#versionTsw6 input[type="radio"]');
+
+            if (version === 'tsw5') {
+                document.getElementById('versionTsw5').classList.add('active');
+                document.getElementById('tsw5Section').classList.add('active');
+                if (tsw5Radio) tsw5Radio.checked = true;
+                if (tsw6Radio) tsw6Radio.checked = false;
+            } else {
+                document.getElementById('versionTsw6').classList.add('active');
+                document.getElementById('tsw6Section').classList.add('active');
+                if (tsw6Radio) tsw6Radio.checked = true;
+                if (tsw5Radio) tsw5Radio.checked = false;
+            }
+        }
+
+        // Load saved theme from localStorage first for instant apply
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        }
+
+        // Load default paths from server
+        async function loadDefaultPaths() {
+            try {
+                const response = await fetch('/api/config/default-paths');
+                defaultPaths = await response.json();
+                document.getElementById('tsw5DefaultPath').textContent = defaultPaths.tsw5 || 'Not available';
+                document.getElementById('tsw6DefaultPath').textContent = defaultPaths.tsw6 || 'Not available';
+            } catch (err) {
+                console.error('Failed to load default paths:', err);
+            }
+        }
+
+        // Load current API key info
+        async function loadCurrentKey() {
+            try {
+                const response = await fetch('/api/config/current-key');
+                const data = await response.json();
+
+                const keyValueEl = document.getElementById('currentKeyValue');
+                const keySourceEl = document.getElementById('currentKeySource');
+                const keyStatusEl = document.getElementById('keyStatus');
+
+                if (data.hasKey && data.key) {
+                    keyValueEl.textContent = data.key;
+                    keyStatusEl.textContent = 'Valid';
+                    keyStatusEl.className = 'key-status valid';
+                } else {
+                    keyValueEl.textContent = 'No API key found';
+                    keyStatusEl.textContent = 'Not Found';
+                    keyStatusEl.className = 'key-status invalid';
+                }
+
+                keySourceEl.textContent = 'Source: ' + data.source;
+            } catch (err) {
+                console.error('Failed to load current key:', err);
+                document.getElementById('currentKeyValue').textContent = 'Error loading key';
+                document.getElementById('keyStatus').textContent = 'Error';
+                document.getElementById('keyStatus').className = 'key-status invalid';
+            }
+        }
+
+        // Load current settings from server
         async function loadSettings() {
             try {
                 const response = await fetch('/api/config');
                 const config = await response.json();
 
                 document.getElementById('developmentMode').checked = config.developmentMode || false;
+                document.getElementById('apiKey').value = config.apiKey || '';
+                document.getElementById('tsw5KeyPath').value = config.tsw5KeyPath || '';
+                document.getElementById('tsw6KeyPath').value = config.tsw6KeyPath || '';
+
+                const theme = config.theme || 'dark';
+                applyTheme(theme);
+                localStorage.setItem('theme', theme);
+
+                const tswVersion = config.tswVersion || 'tsw6';
+                applyTswVersion(tswVersion);
             } catch (err) {
                 console.error('Failed to load settings:', err);
                 showStatus('Failed to load settings', 'error');
@@ -190,6 +711,16 @@
 
                 if (result.success) {
                     showStatus('Settings saved', 'success');
+
+                    // If theme changed, update localStorage
+                    if (key === 'theme') {
+                        localStorage.setItem('theme', value);
+                    }
+
+                    // If any API-related setting changed, refresh current key display
+                    if (['apiKey', 'tswVersion', 'tsw5KeyPath', 'tsw6KeyPath'].includes(key)) {
+                        loadCurrentKey();
+                    }
                 } else {
                     showStatus('Failed to save: ' + result.error, 'error');
                 }
@@ -198,6 +729,41 @@
                 showStatus('Failed to save settings', 'error');
             }
         }
+
+        // Save API key
+        async function saveApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            await saveSetting('apiKey', apiKey);
+        }
+
+        // Save TSW path
+        async function saveTswPath(version) {
+            const pathKey = version + 'KeyPath';
+            const pathValue = document.getElementById(pathKey).value.trim();
+            await saveSetting(pathKey, pathValue);
+        }
+
+        // TSW version selection handlers
+        document.getElementById('versionTsw5').addEventListener('click', function() {
+            applyTswVersion('tsw5');
+            saveSetting('tswVersion', 'tsw5');
+        });
+
+        document.getElementById('versionTsw6').addEventListener('click', function() {
+            applyTswVersion('tsw6');
+            saveSetting('tswVersion', 'tsw6');
+        });
+
+        // Theme selection handlers
+        document.getElementById('themeDark').addEventListener('click', function() {
+            applyTheme('dark');
+            saveSetting('theme', 'dark');
+        });
+
+        document.getElementById('themeLight').addEventListener('click', function() {
+            applyTheme('light');
+            saveSetting('theme', 'light');
+        });
 
         function showStatus(message, type) {
             const el = document.getElementById('statusMessage');
@@ -210,7 +776,10 @@
         }
 
         // Load settings on page load
+        loadDefaultPaths();
         loadSettings();
+        loadCurrentKey();
+        loadServerUrls();
     </script>
 </body>
 </html>

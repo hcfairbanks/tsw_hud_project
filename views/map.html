@@ -26,7 +26,7 @@
 
         .info-panel {
             position: absolute;
-            top: 120px;
+            top: 80px;
             right: 10px;
             background: white;
             padding: 20px;
@@ -132,7 +132,7 @@
         .distance-display {
             font-size: 24px;
             font-weight: bold;
-            color: #0066ff;
+            color: white;
             margin-top: 10px;
         }
 
@@ -210,6 +210,42 @@
             color: #333;
             margin-bottom: 8px;
             font-weight: 600;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-header h3 {
+            margin-bottom: 0;
+        }
+
+        .collapse-icon {
+            font-size: 12px;
+            color: #666;
+            transition: transform 0.2s ease;
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 8px;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
         }
 
         .route-selector select {
@@ -326,26 +362,38 @@
         </div>
 
         <div class="route-selector">
-            <h3>Load Timetable</h3>
-            <label style="font-size: 11px; color: #666;">Route:</label>
-            <div class="typeahead-container" style="position: relative;">
-                <input type="text" id="routeInput" placeholder="Type to search routes..." autocomplete="off"
-                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
-                <div id="routeDropdown" class="typeahead-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: white; border: 1px solid #ddd; border-top: none; border-radius: 0 0 4px 4px; z-index: 1001;">
-                </div>
-                <input type="hidden" id="routeSelect" value="">
+            <div class="section-header" onclick="toggleTimetableSection()">
+                <h3>Load Timetable</h3>
+                <span class="collapse-icon" id="timetableCollapseIcon">▼</span>
             </div>
-            <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;">Train:</label>
-            <select id="trainSelect" onchange="handleTrainChange()" disabled>
-                <option value="">-- Select a train --</option>
-            </select>
-            <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;">Timetable:</label>
-            <select id="timetableSelect" onchange="handleTimetableChange()" disabled>
-                <option value="">-- Select a timetable --</option>
-            </select>
-            <button id="loadRouteBtn" onclick="loadSelectedTimetable()" disabled style="margin-top: 10px;">Load Timetable</button>
-            <div class="status-message" id="routeStatusMessage"></div>
-
+            <div class="collapsible-content" id="timetableContent">
+                <label style="font-size: 11px; color: #666;">Route:</label>
+                <div class="typeahead-container" style="position: relative;">
+                    <input type="text" id="routeInput" placeholder="Type to search routes..." autocomplete="off"
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                    <div id="routeDropdown" class="typeahead-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: white; border: 1px solid #ddd; border-top: none; border-radius: 0 0 4px 4px; z-index: 1001;">
+                    </div>
+                    <input type="hidden" id="routeSelect" value="">
+                </div>
+                <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;">Train:</label>
+                <select id="trainSelect" onchange="handleTrainChange()" disabled>
+                    <option value="">-- Select a train --</option>
+                </select>
+                <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;">Timetable:</label>
+                <select id="timetableSelect" onchange="handleTimetableChange()" disabled>
+                    <option value="">-- Select a timetable --</option>
+                </select>
+                <button id="loadRouteBtn" onclick="loadSelectedTimetable()" disabled style="margin-top: 10px;">Load Timetable</button>
+                <button id="clearRouteBtn" onclick="clearLoadedRoute()" style="width: 100%; margin-top: 8px; padding: 8px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: none;">Clear Loaded Route</button>
+                <a href="/hud" target="_blank" id="openHudLink" style="display: none; margin-top: 8px; text-align: center; padding: 8px; background: #8b5cf6; color: white; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">Open HUD</a>
+                <div id="routeInfoGroup" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
+                    <h3 id="routeName" style="font-size: 13px; color: #333; margin: 0;">Loading...</h3>
+                    <div class="info-item" style="display: none;">
+                        <span class="info-label">Trip Duration:</span>
+                        <span class="info-value" id="routeDuration">-</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="dev-tools" style="background: rgba(255, 0, 0, 0.15); border: 2px solid rgba(255, 0, 0, 0.4); border-radius: 6px; padding: 12px; margin-top: 15px;">
@@ -353,14 +401,6 @@
             <label style="font-size: 11px; color: #666;">Load JSON File:</label>
             <input type="file" id="jsonFileInput" accept=".json" onchange="handleFileSelect()" style="width: 100%; margin-top: 5px; font-size: 11px;">
             <div class="status-message" id="devStatusMessage" style="margin-top: 8px;"></div>
-        </div>
-
-        <div class="info-group">
-            <h3 id="routeName">Loading...</h3>
-            <div class="info-item" style="display: none;">
-                <span class="info-label">Trip Duration:</span>
-                <span class="info-value" id="routeDuration">-</span>
-            </div>
         </div>
 
         <div class="timetable-display" id="timetableDisplay" style="display: none;">
@@ -389,7 +429,6 @@
                     <div>Lng: <span id="currentLng">-</span></div>
                 </span>
             </div>
-            <button id="clearRouteBtn" onclick="clearLoadedRoute()" style="width: 100%; margin-top: 10px; padding: 8px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: none;">Clear Loaded Route</button>
         </div>
 
         <div class="legend">
@@ -444,6 +483,26 @@
             '0': 'Neutral',
             '1': 'Forward'
         };
+
+        function toggleTimetableSection() {
+            const content = document.getElementById('timetableContent');
+            const icon = document.getElementById('timetableCollapseIcon');
+
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+
+            // Save preference to localStorage
+            localStorage.setItem('timetableSectionCollapsed', content.classList.contains('collapsed'));
+        }
+
+        // Restore collapsed state on page load
+        function restoreTimetableSectionState() {
+            const isCollapsed = localStorage.getItem('timetableSectionCollapsed') === 'true';
+            if (isCollapsed) {
+                document.getElementById('timetableContent').classList.add('collapsed');
+                document.getElementById('timetableCollapseIcon').classList.add('collapsed');
+            }
+        }
 
         function toggleFollowTrain() {
             const followBtn = document.getElementById('followBtn');
@@ -504,10 +563,6 @@
 
         // Clear loaded route from localStorage and server
         async function clearLoadedRoute() {
-            const statusMessage = document.getElementById('routeStatusMessage');
-            statusMessage.textContent = 'Clearing...';
-            statusMessage.className = 'status-message';
-
             try {
                 // Clear from server
                 await fetch('/api/clear-route', { method: 'POST' });
@@ -520,19 +575,15 @@
                 const fileInput = document.getElementById('jsonFileInput');
                 if (fileInput) fileInput.value = '';
 
-                statusMessage.textContent = 'Route cleared';
-                statusMessage.className = 'status-message success';
-
-                // Hide the clear button
+                // Hide the clear button and HUD link
                 document.getElementById('clearRouteBtn').style.display = 'none';
+                document.getElementById('openHudLink').style.display = 'none';
 
                 setTimeout(() => {
                     location.reload();
                 }, 500);
             } catch (err) {
                 console.error('Failed to clear route:', err);
-                statusMessage.textContent = 'Error clearing route';
-                statusMessage.className = 'status-message error';
             }
         }
 
@@ -796,16 +847,10 @@
         // Load selected timetable data from database and display directly (no reload)
         async function loadSelectedTimetable() {
             const timetableId = document.getElementById('timetableSelect').value;
-            const statusMessage = document.getElementById('routeStatusMessage');
 
             if (!timetableId) {
-                statusMessage.textContent = 'Please select a timetable';
-                statusMessage.className = 'status-message error';
                 return;
             }
-
-            statusMessage.textContent = 'Loading timetable data...';
-            statusMessage.className = 'status-message';
 
             try {
                 // Fetch route data directly from database
@@ -851,16 +896,12 @@
                 routeData = data;
                 initializeRoute(data);
 
-                statusMessage.textContent = `Loaded: ${data.routeName}`;
-                statusMessage.className = 'status-message success';
-
-                // Show the clear route button
+                // Show the clear route button and HUD link
                 document.getElementById('clearRouteBtn').style.display = 'block';
+                document.getElementById('openHudLink').style.display = 'block';
 
             } catch (err) {
                 console.error('Failed to load timetable:', err);
-                statusMessage.textContent = `Error: ${err.message}`;
-                statusMessage.className = 'status-message error';
             }
         }
 
@@ -896,67 +937,127 @@
             }
         }
 
+        // Select timetable in dropdowns by timetable ID
+        async function selectTimetableInDropdowns(timetableId) {
+            if (!timetableId) return;
+
+            try {
+                // Get timetable details to find route_id and train_id
+                const response = await fetch(`/api/timetables/${timetableId}`);
+                const timetable = await response.json();
+
+                if (!timetable || timetable.error) {
+                    console.log('Could not find timetable:', timetableId);
+                    return;
+                }
+
+                // Wait for routes to load
+                while (allRoutes.length === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                // Find and select the route
+                const route = allRoutes.find(r => r.id === timetable.route_id);
+                if (route) {
+                    document.getElementById('routeInput').value = route.name;
+                    document.getElementById('routeSelect').value = route.id;
+
+                    // Load trains for this route
+                    await handleRouteChange();
+
+                    // Select the train
+                    const trainSelect = document.getElementById('trainSelect');
+                    trainSelect.value = timetable.train_id;
+
+                    // Load timetables for this route+train
+                    await handleTrainChange();
+
+                    // Select the timetable
+                    const timetableSelect = document.getElementById('timetableSelect');
+                    timetableSelect.value = timetableId;
+                    handleTimetableChange();
+
+                    console.log('Dropdowns populated for timetable:', timetableId);
+                }
+            } catch (err) {
+                console.error('Error selecting timetable in dropdowns:', err);
+            }
+        }
+
         // Load routes on page load
         loadRoutes();
         setupRouteTypeahead();
         loadConfig();
+        restoreTimetableSectionState();
 
-        // Check if we have a custom route in localStorage
-        const customRoute = localStorage.getItem('customRoute');
-        const customRouteFilename = localStorage.getItem('customRouteFilename');
-
-        if (customRoute) {
+        // Check server first for loaded route, then fall back to localStorage
+        async function loadInitialRoute() {
             try {
-                const data = JSON.parse(customRoute);
-                console.log('Loading custom route from localStorage:', customRouteFilename);
-                routeData = data;
-                initializeRoute(data);
+                // Check server first
+                const response = await fetch('/route-data');
+                const serverData = await response.json();
 
-                const routeNameEl = document.getElementById('routeName');
-                if (routeNameEl && customRouteFilename) {
-                    routeNameEl.textContent = customRouteFilename.replace('route_', '').replace('.json', '');
+                if (serverData && serverData.routeName && !serverData.error) {
+                    console.log('Loading route from server:', serverData.routeName);
+                    routeData = serverData;
+                    initializeRoute(serverData);
+
+                    // Sync localStorage with server data
+                    localStorage.setItem('customRoute', JSON.stringify(serverData));
+                    localStorage.setItem('customRouteFilename', serverData.routeName);
+
+                    // Show clear button and HUD link
+                    document.getElementById('clearRouteBtn').style.display = 'block';
+                    document.getElementById('openHudLink').style.display = 'block';
+                    document.getElementById('routeInfoGroup').style.display = 'block';
+
+                    // Select the timetable in dropdowns
+                    if (serverData.timetableId) {
+                        await selectTimetableInDropdowns(serverData.timetableId);
+                    }
+                    return;
                 }
-
-                // Show clear button since a route is loaded
-                document.getElementById('clearRouteBtn').style.display = 'block';
             } catch (err) {
-                console.error('Failed to load custom route:', err);
-                localStorage.removeItem('customRoute');
-                localStorage.removeItem('customRouteFilename');
-                loadServerRoute();
+                console.log('No route loaded on server, checking localStorage');
             }
-        } else {
-            loadServerRoute();
+
+            // Fall back to localStorage
+            const customRoute = localStorage.getItem('customRoute');
+            const customRouteFilename = localStorage.getItem('customRouteFilename');
+
+            if (customRoute) {
+                try {
+                    const data = JSON.parse(customRoute);
+                    console.log('Loading custom route from localStorage:', customRouteFilename);
+                    routeData = data;
+                    initializeRoute(data);
+
+                    // Show clear button and HUD link since a route is loaded
+                    document.getElementById('clearRouteBtn').style.display = 'block';
+                    document.getElementById('openHudLink').style.display = 'block';
+
+                    // Select the timetable in dropdowns
+                    if (data.timetableId) {
+                        await selectTimetableInDropdowns(data.timetableId);
+                    }
+                } catch (err) {
+                    console.error('Failed to load custom route:', err);
+                    localStorage.removeItem('customRoute');
+                    localStorage.removeItem('customRouteFilename');
+                }
+            }
         }
 
-        function loadServerRoute() {
-            fetch('/route-data')
-            .then(response => {
-                console.log('Route data response status:', response.status);
-                return response.json();
-            })
-            .then(data => {
-                console.log('Route data received:', {
-                    routeName: data.routeName,
-                    totalPoints: data.totalPoints,
-                    totalMarkers: data.totalMarkers,
-                    coordinatesLength: data.coordinates ? data.coordinates.length : 0,
-                    markersLength: data.markers ? data.markers.length : 0
-                });
-                routeData = data;
-                initializeRoute(data);
-            })
-            .catch(err => {
-                console.error('Failed to load route data:', err);
-                document.getElementById('routeName').textContent = 'No route loaded';
-            });
-        }
+        loadInitialRoute();
 
         function initializeRoute(data) {
             if (data.error) {
-                document.getElementById('routeName').textContent = 'No route loaded';
+                document.getElementById('routeInfoGroup').style.display = 'none';
                 return;
             }
+
+            // Show the route info section
+            document.getElementById('routeInfoGroup').style.display = 'block';
 
             const parsed = parseRouteName(data.routeName || 'Unknown');
             document.getElementById('routeName').textContent = parsed.name;

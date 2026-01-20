@@ -1,6 +1,13 @@
 'use strict';
 const http = require('http');
-const { getApiKey, sleep } = require('../utils/apiKey');
+const { getApiKey, hasApiKey, sleep } = require('../utils/apiKey');
+const { sendJson } = require('../utils/http');
+const fs = require('fs');
+const path = require('path');
+
+// Path to app configuration (to check apiKey source)
+const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
+const configPath = path.join(appDir, 'configuration.json');
 
 const TSW_API_HOST = 'localhost';
 const TSW_API_PORT = 31270;
@@ -157,6 +164,89 @@ function areSubscriptionsCreated() {
     return subscriptionsCreated;
 }
 
+/**
+ * Get API key source (configuration or TSW file)
+ * @returns {string}
+ */
+function getApiKeySource() {
+    try {
+        if (fs.existsSync(configPath)) {
+            const data = fs.readFileSync(configPath, 'utf8');
+            const config = JSON.parse(data);
+            if (config.apiKey && config.apiKey.trim()) {
+                return 'Configuration File';
+            }
+        }
+    } catch (err) {
+        // Ignore
+    }
+    return 'TSW CommAPIKey.txt';
+}
+
+/**
+ * GET /api/subscription/status - Get subscription status
+ */
+function getStatus(req, res) {
+    sendJson(res, {
+        hasApiKey: hasApiKey(),
+        apiKeySource: hasApiKey() ? getApiKeySource() : null,
+        subscriptionsCreated: areSubscriptionsCreated()
+    });
+}
+
+/**
+ * POST /api/subscription/reset - Reset subscriptions (delete and recreate)
+ */
+async function resetSubscriptionsHandler(req, res) {
+    try {
+        resetSubscriptionState();
+        await deleteSubscription();
+        await sleep(500);
+        await createSubscriptions();
+        sendJson(res, { success: true });
+    } catch (err) {
+        sendJson(res, { success: false, error: err.message }, 500);
+    }
+}
+
+/**
+ * POST /api/subscription/delete - Delete subscriptions only
+ */
+async function deleteSubscriptionsHandler(req, res) {
+    try {
+        resetSubscriptionState();
+        await deleteSubscription();
+        sendJson(res, { success: true });
+    } catch (err) {
+        sendJson(res, { success: false, error: err.message }, 500);
+    }
+}
+
+/**
+ * POST /api/subscription/create - Create subscriptions only
+ */
+async function createSubscriptionsHandler(req, res) {
+    try {
+        resetSubscriptionState();
+        await createSubscriptions();
+        sendJson(res, { success: true });
+    } catch (err) {
+        sendJson(res, { success: false, error: err.message }, 500);
+    }
+}
+
+/**
+ * GET /api/subscription/data - Get live subscription data
+ */
+async function getSubscriptionData(req, res) {
+    try {
+        const data = await fetchSubscriptionData();
+        sendJson(res, data);
+    } catch (err) {
+        sendJson(res, { error: err.message }, 500);
+    }
+}
+
 module.exports = {
     deleteSubscription,
     createSubscriptions,
@@ -164,5 +254,10 @@ module.exports = {
     fetchSubscriptionData,
     resetSubscriptionState,
     areSubscriptionsCreated,
-    tswApiRequest
+    tswApiRequest,
+    getStatus,
+    resetSubscriptionsHandler,
+    deleteSubscriptionsHandler,
+    createSubscriptionsHandler,
+    getSubscriptionData
 };

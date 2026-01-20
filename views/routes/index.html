@@ -4,36 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Routes - TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme-loader.js"></script>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
-        h1 { color: #00d4ff; text-align: center; margin-bottom: 10px; }
-        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        h1 { color: var(--accent-color); text-align: center; margin-bottom: 30px; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
         .nav { text-align: center; margin-bottom: 20px; }
-        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
-        .nav a:hover { background: #1a4a7a; }
-        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
-        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
+        .nav a {
+            color: var(--accent-color);
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            display: inline-block;
+            transition: background-color 0.2s ease;
+        }
+        .nav a:hover { background: var(--accent-hover); color: var(--bg-primary); }
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        h2 { color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #aaa; }
-        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
-        input[type="text"]:focus { outline: none; border-color: #00d4ff; }
-        select { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
-        select:focus { outline: none; border-color: #00d4ff; }
+        label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        input[type="text"]:focus { outline: none; border-color: var(--accent-color); }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        select:focus { outline: none; border-color: var(--accent-color); }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
-        .btn-primary { background: #00d4ff; color: #1a1a2e; }
-        .btn-primary:hover { background: #00b8e6; }
-        .btn-danger { background: #e94560; color: #fff; }
+        .btn-primary { background: var(--accent-color); color: var(--bg-primary); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-danger { background: var(--color-error); color: #fff; }
         .btn-danger:hover { background: #d63850; }
-        .btn-secondary { background: #0f3460; color: #eee; }
-        .btn-secondary:hover { background: #1a4a7a; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--accent-hover); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
-        th { background: #0f3460; color: #00d4ff; }
-        tr:hover { background: #1a1a2e; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-tertiary); color: var(--accent-color); }
+        tr:hover { background: var(--bg-primary); }
         .actions { white-space: nowrap; }
         .actions button { padding: 5px 10px; font-size: 12px; }
-        .empty-message { text-align: center; color: #666; padding: 20px; }
+        .empty-message { text-align: center; color: var(--text-muted); padding: 20px; }
         #editForm { display: none; }
         #editForm.active { display: block; }
         .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
@@ -42,14 +83,34 @@
         .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .pagination button { min-width: 40px; }
         .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .pagination-info { color: #888; font-size: 14px; }
+        .pagination-info { color: var(--text-muted); font-size: 14px; }
         .per-page { display: flex; align-items: center; gap: 8px; }
-        .per-page select { padding: 8px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
+        .per-page select {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        a { color: var(--accent-color); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .settings-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 24px;
+            transition: color 0.2s;
+        }
+        .settings-icon:hover { color: var(--accent-color); }
     </style>
 </head>
-<body>
+<body data-theme="dark">
+    <a href="/settings" class="settings-icon" title="Settings">&#9881;</a>
     <h1>Routes</h1>
-    <p class="subtitle">Train Sim World Dashboard &amp; HUD System</p>
+
     <nav class="nav">
         <a href="/">Home</a>
         <a href="/routes">Routes</a>
@@ -172,8 +233,8 @@
                 const country = allCountries.find(function(c) { return c.id == r.country_id; });
                 const countryName = country ? country.name : r.country;
                 const countryId = r.country_id || '';
-                html += '<tr><td>' + r.id + '</td><td><a href="/routes/' + r.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(r.name) + '</a></td>';
-                html += '<td>' + (country ? '<a href="/countries/' + country.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(countryName) + '</a>' : escapeHtml(countryName)) + '</td>';
+                html += '<tr><td>' + r.id + '</td><td><a href="/routes/' + r.id + '">' + escapeHtml(r.name) + '</a></td>';
+                html += '<td>' + (country ? '<a href="/countries/' + country.id + '">' + escapeHtml(countryName) + '</a>' : escapeHtml(countryName)) + '</td>';
                 html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + r.id + ')">Show</button>';
                 html += '<button class="btn-secondary" onclick="editRoute(' + r.id + ',\'' + escapeJs(r.name) + '\',' + countryId + ')">Edit</button>';
                 html += '<button class="btn-danger" onclick="deleteRoute(' + r.id + ')">Delete</button></td></tr>';

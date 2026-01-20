@@ -57,9 +57,30 @@ async function start() {
     await seedDatabase();
     const ip = getInternalIpAddress();
 
-    server.listen(PORT, async () => {
-        console.log(`\n========================================`);
-        console.log(`  TSW HUD Project Server`);
+    console.log(`\n========================================`);
+    console.log(`  TSW HUD Project Server`);
+    console.log(`========================================`);
+
+    // Wait for API key before starting server
+    console.log('Checking for TSW CommAPI key...');
+    const apiKey = await waitForValidApiKey();
+
+    if (!apiKey) {
+        console.error('ERROR: Could not load API key. Server cannot start.');
+        process.exit(1);
+    }
+
+    // Initialize TSW subscriptions before starting server
+    console.log('Initializing TSW subscriptions...');
+    try {
+        await initializeSubscriptions();
+        console.log('TSW connection ready - HUD and Map features active');
+    } catch (err) {
+        console.error('Failed to initialize TSW subscriptions:', err.message);
+        console.log('Will retry subscriptions when features are accessed');
+    }
+
+    server.listen(PORT, () => {
         console.log(`========================================`);
         console.log(`  Local:   http://localhost:${PORT}`);
         console.log(`  Network: http://${ip}:${PORT}`);
@@ -72,30 +93,7 @@ async function start() {
         console.log(`========================================`);
         console.log(`  Press Ctrl+C to stop`);
         console.log(`========================================\n`);
-
-        // Initialize TSW API subscriptions (non-blocking)
-        initializeTswConnection();
     });
-}
-
-/**
- * Initialize TSW API connection and subscriptions
- * Runs in background, doesn't block server startup
- */
-async function initializeTswConnection() {
-    try {
-        console.log('Checking for TSW CommAPI key...');
-        const apiKey = await waitForValidApiKey();
-
-        if (apiKey) {
-            console.log('Initializing TSW subscriptions...');
-            await initializeSubscriptions();
-            console.log('TSW connection ready - HUD and Map features active');
-        }
-    } catch (err) {
-        console.error('Failed to initialize TSW connection:', err.message);
-        console.log('HUD and Map features will retry when accessed');
-    }
 }
 
 start();

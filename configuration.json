@@ -1,3 +1,8 @@
 {
-  "developmentMode": false
+  "developmentMode": false,
+  "apiKey": "",
+  "theme": "dark",
+  "tswVersion": "tsw6",
+  "tsw5KeyPath": "",
+  "tsw6KeyPath": ""
 }

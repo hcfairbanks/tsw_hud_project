@@ -4,55 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * {
             box-sizing: border-box;
         }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #1a1a2e;
-            color: #eee;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         h1 {
-            color: #00d4ff;
+            color: var(--accent-color);
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
         }
         .subtitle {
             text-align: center;
-            color: #888;
+            color: var(--text-muted);
             margin-bottom: 30px;
         }
         .nav {
             text-align: center;
             margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
         .nav a {
-            color: #00d4ff;
+            color: var(--accent-color);
             text-decoration: none;
-            margin: 0 10px;
             padding: 10px 20px;
-            background: #0f3460;
+            background: var(--bg-tertiary);
             border-radius: 4px;
             display: inline-block;
+            transition: background-color 0.2s ease;
+            white-space: nowrap;
         }
         .nav a:hover {
-            background: #1a4a7a;
+            background: var(--accent-hover);
+            color: var(--bg-primary);
         }
         .card {
-            background: #16213e;
+            background: var(--bg-secondary);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
-            border: 1px solid #0f3460;
+            border: 1px solid var(--border-color);
         }
         h2 {
-            color: #00d4ff;
+            color: var(--accent-color);
             margin-top: 0;
-            border-bottom: 1px solid #0f3460;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
         }
         .form-group {
@@ -61,20 +69,20 @@
         label {
             display: block;
             margin-bottom: 5px;
-            color: #aaa;
+            color: var(--text-secondary);
         }
         input[type="text"] {
             width: 100%;
             padding: 10px;
-            border: 1px solid #0f3460;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            background: #1a1a2e;
-            color: #eee;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             font-size: 14px;
         }
         input[type="text"]:focus {
             outline: none;
-            border-color: #00d4ff;
+            border-color: var(--accent-color);
         }
         button {
             padding: 10px 20px;
@@ -85,25 +93,25 @@
             margin-right: 5px;
         }
         .btn-primary {
-            background: #00d4ff;
-            color: #1a1a2e;
+            background: var(--accent-color);
+            color: var(--bg-primary);
         }
         .btn-primary:hover {
-            background: #00b8e6;
+            background: var(--accent-hover);
         }
         .btn-danger {
-            background: #e94560;
+            background: var(--color-error);
             color: #fff;
         }
         .btn-danger:hover {
             background: #d63850;
         }
         .btn-secondary {
-            background: #0f3460;
-            color: #eee;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
         }
         .btn-secondary:hover {
-            background: #1a4a7a;
+            background: var(--accent-hover);
         }
         table {
             width: 100%;
@@ -113,14 +121,14 @@
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #0f3460;
+            border-bottom: 1px solid var(--border-color);
         }
         th {
-            background: #0f3460;
-            color: #00d4ff;
+            background: var(--bg-tertiary);
+            color: var(--accent-color);
         }
         tr:hover {
-            background: #1a1a2e;
+            background: var(--bg-primary);
         }
         .actions {
             white-space: nowrap;
@@ -131,7 +139,7 @@
         }
         .empty-message {
             text-align: center;
-            color: #666;
+            color: var(--text-muted);
             padding: 20px;
         }
         #editForm {
@@ -140,25 +148,11 @@
         #editForm.active {
             display: block;
         }
-        .settings-icon {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            color: #888;
-            text-decoration: none;
-            font-size: 24px;
-            transition: color 0.2s;
-        }
-        .settings-icon:hover {
-            color: #00d4ff;
-        }
     </style>
 </head>
-<body>
-    <a href="/settings" class="settings-icon" title="Settings">&#9881;</a>
+<body data-theme="dark">
     <h1>TSW HUD Project</h1>
-    <p class="subtitle">Train Sim World Dashboard & HUD System</p>
-    
+
     <nav class="nav">
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
@@ -169,11 +163,35 @@
         <a href="/timetables">Timetables</a>
         <a href="/extract">Extract</a>
         <a href="/weather">Weather</a>
+        <a href="/settings">Settings</a>
     </nav>
 
     <div class="card">
         <h2>Welcome</h2>
         <p>Use the navigation above to manage routes and extract timetables from Train Sim World.</p>
     </div>
+
+    <script>
+        // Apply theme on page load
+        function applyTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+        }
+
+        // Load theme from localStorage first for instant apply
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        }
+
+        // Then fetch from server to ensure sync
+        fetch('/api/config')
+            .then(res => res.json())
+            .then(config => {
+                const theme = config.theme || 'dark';
+                applyTheme(theme);
+                localStorage.setItem('theme', theme);
+            })
+            .catch(err => console.error('Failed to load config:', err));
+    </script>
 </body>
 </html>

@@ -16,6 +16,9 @@ const mapDataController = require('../controllers/mapDataController');
 const stationMappingController = require('../controllers/stationMappingController');
 const routeProcessingController = require('../controllers/routeProcessingController');
 const configController = require('../controllers/configController');
+const subscriptionController = require('../controllers/subscriptionController');
+const { getDefaultPaths, getApiKey, getApiKeyPath } = require('../utils/apiKey');
+const { getInternalIpAddress } = require('../utils/network');
 
 /**
  * Route handler - maps URL patterns to controller methods
@@ -56,6 +59,12 @@ async function handleRoutes(req, res) {
     // Live map page
     if (pathname === '/map' || pathname === '/map.html') {
         serveFile(res, 'map.html', 'text/html');
+        return true;
+    }
+
+    // Load timetable page (mobile/tablet friendly)
+    if (pathname === '/load' || pathname === '/load.html') {
+        serveFile(res, 'load.html', 'text/html');
         return true;
     }
 
@@ -134,6 +143,12 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // API Subscriptions page
+    if (pathname === '/api-subscriptions' || pathname === '/api-subscriptions.html') {
+        serveFile(res, 'api-subscriptions.html', 'text/html');
+        return true;
+    }
+
     // Weather preset show page /weather-presets/:id
     const weatherPresetShowMatch = pathname.match(/^\/weather-presets\/(\d+)$/);
     if (weatherPresetShowMatch) {
@@ -144,6 +159,12 @@ async function handleRoutes(req, res) {
     // CSS files
     if (pathname.startsWith('/css/') && pathname.endsWith('.css')) {
         serveFile(res, pathname.substring(1), 'text/css');
+        return true;
+    }
+
+    // JS files
+    if (pathname.startsWith('/js/') && pathname.endsWith('.js')) {
+        serveFile(res, pathname.substring(1), 'application/javascript');
         return true;
     }
 
@@ -755,6 +776,80 @@ async function handleRoutes(req, res) {
             await configController.updateConfig(req, res);
             return true;
         }
+    }
+
+    // Get default TSW API key paths
+    if (pathname === '/api/config/default-paths' && method === 'GET') {
+        sendJson(res, getDefaultPaths());
+        return true;
+    }
+
+    // Get current API key info
+    if (pathname === '/api/config/current-key' && method === 'GET') {
+        const config = configController.loadConfig();
+        const currentKey = getApiKey();
+        const currentPath = getApiKeyPath();
+
+        let source = 'Not found';
+        if (config.apiKey && config.apiKey.trim()) {
+            source = 'Direct API key override';
+        } else if (currentKey) {
+            const tswVersion = config.tswVersion || 'tsw6';
+            source = `${tswVersion.toUpperCase()} path: ${currentPath}`;
+        }
+
+        sendJson(res, {
+            key: currentKey || null,
+            path: currentPath,
+            source: source,
+            hasKey: !!currentKey
+        });
+        return true;
+    }
+
+    // Get server URLs
+    if (pathname === '/api/config/server-urls' && method === 'GET') {
+        const ip = getInternalIpAddress();
+        const port = 3000;
+        sendJson(res, {
+            local: `http://localhost:${port}`,
+            network: `http://${ip}:${port}`
+        });
+        return true;
+    }
+
+    // ============================================
+    // Subscription Management API Routes
+    // ============================================
+
+    // Get subscription status
+    if (pathname === '/api/subscription/status' && method === 'GET') {
+        subscriptionController.getStatus(req, res);
+        return true;
+    }
+
+    // Reset subscriptions (delete and recreate)
+    if (pathname === '/api/subscription/reset' && method === 'POST') {
+        await subscriptionController.resetSubscriptionsHandler(req, res);
+        return true;
+    }
+
+    // Delete subscriptions only
+    if (pathname === '/api/subscription/delete' && method === 'POST') {
+        await subscriptionController.deleteSubscriptionsHandler(req, res);
+        return true;
+    }
+
+    // Create subscriptions only
+    if (pathname === '/api/subscription/create' && method === 'POST') {
+        await subscriptionController.createSubscriptionsHandler(req, res);
+        return true;
+    }
+
+    // Get live subscription data
+    if (pathname === '/api/subscription/data' && method === 'GET') {
+        await subscriptionController.getSubscriptionData(req, res);
+        return true;
     }
 
     // ============================================
