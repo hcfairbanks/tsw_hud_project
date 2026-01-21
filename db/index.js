@@ -813,6 +813,14 @@ const entryDb = {
             [latitude.toString(), longitude.toString(), apiName || '', timetableId, sortOrder, action]
         );
         saveDatabase();
+    },
+    // Update coordinates only for an entry by its ID (for SAVE LOC button)
+    updateCoordinatesById: (id, latitude, longitude) => {
+        db.run(
+            'UPDATE timetable_entries SET latitude = ?, longitude = ? WHERE id = ?',
+            [latitude.toString(), longitude.toString(), id]
+        );
+        saveDatabase();
     }
 };
 

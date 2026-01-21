@@ -1,5 +1,5 @@
 'use strict';
-const { serveFile, sendJson } = require('../utils/http');
+const { serveFile, sendJson, parseBody } = require('../utils/http');
 const countryController = require('../controllers/countryController');
 const routeController = require('../controllers/routeController');
 const trainController = require('../controllers/trainController');
@@ -17,6 +17,7 @@ const stationMappingController = require('../controllers/stationMappingControlle
 const routeProcessingController = require('../controllers/routeProcessingController');
 const configController = require('../controllers/configController');
 const subscriptionController = require('../controllers/subscriptionController');
+const telemetryController = require('../controllers/telemetryController');
 const { getDefaultPaths, getApiKey, getApiKeyPath } = require('../utils/apiKey');
 const { getInternalIpAddress } = require('../utils/network');
 
@@ -47,6 +48,18 @@ async function handleRoutes(req, res) {
     // HUD dashboard page
     if (pathname === '/hud' || pathname === '/hud.html') {
         serveFile(res, 'hud.html', 'text/html');
+        return true;
+    }
+
+    // Mobile HUD (optimized for Samsung Galaxy S23 landscape)
+    if (pathname === '/hud_1' || pathname === '/hud_1.html') {
+        serveFile(res, 'hud_1.html', 'text/html');
+        return true;
+    }
+
+    // Tablet HUD (optimized for Samsung Tab S9 FE)
+    if (pathname === '/hud_2' || pathname === '/hud_2.html') {
+        serveFile(res, 'hud_2.html', 'text/html');
         return true;
     }
 
@@ -539,6 +552,27 @@ async function handleRoutes(req, res) {
     // Clear current route
     if (pathname === '/api/clear-route' && method === 'POST') {
         await hudController.clearCurrentRoute(req, res);
+        return true;
+    }
+
+    // Get timetable items for test selector
+    if (pathname === '/api/timetable-items' && method === 'GET') {
+        const data = telemetryController.getTimetableItems();
+        sendJson(res, data);
+        return true;
+    }
+
+    // Set timetable index for testing
+    if (pathname === '/api/set-timetable-index' && method === 'POST') {
+        const body = await parseBody(req);
+        const success = telemetryController.setTimetableIndex(body.index);
+        sendJson(res, { success });
+        return true;
+    }
+
+    // Update timetable entry coordinates (for SAVE LOC button)
+    if (pathname === '/api/update-timetable-coordinates' && method === 'POST') {
+        await telemetryController.updateTimetableCoordinates(req, res);
         return true;
     }
 

@@ -3,11 +3,30 @@ const fs = require('fs');
 const path = require('path');
 const { fetchSubscriptionData } = require('./subscriptionController');
 const recordingController = require('./recordingController');
+const { loadConfig } = require('./configController');
 
-// Configuration
-const useMiles = false;
-const speedConversionFactor = useMiles ? 2.23694 : 3.6;
-const distanceConversionFactor = useMiles ? 30.48 : 100;
+// Get distance units from config
+function getDistanceUnits() {
+    const config = loadConfig();
+    return config.distanceUnits || 'metric';
+}
+
+// Get temperature units from config
+function getTemperatureUnits() {
+    const config = loadConfig();
+    return config.temperatureUnits || 'celsius';
+}
+
+// Get conversion factors based on units setting
+function getConversionFactors() {
+    const units = getDistanceUnits();
+    const useMiles = units === 'imperial';
+    return {
+        speedConversionFactor: useMiles ? 2.23694 : 3.6,  // m/s to mph or km/h
+        distanceConversionFactor: useMiles ? 30.48 : 100, // cm to feet or meters
+        units: units
+    };
+}
 
 // State
 let loadedRouteData = null;
@@ -15,6 +34,11 @@ let routeFilePath = null;
 let timetableData = [];
 let currentPlayerPosition = null;
 let currentHeight = null; // Height from TrackData for recording
+let lastArrivedStationIndex = -1; // Track which station the player has physically arrived at (-1 = not started yet)
+let closestDistanceToNextStation = Infinity; // Track closest distance to detect when player has PASSED a station
+
+// Distance threshold in meters to consider player "arrived" at a station
+const ARRIVAL_THRESHOLD_METERS = 100;
 
 // Get the directory where the app is running from
 const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
@@ -24,6 +48,10 @@ const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirnam
  */
 function loadTimetable() {
     try {
+        // Reset station arrival tracking when loading new timetable
+        lastArrivedStationIndex = -1;
+        closestDistanceToNextStation = Infinity;
+
         if (loadedRouteData && loadedRouteData.timetable && Array.isArray(loadedRouteData.timetable) && loadedRouteData.timetable.length > 0) {
             timetableData = loadedRouteData.timetable;
             console.log(`✓ Using embedded timetable: ${timetableData.length} stops`);
@@ -51,7 +79,20 @@ function timeToSeconds(timeStr) {
 }
 
 /**
+ * Check if player has arrived at a station (within threshold distance)
+ */
+function checkStationArrival(playerLat, playerLon, stationLat, stationLon) {
+    if (!playerLat || !playerLon || !stationLat || !stationLon) {
+        return false;
+    }
+    const distance = calculateDistance(playerLat, playerLon, stationLat, stationLon);
+    return distance <= ARRIVAL_THRESHOLD_METERS;
+}
+
+/**
  * Calculate what should be displayed in the timetable box
+ * TESTING MODE: Only advances to next station after player has PASSED the station
+ * (distance starts increasing after getting close)
  */
 function getTimetableDisplay(currentTimeISO) {
     if (timetableData.length === 0 || !currentTimeISO) {
@@ -62,45 +103,69 @@ function getTimetableDisplay(currentTimeISO) {
         const timePart = currentTimeISO.split('T')[1].split('.')[0];
         const currentSeconds = timeToSeconds(timePart);
 
-        for (let i = 0; i < timetableData.length; i++) {
-            const stop = timetableData[i];
-            const departureSeconds = timeToSeconds(stop.departure);
-            const arrivalSeconds = timeToSeconds(stop.arrival);
+        // Check if player has ARRIVED at the current target station (within threshold distance)
+        if (currentPlayerPosition && lastArrivedStationIndex >= 0 && lastArrivedStationIndex < timetableData.length - 1) {
+            const nextStationIndex = lastArrivedStationIndex + 1;
+            const nextStation = timetableData[nextStationIndex];
 
-            // First stop - show departure
-            if (i === 0) {
-                if (currentSeconds < departureSeconds) {
-                    return { time: stop.departure, label: 'DEPARTURE', targetApiName: null, showDistance: false };
+            if (nextStation && nextStation.latitude && nextStation.longitude) {
+                const currentDistance = calculateDistance(
+                    currentPlayerPosition.latitude,
+                    currentPlayerPosition.longitude,
+                    nextStation.latitude,
+                    nextStation.longitude
+                );
+
+                // Player has ARRIVED at the station if within threshold
+                // This allows stopping at stations to advance the timetable
+                const hasArrivedAtStation = currentDistance <= ARRIVAL_THRESHOLD_METERS;
+
+                if (hasArrivedAtStation) {
+                    console.log(`[Timetable] Arrived at station: ${nextStation.destination} (distance: ${Math.round(currentDistance)}m)`);
+                    lastArrivedStationIndex = nextStationIndex;
+                    closestDistanceToNextStation = Infinity; // Reset for next station
                 }
             }
+        }
 
-            // Last stop - only show arrival
-            if (i === timetableData.length - 1) {
-                return { time: stop.arrival, label: stop.destination, targetApiName: stop.apiName, showDistance: true };
+        // First stop logic - time-based since player starts at first station
+        const firstStop = timetableData[0];
+        const firstDepartureSeconds = timeToSeconds(firstStop.departure);
+
+        if (lastArrivedStationIndex === -1) {
+            // Not started yet - check if at first station by time
+            if (currentSeconds < firstDepartureSeconds) {
+                // Before departure - show departure time, but still provide next station for distance calc
+                const nextStation = timetableData.length > 1 ? timetableData[1] : null;
+                return {
+                    time: firstStop.departure,
+                    label: 'DEPARTURE',
+                    targetApiName: nextStation ? nextStation.apiName : null,
+                    showDistance: true
+                };
+            } else {
+                // Departure time passed - mark as arrived at first station and show next
+                lastArrivedStationIndex = 0;
+                closestDistanceToNextStation = Infinity;
             }
+        }
 
-            // Current stop departure time hasn't passed yet
-            if (departureSeconds && currentSeconds < departureSeconds) {
-                return { time: stop.departure, label: 'DEPARTURE', targetApiName: null, showDistance: false };
-            }
+        // Show next station info (always show the next target)
+        const nextStationIndex = lastArrivedStationIndex + 1;
+        if (nextStationIndex < timetableData.length) {
+            const nextStation = timetableData[nextStationIndex];
+            return {
+                time: nextStation.arrival,
+                label: nextStation.destination,
+                targetApiName: nextStation.apiName,
+                showDistance: true
+            };
+        }
 
-            // Check if we're between this departure and next arrival
-            if (i < timetableData.length - 1) {
-                const nextStop = timetableData[i + 1];
-                const nextArrivalSeconds = timeToSeconds(nextStop.arrival);
-
-                if (currentSeconds >= departureSeconds && currentSeconds < nextArrivalSeconds) {
-                    return { time: nextStop.arrival, label: nextStop.destination, targetApiName: nextStop.apiName, showDistance: true };
-                }
-
-                // At next station, before departure
-                if (currentSeconds >= nextArrivalSeconds) {
-                    const nextDepartureSeconds = timeToSeconds(nextStop.departure);
-                    if (nextDepartureSeconds && currentSeconds < nextDepartureSeconds) {
-                        return { time: nextStop.departure, label: 'DEPARTURE', targetApiName: null, showDistance: false };
-                    }
-                }
-            }
+        // At last station
+        if (lastArrivedStationIndex === timetableData.length - 1) {
+            const lastStation = timetableData[lastArrivedStationIndex];
+            return { time: lastStation.arrival, label: lastStation.destination, targetApiName: lastStation.apiName, showDistance: false };
         }
 
         return { time: null, label: null, targetApiName: null, showDistance: false };
@@ -154,21 +219,27 @@ function findNearestRouteIndex(lat, lon) {
 
 /**
  * Calculate distance along route from player to marker
+ * Falls back to direct Haversine distance if route data unavailable
  */
 function calculateDistanceAlongRoute(playerLat, playerLon, markerLat, markerLon) {
-    if (!loadedRouteData || !loadedRouteData.coordinates) {
-        return null;
+    // Always calculate direct distance as fallback
+    const directDistance = calculateDistance(playerLat, playerLon, markerLat, markerLon);
+
+    if (!loadedRouteData || !loadedRouteData.coordinates || loadedRouteData.coordinates.length === 0) {
+        // No route data, use direct distance
+        return directDistance;
     }
 
     const playerIndex = findNearestRouteIndex(playerLat, playerLon);
     const markerIndex = findNearestRouteIndex(markerLat, markerLon);
 
     if (playerIndex === -1 || markerIndex === -1) {
-        return null;
+        return directDistance;
     }
 
+    // If marker is behind player (already passed), use direct distance
     if (markerIndex <= playerIndex) {
-        return 0;
+        return directDistance;
     }
 
     let totalDistance = 0;
@@ -219,6 +290,9 @@ function getNextTimetableStation(targetApiName) {
  * Parse raw TSW subscription data into stream format
  */
 function parseSubscriptionData(rawData) {
+    // Get conversion factors based on user's unit preference
+    const { speedConversionFactor, distanceConversionFactor, units } = getConversionFactors();
+
     const streamData = {
         playerPosition: null,
         localTime: null,
@@ -255,7 +329,11 @@ function parseSubscriptionData(rawData) {
         doorBackRight: null,
         doorBackLeft: null,
         // Reverser position (0=reverse, 1=neutral, 2=forward, -1=handle removed)
-        reverser: null
+        reverser: null,
+        // Distance units preference for frontend display
+        distanceUnits: units,
+        // Temperature units preference for frontend display
+        temperatureUnits: getTemperatureUnits()
     };
 
     if (rawData.Entries && rawData.Entries.length > 0) {
@@ -480,29 +558,63 @@ function parseSubscriptionData(rawData) {
         streamData.timetableLabel = timetableDisplay.label;
 
         // Calculate distance along route to next station
-        if (timetableDisplay.targetApiName && currentPlayerPosition) {
-            const nextStation = getNextTimetableStation(timetableDisplay.targetApiName);
+        // Use targetApiName from display, or find the next station directly if we have a valid index
+        let targetApiName = timetableDisplay.targetApiName;
 
-            if (nextStation && nextStation.latitude && nextStation.longitude) {
-                const distance = calculateDistanceAlongRoute(
-                    currentPlayerPosition.latitude,
-                    currentPlayerPosition.longitude,
-                    nextStation.latitude,
-                    nextStation.longitude
-                );
+        // If no targetApiName but we have a valid station index, get it from timetable directly
+        if (!targetApiName && lastArrivedStationIndex >= 0 && lastArrivedStationIndex < timetableData.length - 1) {
+            const nextStation = timetableData[lastArrivedStationIndex + 1];
+            if (nextStation) {
+                targetApiName = nextStation.apiName;
+            }
+        }
 
-                if (distance !== null) {
-                    streamData.distanceToStation = Math.round(distance);
-                }
+        // Also try direct lookup by index if we have a valid arrived index
+        const directTargetIndex = lastArrivedStationIndex + 1;
+        let nextStation = null;
 
-                // Also include the next station info in stream
-                streamData.nextStation = {
-                    name: nextStation.name,
-                    arrival: nextStation.arrival,
-                    platform: nextStation.platform,
-                    index: nextStation.index
+        if (targetApiName) {
+            nextStation = getNextTimetableStation(targetApiName);
+        }
+
+        // Fallback: if no station found by apiName, try direct index lookup
+        if (!nextStation && directTargetIndex >= 0 && directTargetIndex < timetableData.length) {
+            const directStation = timetableData[directTargetIndex];
+            if (directStation && directStation.latitude && directStation.longitude) {
+                nextStation = {
+                    name: directStation.destination,
+                    latitude: directStation.latitude,
+                    longitude: directStation.longitude,
+                    arrival: directStation.arrival,
+                    departure: directStation.departure,
+                    platform: directStation.platform,
+                    index: directStation.index
                 };
             }
+        }
+
+        if (nextStation && nextStation.latitude && nextStation.longitude && currentPlayerPosition) {
+            // Use streamData.playerPosition if available (freshly updated this tick), otherwise fall back to global
+            const posToUse = streamData.playerPosition || currentPlayerPosition;
+
+            const distance = calculateDistanceAlongRoute(
+                posToUse.latitude,
+                posToUse.longitude,
+                nextStation.latitude,
+                nextStation.longitude
+            );
+
+            if (distance !== null) {
+                streamData.distanceToStation = Math.round(distance);
+            }
+
+            // Also include the next station info in stream
+            streamData.nextStation = {
+                name: nextStation.name,
+                arrival: nextStation.arrival,
+                platform: nextStation.platform,
+                index: nextStation.index
+            };
         }
     }
 
@@ -608,6 +720,8 @@ function clearRoute() {
     routeFilePath = null;
     timetableData = [];
     currentTimetableIndex = 0;
+    lastArrivedStationIndex = -1;
+    closestDistanceToNextStation = Infinity;
     console.log('Route data cleared');
 }
 
@@ -616,6 +730,68 @@ function clearRoute() {
  */
 function getPlayerPosition() {
     return currentPlayerPosition;
+}
+
+/**
+ * Get timetable items for test selector
+ */
+function getTimetableItems() {
+    return {
+        items: timetableData,
+        currentIndex: lastArrivedStationIndex
+    };
+}
+
+/**
+ * Set timetable index (for testing)
+ */
+function setTimetableIndex(index) {
+    if (index >= -1 && index < timetableData.length) {
+        lastArrivedStationIndex = index;
+        closestDistanceToNextStation = Infinity;
+        console.log(`[Timetable Test] Index set to ${index}`);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Update timetable entry coordinates (for SAVE LOC button)
+ */
+async function updateTimetableCoordinates(req, res) {
+    const { sendJson, parseBody } = require('../utils/http');
+    const { entryDb } = require('../db');
+
+    try {
+        const body = await parseBody(req);
+        const { entryId, latitude, longitude } = body;
+
+        if (!entryId) {
+            sendJson(res, { success: false, error: 'Entry ID is required' }, 400);
+            return;
+        }
+
+        if (latitude === undefined || longitude === undefined) {
+            sendJson(res, { success: false, error: 'Latitude and longitude are required' }, 400);
+            return;
+        }
+
+        // Update coordinates in database using the entryDb method
+        entryDb.updateCoordinatesById(entryId, latitude, longitude);
+
+        // Also update the local timetableData cache if the entry is found
+        const entryIndex = timetableData.findIndex(e => e.id === entryId);
+        if (entryIndex !== -1) {
+            timetableData[entryIndex].latitude = latitude;
+            timetableData[entryIndex].longitude = longitude;
+        }
+
+        console.log(`[SAVE LOC] Updated entry ${entryId} coordinates: lat=${latitude}, lng=${longitude}`);
+        sendJson(res, { success: true });
+    } catch (err) {
+        console.error('[SAVE LOC] Error updating coordinates:', err);
+        sendJson(res, { success: false, error: err.message }, 500);
+    }
 }
 
 module.exports = {
@@ -629,5 +805,8 @@ module.exports = {
     getPlayerPosition,
     loadTimetable,
     calculateDistance,
-    calculateDistanceAlongRoute
+    calculateDistanceAlongRoute,
+    getTimetableItems,
+    setTimetableIndex,
+    updateTimetableCoordinates
 };

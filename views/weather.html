@@ -424,6 +424,33 @@
         let isConnected = false;
         let eventSource = null;
         let presets = [];
+        let temperatureUnits = 'celsius'; // Default, will be loaded from config
+
+        // Load config to get temperature units setting
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                temperatureUnits = config.temperatureUnits || 'celsius';
+                // Update the slider display with correct units
+                updateTempSlider();
+            } catch (err) {
+                console.error('Failed to load config:', err);
+            }
+        }
+
+        // Convert Celsius to Fahrenheit
+        function celsiusToFahrenheit(celsius) {
+            return (celsius * 9/5) + 32;
+        }
+
+        // Format temperature for display based on units setting
+        function formatTemperature(celsius) {
+            if (temperatureUnits === 'fahrenheit') {
+                return celsiusToFahrenheit(celsius).toFixed(1) + '°F';
+            }
+            return celsius.toFixed(1) + '°C';
+        }
 
         // Load presets on page load
         async function loadPresets() {
@@ -544,7 +571,7 @@
 
         function formatStatusValue(key, value) {
             if (value === null || value === undefined) return '--';
-            if (key === 'Temperature') return value.toFixed(1) + '°C';
+            if (key === 'Temperature') return formatTemperature(value);
             return (value * 100).toFixed(0) + '%';
         }
 
@@ -571,7 +598,8 @@
         function updateTempSlider() {
             const slider = document.getElementById('ctrl-Temperature');
             const display = document.getElementById('val-Temperature');
-            display.textContent = parseFloat(slider.value).toFixed(1) + '°C';
+            const celsiusValue = parseFloat(slider.value);
+            display.textContent = formatTemperature(celsiusValue);
         }
 
         async function applyAllWeather() {
@@ -659,8 +687,9 @@
             };
         }
 
-        // Start connection and load presets
+        // Start connection and load config/presets
         connectToStream();
+        loadConfig();
         loadPresets();
     </script>
 </body>

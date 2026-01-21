@@ -408,7 +408,7 @@
             <div class="timetable-time" id="timetableTime">--:--</div>
             <div class="timetable-label" id="timetableLabel">Next Stop</div>
             <div class="distance-display" id="distanceDisplay" style="display: none;">
-                <span id="distanceValue">0</span> m
+                <span id="distanceValue">0</span> <span id="distanceUnit">m</span>
             </div>
         </div>
 
@@ -1163,7 +1163,29 @@
 
                 if (data.distanceToStation !== null && data.distanceToStation !== undefined) {
                     document.getElementById('distanceDisplay').style.display = 'block';
-                    document.getElementById('distanceValue').textContent = data.distanceToStation.toLocaleString();
+                    const isImperial = data.distanceUnits === 'imperial';
+
+                    if (isImperial) {
+                        // Imperial: distance is in feet
+                        const feet = data.distanceToStation;
+                        if (feet > 5280) {
+                            // Convert to miles (5280 feet = 1 mile)
+                            document.getElementById('distanceValue').textContent = (feet / 5280).toFixed(1);
+                            document.getElementById('distanceUnit').textContent = 'mi';
+                        } else {
+                            document.getElementById('distanceValue').textContent = Math.round(feet).toLocaleString();
+                            document.getElementById('distanceUnit').textContent = 'ft';
+                        }
+                    } else {
+                        // Metric: distance is in meters
+                        if (data.distanceToStation > 3000) {
+                            document.getElementById('distanceValue').textContent = (data.distanceToStation / 1000).toFixed(1);
+                            document.getElementById('distanceUnit').textContent = 'km';
+                        } else {
+                            document.getElementById('distanceValue').textContent = Math.round(data.distanceToStation).toLocaleString();
+                            document.getElementById('distanceUnit').textContent = 'm';
+                        }
+                    }
                 } else {
                     document.getElementById('distanceDisplay').style.display = 'none';
                 }

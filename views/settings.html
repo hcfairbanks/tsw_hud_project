@@ -443,6 +443,40 @@
                 </label>
             </div>
         </div>
+
+        <div class="setting-row">
+            <div class="setting-info">
+                <div class="setting-label">Distance Units</div>
+                <div class="setting-description">Choose between metric (km/m) and imperial (miles/feet)</div>
+            </div>
+            <div class="theme-selector">
+                <label class="theme-option" id="unitsMetric">
+                    <input type="radio" name="distanceUnits" value="metric">
+                    <span>km / m</span>
+                </label>
+                <label class="theme-option" id="unitsImperial">
+                    <input type="radio" name="distanceUnits" value="imperial">
+                    <span>mi / ft</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="setting-row">
+            <div class="setting-info">
+                <div class="setting-label">Temperature Units</div>
+                <div class="setting-description">Choose between Celsius and Fahrenheit</div>
+            </div>
+            <div class="theme-selector">
+                <label class="theme-option" id="tempCelsius">
+                    <input type="radio" name="temperatureUnits" value="celsius">
+                    <span>°C</span>
+                </label>
+                <label class="theme-option" id="tempFahrenheit">
+                    <input type="radio" name="temperatureUnits" value="fahrenheit">
+                    <span>°F</span>
+                </label>
+            </div>
+        </div>
     </div>
 
     <div class="card">
@@ -602,6 +636,52 @@
             }
         }
 
+        // Apply distance units selection UI
+        function applyDistanceUnits(units) {
+            // Update units selector UI
+            document.getElementById('unitsMetric').classList.remove('active');
+            document.getElementById('unitsImperial').classList.remove('active');
+
+            const metricRadio = document.querySelector('#unitsMetric input[type="radio"]');
+            const imperialRadio = document.querySelector('#unitsImperial input[type="radio"]');
+
+            if (units === 'metric') {
+                document.getElementById('unitsMetric').classList.add('active');
+                if (metricRadio) metricRadio.checked = true;
+                if (imperialRadio) imperialRadio.checked = false;
+            } else {
+                document.getElementById('unitsImperial').classList.add('active');
+                if (imperialRadio) imperialRadio.checked = true;
+                if (metricRadio) metricRadio.checked = false;
+            }
+
+            // Save to localStorage for other pages to read
+            localStorage.setItem('distanceUnits', units);
+        }
+
+        // Apply temperature units selection UI
+        function applyTemperatureUnits(units) {
+            // Update units selector UI
+            document.getElementById('tempCelsius').classList.remove('active');
+            document.getElementById('tempFahrenheit').classList.remove('active');
+
+            const celsiusRadio = document.querySelector('#tempCelsius input[type="radio"]');
+            const fahrenheitRadio = document.querySelector('#tempFahrenheit input[type="radio"]');
+
+            if (units === 'celsius') {
+                document.getElementById('tempCelsius').classList.add('active');
+                if (celsiusRadio) celsiusRadio.checked = true;
+                if (fahrenheitRadio) fahrenheitRadio.checked = false;
+            } else {
+                document.getElementById('tempFahrenheit').classList.add('active');
+                if (fahrenheitRadio) fahrenheitRadio.checked = true;
+                if (celsiusRadio) celsiusRadio.checked = false;
+            }
+
+            // Save to localStorage for other pages to read
+            localStorage.setItem('temperatureUnits', units);
+        }
+
         // Apply TSW version selection UI
         function applyTswVersion(version) {
             document.querySelectorAll('.tsw-version-option').forEach(opt => {
@@ -692,6 +772,12 @@
 
                 const tswVersion = config.tswVersion || 'tsw6';
                 applyTswVersion(tswVersion);
+
+                const distanceUnits = config.distanceUnits || 'metric';
+                applyDistanceUnits(distanceUnits);
+
+                const temperatureUnits = config.temperatureUnits || 'celsius';
+                applyTemperatureUnits(temperatureUnits);
             } catch (err) {
                 console.error('Failed to load settings:', err);
                 showStatus('Failed to load settings', 'error');
@@ -763,6 +849,28 @@
         document.getElementById('themeLight').addEventListener('click', function() {
             applyTheme('light');
             saveSetting('theme', 'light');
+        });
+
+        // Distance units selection handlers
+        document.getElementById('unitsMetric').addEventListener('click', function() {
+            applyDistanceUnits('metric');
+            saveSetting('distanceUnits', 'metric');
+        });
+
+        document.getElementById('unitsImperial').addEventListener('click', function() {
+            applyDistanceUnits('imperial');
+            saveSetting('distanceUnits', 'imperial');
+        });
+
+        // Temperature units selection handlers
+        document.getElementById('tempCelsius').addEventListener('click', function() {
+            applyTemperatureUnits('celsius');
+            saveSetting('temperatureUnits', 'celsius');
+        });
+
+        document.getElementById('tempFahrenheit').addEventListener('click', function() {
+            applyTemperatureUnits('fahrenheit');
+            saveSetting('temperatureUnits', 'fahrenheit');
         });
 
         function showStatus(message, type) {

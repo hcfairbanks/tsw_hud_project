@@ -21,7 +21,7 @@ async function handleStream(req, res) {
     console.log('Starting live telemetry stream...');
     activeConnections.add(res);
 
-    // Send data every 500ms
+    // Send data every 100ms for responsive distance updates
     const interval = setInterval(async () => {
         try {
             const streamData = await getTelemetryData();
@@ -29,7 +29,7 @@ async function handleStream(req, res) {
         } catch (err) {
             res.write(`data: {"error": "Failed to fetch TSW data: ${err.message}"}\n\n`);
         }
-    }, 500);
+    }, 100);
 
     // Cleanup on connection close
     req.on('close', () => {

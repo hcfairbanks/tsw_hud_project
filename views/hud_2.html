@@ -1,36 +1,32 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TSW HUD DASHBOARD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>TSW HUD - Tablet</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #222222;
+            background-color: black;
             overflow: hidden;
-            width: 100vw;
-            margin: 0 auto;
         }
         #container {
-            width: 100%;
+            width: 100vw;
             height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding-top: 0;
+            justify-content: center;
         }
         #tutorial {
-            max-height: calc(100vh - 150px);
-            margin-top: 5vh;
+            width: 100vw;
+            height: 100vh;
             cursor: default;
         }
         #display {
             position: fixed;
             bottom: 5px;
             left: 5px;
-            right: 5px;
+            width: 50%;
             max-height: 400px;
             overflow-y: auto;
             background-color: black;
@@ -39,7 +35,7 @@
             border: 1px solid #ccc;
             font-family: monospace;
             white-space: pre;
-            font-size: 10px;
+            font-size: 15px;
             display: none;
             border-radius: 8px;
         }
@@ -71,16 +67,12 @@
 
         /* Desktop and large screens */
         @media (min-width: 768px) {
-            body {
-                width: 80vw !important;
-            }
-
             #display {
                 bottom: 10px !important;
                 left: 10px !important;
-                right: 10px !important;
+                width: 50% !important;
                 padding: 10px !important;
-                font-size: 12px !important;
+                font-size: 18px !important;
                 border-radius: 0px !important;
             }
 
@@ -113,7 +105,7 @@
                 font-size: 24px !important;
             }
             #display {
-                font-size: 12px !important;
+                font-size: 18px !important;
             }
         }
 
@@ -354,16 +346,17 @@ function createLine(fromX, fromY, toX, toY, stroke, width, alpha) {
 }
 
 function buildOptionsAsJSON(canvas, iSpeed) {
-    var centerX = 700,
-        centerY = 331,
-        radius = 262,
-        outerRadius = 373;
+    // Scaled for Samsung Tab S9 FE (1920x900 canvas)
+    var centerX = 960,
+        centerY = 490,
+        radius = 360,
+        outerRadius = 510;
 
     return {
         ctx: canvas.getContext('2d'),
         speed: iSpeed,
         center: { X: centerX, Y: centerY },
-        levelRadius: radius - 13,
+        levelRadius: radius - 18,
         gaugeOptions: {
             center: { X: centerX, Y: centerY },
             radius: radius
@@ -373,7 +366,7 @@ function buildOptionsAsJSON(canvas, iSpeed) {
 }
 
 function clearCanvas(options) {
-    options.ctx.clearRect(0, 0, 1400, 605);
+    options.ctx.clearRect(0, 0, 1920, 900);
 }
 
 function applyDefaultContextSettings(options) {
@@ -553,8 +546,8 @@ function drawSpeedBox(options, speedLimit, isSlipping) {
     var boxWidth = 150;
     var boxHeight = 90;
     var boxX = options.center.X - (boxWidth / 2);
-    // Move up higher (was 1.7, now 2.2)
-    var boxY = options.center.Y - (boxHeight * 2.2);
+    // Move up higher (was 2.2, now 2.8)
+    var boxY = options.center.Y - (boxHeight * 2.8);
 
     var boxColor;
     if (speedLimit && options.speed > speedLimit + 10) {
@@ -602,14 +595,14 @@ function drawSpeedBox(options, speedLimit, isSlipping) {
 function drawDistanceToDestination(options, distanceUnits) {
     // Draw distance to destination under the digital speed, above brake boxes
     var boxHeight = 90;
-    var boxY = options.center.Y - (boxHeight * 2.2) + boxHeight + 10; // Below speed box
+    var boxY = options.center.Y - (boxHeight * 2.2) + boxHeight + 30; // Below speed box (original position)
     var boxColor = "rgb(255, 255, 255)";
 
     var displayDistance = options.distanceToDestination;
     if (displayDistance !== null && displayDistance !== undefined) {
         var distanceText = formatDistance(displayDistance, distanceUnits);
         options.ctx.fillStyle = boxColor;
-        options.ctx.font = 'bold 28px sans-serif';
+        options.ctx.font = 'bold 85px sans-serif';
         options.ctx.textAlign = 'center';
         options.ctx.textBaseline = 'middle';
         options.ctx.fillText(distanceText, options.center.X, boxY);
@@ -680,10 +673,10 @@ function drawElectricDynamicBrakeBox(options, electricDynamicBrakeValue) {
 }
 
 function drawSpeedLimitBox(options, speedLimit) {
-    var boxWidth = 188;
-    var boxHeight = 123;
-    var boxX = 1400 - boxWidth - 26;
-    var boxY = 26;
+    var boxWidth = 220;
+    var boxHeight = 145;
+    var boxX = 1920 - boxWidth - 30;
+    var boxY = 30;
 
     var boxColor;
     if (speedLimit && options.speed > speedLimit + 10) {
@@ -695,11 +688,11 @@ function drawSpeedLimitBox(options, speedLimit) {
     }
 
     options.ctx.strokeStyle = boxColor;
-    options.ctx.lineWidth = 3.6;
+    options.ctx.lineWidth = 4;
     options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
     options.ctx.fillStyle = boxColor;
-    options.ctx.font = 'bold 43px sans-serif';
+    options.ctx.font = 'bold 55px sans-serif';
     options.ctx.textAlign = 'center';
     options.ctx.textBaseline = 'middle';
 
@@ -708,8 +701,8 @@ function drawSpeedLimitBox(options, speedLimit) {
 }
 
 function drawDoorIndicators(options, doorLeft, doorRight) {
-    var boxX = 1400 - 188 - 26; // Same X as speed limit box
-    var boxY = 26; // Same Y as speed limit box
+    var boxX = 1920 - 220 - 30; // Same X as speed limit box
+    var boxY = 30; // Same Y as speed limit box
     var centerY = boxY + 61; // Vertically centered with speed limit box
 
     options.ctx.font = 'bold 50px sans-serif';
@@ -739,20 +732,20 @@ function drawDoorIndicators(options, doorLeft, doorRight) {
 }
 
 function drawPowerHandleBox(options, powerHandle, isTractionLocked) {
-    var boxWidth = 188;
-    var boxHeight = 123;
-    var boxX = 1400 - boxWidth - 26;
-    var boxY = 26 + 123 + 18;
+    var boxWidth = 220;
+    var boxHeight = 145;
+    var boxX = 1920 - boxWidth - 30;
+    var boxY = 30 + 145 + 20;
 
     var boxColor = isTractionLocked ? "rgb(255, 0, 0)" : "rgb(255, 255, 255)";
 
     options.ctx.strokeStyle = boxColor;
-    options.ctx.lineWidth = 3.6;
+    options.ctx.lineWidth = 4;
     options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
     var textColor = (powerHandle !== undefined && powerHandle !== null && powerHandle < 0) ? "rgb(255, 255, 0)" : "rgb(255, 255, 255)";
     options.ctx.fillStyle = textColor;
-    options.ctx.font = 'bold 43px sans-serif';
+    options.ctx.font = 'bold 50px sans-serif';
     options.ctx.textAlign = 'center';
     options.ctx.textBaseline = 'middle';
 
@@ -761,19 +754,19 @@ function drawPowerHandleBox(options, powerHandle, isTractionLocked) {
 }
 
 function drawGradientBox(options, incline) {
-    var boxWidth = 188;
-    var boxHeight = 123;
-    var boxX = 1400 - boxWidth - 26;
-    var boxY = 26 + 123 + 18 + 123 + 18;
+    var boxWidth = 220;
+    var boxHeight = 145;
+    var boxX = 1920 - boxWidth - 30;
+    var boxY = 30 + 145 + 20 + 145 + 20;
 
     var boxColor = "rgb(255, 255, 255)";
 
     options.ctx.strokeStyle = boxColor;
-    options.ctx.lineWidth = 3.6;
+    options.ctx.lineWidth = 4;
     options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
     options.ctx.fillStyle = boxColor;
-    options.ctx.font = 'bold 34px sans-serif';
+    options.ctx.font = 'bold 40px sans-serif';
     options.ctx.textAlign = 'center';
     options.ctx.textBaseline = 'middle';
 
@@ -783,8 +776,8 @@ function drawGradientBox(options, incline) {
 
 function drawReverserIndicator(options, reverser) {
     // Position to the left of gradient box (same Y level)
-    var centerX = 1400 - 188 - 26 - 80; // Left of gradient box
-    var centerY = 26 + 123 + 18 + 123 + 18 + 61; // Center of gradient box row
+    var centerX = 1920 - 220 - 30 - 90; // Left of gradient box
+    var centerY = 30 + 145 + 20 + 145 + 20 + 72; // Center of gradient box row
 
     options.ctx.fillStyle = "rgb(255, 255, 255)";
     options.ctx.strokeStyle = "rgb(255, 255, 255)";
@@ -922,18 +915,18 @@ function drawStationSelector(options, timetableItems, selectedIdx, playerPositio
 
     var boxX = 26;
     var boxY = 26 + 123 + 18 + 123 + 18; // Below distance to next speed limit box
-    var boxWidth = 220;
-    var itemHeight = 20;
+    var boxWidth = 340;
+    var itemHeight = 36;
     var visibleItems = 5;
     var boxHeight = itemHeight * visibleItems;
-    var arrowAreaHeight = 25; // Height for prev/next arrows
+    var arrowAreaHeight = 45; // Height for prev/next arrows
 
     // Draw container background
     options.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     options.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
     // Draw border
-    options.ctx.strokeStyle = "rgb(127, 127, 127)";
+    options.ctx.strokeStyle = "rgb(255, 255, 255)";
     options.ctx.lineWidth = 2;
     options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
@@ -960,18 +953,18 @@ function drawStationSelector(options, timetableItems, selectedIdx, playerPositio
 
         // Draw index number and station name
         options.ctx.fillStyle = isSelected ? "rgb(255, 255, 255)" : "rgb(200, 200, 200)";
-        options.ctx.font = isSelected ? 'bold 11px sans-serif' : '11px sans-serif';
+        options.ctx.font = isSelected ? 'bold 20px sans-serif' : '20px sans-serif';
         options.ctx.textAlign = 'left';
         options.ctx.textBaseline = 'middle';
 
         var displayName = item.destination || 'Unknown';
-        if (displayName.length > 22) {
-            displayName = displayName.substring(0, 21) + '...';
+        if (displayName.length > 28) {
+            displayName = displayName.substring(0, 27) + '...';
         }
 
         // Show index number followed by station name
         var indexedName = (i + 1) + '. ' + displayName;
-        options.ctx.fillText(indexedName, boxX + 5, itemY + itemHeight / 2);
+        options.ctx.fillText(indexedName, boxX + 8, itemY + itemHeight / 2);
     }
 
     options.ctx.restore();
@@ -982,44 +975,43 @@ function drawStationSelector(options, timetableItems, selectedIdx, playerPositio
     var canGoPrev = selectedIdx > 0;
     var canGoNext = selectedIdx < timetableItems.length - 1;
 
-    // Previous button (left)
-    options.ctx.fillStyle = canGoPrev ? "rgba(60, 60, 60, 0.9)" : "rgba(40, 40, 40, 0.5)";
-    options.ctx.fillRect(boxX, arrowY, arrowWidth, arrowAreaHeight);
-    options.ctx.strokeStyle = "rgb(100, 100, 100)";
-    options.ctx.lineWidth = 1;
+    // Previous button (left) - styled like other buttons
+    var prevColor = canGoPrev ? "rgb(255, 255, 255)" : "rgb(80, 80, 80)";
+    options.ctx.strokeStyle = prevColor;
+    options.ctx.lineWidth = 4;
     options.ctx.strokeRect(boxX, arrowY, arrowWidth, arrowAreaHeight);
 
-    // Left arrow
-    options.ctx.fillStyle = canGoPrev ? "rgb(255, 255, 255)" : "rgb(80, 80, 80)";
+    // Left arrow and text
+    options.ctx.fillStyle = prevColor;
     options.ctx.beginPath();
-    options.ctx.moveTo(boxX + arrowWidth / 2 - 15, arrowY + arrowAreaHeight / 2);
-    options.ctx.lineTo(boxX + arrowWidth / 2 + 5, arrowY + arrowAreaHeight / 2 - 8);
-    options.ctx.lineTo(boxX + arrowWidth / 2 + 5, arrowY + arrowAreaHeight / 2 + 8);
+    options.ctx.moveTo(boxX + arrowWidth / 2 - 25, arrowY + arrowAreaHeight / 2);
+    options.ctx.lineTo(boxX + arrowWidth / 2 - 5, arrowY + arrowAreaHeight / 2 - 12);
+    options.ctx.lineTo(boxX + arrowWidth / 2 - 5, arrowY + arrowAreaHeight / 2 + 12);
     options.ctx.closePath();
     options.ctx.fill();
-    options.ctx.font = '10px sans-serif';
+    options.ctx.font = 'bold 18px sans-serif';
     options.ctx.textAlign = 'left';
     options.ctx.textBaseline = 'middle';
-    options.ctx.fillText('PREV', boxX + arrowWidth / 2 + 10, arrowY + arrowAreaHeight / 2);
+    options.ctx.fillText('PREV', boxX + arrowWidth / 2 + 5, arrowY + arrowAreaHeight / 2);
 
-    // Next button (right)
+    // Next button (right) - styled like other buttons
     var nextX = boxX + arrowWidth + 10;
-    options.ctx.fillStyle = canGoNext ? "rgba(60, 60, 60, 0.9)" : "rgba(40, 40, 40, 0.5)";
-    options.ctx.fillRect(nextX, arrowY, arrowWidth, arrowAreaHeight);
-    options.ctx.strokeStyle = "rgb(100, 100, 100)";
+    var nextColor = canGoNext ? "rgb(255, 255, 255)" : "rgb(80, 80, 80)";
+    options.ctx.strokeStyle = nextColor;
+    options.ctx.lineWidth = 4;
     options.ctx.strokeRect(nextX, arrowY, arrowWidth, arrowAreaHeight);
 
-    // Right arrow
-    options.ctx.fillStyle = canGoNext ? "rgb(255, 255, 255)" : "rgb(80, 80, 80)";
+    // Right arrow and text
+    options.ctx.fillStyle = nextColor;
     options.ctx.beginPath();
-    options.ctx.moveTo(nextX + arrowWidth / 2 + 15, arrowY + arrowAreaHeight / 2);
-    options.ctx.lineTo(nextX + arrowWidth / 2 - 5, arrowY + arrowAreaHeight / 2 - 8);
-    options.ctx.lineTo(nextX + arrowWidth / 2 - 5, arrowY + arrowAreaHeight / 2 + 8);
+    options.ctx.moveTo(nextX + arrowWidth / 2 + 25, arrowY + arrowAreaHeight / 2);
+    options.ctx.lineTo(nextX + arrowWidth / 2 + 5, arrowY + arrowAreaHeight / 2 - 12);
+    options.ctx.lineTo(nextX + arrowWidth / 2 + 5, arrowY + arrowAreaHeight / 2 + 12);
     options.ctx.closePath();
     options.ctx.fill();
-    options.ctx.font = '10px sans-serif';
+    options.ctx.font = 'bold 18px sans-serif';
     options.ctx.textAlign = 'right';
-    options.ctx.fillText('NEXT', nextX + arrowWidth / 2 - 10, arrowY + arrowAreaHeight / 2);
+    options.ctx.fillText('NEXT', nextX + arrowWidth / 2 - 5, arrowY + arrowAreaHeight / 2);
 
     return {
         boxX: boxX,
@@ -1035,11 +1027,11 @@ function drawStationSelector(options, timetableItems, selectedIdx, playerPositio
 }
 
 function drawTimeBox(options, localTime) {
-    var boxWidth = 187;
-    var boxHeight = 55;
-    // Move left by 20% of canvas width (1400 * 0.20 = 280)
-    var boxX = options.center.X - (boxWidth / 2) - 280;
-    var boxY = options.center.Y + (boxHeight * 0.3) + 100;
+    var boxWidth = 220;
+    var boxHeight = 65;
+    // Move left by 20% of canvas width (1920 * 0.20 = 384)
+    var boxX = options.center.X - (boxWidth / 2) - 384;
+    var boxY = options.center.Y + (boxHeight * 0.3) + 120;
 
     var boxColor = "rgb(255, 255, 255)";
 
@@ -1054,18 +1046,26 @@ function drawTimeBox(options, localTime) {
     }
 
     options.ctx.fillStyle = boxColor;
-    options.ctx.font = 'bold 45px sans-serif';
+    options.ctx.font = 'bold 52px sans-serif';
     options.ctx.textAlign = 'center';
     options.ctx.textBaseline = 'middle';
     options.ctx.fillText(displayValue, boxX + boxWidth / 2, boxY + boxHeight / 2);
+
+    // Draw thin line under in-game time
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 2;
+    options.ctx.beginPath();
+    options.ctx.moveTo(boxX + boxWidth / 2 - 100, boxY + boxHeight / 2 + 35);
+    options.ctx.lineTo(boxX + boxWidth / 2 + 100, boxY + boxHeight / 2 + 35);
+    options.ctx.stroke();
 }
 
 function drawTimetableBox(options, timetableTime, timetableLabel, distanceToStation, distanceUnits) {
     var boxColor = "rgb(255, 255, 255)";
 
-    // Position under the time box (which is 280px left of center)
-    var baseX = options.center.X - 280;
-    var boxY = options.center.Y + (55 * 0.3) + 100 + 55; // Below time box
+    // Position under the time box (which is 384px left of center)
+    var baseX = options.center.X - 384;
+    var boxY = options.center.Y + (65 * 0.3) + 120 + 100; // Below time box (increased spacing)
 
     // Use selected station from cached timetable items for display
     var displayArrival = '--:--:--';
@@ -1096,28 +1096,70 @@ function drawTimetableBox(options, timetableTime, timetableLabel, distanceToStat
         displayDistance = distanceToStation;
     }
 
-    // Draw arrival time (under in-game time) - same font size as in-game time
+    // Draw arrival time (centered under in-game time) - same font size as in-game time
     options.ctx.fillStyle = boxColor;
-    options.ctx.font = 'bold 45px sans-serif';
-    options.ctx.textAlign = 'left';
+    options.ctx.font = 'bold 52px sans-serif';
+    options.ctx.textAlign = 'center';
     options.ctx.textBaseline = 'middle';
-    options.ctx.fillText(displayArrival, baseX - 93, boxY);
+    options.ctx.fillText(displayArrival, baseX, boxY);
 
-    // Draw departure time (to the right of arrival, with more spacing)
-    options.ctx.fillText(displayDeparture, baseX + 100, boxY);
+    // Draw thin line under arrival time
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 2;
+    options.ctx.beginPath();
+    options.ctx.moveTo(baseX - 100, boxY + 35);
+    options.ctx.lineTo(baseX + 100, boxY + 35);
+    options.ctx.stroke();
 
-    // Draw destination name (to the right of departure, with more spacing)
-    options.ctx.fillText(displayLabel, baseX + 300, boxY);
+    // Draw departure time (to the right of arrival)
+    options.ctx.fillText(displayDeparture, baseX + 240, boxY);
+
+    // Draw thin line under departure time
+    options.ctx.beginPath();
+    options.ctx.moveTo(baseX + 140, boxY + 35);
+    options.ctx.lineTo(baseX + 340, boxY + 35);
+    options.ctx.stroke();
+
+    // Draw destination name (to the right of departure)
+    options.ctx.textAlign = 'left';
+    options.ctx.fillText(displayLabel, baseX + 380, boxY);
 
     // Store distance for drawDistanceToDestination
     options.distanceToDestination = displayDistance;
 }
 
-function drawShowDataButton(options, isHovered, isPressed) {
-    var boxWidth = 90;
-    var boxHeight = 45;
-    var boxX = 25;
-    var boxY = 505;
+// Draw temperature display
+function drawTemperature(options, temperature, temperatureUnits) {
+    if (temperature === null || temperature === undefined) return;
+
+    // Position in top right corner
+    var boxX = 1750;
+    var boxY = 30;
+    var boxColor = "rgb(255, 255, 255)";
+
+    // Convert temperature if needed
+    var displayTemp = temperature;
+    var unitSymbol = '°C';
+    if (temperatureUnits === 'fahrenheit') {
+        displayTemp = (temperature * 9/5) + 32;
+        unitSymbol = '°F';
+    }
+
+    // Round to 1 decimal place
+    displayTemp = Math.round(displayTemp * 10) / 10;
+
+    options.ctx.fillStyle = boxColor;
+    options.ctx.font = 'bold 36px sans-serif';
+    options.ctx.textAlign = 'right';
+    options.ctx.textBaseline = 'middle';
+    options.ctx.fillText(displayTemp + unitSymbol, boxX, boxY);
+}
+
+function drawDataButton(options, isHovered, isPressed) {
+    var boxWidth = 110;
+    var boxHeight = 55;
+    var boxX = 1420;
+    var boxY = 800;
 
     var boxColor, fillColor, backgroundColor;
     if (isPressed) {
@@ -1139,21 +1181,21 @@ function drawShowDataButton(options, isHovered, isPressed) {
         options.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
     }
     options.ctx.strokeStyle = boxColor;
-    options.ctx.lineWidth = 3.6;
+    options.ctx.lineWidth = 4;
     options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
     options.ctx.fillStyle = fillColor;
-    options.ctx.font = 'bold 16px sans-serif';
+    options.ctx.font = 'bold 18px sans-serif';
     options.ctx.textAlign = 'center';
     options.ctx.textBaseline = 'middle';
     options.ctx.fillText('DATA', boxX + boxWidth / 2, boxY + boxHeight / 2);
 }
 
 function drawRefreshButton(options, isHovered, isPressed) {
-    var boxWidth = 90;
-    var boxHeight = 45;
-    var boxX = 1270;
-    var boxY = 505;
+    var boxWidth = 110;
+    var boxHeight = 55;
+    var boxX = 1780;
+    var boxY = 800;
 
     var boxColor, fillColor, backgroundColor;
     if (isPressed) {
@@ -1175,21 +1217,21 @@ function drawRefreshButton(options, isHovered, isPressed) {
         options.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
     }
     options.ctx.strokeStyle = boxColor;
-    options.ctx.lineWidth = 3.6;
+    options.ctx.lineWidth = 4;
     options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
     options.ctx.fillStyle = fillColor;
-    options.ctx.font = 'bold 16px sans-serif';
+    options.ctx.font = 'bold 18px sans-serif';
     options.ctx.textAlign = 'center';
     options.ctx.textBaseline = 'middle';
     options.ctx.fillText('REFRESH', boxX + boxWidth / 2, boxY + boxHeight / 2);
 }
 
 function drawLoadButton(options, isHovered, isPressed) {
-    var boxWidth = 90;
-    var boxHeight = 45;
-    var boxX = 1170;
-    var boxY = 505;
+    var boxWidth = 110;
+    var boxHeight = 55;
+    var boxX = 1660;
+    var boxY = 800;
 
     var boxColor, fillColor, backgroundColor;
     if (isPressed) {
@@ -1211,17 +1253,162 @@ function drawLoadButton(options, isHovered, isPressed) {
         options.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
     }
     options.ctx.strokeStyle = boxColor;
-    options.ctx.lineWidth = 3.6;
+    options.ctx.lineWidth = 4;
     options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
     options.ctx.fillStyle = fillColor;
-    options.ctx.font = 'bold 16px sans-serif';
+    options.ctx.font = 'bold 18px sans-serif';
     options.ctx.textAlign = 'center';
     options.ctx.textBaseline = 'middle';
     options.ctx.fillText('LOAD', boxX + boxWidth / 2, boxY + boxHeight / 2);
 }
 
-function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLimit, distanceToNextSpeedLimit, trainBrakeValue, trainBrakeActive, locomotiveBrakeValue, locomotiveBrakeActive, electricDynamicBrakeValue, electricBrakeActive, isTractionLocked, localTime, timetableTime, timetableLabel, distanceToStation, reverser, doorLeft, doorRight, distanceUnits, playerPosition) {
+// Save Location button (development mode only)
+function drawSaveLocButton(options, isHovered, isPressed) {
+    var boxWidth = 110;
+    var boxHeight = 55;
+    var boxX = 1300;
+    var boxY = 800;
+
+    var boxColor, fillColor, backgroundColor;
+    if (isPressed) {
+        boxColor = "rgb(0, 0, 0)";
+        fillColor = "rgb(0, 0, 0)";
+        backgroundColor = "rgb(200, 200, 200)";
+    } else if (isHovered) {
+        boxColor = "rgb(0, 0, 0)";
+        fillColor = "rgb(0, 0, 0)";
+        backgroundColor = "rgb(255, 255, 255)";
+    } else {
+        boxColor = "rgb(255, 255, 255)";
+        fillColor = "rgb(255, 255, 255)";
+        backgroundColor = null;
+    }
+
+    if (backgroundColor) {
+        options.ctx.fillStyle = backgroundColor;
+        options.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+    }
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 4;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = fillColor;
+    options.ctx.font = 'bold 18px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+    options.ctx.fillText('SAVE LOC', boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+// Fullscreen toggle button
+function drawFullscreenButton(options, isHovered, isPressed) {
+    var boxWidth = 110;
+    var boxHeight = 55;
+    var boxX = 1540;
+    var boxY = 800;
+
+    var boxColor, fillColor, backgroundColor;
+    if (isPressed) {
+        boxColor = "rgb(0, 0, 0)";
+        fillColor = "rgb(0, 0, 0)";
+        backgroundColor = "rgb(200, 200, 200)";
+    } else if (isHovered) {
+        boxColor = "rgb(0, 0, 0)";
+        fillColor = "rgb(0, 0, 0)";
+        backgroundColor = "rgb(255, 255, 255)";
+    } else {
+        boxColor = "rgb(255, 255, 255)";
+        fillColor = "rgb(255, 255, 255)";
+        backgroundColor = null;
+    }
+
+    if (backgroundColor) {
+        options.ctx.fillStyle = backgroundColor;
+        options.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+    }
+    options.ctx.strokeStyle = boxColor;
+    options.ctx.lineWidth = 4;
+    options.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    options.ctx.fillStyle = fillColor;
+    options.ctx.font = 'bold 18px sans-serif';
+    options.ctx.textAlign = 'center';
+    options.ctx.textBaseline = 'middle';
+
+    // Show different text based on fullscreen state
+    var buttonText = document.fullscreenElement ? 'EXIT FS' : 'FULLSCR';
+    options.ctx.fillText(buttonText, boxX + boxWidth / 2, boxY + boxHeight / 2);
+}
+
+// Curved speed progress bar with speed limit marker (matching original speedometer style)
+function drawCurvedSpeedBar(options, speed, speedLimit) {
+    // Use same position as existing speedometer
+    var centerX = options.center.X;
+    var centerY = options.center.Y;
+    var radius = options.levelRadius;
+    var lineWidth = 24;
+    var maxSpeed = 200;
+
+    // Arc angles matching existing speedometer (10 to 170 degrees = 160 degree arc)
+    var startAngle = Math.PI + degToRad(10);
+    var totalArcAngle = degToRad(160);
+
+    // Background arc (gray) - matching original drawSpeedometerColourArc
+    options.ctx.beginPath();
+    options.ctx.globalAlpha = 1.0;
+    options.ctx.arc(centerX, centerY, radius, startAngle, startAngle + totalArcAngle, false);
+    options.ctx.lineWidth = lineWidth;
+    options.ctx.strokeStyle = 'rgb(180, 180, 180)';
+    options.ctx.stroke();
+
+    // Speed arc (colored based on limit) - matching original drawSpeedBar colors
+    var iSpeed = speed;
+    if (iSpeed > maxSpeed) iSpeed = maxSpeed;
+    var arcLength = (iSpeed * 160 / maxSpeed);
+
+    var barColor;
+    if (speedLimit && speed > speedLimit + 10) {
+        barColor = 'rgb(255, 0, 0)';    // Red - over limit by 10+
+    } else if (speedLimit && speed > speedLimit) {
+        barColor = 'rgb(255, 255, 0)';  // Yellow - over limit
+    } else {
+        barColor = 'rgb(255, 255, 255)'; // White - under limit
+    }
+
+    if (speed > 0) {
+        options.ctx.beginPath();
+        options.ctx.globalAlpha = 1.0;
+        options.ctx.arc(centerX, centerY, radius, startAngle, startAngle + degToRad(arcLength), false);
+        options.ctx.lineWidth = lineWidth;
+        options.ctx.strokeStyle = barColor;
+        options.ctx.stroke();
+    }
+
+    // Speed limit marker (red line across the progress bar)
+    if (speedLimit && speedLimit > 0 && speedLimit <= maxSpeed) {
+        var limitRatio = speedLimit / maxSpeed;
+        var limitAngle = startAngle + limitRatio * totalArcAngle;
+
+        // Calculate inner and outer points of the line - stay within the progress bar
+        var innerRadius = radius - lineWidth / 2 + 1;
+        var outerRadius = radius + lineWidth / 2 - 1;
+
+        var innerX = centerX + Math.cos(limitAngle) * innerRadius;
+        var innerY = centerY + Math.sin(limitAngle) * innerRadius;
+        var outerX = centerX + Math.cos(limitAngle) * outerRadius;
+        var outerY = centerY + Math.sin(limitAngle) * outerRadius;
+
+        // Red line across the progress bar
+        options.ctx.beginPath();
+        options.ctx.moveTo(innerX, innerY);
+        options.ctx.lineTo(outerX, outerY);
+        options.ctx.lineWidth = 16;
+        options.ctx.strokeStyle = 'rgb(255, 0, 0)';
+        options.ctx.stroke();
+    }
+}
+
+function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLimit, distanceToNextSpeedLimit, trainBrakeValue, trainBrakeActive, locomotiveBrakeValue, locomotiveBrakeActive, electricDynamicBrakeValue, electricBrakeActive, isTractionLocked, localTime, timetableTime, timetableLabel, distanceToStation, reverser, doorLeft, doorRight, distanceUnits, playerPosition, temperature, temperatureUnits) {
     var canvas = document.getElementById('tutorial');
     if (canvas !== null && canvas.getContext) {
         var options = buildOptionsAsJSON(canvas, iSpeed);
@@ -1229,11 +1416,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         drawBackground(options);
         drawTicks(options);
         drawTextMarkers(options);
-        drawSpeedometerColourArc(options);
-        drawSpeedBar(options, speedLimit);
-        if (speedLimit !== undefined && speedLimit !== null) {
-            drawCircleAtLimit(options, speedLimit);
-        }
+        drawCurvedSpeedBar(options, iSpeed, speedLimit);
         drawSpeedBox(options, speedLimit, isSlipping);
         if (trainBrakeActive) {
             drawBrakeBox(options, trainBrakeValue);
@@ -1262,6 +1445,11 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         drawDistanceToDestination(options, distanceUnits);
         drawLoadButton(options, isLoadHovered, isLoadPressed);
         drawRefreshButton(options, isRefreshHovered, isRefreshPressed);
+        drawFullscreenButton(options, isFullscreenHovered, isFullscreenPressed);
+        if (isDevelopmentMode) {
+            drawDataButton(options, isDataHovered, isDataPressed);
+            drawSaveLocButton(options, isSaveLocHovered, isSaveLocPressed);
+        }
     } else {
         alert("Canvas not supported!");
     }
@@ -1281,14 +1469,11 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
 </head>
 <body onload='draw(0);'>
     <div id="container">
-        <canvas id="tutorial" width="1400" height="605">Canvas not available.</canvas>
+        <canvas id="tutorial" width="1920" height="900">Canvas not available.</canvas>
     </div>
 
 
     <div id="display">Waiting for data...</div>
-
-    <!-- Data Button (dev mode only) -->
-    <button id="dataButton" onclick="toggleDisplay()" style="display: none; position: fixed; bottom: 100px; left: 48px; padding: 8px 16px; background: #333; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer; font-size: 12px;">DATA</button>
 
     <!-- Load Route Overlay -->
     <div id="loadOverlay" class="load-overlay">
@@ -1336,8 +1521,14 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         var canvas = document.getElementById('tutorial');
         var isRefreshHovered = false;
         var isLoadHovered = false;
+        var isFullscreenHovered = false;
+        var isDataHovered = false;
+        var isSaveLocHovered = false;
         var isRefreshPressed = false;
         var isLoadPressed = false;
+        var isFullscreenPressed = false;
+        var isDataPressed = false;
+        var isSaveLocPressed = false;
         var isDevelopmentMode = false;
 
         // Timetable selector state
@@ -1353,10 +1544,8 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                 const response = await fetch('/api/config');
                 const config = await response.json();
                 isDevelopmentMode = config.developmentMode || false;
-                // Show/hide data button and display div based on dev mode
-                if (isDevelopmentMode) {
-                    document.getElementById('dataButton').style.display = 'block';
-                } else {
+                // Hide display div when not in dev mode
+                if (!isDevelopmentMode) {
                     document.getElementById('display').style.display = 'none';
                 }
             } catch (err) {
@@ -1391,14 +1580,40 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             return x >= nextX && x <= nextX + b.arrowWidth && y >= b.arrowY && y <= b.arrowY + b.arrowHeight;
         }
 
-        // Check if coordinates are within REFRESH button bounds
+        // Check if coordinates are within REFRESH button bounds (1780, 800, 110x55)
         function isInRefreshButton(x, y) {
-            return x >= 1270 && x <= 1380 && y >= 505 && y <= 560;
+            return x >= 1780 && x <= 1890 && y >= 800 && y <= 855;
         }
 
-        // Check if coordinates are within LOAD button bounds
+        // Check if coordinates are within LOAD button bounds (1660, 800, 110x55)
         function isInLoadButton(x, y) {
-            return x >= 1170 && x <= 1260 && y >= 505 && y <= 550;
+            return x >= 1660 && x <= 1770 && y >= 800 && y <= 855;
+        }
+
+        // Check if coordinates are within FULLSCREEN button bounds (1540, 800, 110x55)
+        function isInFullscreenButton(x, y) {
+            return x >= 1540 && x <= 1650 && y >= 800 && y <= 855;
+        }
+
+        // Check if coordinates are within DATA button bounds (1420, 800, 110x55)
+        function isInDataButton(x, y) {
+            return x >= 1420 && x <= 1530 && y >= 800 && y <= 855;
+        }
+
+        // Check if coordinates are within SAVE LOC button bounds (1300, 800, 110x55)
+        function isInSaveLocButton(x, y) {
+            return x >= 1300 && x <= 1410 && y >= 800 && y <= 855;
+        }
+
+        // Toggle fullscreen mode
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen error:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
         }
 
         canvas.addEventListener('mousedown', function(event) {
@@ -1412,12 +1627,27 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                 isLoadPressed = true;
                 redrawButtons();
             }
+            else if (isInFullscreenButton(coords.x, coords.y)) {
+                isFullscreenPressed = true;
+                redrawButtons();
+            }
+            else if (isDevelopmentMode && isInDataButton(coords.x, coords.y)) {
+                isDataPressed = true;
+                redrawButtons();
+            }
+            else if (isDevelopmentMode && isInSaveLocButton(coords.x, coords.y)) {
+                isSaveLocPressed = true;
+                redrawButtons();
+            }
         });
 
         canvas.addEventListener('mouseup', function(event) {
-            if (isRefreshPressed || isLoadPressed) {
+            if (isRefreshPressed || isLoadPressed || isFullscreenPressed || isDataPressed || isSaveLocPressed) {
                 isRefreshPressed = false;
                 isLoadPressed = false;
+                isFullscreenPressed = false;
+                isDataPressed = false;
+                isSaveLocPressed = false;
                 redrawButtons();
             }
         });
@@ -1425,15 +1655,22 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         canvas.addEventListener('mouseleave', function(event) {
             isRefreshPressed = false;
             isLoadPressed = false;
+            isFullscreenPressed = false;
+            isDataPressed = false;
+            isSaveLocPressed = false;
             isRefreshHovered = false;
             isLoadHovered = false;
+            isFullscreenHovered = false;
+            isDataHovered = false;
+            isSaveLocHovered = false;
             canvas.style.cursor = 'default';
             redrawButtons();
         });
 
         function redrawButtons() {
             if (currentData) {
-                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight, currentData.distanceUnits, currentPlayerPosition);
+                var temp = currentData.weather ? currentData.weather.Temperature : null;
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight, currentData.distanceUnits, currentPlayerPosition, temp, currentData.temperatureUnits);
             } else {
                 draw(0);
             }
@@ -1491,6 +1728,63 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             redrawButtons();
         }
 
+        // Save current player location to the selected timetable entry
+        async function saveCurrentLocationToTimetable() {
+            if (!currentPlayerPosition || !currentPlayerPosition.latitude || !currentPlayerPosition.longitude) {
+                console.error('No player position available');
+                alert('No player position available to save.');
+                return;
+            }
+
+            if (!cachedTimetableItems || cachedTimetableItems.length === 0) {
+                console.error('No timetable loaded');
+                alert('No timetable loaded.');
+                return;
+            }
+
+            if (selectedStationIndex < 0 || selectedStationIndex >= cachedTimetableItems.length) {
+                console.error('Invalid station selection');
+                alert('Invalid station selection.');
+                return;
+            }
+
+            var selectedStation = cachedTimetableItems[selectedStationIndex];
+            var entryId = selectedStation.id;
+
+            if (!entryId) {
+                console.error('Selected station has no ID');
+                alert('Selected station has no ID - cannot save.');
+                return;
+            }
+
+            try {
+                var response = await fetch('/api/update-timetable-coordinates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        entryId: entryId,
+                        latitude: currentPlayerPosition.latitude,
+                        longitude: currentPlayerPosition.longitude
+                    })
+                });
+
+                var result = await response.json();
+                if (result.success) {
+                    // Update local cache
+                    cachedTimetableItems[selectedStationIndex].latitude = currentPlayerPosition.latitude;
+                    cachedTimetableItems[selectedStationIndex].longitude = currentPlayerPosition.longitude;
+                    console.log('Location saved for station:', selectedStation.destination, 'Lat:', currentPlayerPosition.latitude, 'Lng:', currentPlayerPosition.longitude);
+                    alert('Location saved for: ' + selectedStation.destination);
+                } else {
+                    console.error('Failed to save location:', result.error);
+                    alert('Failed to save location: ' + (result.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Error saving location:', err);
+                alert('Error saving location: ' + err.message);
+            }
+        }
+
         // Handle scroll wheel on station selector
         function handleStationScroll(deltaY) {
             if (!cachedTimetableItems || cachedTimetableItems.length === 0) return;
@@ -1509,12 +1803,18 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
 
             var wasRefreshHovered = isRefreshHovered;
             var wasLoadHovered = isLoadHovered;
+            var wasFullscreenHovered = isFullscreenHovered;
+            var wasDataHovered = isDataHovered;
+            var wasSaveLocHovered = isSaveLocHovered;
 
             isRefreshHovered = isInRefreshButton(coords.x, coords.y);
             isLoadHovered = isInLoadButton(coords.x, coords.y);
+            isFullscreenHovered = isInFullscreenButton(coords.x, coords.y);
+            isDataHovered = isDevelopmentMode && isInDataButton(coords.x, coords.y);
+            isSaveLocHovered = isDevelopmentMode && isInSaveLocButton(coords.x, coords.y);
 
             // Check for interactive areas
-            var isOverButton = isRefreshHovered || isLoadHovered ||
+            var isOverButton = isRefreshHovered || isLoadHovered || isFullscreenHovered || isDataHovered || isSaveLocHovered ||
                                isInPrevArrow(coords.x, coords.y) ||
                                isInNextArrow(coords.x, coords.y) ||
                                isInStationSelector(coords.x, coords.y);
@@ -1525,7 +1825,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                 canvas.style.cursor = 'default';
             }
 
-            if (wasRefreshHovered !== isRefreshHovered || wasLoadHovered !== isLoadHovered) {
+            if (wasRefreshHovered !== isRefreshHovered || wasLoadHovered !== isLoadHovered || wasFullscreenHovered !== isFullscreenHovered || wasDataHovered !== isDataHovered || wasSaveLocHovered !== isSaveLocHovered) {
                 redrawButtons();
             }
         });
@@ -1538,6 +1838,15 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             }
             else if (isInLoadButton(coords.x, coords.y)) {
                 showLoadOverlay();
+            }
+            else if (isInFullscreenButton(coords.x, coords.y)) {
+                toggleFullscreen();
+            }
+            else if (isDevelopmentMode && isInDataButton(coords.x, coords.y)) {
+                toggleDisplay();
+            }
+            else if (isDevelopmentMode && isInSaveLocButton(coords.x, coords.y)) {
+                saveCurrentLocationToTimetable();
             }
             else if (isInPrevArrow(coords.x, coords.y)) {
                 if (selectedStationIndex > 0) {
@@ -1577,7 +1886,8 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         // Redraw at regular intervals to support flashing
         setInterval(function() {
             if (currentData) {
-                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight, currentData.distanceUnits, currentPlayerPosition);
+                var temp = currentData.weather ? currentData.weather.Temperature : null;
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight, currentData.distanceUnits, currentPlayerPosition, temp, currentData.temperatureUnits);
             }
         }, 100);
 
@@ -1589,7 +1899,8 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                 currentPlayerPosition = data.playerPosition;
             }
             document.getElementById('display').innerText = JSON.stringify(data, null, 2);
-            draw(Math.round(data.speed), data.limit, data.isSlipping, data.powerHandle, data.incline, data.nextSpeedLimit, data.distanceToNextSpeedLimit, data.trainBreak, data.trainBrakeActive, data.locomotiveBrakeHandle, data.locomotiveBrakeActive, data.electricDynamicBrake, data.electricBrakeActive, data.isTractionLocked, data.localTime, data.timetableTime, data.timetableLabel, data.distanceToStation, data.reverser, data.doorBackLeft, data.doorBackRight, data.distanceUnits, currentPlayerPosition);
+            var temp = data.weather ? data.weather.Temperature : null;
+            draw(Math.round(data.speed), data.limit, data.isSlipping, data.powerHandle, data.incline, data.nextSpeedLimit, data.distanceToNextSpeedLimit, data.trainBreak, data.trainBrakeActive, data.locomotiveBrakeHandle, data.locomotiveBrakeActive, data.electricDynamicBrake, data.electricBrakeActive, data.isTractionLocked, data.localTime, data.timetableTime, data.timetableLabel, data.distanceToStation, data.reverser, data.doorBackLeft, data.doorBackRight, data.distanceUnits, currentPlayerPosition, temp, data.temperatureUnits);
         };
 
         eventSource.onerror = () => {

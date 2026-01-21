@@ -15,7 +15,9 @@ const defaultConfig = {
     theme: 'dark', // 'dark' or 'light'
     tswVersion: 'tsw6', // 'tsw5' or 'tsw6'
     tsw5KeyPath: '', // Path to TSW5 CommAPIKey.txt
-    tsw6KeyPath: ''  // Path to TSW6 CommAPIKey.txt
+    tsw6KeyPath: '',  // Path to TSW6 CommAPIKey.txt
+    distanceUnits: 'metric', // 'metric' (km/m) or 'imperial' (miles/feet)
+    temperatureUnits: 'celsius' // 'celsius' or 'fahrenheit'
 };
 
 /**
