@@ -4,64 +4,135 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timetables - TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
-        h1 { color: #00d4ff; text-align: center; margin-bottom: 30px; }
-        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
-        .nav { text-align: center; margin-bottom: 20px; }
-        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
-        .nav a:hover { background: #1a4a7a; }
-        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
-        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
+        body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        h1 { color: var(--accent-color); text-align: center; margin-bottom: 30px; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
+        /* Nav styles now in theme.css */
+        .card { background: var(--bg-secondary); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        h2 { color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
-        .btn-primary { background: #00d4ff; color: #1a1a2e; }
-        .btn-primary:hover { background: #00b8e6; }
-        .btn-danger { background: #e94560; color: #fff; }
-        .btn-danger:hover { background: #d63850; }
-        .btn-secondary { background: #0f3460; color: #eee; }
-        .btn-secondary:hover { background: #1a4a7a; }
+        .btn-primary { background: var(--btn-primary-bg); color: #fff; }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-danger { background: var(--btn-danger-bg); color: #fff; }
+        .btn-danger:hover { background: var(--btn-danger-hover); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--accent-hover); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
-        th { background: #0f3460; color: #00d4ff; }
-        tr:hover { background: #1a1a2e; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-tertiary); color: var(--accent-color); }
+        tr:hover { background: var(--bg-primary); }
         .actions { white-space: nowrap; }
         .actions button { padding: 5px 10px; font-size: 12px; }
-        .empty-message { text-align: center; color: #666; padding: 20px; }
+        .empty-message { text-align: center; color: var(--text-muted); padding: 20px; }
         .filter-box { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
-        .filter-box label { color: #aaa; white-space: nowrap; }
-        .filter-box select, .filter-box input { padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
-        .filter-box select:focus, .filter-box input:focus { outline: none; border-color: #00d4ff; }
+        .filter-box label { color: var(--text-secondary); white-space: nowrap; }
+        .filter-box select, .filter-box input { padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .filter-box select:focus, .filter-box input:focus { outline: none; border-color: var(--accent-color); }
         .filter-box select { min-width: 200px; }
         .filter-box input { flex: 1; min-width: 150px; }
-        a { color: #00d4ff; text-decoration: none; }
+        a { color: var(--accent-color); text-decoration: none; }
         a:hover { text-decoration: underline; }
-        .upload-area { border: 2px dashed #0f3460; border-radius: 8px; padding: 30px; text-align: center; margin-bottom: 15px; cursor: pointer; transition: all 0.3s; }
-        .upload-area:hover { border-color: #00d4ff; background: rgba(0, 212, 255, 0.05); }
-        .upload-area.dragover { border-color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
+        .upload-area { border: 2px dashed var(--border-color); border-radius: 8px; padding: 30px; text-align: center; margin-bottom: 15px; cursor: pointer; transition: all 0.3s; }
+        .upload-area:hover { border-color: var(--accent-color); background: var(--bg-tertiary); }
+        .upload-area.dragover { border-color: var(--accent-color); background: var(--bg-tertiary); }
         .upload-area input[type="file"] { display: none; }
-        .upload-icon { font-size: 48px; color: #0f3460; margin-bottom: 10px; }
-        .upload-text { color: #aaa; margin-bottom: 5px; }
-        .upload-hint { color: #666; font-size: 12px; }
+        .upload-icon { font-size: 48px; color: var(--border-color); margin-bottom: 10px; }
+        .upload-text { color: var(--text-secondary); margin-bottom: 5px; }
+        .upload-hint { color: var(--text-muted); font-size: 12px; }
         .upload-status { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; }
-        .upload-status.success { display: block; background: rgba(39, 174, 96, 0.2); color: #27ae60; }
-        .upload-status.error { display: block; background: rgba(233, 69, 96, 0.2); color: #e94560; }
-        .upload-status.loading { display: block; background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
+        .upload-status.success { display: block; background: var(--color-success-bg); color: var(--color-success); }
+        .upload-status.error { display: block; background: var(--color-error-bg); color: var(--color-error); }
+        .upload-status.loading { display: block; background: var(--color-info-bg); color: var(--color-info); }
+        .or-divider { color: var(--text-muted); }
+        .file-list { margin-top: 15px; text-align: left; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: var(--bg-primary); border-radius: 4px; margin-bottom: 5px; }
+        .file-item .remove { color: var(--color-error); cursor: pointer; }
+        .progress-bar { width: 100%; height: 20px; background: var(--bg-tertiary); border-radius: 10px; overflow: hidden; margin-top: 15px; display: none; }
+        .progress-bar .fill { height: 100%; background: var(--btn-primary-bg); width: 0%; transition: width 0.3s; }
+        .progress-text { text-align: center; margin-top: 10px; color: var(--text-muted); }
+        .btn-primary:disabled { background: #555; cursor: not-allowed; }
+        .btn-success { background: var(--btn-success-bg); color: #fff; }
+        .btn-success:hover { background: var(--btn-success-hover); }
+        #extractResultsSection { display: none; }
+        #extractResultsSection.visible { display: block; }
+        .editable-cell { cursor: pointer; position: relative; }
+        .editable-cell:hover { background: var(--bg-tertiary); }
+        .editable-cell input { width: 100%; padding: 5px; border: 1px solid var(--accent-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .action-select { padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 12px; min-width: 140px; }
+        .action-select:focus { outline: none; border-color: var(--accent-color); }
+        .service-name-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 16px; margin-bottom: 15px; }
+        .service-name-input:focus { outline: none; border-color: var(--accent-color); }
+        .raw-text { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 15px; margin-top: 15px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; white-space: pre-wrap; }
+        .collapsible { cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .collapsible::after { content: '▼'; transition: transform 0.3s; }
+        .collapsible.collapsed::after { transform: rotate(-90deg); }
+        .collapsible-content { display: block; }
+        .collapsible-content.hidden { display: none; }
+        .typeahead-container { position: relative; flex: 1; min-width: 150px; }
+        .typeahead-container input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .typeahead-container input:focus { outline: none; border-color: var(--accent-color); }
+        .typeahead-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 4px 4px; z-index: 1001; }
+        .typeahead-item { padding: 10px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border-color); }
+        .typeahead-item:last-child { border-bottom: none; }
+        .typeahead-item:hover, .typeahead-item.highlighted { background: var(--bg-tertiary); }
+        .typeahead-item .item-name { font-weight: 600; color: var(--text-primary); }
+        .typeahead-item .item-sub { font-size: 11px; color: var(--text-muted); }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .pagination button { min-width: 40px; }
+        .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pagination-info { color: var(--text-muted); font-size: 14px; }
+        .per-page { display: flex; align-items: center; gap: 8px; }
+        .per-page select { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <h1>Timetables</h1>
 
     <nav class="nav">
+        <a href="/countries">Countries</a>
+        
         <a href="/">Home</a>
+        <a href="/hud">HUD</a>
+        <a href="/record">Record Map</a>
         <a href="/routes">Routes</a>
-        <a href="/trains">Trains</a>
+        <a href="/settings">Settings</a>
         <a href="/timetables">Timetables</a>
-        <a href="/extract">Extract Timetable</a>
+        <a href="/map">Tracking Map</a>
+        <a href="/trains">Trains</a>
+        <a href="/weather">Weather</a>
     </nav>
 
-    <div class="card" style="display: flex; gap: 20px; align-items: stretch;">
-        <div style="flex: 1;">
+    <div class="card" style="display: flex; gap: 20px; align-items: stretch; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 250px;">
+            <h2>Extract from Images</h2>
+            <div class="upload-area" id="imageUploadArea">
+                <div class="upload-icon">&#128247;</div>
+                <div class="upload-text">Click or drag images here</div>
+                <div class="upload-hint">Supports: PNG, JPG, JPEG, GIF, BMP</div>
+                <input type="file" id="imageFileInput" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,image/*" style="display: none;">
+            </div>
+            <div class="file-list" id="imageFileList"></div>
+            <div style="margin-top: 15px;">
+                <button class="btn-primary" id="processImagesBtn" disabled>Process Images</button>
+                <button class="btn-secondary" id="clearImagesBtn">Clear</button>
+            </div>
+            <div class="progress-bar" id="imageProgressBar">
+                <div class="fill" id="imageProgressFill"></div>
+            </div>
+            <div class="progress-text" id="imageProgressText"></div>
+            <div id="imageUploadStatus" class="upload-status"></div>
+        </div>
+        <div style="display: flex; align-items: center; color: var(--text-muted);">OR</div>
+        <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <h2 style="margin-bottom: 15px;">Create Manually</h2>
+            <a href="/timetables/create" class="btn-primary" style="padding: 15px 30px; text-decoration: none; border-radius: 4px; font-size: 16px;">+ Create New Timetable</a>
+            <p style="color: var(--text-muted); margin-top: 15px; font-size: 13px; text-align: center;">Build a timetable from scratch by adding entries manually</p>
+        </div>
+        <div style="display: flex; align-items: center; color: var(--text-muted);">OR</div>
+        <div style="flex: 1; min-width: 250px;">
             <h2>Import Timetable</h2>
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">&#128194;</div>
@@ -71,38 +142,86 @@
             </div>
             <div id="uploadStatus" class="upload-status"></div>
         </div>
-        <div style="display: flex; align-items: center; color: #666;">OR</div>
-        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <h2 style="margin-bottom: 15px;">Create Manually</h2>
-            <a href="/timetables/create" class="btn-primary" style="padding: 15px 30px; text-decoration: none; border-radius: 4px; font-size: 16px;">+ Create New Timetable</a>
-            <p style="color: #666; margin-top: 15px; font-size: 13px; text-align: center;">Build a timetable from scratch by adding entries manually</p>
+    </div>
+
+    <!-- Extraction Results Section -->
+    <div class="card" id="extractResultsSection">
+        <h2>Extracted Timetable</h2>
+
+        <label style="color: #888; font-size: 12px;">Service Name:</label>
+        <input type="text" class="service-name-input" id="extractServiceName" placeholder="Service Name">
+
+        <div id="extractTableContainer">
+            <table id="extractResultsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>Location</th>
+                        <th>Platform</th>
+                        <th>Time 1</th>
+                        <th>Time 2</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th class="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="extractTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <button class="btn-success" id="createExtractedBtn">Create Timetable</button>
+            <button class="btn-secondary" id="addExtractRowBtn">Add Row</button>
+            <button class="btn-secondary" id="cancelExtractBtn" style="margin-left: 20px;">Cancel</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <h3 class="collapsible collapsed" id="rawToggle">Raw OCR Output</h3>
+            <div class="collapsible-content hidden" id="rawContent">
+                <div class="raw-text" id="rawText"></div>
+            </div>
         </div>
     </div>
 
     <div class="card">
         <h2>All Timetables</h2>
         <div class="filter-box">
-            <label for="searchInput">Search:</label>
-            <input type="text" id="searchInput" placeholder="Search by service name...">
-            <label for="routeFilter">Route:</label>
-            <select id="routeFilter">
-                <option value="">All Routes</option>
-            </select>
-            <label for="trainFilter">Train:</label>
-            <select id="trainFilter">
-                <option value="">All Trains</option>
-            </select>
+            <label>Service:</label>
+            <div class="typeahead-container">
+                <input type="text" id="serviceInput" placeholder="Type to search services..." autocomplete="off">
+                <div id="serviceDropdown" class="typeahead-dropdown"></div>
+                <input type="hidden" id="serviceFilter" value="">
+            </div>
+            <label>Route:</label>
+            <div class="typeahead-container">
+                <input type="text" id="routeInput" placeholder="Type to search routes..." autocomplete="off">
+                <div id="routeDropdown" class="typeahead-dropdown"></div>
+                <input type="hidden" id="routeFilter" value="">
+            </div>
+            <label>Train:</label>
+            <div class="typeahead-container">
+                <input type="text" id="trainInput" placeholder="Type to search trains..." autocomplete="off">
+                <div id="trainDropdown" class="typeahead-dropdown"></div>
+                <input type="hidden" id="trainFilter" value="">
+            </div>
             <button class="btn-secondary" onclick="clearFilters()">Clear</button>
         </div>
         <div id="timetablesList">
             <p class="empty-message">Loading timetables...</p>
         </div>
+        <div class="pagination" id="pagination"></div>
     </div>
 
     <script>
         let allTimetables = [];
         let allRoutes = [];
         let allTrains = [];
+        let highlightedIndex = { service: -1, route: -1, train: -1 };
+        let currentPage = 1;
+        let currentLimit = 10;
 
         async function loadData() {
             try {
@@ -115,7 +234,7 @@
                 allRoutes = await routesRes.json();
                 allTrains = await trainsRes.json();
 
-                populateFilters();
+                setupTypeaheads();
                 renderTimetables();
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -123,52 +242,254 @@
             }
         }
 
-        function populateFilters() {
-            const routeSelect = document.getElementById('routeFilter');
-            allRoutes.forEach(function(route) {
-                const option = document.createElement('option');
-                option.value = route.id;
-                option.textContent = route.name;
-                routeSelect.appendChild(option);
-            });
+        // =============================================
+        // Typeahead Setup
+        // =============================================
+        function setupTypeaheads() {
+            setupServiceTypeahead();
+            setupRouteTypeahead();
+            setupTrainTypeahead();
 
-            const trainSelect = document.getElementById('trainFilter');
-            allTrains.forEach(function(train) {
-                const option = document.createElement('option');
-                option.value = train.id;
-                option.textContent = train.name;
-                trainSelect.appendChild(option);
+            // Hide dropdowns on click outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.typeahead-container')) {
+                    document.getElementById('serviceDropdown').style.display = 'none';
+                    document.getElementById('routeDropdown').style.display = 'none';
+                    document.getElementById('trainDropdown').style.display = 'none';
+                }
             });
         }
 
-        function renderTimetables() {
-            const container = document.getElementById('timetablesList');
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-            const routeId = document.getElementById('routeFilter').value;
-            const trainId = document.getElementById('trainFilter').value;
+        function setupServiceTypeahead() {
+            var input = document.getElementById('serviceInput');
+            var dropdown = document.getElementById('serviceDropdown');
+            var hidden = document.getElementById('serviceFilter');
 
-            let timetables = allTimetables;
+            input.addEventListener('focus', function() { showServiceDropdown(this.value); });
+            input.addEventListener('input', function() {
+                highlightedIndex.service = -1;
+                hidden.value = '';
+                showServiceDropdown(this.value);
+                renderTimetables(1);
+            });
+            input.addEventListener('keydown', function(e) { handleTypeaheadKeydown(e, 'service', dropdown); });
+        }
 
-            // Apply filters
-            if (searchTerm) {
-                timetables = timetables.filter(function(t) {
-                    return t.service_name && t.service_name.toLowerCase().includes(searchTerm);
+        function setupRouteTypeahead() {
+            var input = document.getElementById('routeInput');
+            var dropdown = document.getElementById('routeDropdown');
+            var hidden = document.getElementById('routeFilter');
+
+            input.addEventListener('focus', function() { showRouteDropdown(this.value); });
+            input.addEventListener('input', function() {
+                highlightedIndex.route = -1;
+                hidden.value = '';
+                showRouteDropdown(this.value);
+                renderTimetables(1);
+            });
+            input.addEventListener('keydown', function(e) { handleTypeaheadKeydown(e, 'route', dropdown); });
+        }
+
+        function setupTrainTypeahead() {
+            var input = document.getElementById('trainInput');
+            var dropdown = document.getElementById('trainDropdown');
+            var hidden = document.getElementById('trainFilter');
+
+            input.addEventListener('focus', function() { showTrainDropdown(this.value); });
+            input.addEventListener('input', function() {
+                highlightedIndex.train = -1;
+                hidden.value = '';
+                showTrainDropdown(this.value);
+                renderTimetables(1);
+            });
+            input.addEventListener('keydown', function(e) { handleTypeaheadKeydown(e, 'train', dropdown); });
+        }
+
+        function handleTypeaheadKeydown(e, type, dropdown) {
+            var items = dropdown.querySelectorAll('.typeahead-item[data-id]');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                highlightedIndex[type] = Math.min(highlightedIndex[type] + 1, items.length - 1);
+                updateHighlight(items, highlightedIndex[type]);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlightedIndex[type] = Math.max(highlightedIndex[type] - 1, 0);
+                updateHighlight(items, highlightedIndex[type]);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (highlightedIndex[type] >= 0 && items[highlightedIndex[type]]) {
+                    items[highlightedIndex[type]].click();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function updateHighlight(items, index) {
+            items.forEach(function(item, idx) {
+                item.classList.toggle('highlighted', idx === index);
+            });
+            if (index >= 0 && items[index]) {
+                items[index].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showServiceDropdown(filter) {
+            var dropdown = document.getElementById('serviceDropdown');
+            var filterLower = filter.toLowerCase();
+
+            // Get unique service names
+            var services = [];
+            var seen = {};
+            allTimetables.forEach(function(t) {
+                if (t.service_name && !seen[t.service_name]) {
+                    seen[t.service_name] = true;
+                    if (t.service_name.toLowerCase().includes(filterLower)) {
+                        services.push(t.service_name);
+                    }
+                }
+            });
+            services.sort();
+
+            if (services.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No services found</div>';
+            } else {
+                dropdown.innerHTML = services.map(function(name) {
+                    return '<div class="typeahead-item" data-id="' + escapeHtml(name) + '" data-name="' + escapeHtml(name) + '">' +
+                        '<div class="item-name">' + escapeHtml(name) + '</div></div>';
+                }).join('');
+
+                dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        document.getElementById('serviceInput').value = this.dataset.name;
+                        document.getElementById('serviceFilter').value = this.dataset.name;
+                        dropdown.style.display = 'none';
+                        renderTimetables(1);
+                    });
                 });
             }
+            dropdown.style.display = 'block';
+        }
+
+        function showRouteDropdown(filter) {
+            var dropdown = document.getElementById('routeDropdown');
+            var filterLower = filter.toLowerCase();
+
+            var filtered = allRoutes.filter(function(route) {
+                return route.name.toLowerCase().includes(filterLower) ||
+                    (route.country_name && route.country_name.toLowerCase().includes(filterLower));
+            });
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No routes found</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(function(route) {
+                    return '<div class="typeahead-item" data-id="' + route.id + '" data-name="' + escapeHtml(route.name) + '">' +
+                        '<div class="item-name">' + escapeHtml(route.name) + '</div>' +
+                        (route.country_name ? '<div class="item-sub">' + escapeHtml(route.country_name) + '</div>' : '') +
+                        '</div>';
+                }).join('');
+
+                dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        document.getElementById('routeInput').value = this.dataset.name;
+                        document.getElementById('routeFilter').value = this.dataset.id;
+                        dropdown.style.display = 'none';
+                        renderTimetables(1);
+                    });
+                });
+            }
+            dropdown.style.display = 'block';
+        }
+
+        function showTrainDropdown(filter) {
+            var dropdown = document.getElementById('trainDropdown');
+            var filterLower = filter.toLowerCase();
+
+            var filtered = allTrains.filter(function(train) {
+                return train.name.toLowerCase().includes(filterLower);
+            });
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No trains found</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(function(train) {
+                    return '<div class="typeahead-item" data-id="' + train.id + '" data-name="' + escapeHtml(train.name) + '">' +
+                        '<div class="item-name">' + escapeHtml(train.name) + '</div></div>';
+                }).join('');
+
+                dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        document.getElementById('trainInput').value = this.dataset.name;
+                        document.getElementById('trainFilter').value = this.dataset.id;
+                        dropdown.style.display = 'none';
+                        renderTimetables(1);
+                    });
+                });
+            }
+            dropdown.style.display = 'block';
+        }
+
+        function renderTimetables(page) {
+            page = page || currentPage;
+            currentPage = page;
+
+            var container = document.getElementById('timetablesList');
+            var serviceFilter = document.getElementById('serviceFilter').value;
+            var serviceInput = document.getElementById('serviceInput').value.toLowerCase().trim();
+            var routeId = document.getElementById('routeFilter').value;
+            var routeInput = document.getElementById('routeInput').value.toLowerCase().trim();
+            var trainId = document.getElementById('trainFilter').value;
+            var trainInput = document.getElementById('trainInput').value.toLowerCase().trim();
+
+            var timetables = allTimetables;
+
+            // Apply service filter (exact match if selected, partial if typing)
+            if (serviceFilter) {
+                timetables = timetables.filter(function(t) {
+                    return t.service_name === serviceFilter;
+                });
+            } else if (serviceInput) {
+                timetables = timetables.filter(function(t) {
+                    return t.service_name && t.service_name.toLowerCase().includes(serviceInput);
+                });
+            }
+
+            // Apply route filter (exact match if selected, partial if typing)
             if (routeId) {
                 timetables = timetables.filter(function(t) { return t.route_id == routeId; });
+            } else if (routeInput) {
+                timetables = timetables.filter(function(t) {
+                    var route = allRoutes.find(function(r) { return r.id == t.route_id; });
+                    return route && route.name.toLowerCase().includes(routeInput);
+                });
             }
+
+            // Apply train filter (exact match if selected, partial if typing)
             if (trainId) {
                 timetables = timetables.filter(function(t) { return t.train_id == trainId; });
+            } else if (trainInput) {
+                timetables = timetables.filter(function(t) {
+                    var train = allTrains.find(function(tr) { return tr.id == t.train_id; });
+                    return train && train.name.toLowerCase().includes(trainInput);
+                });
             }
+
+            var total = timetables.length;
+            var totalPages = Math.ceil(total / currentLimit);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            var start = (currentPage - 1) * currentLimit;
+            var paginatedTimetables = timetables.slice(start, start + currentLimit);
 
             if (timetables.length === 0) {
                 container.innerHTML = '<p class="empty-message">No timetables found.</p>';
+                document.getElementById('pagination').innerHTML = '';
                 return;
             }
 
             let html = '<table><thead><tr><th>ID</th><th>Service Name</th><th>Route</th><th>Train</th><th>Created</th><th class="actions">Actions</th></tr></thead><tbody>';
-            timetables.forEach(function(t) {
+            paginatedTimetables.forEach(function(t) {
                 const route = allRoutes.find(function(r) { return r.id == t.route_id; });
                 const train = allTrains.find(function(tr) { return tr.id == t.train_id; });
 
@@ -185,6 +506,38 @@
             });
             html += '</tbody></table>';
             container.innerHTML = html;
+
+            renderPagination(total, totalPages);
+        }
+
+        function renderPagination(total, totalPages) {
+            var container = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                container.innerHTML = '<span class="pagination-info">Showing ' + total + ' timetables</span>';
+                return;
+            }
+
+            var html = '<button class="btn-secondary" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>&laquo;</button>';
+            html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>&lsaquo;</button>';
+            html += '<span class="pagination-info">' + currentPage + ' of ' + totalPages + '</span>';
+            html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&rsaquo;</button>';
+            html += '<button class="btn-secondary" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&raquo;</button>';
+            html += '<div class="per-page"><label>&nbsp;</label><select onchange="changeLimit(this.value)">';
+            [5, 10, 25, 50].forEach(function(n) {
+                html += '<option value="' + n + '" ' + (currentLimit === n ? 'selected' : '') + '>' + n + '</option>';
+            });
+            html += '</select></div>';
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            renderTimetables(page);
+        }
+
+        function changeLimit(limit) {
+            currentLimit = parseInt(limit);
+            currentPage = 1;
+            renderTimetables(1);
         }
 
         function showTimetable(id) {
@@ -203,10 +556,17 @@
         }
 
         function clearFilters() {
-            document.getElementById('searchInput').value = '';
+            document.getElementById('serviceInput').value = '';
+            document.getElementById('serviceFilter').value = '';
+            document.getElementById('routeInput').value = '';
             document.getElementById('routeFilter').value = '';
+            document.getElementById('trainInput').value = '';
             document.getElementById('trainFilter').value = '';
-            renderTimetables();
+            document.getElementById('serviceDropdown').style.display = 'none';
+            document.getElementById('routeDropdown').style.display = 'none';
+            document.getElementById('trainDropdown').style.display = 'none';
+            currentPage = 1;
+            renderTimetables(1);
         }
 
         function escapeHtml(text) {
@@ -215,11 +575,6 @@
             div.textContent = text;
             return div.innerHTML;
         }
-
-        // Event listeners for filters
-        document.getElementById('searchInput').addEventListener('input', renderTimetables);
-        document.getElementById('routeFilter').addEventListener('change', renderTimetables);
-        document.getElementById('trainFilter').addEventListener('change', renderTimetables);
 
         // File upload handling
         function handleFileSelect(event) {
@@ -320,6 +675,299 @@
                 }
             }
         });
+
+        // ================================
+        // Image Upload / OCR Extraction
+        // ================================
+        var selectedImageFiles = [];
+        var extractedEntries = [];
+        var imageUploadArea = document.getElementById('imageUploadArea');
+        var imageFileInput = document.getElementById('imageFileInput');
+        var imageFileList = document.getElementById('imageFileList');
+        var processImagesBtn = document.getElementById('processImagesBtn');
+        var clearImagesBtn = document.getElementById('clearImagesBtn');
+        var imageProgressBar = document.getElementById('imageProgressBar');
+        var imageProgressFill = document.getElementById('imageProgressFill');
+        var imageProgressText = document.getElementById('imageProgressText');
+        var imageUploadStatus = document.getElementById('imageUploadStatus');
+        var extractResultsSection = document.getElementById('extractResultsSection');
+        var extractTableBody = document.getElementById('extractTableBody');
+        var extractServiceName = document.getElementById('extractServiceName');
+        var rawText = document.getElementById('rawText');
+        var rawToggle = document.getElementById('rawToggle');
+        var rawContent = document.getElementById('rawContent');
+
+        var ACTIONS = [
+            'WAIT FOR SERVICE',
+            'STOP AT LOCATION',
+            'LOAD PASSENGERS',
+            'UNLOAD PASSENGERS',
+            'GO VIA LOCATION',
+            'UNCOUPLE VEHICLES',
+            'COUPLE TO FORMATION'
+        ];
+
+        imageUploadArea.addEventListener('click', function() { imageFileInput.click(); });
+        imageFileInput.addEventListener('change', function(e) { handleImageFiles(e.target.files); });
+
+        imageUploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            imageUploadArea.classList.add('dragover');
+        });
+        imageUploadArea.addEventListener('dragleave', function() {
+            imageUploadArea.classList.remove('dragover');
+        });
+        imageUploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            imageUploadArea.classList.remove('dragover');
+            handleImageFiles(e.dataTransfer.files);
+        });
+
+        function handleImageFiles(files) {
+            for (var i = 0; i < files.length; i++) {
+                if (/\.(png|jpg|jpeg|gif|bmp)$/i.test(files[i].name)) {
+                    selectedImageFiles.push(files[i]);
+                }
+            }
+            selectedImageFiles.sort(function(a, b) { return a.name.localeCompare(b.name); });
+            renderImageFileList();
+        }
+
+        function renderImageFileList() {
+            imageFileList.innerHTML = selectedImageFiles.map(function(file, index) {
+                return '<div class="file-item"><span>' + (index + 1) + '. ' + escapeHtml(file.name) + ' (' + (file.size / 1024).toFixed(1) + ' KB)</span><span class="remove" onclick="removeImageFile(' + index + ')">✕</span></div>';
+            }).join('');
+            processImagesBtn.disabled = selectedImageFiles.length === 0;
+        }
+
+        function removeImageFile(index) {
+            selectedImageFiles.splice(index, 1);
+            renderImageFileList();
+        }
+
+        clearImagesBtn.addEventListener('click', function() {
+            selectedImageFiles = [];
+            imageFileInput.value = '';
+            renderImageFileList();
+            imageUploadStatus.className = 'upload-status';
+            imageUploadStatus.textContent = '';
+        });
+
+        processImagesBtn.addEventListener('click', async function() {
+            if (selectedImageFiles.length === 0) return;
+
+            processImagesBtn.disabled = true;
+            imageProgressBar.style.display = 'block';
+            imageProgressFill.style.width = '0%';
+            imageProgressText.textContent = 'Uploading images...';
+            imageUploadStatus.className = 'upload-status';
+
+            var formData = new FormData();
+            selectedImageFiles.forEach(function(file) { formData.append('images', file, file.name); });
+
+            try {
+                var response = await fetch('/api/extract', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    var error = await response.json();
+                    throw new Error(error.error || 'Processing failed');
+                }
+
+                imageProgressFill.style.width = '100%';
+                imageProgressText.textContent = 'Complete!';
+
+                var data = await response.json();
+
+                // Display results in editable table instead of auto-creating
+                displayExtractedResults(data);
+
+            } catch (error) {
+                imageProgressText.textContent = 'Error: ' + error.message;
+                imageUploadStatus.className = 'upload-status error';
+                imageUploadStatus.textContent = 'Error: ' + error.message;
+                console.error('Error:', error);
+            } finally {
+                processImagesBtn.disabled = selectedImageFiles.length === 0;
+                setTimeout(function() {
+                    imageProgressBar.style.display = 'none';
+                }, 2000);
+            }
+        });
+
+        function displayExtractedResults(data) {
+            extractedEntries = data.entries || [];
+            extractServiceName.value = data.service_name || '';
+            extractResultsSection.classList.add('visible');
+
+            // Raw text
+            if (data.rawTexts && data.rawTexts.length > 0) {
+                rawText.textContent = data.rawTexts.map(function(r) {
+                    return '=== ' + r.file + ' ===\n' + r.text;
+                }).join('\n\n');
+            }
+
+            renderExtractedTable();
+
+            // Scroll to results
+            extractResultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderExtractedTable() {
+            extractTableBody.innerHTML = extractedEntries.map(function(entry, index) {
+                var actionOptions = ACTIONS.map(function(a) {
+                    return '<option value="' + a + '"' + (entry.action === a ? ' selected' : '') + '>' + a + '</option>';
+                }).join('');
+
+                return '<tr data-index="' + index + '">' +
+                    '<td>' + (index + 1) + '</td>' +
+                    '<td><select class="action-select" onchange="updateExtractedField(' + index + ', \'action\', this.value)"><option value="">-- Select --</option>' + actionOptions + '</select></td>' +
+                    '<td class="editable-cell" data-field="details">' + escapeHtml(entry.details || '') + '</td>' +
+                    '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>' +
+                    '<td class="editable-cell" data-field="platform">' + escapeHtml(entry.platform || '') + '</td>' +
+                    '<td class="editable-cell" data-field="time1">' + escapeHtml(entry.time1 || '') + '</td>' +
+                    '<td class="editable-cell" data-field="time2">' + escapeHtml(entry.time2 || '') + '</td>' +
+                    '<td class="editable-cell" data-field="latitude">' + escapeHtml(entry.latitude || '') + '</td>' +
+                    '<td class="editable-cell" data-field="longitude">' + escapeHtml(entry.longitude || '') + '</td>' +
+                    '<td class="actions"><button class="btn-danger" onclick="deleteExtractedRow(' + index + ')">Delete</button></td>' +
+                    '</tr>';
+            }).join('');
+
+            // Add click handlers for editable cells
+            document.querySelectorAll('#extractTableBody .editable-cell').forEach(function(cell) {
+                cell.addEventListener('click', makeExtractedCellEditable);
+            });
+        }
+
+        function updateExtractedField(index, field, value) {
+            extractedEntries[index][field] = value;
+        }
+
+        function makeExtractedCellEditable(e) {
+            var cell = e.target;
+            if (cell.querySelector('input')) return;
+
+            var currentValue = cell.textContent;
+            var field = cell.dataset.field;
+            var row = cell.parentElement;
+            var index = parseInt(row.dataset.index);
+
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+
+            input.addEventListener('blur', function() {
+                var newValue = input.value;
+                extractedEntries[index][field] = newValue;
+                cell.textContent = newValue;
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    cell.textContent = currentValue;
+                }
+            });
+
+            cell.textContent = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+        }
+
+        function deleteExtractedRow(index) {
+            if (!confirm('Delete this row?')) return;
+            extractedEntries.splice(index, 1);
+            renderExtractedTable();
+        }
+
+        // Add Row button
+        document.getElementById('addExtractRowBtn').addEventListener('click', function() {
+            extractedEntries.push({
+                action: 'STOP AT LOCATION',
+                details: '',
+                location: '',
+                platform: '',
+                time1: '',
+                time2: '',
+                latitude: '',
+                longitude: ''
+            });
+            renderExtractedTable();
+        });
+
+        // Cancel button
+        document.getElementById('cancelExtractBtn').addEventListener('click', function() {
+            if (extractedEntries.length > 0 && !confirm('Discard extracted data?')) return;
+            extractedEntries = [];
+            extractServiceName.value = '';
+            rawText.textContent = '';
+            extractResultsSection.classList.remove('visible');
+        });
+
+        // Create Timetable button
+        document.getElementById('createExtractedBtn').addEventListener('click', async function() {
+            if (extractedEntries.length === 0) {
+                alert('No entries to save');
+                return;
+            }
+
+            try {
+                var payload = {
+                    service_name: extractServiceName.value || 'Untitled',
+                    entries: extractedEntries.map(function(entry) {
+                        return {
+                            action: entry.action || '',
+                            details: entry.details || '',
+                            location: entry.location || '',
+                            platform: entry.platform || '',
+                            time1: entry.time1 || '',
+                            time2: entry.time2 || '',
+                            latitude: entry.latitude || '',
+                            longitude: entry.longitude || ''
+                        };
+                    })
+                };
+
+                var response = await fetch('/api/timetables', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create timetable');
+                }
+
+                var result = await response.json();
+
+                imageUploadStatus.className = 'upload-status success';
+                imageUploadStatus.textContent = 'Timetable created! Redirecting...';
+
+                setTimeout(function() {
+                    window.location.href = '/timetables/' + result.id;
+                }, 1000);
+
+            } catch (error) {
+                alert('Error creating timetable: ' + error.message);
+                console.error('Error:', error);
+            }
+        });
+
+        // Raw text toggle
+        rawToggle.addEventListener('click', function() {
+            rawToggle.classList.toggle('collapsed');
+            rawContent.classList.toggle('hidden');
+        });
+
+        // Theme initialization
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', theme);
+        })();
 
         loadData();
     </script>

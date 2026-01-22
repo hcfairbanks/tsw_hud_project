@@ -4,60 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Train Details - TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
-        h1 { color: #00d4ff; text-align: center; margin-bottom: 30px; }
-        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
-        .nav { text-align: center; margin-bottom: 20px; }
-        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
-        .nav a:hover { background: #1a4a7a; }
-        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
-        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
-        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid #0f3460; }
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        h1 { color: var(--accent-color); text-align: center; margin-bottom: 30px; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
+        /* Nav styles now in theme.css */
+        .card { background: var(--bg-secondary); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        h2 { color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
         .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: bold; color: #00d4ff; width: 120px; flex-shrink: 0; }
-        .detail-value { color: #eee; }
+        .detail-label { font-weight: bold; color: var(--accent-color); width: 120px; flex-shrink: 0; }
+        .detail-value { color: var(--text-primary); }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
-        .btn-primary { background: #00d4ff; color: #1a1a2e; }
-        .btn-primary:hover { background: #00b8e6; }
-        .btn-secondary { background: #0f3460; color: #eee; }
-        .btn-secondary:hover { background: #1a4a7a; }
-        .btn-danger { background: #e94560; color: #fff; }
-        .btn-danger:hover { background: #d63850; }
+        .btn-primary { background: var(--btn-primary-bg); color: #fff; }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--accent-hover); }
+        .btn-danger { background: var(--btn-danger-bg); color: #fff; }
+        .btn-danger:hover { background: var(--btn-danger-hover); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
-        th { background: #0f3460; color: #00d4ff; }
-        tr:hover { background: #1a1a2e; }
-        .empty-message { text-align: center; color: #666; padding: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-tertiary); color: var(--accent-color); }
+        tr:hover { background: var(--bg-primary); }
+        .empty-message { text-align: center; color: var(--text-muted); padding: 20px; }
         .back-link { margin-bottom: 20px; }
-        .back-link a { color: #00d4ff; text-decoration: none; }
+        .back-link a { color: var(--accent-color); text-decoration: none; }
         .back-link a:hover { text-decoration: underline; }
         .filter-box { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
-        .filter-box label { color: #aaa; white-space: nowrap; }
-        .filter-box select { flex: 1; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
-        .filter-box select:focus { outline: none; border-color: #00d4ff; }
-        .context-info { background: #0f3460; padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; color: #aaa; }
-        .context-info a { color: #00d4ff; text-decoration: none; }
+        .filter-box label { color: var(--text-secondary); white-space: nowrap; }
+        .filter-box select { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .filter-box select:focus { outline: none; border-color: var(--accent-color); }
+        .context-info { background: var(--bg-tertiary); padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; color: var(--text-secondary); }
+        .context-info a { color: var(--accent-color); text-decoration: none; }
         .context-info a:hover { text-decoration: underline; }
-        .upload-area { border: 2px dashed #0f3460; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
-        .upload-area:hover, .upload-area.dragover { border-color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
-        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #1a1a2e; border-radius: 4px; margin-bottom: 5px; }
-        .file-item .remove { color: #e94560; cursor: pointer; }
+        .upload-area { border: 2px dashed var(--border-color); border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-area:hover, .upload-area.dragover { border-color: var(--accent-color); background: var(--bg-tertiary); }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: var(--bg-primary); border-radius: 4px; margin-bottom: 5px; }
+        .file-item .remove { color: var(--color-error); cursor: pointer; }
         .editable-cell { cursor: pointer; position: relative; }
-        .editable-cell:hover { background: rgba(0, 212, 255, 0.1); }
-        .editable-cell input { width: 100%; padding: 5px; border: 1px solid #00d4ff; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
+        .editable-cell:hover { background: var(--bg-tertiary); }
+        .editable-cell input { width: 100%; padding: 5px; border: 1px solid var(--accent-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .action-select { padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 12px; min-width: 140px; }
+        .action-select:focus { outline: none; border-color: var(--accent-color); }
+        a { color: var(--accent-color); }
+        .btn-success { background: var(--btn-success-bg); color: #fff; }
+        .btn-success:hover { background: var(--btn-success-hover); }
+        .progress-bar { background: var(--bg-tertiary); }
+        .progress-fill { background: var(--btn-primary-bg); }
+        .progress-text { color: var(--text-muted); }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <h1>Train Details</h1>
 
     <nav class="nav">
+        <a href="/countries">Countries</a>
+        
         <a href="/">Home</a>
+        <a href="/hud">HUD</a>
+        <a href="/record">Record Map</a>
         <a href="/routes">Routes</a>
+        <a href="/settings">Settings</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/map">Tracking Map</a>
         <a href="/trains">Trains</a>
-        <a href="/extract">Extract Timetable</a>
-        <a href="#" id="recordRouteBtn" style="display: none;">Record Route</a>
+        <a href="/weather">Weather</a>
     </nav>
 
     <div class="back-link" id="backLink">
@@ -188,7 +201,7 @@
 
                         // Show Record Route link
                         document.getElementById('recordRouteBtn').style.display = 'inline-block';
-                        document.getElementById('recordRouteBtn').href = '/record-map?route_id=' + fromRouteId + '&train_id=' + trainId;
+                        document.getElementById('recordRouteBtn').href = '/record?route_id=' + fromRouteId + '&train_id=' + trainId;
                     }
                 }
             } catch (error) {
@@ -283,6 +296,16 @@
         // ====================================
         let selectedFiles = [];
         let extractedEntries = [];
+
+        const ACTIONS = [
+            'WAIT FOR SERVICE',
+            'STOP AT LOCATION',
+            'LOAD PASSENGERS',
+            'UNLOAD PASSENGERS',
+            'GO VIA LOCATION',
+            'UNCOUPLE VEHICLES',
+            'COUPLE TO FORMATION'
+        ];
 
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
@@ -385,9 +408,13 @@
 
         function renderExtractTable() {
             extractTableBody.innerHTML = extractedEntries.map(function(entry, index) {
+                var actionOptions = ACTIONS.map(function(a) {
+                    return '<option value="' + a + '"' + (entry.action === a ? ' selected' : '') + '>' + a + '</option>';
+                }).join('');
+
                 return '<tr data-index="' + index + '">' +
                     '<td>' + (index + 1) + '</td>' +
-                    '<td class="editable-cell" data-field="action">' + escapeHtml(entry.action || '') + '</td>' +
+                    '<td><select class="action-select" onchange="updateExtractEntry(' + index + ', \'action\', this.value)"><option value="">-- Select --</option>' + actionOptions + '</select></td>' +
                     '<td class="editable-cell" data-field="details">' + escapeHtml(entry.details || '') + '</td>' +
                     '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>' +
                     '<td class="editable-cell" data-field="platform">' + escapeHtml(entry.platform || '') + '</td>' +
@@ -400,6 +427,10 @@
             document.querySelectorAll('#extractTableBody .editable-cell').forEach(function(cell) {
                 cell.addEventListener('click', makeExtractCellEditable);
             });
+        }
+
+        function updateExtractEntry(index, field, value) {
+            extractedEntries[index][field] = value;
         }
 
         function makeExtractCellEditable(e) {
@@ -510,6 +541,12 @@
                 alert('Error saving: ' + err.message);
             }
         });
+
+        // Theme initialization
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', theme);
+        })();
 
         // Load everything
         loadTrain();

@@ -4,65 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timetable Details - TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
-        h1 { color: #00d4ff; text-align: center; margin-bottom: 30px; }
-        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
-        .nav { text-align: center; margin-bottom: 20px; }
-        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
-        .nav a:hover { background: #1a4a7a; }
-        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
-        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
-        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid #0f3460; }
+        body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        h1 { color: var(--accent-color); text-align: center; margin-bottom: 30px; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
+        /* Nav styles now in theme.css */
+        .card { background: var(--bg-secondary); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        h2 { color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
         .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: bold; color: #00d4ff; width: 120px; flex-shrink: 0; }
-        .detail-value { color: #eee; flex: 1; }
-        .detail-value a { color: #00d4ff; text-decoration: none; }
+        .detail-label { font-weight: bold; color: var(--accent-color); width: 120px; flex-shrink: 0; }
+        .detail-value { color: var(--text-primary); flex: 1; }
+        .detail-value a { color: var(--accent-color); text-decoration: none; }
         .detail-value a:hover { text-decoration: underline; }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
-        .btn-primary { background: #00d4ff; color: #1a1a2e; }
-        .btn-primary:hover { background: #00b8e6; }
-        .btn-secondary { background: #0f3460; color: #eee; }
-        .btn-secondary:hover { background: #1a4a7a; }
-        .btn-danger { background: #e94560; color: #fff; }
-        .btn-danger:hover { background: #d63850; }
-        .btn-save { background: #27ae60; color: #fff; }
-        .btn-save:hover { background: #219a52; }
+        .btn-primary { background: var(--btn-primary-bg); color: #fff; }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--accent-hover); }
+        .btn-danger { background: var(--btn-danger-bg); color: #fff; }
+        .btn-danger:hover { background: var(--btn-danger-hover); }
+        .btn-save { background: var(--btn-success-bg); color: #fff; }
+        .btn-save:hover { background: var(--btn-success-hover); }
         .btn-cancel { background: #95a5a6; color: #fff; }
         .btn-cancel:hover { background: #7f8c8d; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #0f3460; font-size: 14px; }
-        th { background: #0f3460; color: #00d4ff; }
-        tr:hover { background: #1a1a2e; }
+        th, td { padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+        th { background: var(--bg-tertiary); color: var(--accent-color); }
+        tr:hover { background: var(--bg-primary); }
         .actions { white-space: nowrap; }
         .actions button { padding: 5px 10px; font-size: 12px; }
-        .empty-message { text-align: center; color: #666; padding: 20px; }
+        .empty-message { text-align: center; color: var(--text-muted); padding: 20px; }
         .back-link { margin-bottom: 20px; }
-        .back-link a { color: #00d4ff; text-decoration: none; }
+        .back-link a { color: var(--accent-color); text-decoration: none; }
         .back-link a:hover { text-decoration: underline; }
         .editable-cell { cursor: pointer; position: relative; }
-        .editable-cell:hover { background: rgba(0, 212, 255, 0.1); }
-        .editable-cell input, .editable-cell select { width: 100%; padding: 5px; border: 1px solid #00d4ff; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
-        .service-name-input { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 16px; }
-        .service-name-input:focus { outline: none; border-color: #00d4ff; }
+        .editable-cell:hover { background: var(--bg-tertiary); }
+        .editable-cell input, .editable-cell select { width: 100%; padding: 5px; border: 1px solid var(--accent-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .action-select { padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 12px; min-width: 140px; }
+        .action-select:focus { outline: none; border-color: var(--accent-color); }
+        .service-name-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 16px; }
+        .service-name-input:focus { outline: none; border-color: var(--accent-color); }
         .action-bar { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        .unsaved-indicator { color: #f39c12; font-size: 12px; margin-left: 10px; }
-        .btn-warning { background: #f39c12; color: #1a1a2e; }
-        .btn-warning:hover { background: #e08e0b; }
+        .unsaved-indicator { color: var(--color-warning); font-size: 12px; margin-left: 10px; }
+        .btn-warning { background: var(--btn-warning-bg); color: #1a1a2e; }
+        .btn-warning:hover { background: var(--btn-warning-hover); }
         .entries-header { display: flex; align-items: center; gap: 15px; }
         .entries-header h2 { margin-bottom: 0; border-bottom: none; padding-bottom: 0; flex: 1; }
+        select { background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        select:focus { border-color: var(--accent-color); outline: none; }
+        label { color: var(--text-secondary); }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <h1>Timetable Details</h1>
 
     <nav class="nav">
+        <a href="/countries">Countries</a>
+        
         <a href="/">Home</a>
+        <a href="/hud">HUD</a>
+        <a href="/record">Record Map</a>
         <a href="/routes">Routes</a>
-        <a href="/trains">Trains</a>
+        <a href="/settings">Settings</a>
         <a href="/timetables">Timetables</a>
-        <a href="/extract">Extract Timetable</a>
+        <a href="/map">Tracking Map</a>
+        <a href="/trains">Trains</a>
+        <a href="/weather">Weather</a>
     </nav>
 
     <div class="back-link">
@@ -108,6 +118,16 @@
         let allTrains = [];
         let allCountries = [];
         let hasUnsavedChanges = false;
+
+        const ACTIONS = [
+            'WAIT FOR SERVICE',
+            'STOP AT LOCATION',
+            'LOAD PASSENGERS',
+            'UNLOAD PASSENGERS',
+            'GO VIA LOCATION',
+            'UNCOUPLE VEHICLES',
+            'COUPLE TO FORMATION'
+        ];
 
         async function loadData() {
             try {
@@ -166,9 +186,13 @@
 
             let html = '<table><thead><tr><th>#</th><th>Action</th><th>Location</th><th>Platform</th><th>Time 1</th><th>Time 2</th><th>Details</th><th class="actions">Actions</th></tr></thead><tbody>';
             entries.forEach(function(entry, index) {
+                var actionOptions = ACTIONS.map(function(a) {
+                    return '<option value="' + a + '"' + (entry.action === a ? ' selected' : '') + '>' + a + '</option>';
+                }).join('');
+
                 html += '<tr data-index="' + index + '" data-id="' + (entry.id || '') + '">';
                 html += '<td>' + (index + 1) + '</td>';
-                html += '<td class="editable-cell" data-field="action">' + escapeHtml(entry.action || '') + '</td>';
+                html += '<td><select class="action-select" onchange="updateEntryField(' + index + ', \'action\', this.value)"><option value="">-- Select --</option>' + actionOptions + '</select></td>';
                 html += '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>';
                 html += '<td class="editable-cell" data-field="platform">' + escapeHtml(entry.platform || '') + '</td>';
                 html += '<td class="editable-cell" data-field="time1">' + escapeHtml(entry.time1 || '') + '</td>';
@@ -203,31 +227,23 @@
             btn.style.display = hasCoordinates ? 'none' : 'inline-block';
         }
 
+        function updateEntryField(index, field, value) {
+            entries[index][field] = value;
+            markUnsaved();
+        }
+
         function makeCellEditable(e) {
             var cell = e.target;
-            if (cell.querySelector('input') || cell.querySelector('select')) return;
+            if (cell.querySelector('input')) return;
 
             var currentValue = cell.textContent;
             var field = cell.dataset.field;
             var row = cell.parentElement;
             var index = parseInt(row.dataset.index);
 
-            var input;
-            if (field === 'action') {
-                input = document.createElement('select');
-                var actions = ['WAIT FOR SERVICE', 'STOP AT LOCATION', 'LOAD PASSENGERS', 'UNLOAD PASSENGERS', 'GO VIA LOCATION', 'UNCOUPLE VEHICLES', 'COUPLE TO FORMATION'];
-                actions.forEach(function(action) {
-                    var option = document.createElement('option');
-                    option.value = action;
-                    option.textContent = action;
-                    if (action === currentValue) option.selected = true;
-                    input.appendChild(option);
-                });
-            } else {
-                input = document.createElement('input');
-                input.type = 'text';
-                input.value = currentValue;
-            }
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
 
             input.addEventListener('blur', function() {
                 var newValue = input.value;
@@ -247,7 +263,7 @@
             cell.textContent = '';
             cell.appendChild(input);
             input.focus();
-            if (input.select) input.select();
+            input.select();
         }
 
         function addEntry() {
@@ -497,7 +513,7 @@
         }
 
         function goToRecordMap() {
-            window.location.href = '/record-map?timetable_id=' + timetableId;
+            window.location.href = '/record?timetable_id=' + timetableId;
         }
 
         // Warn before leaving with unsaved changes
@@ -507,6 +523,12 @@
                 e.returnValue = '';
             }
         });
+
+        // Theme initialization
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', theme);
+        })();
 
         loadData();
     </script>

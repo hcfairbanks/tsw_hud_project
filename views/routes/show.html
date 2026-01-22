@@ -4,68 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Route Details - TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
-        h1 { color: #00d4ff; text-align: center; margin-bottom: 30px; }
-        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
-        .nav { text-align: center; margin-bottom: 20px; }
-        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
-        .nav a:hover { background: #1a4a7a; }
-        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
-        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
-        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid #0f3460; }
+        body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        h1 { color: var(--accent-color); text-align: center; margin-bottom: 30px; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
+        /* Nav styles now in theme.css */
+        .card { background: var(--bg-secondary); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        h2 { color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
         .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: bold; color: #00d4ff; width: 120px; flex-shrink: 0; }
-        .detail-value { color: #eee; }
+        .detail-label { font-weight: bold; color: var(--accent-color); width: 120px; flex-shrink: 0; }
+        .detail-value { color: var(--text-primary); }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
-        .btn-primary { background: #00d4ff; color: #1a1a2e; }
-        .btn-primary:hover { background: #00b8e6; }
-        .btn-secondary { background: #0f3460; color: #eee; }
-        .btn-secondary:hover { background: #1a4a7a; }
-        .btn-danger { background: #e94560; color: #fff; }
-        .btn-danger:hover { background: #d63850; }
+        .btn-primary { background: var(--btn-primary-bg); color: #fff; }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--accent-hover); }
+        .btn-danger { background: var(--btn-danger-bg); color: #fff; }
+        .btn-danger:hover { background: var(--btn-danger-hover); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
-        th { background: #0f3460; color: #00d4ff; }
-        tr:hover { background: #1a1a2e; }
-        .empty-message { text-align: center; color: #666; padding: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-tertiary); color: var(--accent-color); }
+        tr:hover { background: var(--bg-primary); }
+        .empty-message { text-align: center; color: var(--text-muted); padding: 20px; }
         .back-link { margin-bottom: 20px; }
-        .back-link a { color: #00d4ff; text-decoration: none; }
+        .back-link a { color: var(--accent-color); text-decoration: none; }
         .back-link a:hover { text-decoration: underline; }
         .actions { white-space: nowrap; }
         .actions button { padding: 5px 10px; font-size: 12px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #aaa; }
-        input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
-        input[type="text"]:focus, select:focus { outline: none; border-color: #00d4ff; }
+        label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+        input[type="text"], select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        input[type="text"]:focus, select:focus { outline: none; border-color: var(--accent-color); }
         .add-train-section { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
         .add-train-section .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
-        .or-divider { color: #666; padding: 0 10px; align-self: center; }
+        .or-divider { color: var(--text-muted); padding: 0 10px; align-self: center; }
         .typeahead-wrapper { position: relative; }
-        .typeahead-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #1a1a2e; border: 1px solid #0f3460; border-top: none; border-radius: 0 0 4px 4px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; }
+        .typeahead-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-primary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 4px 4px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; }
         .typeahead-dropdown.show { display: block; }
-        .typeahead-item { padding: 10px; cursor: pointer; color: #eee; }
-        .typeahead-item:hover, .typeahead-item.active { background: #0f3460; color: #00d4ff; }
-        .typeahead-empty { padding: 10px; color: #666; font-style: italic; }
-        .edit-input { padding: 5px; border: 1px solid #00d4ff; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; width: 200px; }
+        .typeahead-item { padding: 10px; cursor: pointer; color: var(--text-primary); }
+        .typeahead-item:hover, .typeahead-item.active { background: var(--bg-tertiary); color: var(--accent-color); }
+        .typeahead-empty { padding: 10px; color: var(--text-muted); font-style: italic; }
+        .edit-input { padding: 5px; border: 1px solid var(--accent-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; width: 200px; }
         .edit-input:focus { outline: none; }
-        .btn-edit { background: #f39c12; color: #1a1a2e; }
-        .btn-edit:hover { background: #e67e22; }
-        .btn-save { background: #27ae60; color: #fff; }
-        .btn-save:hover { background: #219a52; }
+        .btn-edit { background: var(--btn-warning-bg); color: #1a1a2e; }
+        .btn-edit:hover { background: var(--btn-warning-hover); }
+        .btn-save { background: var(--btn-success-bg); color: #fff; }
+        .btn-save:hover { background: var(--btn-success-hover); }
         .btn-cancel { background: #95a5a6; color: #fff; }
         .btn-cancel:hover { background: #7f8c8d; }
+        a { color: var(--accent-color); }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <h1>Route Details</h1>
 
     <nav class="nav">
+        <a href="/countries">Countries</a>
+        
         <a href="/">Home</a>
+        <a href="/hud">HUD</a>
+        <a href="/record">Record Map</a>
         <a href="/routes">Routes</a>
+        <a href="/settings">Settings</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/map">Tracking Map</a>
         <a href="/trains">Trains</a>
-        <a href="/extract">Extract Timetable</a>
+        <a href="/weather">Weather</a>
     </nav>
 
     <div class="back-link">
@@ -447,6 +454,12 @@
         document.getElementById('newTrainName').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') createAndAddTrain();
         });
+
+        // Theme initialization
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', theme);
+        })();
 
         loadRoute();
         loadAllTrains().then(loadTrains);

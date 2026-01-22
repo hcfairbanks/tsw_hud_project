@@ -290,6 +290,18 @@ function getNextTimetableStation(targetApiName) {
  * Parse raw TSW subscription data into stream format
  */
 function parseSubscriptionData(rawData) {
+    // Debug logging - log once every 5 seconds
+    if (!parseSubscriptionData.lastLog || Date.now() - parseSubscriptionData.lastLog > 5000) {
+        parseSubscriptionData.lastLog = Date.now();
+        if (rawData && rawData.Entries && rawData.Entries.length > 0) {
+            console.log(`[Telemetry] Parsing ${rawData.Entries.length} entries`);
+        } else if (rawData && Object.keys(rawData).length === 0) {
+            console.log('[Telemetry] Received empty rawData object');
+        } else {
+            console.log('[Telemetry] rawData has no Entries:', rawData ? Object.keys(rawData) : 'null');
+        }
+    }
+
     // Get conversion factors based on user's unit preference
     const { speedConversionFactor, distanceConversionFactor, units } = getConversionFactors();
 

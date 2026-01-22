@@ -82,6 +82,11 @@ function tswApiRequest(method, path) {
         });
 
         req.on('error', (err) => {
+            // Log connection errors with rate limiting
+            if (!tswApiRequest.lastErrorLog || Date.now() - tswApiRequest.lastErrorLog > 5000) {
+                tswApiRequest.lastErrorLog = Date.now();
+                console.error(`[TSW API] Connection error: ${err.message} - Is TSW running with CommAPI enabled?`);
+            }
             reject(err);
         });
 
@@ -146,7 +151,21 @@ async function initializeSubscriptions() {
  * @returns {Promise<object>}
  */
 async function fetchSubscriptionData() {
-    return await tswApiRequest('GET', '/subscription/?Subscription=1');
+    const data = await tswApiRequest('GET', '/subscription/?Subscription=1');
+    // Debug logging - log once every 5 seconds to avoid spam
+    if (!fetchSubscriptionData.lastLog || Date.now() - fetchSubscriptionData.lastLog > 5000) {
+        fetchSubscriptionData.lastLog = Date.now();
+        if (data && data.Entries) {
+            console.log(`[Subscription] Received ${data.Entries.length} entries from TSW API`);
+        } else if (data && Object.keys(data).length === 0) {
+            console.log('[Subscription] TSW API returned empty object - check if game is running and subscriptions are active');
+        } else if (data && data.raw) {
+            console.log('[Subscription] TSW API returned non-JSON response:', data.raw.substring(0, 100));
+        } else {
+            console.log('[Subscription] TSW API returned:', JSON.stringify(data).substring(0, 200));
+        }
+    }
+    return data;
 }
 
 /**

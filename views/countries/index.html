@@ -4,52 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Countries - TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+    <script src="/js/theme-loader.js"></script>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
-        h1 { color: #00d4ff; text-align: center; margin-bottom: 30px; }
-        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
-        .nav { text-align: center; margin-bottom: 20px; }
-        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
-        .nav a:hover { background: #1a4a7a; }
-        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
-        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
+        body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        h1 { color: var(--accent-color); text-align: center; margin-bottom: 30px; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
+        /* Nav styles now in theme.css */
+        .card { background: var(--bg-secondary); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        h2 { color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #aaa; }
-        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
-        input[type="text"]:focus { outline: none; border-color: #00d4ff; }
+        label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        input[type="text"]:focus { outline: none; border-color: var(--accent-color); }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
-        .btn-primary { background: #00d4ff; color: #1a1a2e; }
-        .btn-primary:hover { background: #00b8e6; }
-        .btn-danger { background: #e94560; color: #fff; }
-        .btn-danger:hover { background: #d63850; }
-        .btn-secondary { background: #0f3460; color: #eee; }
-        .btn-secondary:hover { background: #1a4a7a; }
+        .btn-primary { background: var(--btn-primary-bg); color: #fff; }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-danger { background: var(--btn-danger-bg); color: #fff; }
+        .btn-danger:hover { background: var(--btn-danger-hover); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--accent-hover); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
-        th { background: #0f3460; color: #00d4ff; }
-        tr:hover { background: #1a1a2e; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-tertiary); color: var(--accent-color); }
+        tbody tr { background: rgba(255, 255, 255, 0.02); }
+        tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.04); }
+        tr:hover { background: rgba(255, 255, 255, 0.08); }
         .actions { white-space: nowrap; }
         .actions button { padding: 5px 10px; font-size: 12px; }
-        .empty-message { text-align: center; color: #666; padding: 20px; }
+        .empty-message { text-align: center; color: var(--text-muted); padding: 20px; }
         #editForm { display: none; }
         #editForm.active { display: block; }
         .add-form { display: flex; gap: 10px; align-items: flex-end; }
         .add-form .form-group { flex: 1; margin-bottom: 0; }
         .add-form .form-group.code { flex: 0 0 100px; }
-        a { color: #00d4ff; text-decoration: none; }
+        a { color: var(--accent-color); text-decoration: none; }
         a:hover { text-decoration: underline; }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <h1>Countries</h1>
 
     <nav class="nav">
-        <a href="/">Home</a>
-        <a href="/routes">Routes</a>
-        <a href="/trains">Trains</a>
-        <a href="/timetables">Timetables</a>
         <a href="/countries">Countries</a>
+        
+        <a href="/">Home</a>
+        <a href="/hud">HUD</a>
+        <a href="/record">Record Map</a>
+        <a href="/routes">Routes</a>
+        <a href="/settings">Settings</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/map">Tracking Map</a>
+        <a href="/trains">Trains</a>
+        <a href="/weather">Weather</a>
     </nav>
 
     <div class="card">
@@ -106,6 +115,12 @@
             }
         }
 
+        // Convert country code to flag icon HTML
+        function countryCodeToFlag(code) {
+            if (!code || code.length !== 2) return '';
+            return '<span class="fi fi-' + code.toLowerCase() + '" style="margin-right: 6px;"></span>';
+        }
+
         function renderCountries() {
             const container = document.getElementById('countriesList');
 
@@ -116,9 +131,10 @@
 
             let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Code</th><th class="actions">Actions</th></tr></thead><tbody>';
             allCountries.forEach(function(c) {
+                var flag = countryCodeToFlag(c.code);
                 html += '<tr>';
                 html += '<td>' + c.id + '</td>';
-                html += '<td><a href="/countries/' + c.id + '">' + escapeHtml(c.name) + '</a></td>';
+                html += '<td><a href="/countries/' + c.id + '">' + flag + escapeHtml(c.name) + '</a></td>';
                 html += '<td>' + escapeHtml(c.code || '') + '</td>';
                 html += '<td class="actions">';
                 html += '<button class="btn-primary" onclick="showCountry(' + c.id + ')">Show</button>';
@@ -209,6 +225,12 @@
                 alert('Error deleting country');
             }
         }
+
+        // Theme initialization
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', theme);
+        })();
 
         loadCountries();
     </script>

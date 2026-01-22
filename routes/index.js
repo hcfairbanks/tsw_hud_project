@@ -63,6 +63,12 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // HUD 3
+    if (pathname === '/hud_3' || pathname === '/hud_3.html') {
+        serveFile(res, 'hud_3.html', 'text/html');
+        return true;
+    }
+
     // Live data page
     if (pathname === '/data' || pathname === '/data.html') {
         serveFile(res, 'data.html', 'text/html');
@@ -88,7 +94,7 @@ async function handleRoutes(req, res) {
     }
 
     // Record map page for manual coordinate entry
-    if (pathname === '/record-map' || pathname === '/record-map.html') {
+    if (pathname === '/record' || pathname === '/record.html') {
         serveFile(res, 'record-map.html', 'text/html');
         return true;
     }

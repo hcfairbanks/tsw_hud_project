@@ -4,48 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trains - TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #1a1a2e; color: #eee; }
-        h1 { color: #00d4ff; text-align: center; margin-bottom: 30px; }
-        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
-        .nav { text-align: center; margin-bottom: 20px; }
-        .nav a { color: #00d4ff; text-decoration: none; margin: 0 10px; padding: 10px 20px; background: #0f3460; border-radius: 4px; display: inline-block; }
-        .nav a:hover { background: #1a4a7a; }
-        .card { background: #16213e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #0f3460; }
-        h2 { color: #00d4ff; margin-top: 0; border-bottom: 1px solid #0f3460; padding-bottom: 10px; }
+        body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        h1 { color: var(--accent-color); text-align: center; margin-bottom: 30px; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
+        /* Nav styles now in theme.css */
+        .card { background: var(--bg-secondary); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        h2 { color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #aaa; }
-        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #0f3460; border-radius: 4px; background: #1a1a2e; color: #eee; font-size: 14px; }
-        input[type="text"]:focus { outline: none; border-color: #00d4ff; }
+        label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        input[type="text"]:focus { outline: none; border-color: var(--accent-color); }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
-        .btn-primary { background: #00d4ff; color: #1a1a2e; }
-        .btn-primary:hover { background: #00b8e6; }
-        .btn-danger { background: #e94560; color: #fff; }
-        .btn-danger:hover { background: #d63850; }
-        .btn-secondary { background: #0f3460; color: #eee; }
-        .btn-secondary:hover { background: #1a4a7a; }
+        .btn-primary { background: var(--btn-primary-bg); color: #fff; }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-danger { background: var(--btn-danger-bg); color: #fff; }
+        .btn-danger:hover { background: var(--btn-danger-hover); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--accent-hover); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
-        th { background: #0f3460; color: #00d4ff; }
-        tr:hover { background: #1a1a2e; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-tertiary); color: var(--accent-color); }
+        tr:hover { background: var(--bg-primary); }
         .actions { white-space: nowrap; }
         .actions button { padding: 5px 10px; font-size: 12px; }
-        .empty-message { text-align: center; color: #666; padding: 20px; }
+        .empty-message { text-align: center; color: var(--text-muted); padding: 20px; }
         #editForm { display: none; }
         #editForm.active { display: block; }
         .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
         .search-box input { flex: 1; }
+        a { color: var(--accent-color); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .typeahead-container { position: relative; flex: 1; }
+        .typeahead-container input { width: 100%; }
+        .typeahead-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 4px 4px; z-index: 1001; }
+        .typeahead-item { padding: 10px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border-color); }
+        .typeahead-item:last-child { border-bottom: none; }
+        .typeahead-item:hover, .typeahead-item.highlighted { background: var(--bg-tertiary); }
+        .typeahead-item .item-name { font-weight: 600; color: var(--text-primary); }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .pagination button { min-width: 40px; }
+        .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pagination-info { color: var(--text-muted); font-size: 14px; }
+        .per-page { display: flex; align-items: center; gap: 8px; }
+        .per-page select { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <h1>Trains</h1>
 
     <nav class="nav">
+        <a href="/countries">Countries</a>
+        
         <a href="/">Home</a>
+        <a href="/hud">HUD</a>
+        <a href="/record">Record Map</a>
         <a href="/routes">Routes</a>
+        <a href="/settings">Settings</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/map">Tracking Map</a>
         <a href="/trains">Trains</a>
-        <a href="/extract">Extract Timetable</a>
+        <a href="/weather">Weather</a>
     </nav>
     <div class="card">
         <h2>Add New Train</h2>
@@ -72,29 +93,120 @@
     <div class="card">
         <h2>Trains</h2>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search trains by name...">
-            <button class="btn-primary" onclick="search()">Search</button>
+            <div class="typeahead-container">
+                <input type="text" id="searchInput" placeholder="Type to search trains..." autocomplete="off">
+                <div id="trainSearchDropdown" class="typeahead-dropdown"></div>
+            </div>
             <button class="btn-secondary" onclick="clearSearch()">Clear</button>
         </div>
         <div id="trainsList"><p class="empty-message">Loading trains...</p></div>
+        <div class="pagination" id="pagination"></div>
     </div>
     <script>
         const API_URL = '/api/trains';
         let allTrains = [];
         let currentSearch = '';
+        let currentPage = 1;
+        let currentLimit = 10;
+        let highlightedIndex = -1;
 
         async function loadTrains() {
             try {
                 const response = await fetch(API_URL);
                 allTrains = await response.json();
-                renderTrains();
+                setupTypeahead();
+                renderTrains(1);
             } catch (error) {
                 console.error('Error loading trains:', error);
                 document.getElementById('trainsList').innerHTML = '<p class="empty-message">Error loading trains</p>';
             }
         }
 
-        function renderTrains() {
+        // =============================================
+        // Typeahead Setup
+        // =============================================
+        function setupTypeahead() {
+            var input = document.getElementById('searchInput');
+            var dropdown = document.getElementById('trainSearchDropdown');
+
+            input.addEventListener('focus', function() { showTrainDropdown(this.value); });
+            input.addEventListener('input', function() {
+                highlightedIndex = -1;
+                currentSearch = this.value.trim();
+                showTrainDropdown(this.value);
+                renderTrains(1);
+            });
+            input.addEventListener('keydown', function(e) { handleTypeaheadKeydown(e, dropdown); });
+
+            // Hide dropdown on click outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.typeahead-container')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function handleTypeaheadKeydown(e, dropdown) {
+            var items = dropdown.querySelectorAll('.typeahead-item[data-id]');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                highlightedIndex = Math.min(highlightedIndex + 1, items.length - 1);
+                updateHighlight(items, highlightedIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlightedIndex = Math.max(highlightedIndex - 1, 0);
+                updateHighlight(items, highlightedIndex);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (highlightedIndex >= 0 && items[highlightedIndex]) {
+                    items[highlightedIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function updateHighlight(items, index) {
+            items.forEach(function(item, idx) {
+                item.classList.toggle('highlighted', idx === index);
+            });
+            if (index >= 0 && items[index]) {
+                items[index].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showTrainDropdown(filter) {
+            var dropdown = document.getElementById('trainSearchDropdown');
+            var filterLower = filter.toLowerCase();
+
+            var filtered = allTrains.filter(function(train) {
+                return train.name.toLowerCase().includes(filterLower);
+            }).slice(0, 20);
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No trains found</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(function(train) {
+                    return '<div class="typeahead-item" data-id="' + train.id + '" data-name="' + escapeHtml(train.name) + '">' +
+                        '<div class="item-name">' + escapeHtml(train.name) + '</div></div>';
+                }).join('');
+
+                dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        document.getElementById('searchInput').value = this.dataset.name;
+                        dropdown.style.display = 'none';
+                        currentSearch = this.dataset.name;
+                        renderTrains(1);
+                    });
+                });
+            }
+            dropdown.style.display = 'block';
+        }
+
+        function renderTrains(page) {
+            page = page || currentPage;
+            currentPage = page;
+
             const container = document.getElementById('trainsList');
             let trains = allTrains;
 
@@ -105,38 +217,71 @@
                 });
             }
 
+            var total = trains.length;
+            var totalPages = Math.ceil(total / currentLimit);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            var start = (currentPage - 1) * currentLimit;
+            var paginatedTrains = trains.slice(start, start + currentLimit);
+
             if (trains.length === 0) {
                 container.innerHTML = '<p class="empty-message">No trains found.</p>';
+                document.getElementById('pagination').innerHTML = '';
                 return;
             }
 
             let html = '<table><thead><tr><th>ID</th><th>Name</th><th class="actions">Actions</th></tr></thead><tbody>';
-            trains.forEach(function(t) {
-                html += '<tr><td>' + t.id + '</td><td><a href="/trains/' + t.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(t.name) + '</a></td>';
+            paginatedTrains.forEach(function(t) {
+                html += '<tr><td>' + t.id + '</td><td><a href="/trains/' + t.id + '">' + escapeHtml(t.name) + '</a></td>';
                 html += '<td class="actions"><button class="btn-primary" onclick="showTrain(' + t.id + ')">Show</button>';
                 html += "<button class=\"btn-secondary\" onclick=\"editTrain(" + t.id + ",'" + escapeJs(t.name) + "')\">Edit</button>";
                 html += '<button class="btn-danger" onclick="deleteTrain(' + t.id + ')">Delete</button></td></tr>';
             });
             html += '</tbody></table>';
             container.innerHTML = html;
+
+            renderPagination(total, totalPages);
+        }
+
+        function renderPagination(total, totalPages) {
+            var container = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                container.innerHTML = '<span class="pagination-info">Showing ' + total + ' trains</span>';
+                return;
+            }
+
+            var html = '<button class="btn-secondary" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>&laquo;</button>';
+            html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>&lsaquo;</button>';
+            html += '<span class="pagination-info">' + currentPage + ' of ' + totalPages + '</span>';
+            html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&rsaquo;</button>';
+            html += '<button class="btn-secondary" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&raquo;</button>';
+            html += '<div class="per-page"><label>&nbsp;</label><select onchange="changeLimit(this.value)">';
+            [5, 10, 25, 50].forEach(function(n) {
+                html += '<option value="' + n + '" ' + (currentLimit === n ? 'selected' : '') + '>' + n + '</option>';
+            });
+            html += '</select></div>';
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            renderTrains(page);
+        }
+
+        function changeLimit(limit) {
+            currentLimit = parseInt(limit);
+            currentPage = 1;
+            renderTrains(1);
         }
 
         function showTrain(id) { window.location.href = '/trains/' + id; }
 
-        function search() {
-            currentSearch = document.getElementById('searchInput').value.trim();
-            renderTrains();
-        }
-
         function clearSearch() {
             document.getElementById('searchInput').value = '';
+            document.getElementById('trainSearchDropdown').style.display = 'none';
             currentSearch = '';
-            renderTrains();
+            currentPage = 1;
+            renderTrains(1);
         }
-
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') search();
-        });
 
         function escapeHtml(text) { var div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
         function escapeJs(text) { return String(text).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"'); }
@@ -147,6 +292,7 @@
             try {
                 await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) });
                 document.getElementById('name').value = '';
+                allTrains = [];
                 loadTrains();
             } catch (error) { console.error('Error adding train:', error); alert('Error adding train'); }
         });
@@ -178,6 +324,12 @@
                 loadTrains();
             } catch (error) { console.error('Error deleting train:', error); alert('Error deleting train'); }
         }
+
+        // Theme initialization
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', theme);
+        })();
 
         loadTrains();
     </script>

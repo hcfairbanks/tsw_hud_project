@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Timetable</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * {
             margin: 0;
@@ -13,47 +14,40 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
         h1 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 24px;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            text-align: center;
         }
 
-        .nav-link {
-            display: inline-block;
-            color: #0066ff;
-            text-decoration: none;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .nav-link:hover {
-            text-decoration: underline;
-        }
+        /* Nav styles now in theme.css */
 
         .form-section {
-            background: white;
+            background: var(--bg-secondary);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            border: 1px solid var(--border-color);
         }
 
         .form-section h2 {
             font-size: 16px;
-            color: #333;
+            color: var(--accent-color);
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #0066ff;
+            border-bottom: 2px solid var(--accent-color);
         }
 
         .form-row {
@@ -75,7 +69,7 @@
         .form-group label {
             display: block;
             font-size: 13px;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 5px;
             font-weight: 500;
         }
@@ -84,15 +78,17 @@
         .form-group select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #0066ff;
+            border-color: var(--accent-color);
         }
 
         .btn {
@@ -105,39 +101,39 @@
         }
 
         .btn-primary {
-            background: #0066ff;
+            background: var(--btn-primary-bg);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #0052cc;
+            background: var(--btn-primary-hover);
         }
 
         .btn-success {
-            background: #28a745;
+            background: var(--color-success);
             color: white;
         }
 
         .btn-success:hover {
-            background: #218838;
+            opacity: 0.9;
         }
 
         .btn-danger {
-            background: #dc3545;
+            background: var(--btn-danger-bg);
             color: white;
         }
 
         .btn-danger:hover {
-            background: #c82333;
+            background: var(--btn-danger-hover);
         }
 
         .btn-secondary {
-            background: #6c757d;
-            color: white;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
         }
 
         .btn-secondary:hover {
-            background: #5a6268;
+            background: var(--accent-hover);
         }
 
         .entries-header {
@@ -162,23 +158,25 @@
         .entries-table td {
             padding: 10px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
             font-size: 13px;
         }
 
         .entries-table th {
-            background: #f8f9fa;
+            background: var(--bg-tertiary);
             font-weight: 600;
-            color: #333;
+            color: var(--accent-color);
         }
 
         .entries-table input,
         .entries-table select {
             width: 100%;
             padding: 6px 8px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
 
         .entries-table .action-select {
@@ -209,7 +207,7 @@
         .no-entries {
             text-align: center;
             padding: 40px;
-            color: #666;
+            color: var(--text-muted);
             font-style: italic;
         }
 
@@ -241,7 +239,7 @@
         }
 
         .quick-add {
-            background: #f8f9fa;
+            background: var(--bg-tertiary);
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 15px;
@@ -249,7 +247,7 @@
 
         .quick-add h3 {
             font-size: 14px;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 10px;
         }
 
@@ -265,10 +263,22 @@
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <div class="container">
-        <a href="/timetables" class="nav-link">← Back to Timetables</a>
         <h1>Create Timetable</h1>
+        <nav class="nav">
+            <a href="/countries">Countries</a>
+            
+            <a href="/">Home</a>
+            <a href="/hud">HUD</a>
+            <a href="/record">Record Map</a>
+            <a href="/routes">Routes</a>
+            <a href="/settings">Settings</a>
+            <a href="/timetables">Timetables</a>
+            <a href="/map">Tracking Map</a>
+            <a href="/trains">Trains</a>
+            <a href="/weather">Weather</a>
+        </nav>
 
         <div id="statusMessage" class="status-message"></div>
 
@@ -565,6 +575,12 @@
                 showStatus('Failed to create timetable: ' + err.message, true);
             }
         }
+
+        // Theme initialization
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', theme);
+        })();
 
         // Initialize
         loadRoutes();

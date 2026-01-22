@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSW Weather Control</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * {
             margin: 0;
@@ -13,32 +14,48 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #fff;
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body[data-theme="dark"] {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        header {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
+        /* Side-by-side layout for weather sections on desktop */
+        .weather-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
-        header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
+        @media (max-width: 900px) {
+            .weather-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+        }
+
+        body[data-theme="dark"] h1 {
             background: linear-gradient(90deg, #00d4ff, #7b2cbf);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+
 
         .status-bar {
             display: flex;
@@ -46,7 +63,7 @@
             justify-content: center;
             gap: 10px;
             font-size: 14px;
-            color: #aaa;
+            color: var(--text-secondary);
         }
 
         .status-indicator {
@@ -61,32 +78,22 @@
             box-shadow: 0 0 10px #00cc66;
         }
 
-        .back-link {
-            display: inline-block;
-            color: #00d4ff;
-            text-decoration: none;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
+        /* Nav styles now in theme.css */
 
         /* Current Weather Status Section */
         .section {
-            background: rgba(255,255,255,0.05);
+            background: var(--bg-secondary);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
         }
 
         .section-title {
             font-size: 1.1em;
             font-weight: 600;
             margin-bottom: 15px;
-            color: #00d4ff;
+            color: var(--accent-color);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -96,7 +103,7 @@
             text-align: right;
             font-weight: bold;
             font-size: 14px;
-            color: #00d4ff;
+            color: var(--accent-color);
         }
 
         /* Controls Section */
@@ -114,7 +121,7 @@
         .control-label {
             min-width: 120px;
             font-size: 14px;
-            color: #ccc;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -136,7 +143,7 @@
             -webkit-appearance: none;
             height: 6px;
             border-radius: 3px;
-            background: rgba(255,255,255,0.1);
+            background: var(--border-color);
             outline: none;
         }
 
@@ -145,16 +152,16 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            background: var(--btn-primary-bg);
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,212,255,0.4);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
 
         input[type="range"]::-moz-range-thumb {
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            background: var(--btn-primary-bg);
             cursor: pointer;
             border: none;
         }
@@ -164,7 +171,7 @@
             text-align: right;
             font-weight: bold;
             font-size: 14px;
-            color: #00d4ff;
+            color: var(--accent-color);
         }
 
         /* Buttons */
@@ -173,7 +180,7 @@
             gap: 15px;
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid var(--border-color);
         }
 
         .btn {
@@ -190,13 +197,14 @@
 
         .btn-apply {
             flex: 1;
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            background: var(--btn-primary-bg);
             color: white;
         }
 
         .btn-apply:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,212,255,0.4);
+            background: var(--btn-primary-hover);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .btn-apply:active {
@@ -204,23 +212,22 @@
         }
 
         .btn-reset {
-            background: rgba(255,107,107,0.2);
-            color: #ff6b6b;
-            border: 1px solid rgba(255,107,107,0.3);
+            background: var(--btn-danger-bg);
+            color: #fff;
         }
 
         .btn-reset:hover {
-            background: rgba(255,107,107,0.3);
+            background: var(--btn-danger-hover);
         }
 
         .btn-save {
-            background: rgba(0,212,255,0.2);
-            color: #00d4ff;
-            border: 1px solid rgba(0,212,255,0.3);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
 
         .btn-save:hover {
-            background: rgba(0,212,255,0.3);
+            background: var(--accent-hover);
         }
 
         /* Preset Section */
@@ -233,26 +240,26 @@
         .preset-select {
             flex: 1;
             padding: 10px 14px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            background: rgba(0,0,0,0.3);
-            color: #fff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             font-size: 14px;
             cursor: pointer;
         }
 
         .preset-select:focus {
             outline: none;
-            border-color: #00d4ff;
+            border-color: var(--accent-color);
         }
 
         .preset-select option {
-            background: #1a1a2e;
-            color: #fff;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .preset-link {
-            color: #00d4ff;
+            color: var(--accent-color);
             text-decoration: none;
             font-size: 12px;
             margin-left: 10px;
@@ -287,17 +294,23 @@
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <div class="container">
-        <a href="/" class="back-link">← Back to Home</a>
+        <h1>Weather Control</h1>
 
-        <header>
-            <h1>Weather Control</h1>
-            <div class="status-bar">
-                <span class="status-indicator" id="statusIndicator"></span>
-                <span id="statusText">Connecting...</span>
-            </div>
-        </header>
+        <nav class="nav">
+            <a href="/countries">Countries</a>
+            
+            <a href="/">Home</a>
+            <a href="/hud">HUD</a>
+            <a href="/record">Record Map</a>
+            <a href="/routes">Routes</a>
+            <a href="/settings">Settings</a>
+            <a href="/timetables">Timetables</a>
+            <a href="/map">Tracking Map</a>
+            <a href="/trains">Trains</a>
+            <a href="/weather">Weather</a>
+        </nav>
 
         <!-- Preset Selection -->
         <div class="section">
@@ -310,48 +323,54 @@
             </div>
         </div>
 
-        <!-- Current Weather Status -->
-        <div class="section">
-            <div class="section-title">Current Weather</div>
+        <!-- Weather Grid: Current Weather + Set Weather side by side -->
+        <div class="weather-grid">
+            <!-- Current Weather Status -->
+            <div class="section">
+                <div class="section-title">Current Weather</div>
+                <div class="status-bar" style="justify-content: flex-start; margin-bottom: 15px;">
+                    <span class="status-indicator" id="statusIndicator"></span>
+                    <span id="statusText">Connecting...</span>
+                </div>
 
-            <div class="control-row">
-                <div class="control-label"><span class="icon">🌡️</span> Temperature</div>
-                <div class="status-value" id="status-Temperature">--</div>
+                <div class="control-row">
+                    <div class="control-label"><span class="icon">🌡️</span> Temperature</div>
+                    <div class="status-value" id="status-Temperature">--</div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-label"><span class="icon">☁️</span> Cloudiness</div>
+                    <div class="status-value" id="status-Cloudiness">--</div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-label"><span class="icon">🌧️</span> Precipitation</div>
+                    <div class="status-value" id="status-Precipitation">--</div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-label"><span class="icon">💧</span> Wetness</div>
+                    <div class="status-value" id="status-Wetness">--</div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-label"><span class="icon">❄️</span> Ground Snow</div>
+                    <div class="status-value" id="status-GroundSnow">--</div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-label"><span class="icon">⛄</span> Piled Snow</div>
+                    <div class="status-value" id="status-PiledSnow">--</div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-label"><span class="icon">🌫️</span> Fog Density</div>
+                    <div class="status-value" id="status-FogDensity">--</div>
+                </div>
             </div>
 
-            <div class="control-row">
-                <div class="control-label"><span class="icon">☁️</span> Cloudiness</div>
-                <div class="status-value" id="status-Cloudiness">--</div>
-            </div>
-
-            <div class="control-row">
-                <div class="control-label"><span class="icon">🌧️</span> Precipitation</div>
-                <div class="status-value" id="status-Precipitation">--</div>
-            </div>
-
-            <div class="control-row">
-                <div class="control-label"><span class="icon">💧</span> Wetness</div>
-                <div class="status-value" id="status-Wetness">--</div>
-            </div>
-
-            <div class="control-row">
-                <div class="control-label"><span class="icon">❄️</span> Ground Snow</div>
-                <div class="status-value" id="status-GroundSnow">--</div>
-            </div>
-
-            <div class="control-row">
-                <div class="control-label"><span class="icon">⛄</span> Piled Snow</div>
-                <div class="status-value" id="status-PiledSnow">--</div>
-            </div>
-
-            <div class="control-row">
-                <div class="control-label"><span class="icon">🌫️</span> Fog Density</div>
-                <div class="status-value" id="status-FogDensity">--</div>
-            </div>
-        </div>
-
-        <!-- Weather Controls -->
-        <div class="section">
+            <!-- Weather Controls -->
+            <div class="section">
             <div class="section-title">Set Weather</div>
 
             <div class="control-row">
@@ -415,7 +434,8 @@
                 <button class="btn btn-save" onclick="saveAsPreset()">Save as Preset</button>
                 <button class="btn btn-apply" onclick="applyAllWeather()">Apply Changes</button>
             </div>
-        </div>
+            </div>
+        </div><!-- end weather-grid -->
     </div>
 
     <div class="notification" id="notification"></div>
@@ -686,6 +706,12 @@
                 }
             };
         }
+
+        // Theme initialization
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', theme);
+        })();
 
         // Start connection and load config/presets
         connectToStream();

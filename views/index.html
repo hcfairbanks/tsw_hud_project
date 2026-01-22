@@ -11,7 +11,7 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
             background-color: var(--bg-primary);
@@ -28,28 +28,7 @@
             color: var(--text-muted);
             margin-bottom: 30px;
         }
-        .nav {
-            text-align: center;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-        .nav a {
-            color: var(--accent-color);
-            text-decoration: none;
-            padding: 10px 20px;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            display: inline-block;
-            transition: background-color 0.2s ease;
-            white-space: nowrap;
-        }
-        .nav a:hover {
-            background: var(--accent-hover);
-            color: var(--bg-primary);
-        }
+        /* Nav styles now in theme.css */
         .card {
             background: var(--bg-secondary);
             border-radius: 8px;
@@ -154,16 +133,17 @@
     <h1>TSW HUD Project</h1>
 
     <nav class="nav">
+        <a href="/countries">Countries</a>
+        
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
-        <a href="/map">Tracking Map</a>
-        <a href="/record-map">Record Map</a>
+        <a href="/record">Record Map</a>
         <a href="/routes">Routes</a>
-        <a href="/trains">Trains</a>
-        <a href="/timetables">Timetables</a>
-        <a href="/extract">Extract</a>
-        <a href="/weather">Weather</a>
         <a href="/settings">Settings</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/map">Tracking Map</a>
+        <a href="/trains">Trains</a>
+        <a href="/weather">Weather</a>
     </nav>
 
     <div class="card">

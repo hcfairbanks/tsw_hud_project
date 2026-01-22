@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Routes - TSW HUD Project</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
     <script src="/js/theme-loader.js"></script>
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
             background-color: var(--bg-primary);
@@ -19,18 +20,7 @@
         }
         h1 { color: var(--accent-color); text-align: center; margin-bottom: 30px; }
         .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
-        .nav { text-align: center; margin-bottom: 20px; }
-        .nav a {
-            color: var(--accent-color);
-            text-decoration: none;
-            margin: 0 10px;
-            padding: 10px 20px;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            display: inline-block;
-            transition: background-color 0.2s ease;
-        }
-        .nav a:hover { background: var(--accent-hover); color: var(--bg-primary); }
+        /* Nav styles now in theme.css */
         .card {
             background: var(--bg-secondary);
             border-radius: 8px;
@@ -105,6 +95,27 @@
             transition: color 0.2s;
         }
         .settings-icon:hover { color: var(--accent-color); }
+        .typeahead-container { position: relative; flex: 2; }
+        .typeahead-container input { width: 100%; }
+        .typeahead-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 4px 4px; z-index: 1001; }
+        .typeahead-item { padding: 10px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border-color); }
+        .typeahead-item:last-child { border-bottom: none; }
+        .typeahead-item:hover, .typeahead-item.highlighted { background: var(--bg-tertiary); }
+        .typeahead-item .item-name { font-weight: 600; color: var(--text-primary); }
+        .typeahead-item .item-sub { font-size: 11px; color: var(--text-muted); }
+        .country-select-container { position: relative; }
+        .country-select-display { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .country-select-display:hover { border-color: var(--accent-color); }
+        .country-select-display::after { content: '▼'; font-size: 10px; color: var(--text-muted); }
+        .country-select-display.open::after { content: '▲'; }
+        .country-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 4px 4px; z-index: 1002; }
+        .country-dropdown.open { display: block; }
+        .country-dropdown-item { padding: 10px 12px; cursor: pointer; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .country-dropdown-item:last-child { border-bottom: none; }
+        .country-dropdown-item:hover { background: var(--bg-tertiary); }
+        .country-dropdown-item.selected { background: var(--bg-tertiary); }
+        .filter-country-container { position: relative; width: 200px; flex-shrink: 0; }
+        .filter-country-container .country-select-display { padding: 8px 10px; }
     </style>
 </head>
 <body data-theme="dark">
@@ -112,10 +123,17 @@
     <h1>Routes</h1>
 
     <nav class="nav">
+        <a href="/countries">Countries</a>
+        
         <a href="/">Home</a>
+        <a href="/hud">HUD</a>
+        <a href="/record">Record Map</a>
         <a href="/routes">Routes</a>
+        <a href="/settings">Settings</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/map">Tracking Map</a>
         <a href="/trains">Trains</a>
-        <a href="/extract">Extract Timetable</a>
+        <a href="/weather">Weather</a>
     </nav>
     <div class="card">
         <h2>Add New Route</h2>
@@ -126,9 +144,13 @@
             </div>
             <div class="form-group">
                 <label for="country">Country:</label>
-                <select id="country" name="country" required>
-                    <option value="">Select a country...</option>
-                </select>
+                <div class="country-select-container" id="countryContainer">
+                    <div class="country-select-display" id="countryDisplay" onclick="toggleCountryDropdown('add')">
+                        <span>Select a country...</span>
+                    </div>
+                    <div class="country-dropdown" id="countryDropdown"></div>
+                    <input type="hidden" id="country" name="country" required>
+                </div>
             </div>
             <button type="submit" class="btn-primary">Add Route</button>
         </form>
@@ -143,9 +165,13 @@
             </div>
             <div class="form-group">
                 <label for="editCountry">Country:</label>
-                <select id="editCountry" name="country" required>
-                    <option value="">Select a country...</option>
-                </select>
+                <div class="country-select-container" id="editCountryContainer">
+                    <div class="country-select-display" id="editCountryDisplay" onclick="toggleCountryDropdown('edit')">
+                        <span>Select a country...</span>
+                    </div>
+                    <div class="country-dropdown" id="editCountryDropdown"></div>
+                    <input type="hidden" id="editCountry" name="country" required>
+                </div>
             </div>
             <button type="submit" class="btn-primary">Save Changes</button>
             <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
@@ -154,11 +180,17 @@
     <div class="card">
         <h2>Routes</h2>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search routes by name...">
-            <select id="countryFilter" onchange="filterByCountry()">
-                <option value="">All Countries</option>
-            </select>
-            <button class="btn-primary" onclick="search()">Search</button>
+            <div class="typeahead-container">
+                <input type="text" id="routeSearchInput" placeholder="Type to search routes..." autocomplete="off">
+                <div id="routeSearchDropdown" class="typeahead-dropdown"></div>
+            </div>
+            <div class="filter-country-container" id="filterCountryContainer">
+                <div class="country-select-display" id="filterCountryDisplay" onclick="toggleCountryDropdown('filter')">
+                    <span>All Countries</span>
+                </div>
+                <div class="country-dropdown" id="filterCountryDropdown"></div>
+                <input type="hidden" id="countryFilter">
+            </div>
             <button class="btn-secondary" onclick="clearSearch()">Clear</button>
         </div>
         <div id="routesList"><p class="empty-message">Loading routes...</p></div>
@@ -168,43 +200,252 @@
         const API_URL = '/api/routes';
         let currentPage = 1, currentLimit = 10, currentSearch = '', currentCountryId = '';
         let allCountries = [];
+        let allRoutesForSearch = [];
+        let highlightedIndex = { route: -1, country: -1 };
 
         async function loadCountries() {
             try {
                 const response = await fetch('/api/countries');
                 allCountries = await response.json();
                 populateCountryDropdowns();
+                setupTypeaheads();
             } catch (error) {
                 console.error('Error loading countries:', error);
             }
         }
 
-        function populateCountryDropdowns() {
-            const addSelect = document.getElementById('country');
-            const editSelect = document.getElementById('editCountry');
-            const filterSelect = document.getElementById('countryFilter');
+        // Load all routes for typeahead search
+        async function loadAllRoutesForSearch() {
+            try {
+                const response = await fetch('/api/routes');
+                allRoutesForSearch = await response.json();
+            } catch (error) {
+                console.error('Error loading routes for search:', error);
+            }
+        }
 
-            // Clear existing options except the first
-            addSelect.innerHTML = '<option value="">Select a country...</option>';
-            editSelect.innerHTML = '<option value="">Select a country...</option>';
-            filterSelect.innerHTML = '<option value="">All Countries</option>';
+        // Convert country code to flag icon HTML
+        function countryCodeToFlag(code) {
+            if (!code || code.length !== 2) return '';
+            return '<span class="fi fi-' + code.toLowerCase() + '" style="margin-right: 6px;"></span>';
+        }
+
+        function populateCountryDropdowns() {
+            var addDropdown = document.getElementById('countryDropdown');
+            var editDropdown = document.getElementById('editCountryDropdown');
+            var filterDropdown = document.getElementById('filterCountryDropdown');
+
+            // Build dropdown HTML with flags
+            var addHtml = '';
+            var editHtml = '';
+            var filterHtml = '<div class="country-dropdown-item" data-id="" onclick="selectCountry(\'filter\', \'\', \'All Countries\')">All Countries</div>';
 
             allCountries.forEach(function(c) {
-                const option1 = document.createElement('option');
-                option1.value = c.id;
-                option1.textContent = c.name;
-                addSelect.appendChild(option1);
+                var flag = countryCodeToFlag(c.code);
+                var itemHtml = '<div class="country-dropdown-item" data-id="' + c.id + '" onclick="selectCountry(\'add\', ' + c.id + ', \'' + escapeJs(c.name) + '\', \'' + escapeJs(c.code || '') + '\')">' + flag + escapeHtml(c.name) + '</div>';
+                addHtml += itemHtml;
 
-                const option2 = document.createElement('option');
-                option2.value = c.id;
-                option2.textContent = c.name;
-                editSelect.appendChild(option2);
+                var editItemHtml = '<div class="country-dropdown-item" data-id="' + c.id + '" onclick="selectCountry(\'edit\', ' + c.id + ', \'' + escapeJs(c.name) + '\', \'' + escapeJs(c.code || '') + '\')">' + flag + escapeHtml(c.name) + '</div>';
+                editHtml += editItemHtml;
 
-                const option3 = document.createElement('option');
-                option3.value = c.id;
-                option3.textContent = c.name;
-                filterSelect.appendChild(option3);
+                var filterItemHtml = '<div class="country-dropdown-item" data-id="' + c.id + '" onclick="selectCountry(\'filter\', ' + c.id + ', \'' + escapeJs(c.name) + '\', \'' + escapeJs(c.code || '') + '\')">' + flag + escapeHtml(c.name) + '</div>';
+                filterHtml += filterItemHtml;
             });
+
+            addDropdown.innerHTML = addHtml;
+            editDropdown.innerHTML = editHtml;
+            filterDropdown.innerHTML = filterHtml;
+        }
+
+        function toggleCountryDropdown(type) {
+            var display, dropdown;
+            if (type === 'add') {
+                display = document.getElementById('countryDisplay');
+                dropdown = document.getElementById('countryDropdown');
+            } else if (type === 'edit') {
+                display = document.getElementById('editCountryDisplay');
+                dropdown = document.getElementById('editCountryDropdown');
+            } else if (type === 'filter') {
+                display = document.getElementById('filterCountryDisplay');
+                dropdown = document.getElementById('filterCountryDropdown');
+            }
+
+            // Close other dropdowns
+            document.querySelectorAll('.country-dropdown').forEach(function(d) {
+                if (d !== dropdown) {
+                    d.classList.remove('open');
+                    d.previousElementSibling.classList.remove('open');
+                }
+            });
+
+            display.classList.toggle('open');
+            dropdown.classList.toggle('open');
+        }
+
+        function selectCountry(type, id, name, code) {
+            var display, dropdown, hidden;
+            if (type === 'add') {
+                display = document.getElementById('countryDisplay');
+                dropdown = document.getElementById('countryDropdown');
+                hidden = document.getElementById('country');
+            } else if (type === 'edit') {
+                display = document.getElementById('editCountryDisplay');
+                dropdown = document.getElementById('editCountryDropdown');
+                hidden = document.getElementById('editCountry');
+            } else if (type === 'filter') {
+                display = document.getElementById('filterCountryDisplay');
+                dropdown = document.getElementById('filterCountryDropdown');
+                hidden = document.getElementById('countryFilter');
+            }
+
+            hidden.value = id;
+            var flag = code ? countryCodeToFlag(code) : '';
+            display.innerHTML = '<span>' + flag + escapeHtml(name) + '</span>';
+            display.classList.remove('open');
+            dropdown.classList.remove('open');
+
+            if (type === 'filter') {
+                filterByCountry();
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.country-select-container') && !e.target.closest('.filter-country-container')) {
+                document.querySelectorAll('.country-dropdown').forEach(function(d) {
+                    d.classList.remove('open');
+                });
+                document.querySelectorAll('.country-select-display').forEach(function(d) {
+                    d.classList.remove('open');
+                });
+            }
+        });
+
+        // =============================================
+        // Typeahead Setup
+        // =============================================
+        function setupTypeaheads() {
+            setupRouteSearchTypeahead();
+
+            // Hide dropdowns on click outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.typeahead-container')) {
+                    document.getElementById('routeSearchDropdown').style.display = 'none';
+                }
+            });
+        }
+
+        function setupRouteSearchTypeahead() {
+            var input = document.getElementById('routeSearchInput');
+            var dropdown = document.getElementById('routeSearchDropdown');
+
+            input.addEventListener('focus', function() { showRouteSearchDropdown(this.value); });
+            input.addEventListener('input', function() {
+                highlightedIndex.route = -1;
+                showRouteSearchDropdown(this.value);
+                // Filter as user types
+                currentSearch = this.value.trim();
+                loadRoutes(1, currentLimit, currentSearch, currentCountryId);
+            });
+            input.addEventListener('keydown', function(e) { handleTypeaheadKeydown(e, 'route', dropdown); });
+        }
+
+        function handleTypeaheadKeydown(e, type, dropdown) {
+            var items = dropdown.querySelectorAll('.typeahead-item[data-id]');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                highlightedIndex[type] = Math.min(highlightedIndex[type] + 1, items.length - 1);
+                updateHighlight(items, highlightedIndex[type]);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlightedIndex[type] = Math.max(highlightedIndex[type] - 1, 0);
+                updateHighlight(items, highlightedIndex[type]);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (highlightedIndex[type] >= 0 && items[highlightedIndex[type]]) {
+                    items[highlightedIndex[type]].click();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function updateHighlight(items, index) {
+            items.forEach(function(item, idx) {
+                item.classList.toggle('highlighted', idx === index);
+            });
+            if (index >= 0 && items[index]) {
+                items[index].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showRouteSearchDropdown(filter) {
+            var dropdown = document.getElementById('routeSearchDropdown');
+            var filterLower = filter.toLowerCase();
+
+            if (allRoutesForSearch.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">Loading routes...</div>';
+                dropdown.style.display = 'block';
+                return;
+            }
+
+            var filtered = allRoutesForSearch.filter(function(route) {
+                return route.name.toLowerCase().includes(filterLower);
+            }).slice(0, 20); // Limit to 20 results
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No routes found</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(function(route) {
+                    var country = allCountries.find(function(c) { return c.id == route.country_id; });
+                    return '<div class="typeahead-item" data-id="' + route.id + '" data-name="' + escapeHtml(route.name) + '">' +
+                        '<div class="item-name">' + escapeHtml(route.name) + '</div>' +
+                        (country ? '<div class="item-sub">' + escapeHtml(country.name) + '</div>' : '') +
+                        '</div>';
+                }).join('');
+
+                dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        document.getElementById('routeSearchInput').value = this.dataset.name;
+                        dropdown.style.display = 'none';
+                        currentSearch = this.dataset.name;
+                        loadRoutes(1, currentLimit, currentSearch, currentCountryId);
+                    });
+                });
+            }
+            dropdown.style.display = 'block';
+        }
+
+        function filterByCountry() {
+            currentCountryId = document.getElementById('countryFilter').value;
+            loadRoutes(1, currentLimit, currentSearch, currentCountryId);
+        }
+
+        function setCountryDisplay(type, id) {
+            var country = allCountries.find(function(c) { return c.id == id; });
+            var display, hidden;
+            if (type === 'add') {
+                display = document.getElementById('countryDisplay');
+                hidden = document.getElementById('country');
+            } else if (type === 'edit') {
+                display = document.getElementById('editCountryDisplay');
+                hidden = document.getElementById('editCountry');
+            } else if (type === 'filter') {
+                display = document.getElementById('filterCountryDisplay');
+                hidden = document.getElementById('countryFilter');
+            }
+
+            if (country) {
+                var flag = countryCodeToFlag(country.code);
+                display.innerHTML = '<span>' + flag + escapeHtml(country.name) + '</span>';
+                hidden.value = id;
+            } else if (type === 'filter') {
+                display.innerHTML = '<span>All Countries</span>';
+                hidden.value = '';
+            } else {
+                display.innerHTML = '<span>Select a country...</span>';
+                hidden.value = '';
+            }
         }
 
         async function loadRoutes(page, limit, search, countryId) {
@@ -234,7 +475,8 @@
                 const countryName = country ? country.name : r.country;
                 const countryId = r.country_id || '';
                 html += '<tr><td>' + r.id + '</td><td><a href="/routes/' + r.id + '">' + escapeHtml(r.name) + '</a></td>';
-                html += '<td>' + (country ? '<a href="/countries/' + country.id + '">' + escapeHtml(countryName) + '</a>' : escapeHtml(countryName)) + '</td>';
+                var countryFlag = country ? countryCodeToFlag(country.code) : '';
+                html += '<td>' + (country ? '<a href="/countries/' + country.id + '">' + countryFlag + escapeHtml(countryName) + '</a>' : escapeHtml(countryName)) + '</td>';
                 html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + r.id + ')">Show</button>';
                 html += '<button class="btn-secondary" onclick="editRoute(' + r.id + ',\'' + escapeJs(r.name) + '\',' + countryId + ')">Edit</button>';
                 html += '<button class="btn-danger" onclick="deleteRoute(' + r.id + ')">Delete</button></td></tr>';
@@ -251,10 +493,10 @@
             const start = (p.page - 1) * p.limit + 1, end = Math.min(p.page * p.limit, p.total);
             let html = '<button class="btn-secondary" onclick="goToPage(1)" ' + (p.page === 1 ? 'disabled' : '') + '>&laquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (p.page - 1) + ')" ' + (p.page === 1 ? 'disabled' : '') + '>&lsaquo;</button>';
-            html += '<span class="pagination-info">Page ' + p.page + ' of ' + p.totalPages + ' (' + start + '-' + end + ' of ' + p.total + ')</span>';
+            html += '<span class="pagination-info">' + p.page + ' of ' + p.totalPages + '</span>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (p.page + 1) + ')" ' + (p.page === p.totalPages ? 'disabled' : '') + '>&rsaquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + p.totalPages + ')" ' + (p.page === p.totalPages ? 'disabled' : '') + '>&raquo;</button>';
-            html += '<div class="per-page"><label>Per page:</label><select onchange="changeLimit(this.value)">';
+            html += '<div class="per-page"><label>&nbsp;</label><select onchange="changeLimit(this.value)">';
             [5,10,25,50].forEach(function(n) { html += '<option value="' + n + '" ' + (p.limit === n ? 'selected' : '') + '>' + n + '</option>'; });
             html += '</select></div>';
             container.innerHTML = html;
@@ -262,18 +504,14 @@
 
         function goToPage(page) { loadRoutes(page, currentLimit, currentSearch, currentCountryId); }
         function changeLimit(limit) { loadRoutes(1, parseInt(limit), currentSearch, currentCountryId); }
-        function search() {
-            var searchVal = document.getElementById('searchInput').value.trim();
-            var countryVal = document.getElementById('countryFilter').value;
-            loadRoutes(1, currentLimit, searchVal, countryVal);
+        function clearSearch() {
+            document.getElementById('routeSearchInput').value = '';
+            setCountryDisplay('filter', '');
+            document.getElementById('routeSearchDropdown').style.display = 'none';
+            currentSearch = '';
+            currentCountryId = '';
+            loadRoutes(1, currentLimit, '', '');
         }
-        function filterByCountry() {
-            var searchVal = document.getElementById('searchInput').value.trim();
-            var countryVal = document.getElementById('countryFilter').value;
-            loadRoutes(1, currentLimit, searchVal, countryVal);
-        }
-        function clearSearch() { document.getElementById('searchInput').value = ''; document.getElementById('countryFilter').value = ''; loadRoutes(1, currentLimit, '', ''); }
-        document.getElementById('searchInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') search(); });
 
         function escapeHtml(text) { var div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
         function escapeJs(text) { return String(text).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"'); }
@@ -287,7 +525,7 @@
             try {
                 await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, country_id: parseInt(countryId) }) });
                 document.getElementById('name').value = '';
-                document.getElementById('country').value = '';
+                setCountryDisplay('add', '');
                 loadRoutes(1, currentLimit, currentSearch, currentCountryId);
             } catch (error) { console.error('Error adding route:', error); alert('Error adding route'); }
         });
@@ -295,7 +533,7 @@
         function editRoute(id, name, countryId) {
             document.getElementById('editId').value = id;
             document.getElementById('editName').value = name;
-            document.getElementById('editCountry').value = countryId || '';
+            setCountryDisplay('edit', countryId);
             document.getElementById('editForm').classList.add('active');
             document.getElementById('editName').focus();
         }
@@ -325,6 +563,7 @@
         }
 
         loadCountries().then(loadRoutes);
+        loadAllRoutesForSearch();
     </script>
 </body>
 </html>

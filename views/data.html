@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSW Raw Data</title>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
         * {
             box-sizing: border-box;
@@ -12,30 +13,16 @@
             font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #1a1a2e;
-            color: #eee;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
         }
         h1 {
-            color: #00d4ff;
+            color: var(--accent-color);
             text-align: center;
             margin-bottom: 10px;
         }
-        .nav {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .nav a {
-            color: #00d4ff;
-            text-decoration: none;
-            margin: 0 10px;
-            padding: 10px 20px;
-            background: #0f3460;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        .nav a:hover {
-            background: #1a4a7a;
-        }
+        /* Nav styles now in theme.css */
         .status {
             text-align: center;
             padding: 10px;
@@ -80,14 +67,21 @@
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
     <h1>Raw JSON Data</h1>
 
     <nav class="nav">
+        <a href="/countries">Countries</a>
+        
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
-        <a href="/map">Map</a>
-        <a href="/data">Data</a>
+        <a href="/record">Record Map</a>
+        <a href="/routes">Routes</a>
+        <a href="/settings">Settings</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/map">Tracking Map</a>
+        <a href="/trains">Trains</a>
+        <a href="/weather">Weather</a>
     </nav>
 
     <div id="status" class="status disconnected">Connecting...</div>

@@ -25,8 +25,16 @@ async function handleStream(req, res) {
     const interval = setInterval(async () => {
         try {
             const streamData = await getTelemetryData();
+            // Debug logging - log once every 5 seconds
+            if (!handleStream.lastLog || Date.now() - handleStream.lastLog > 5000) {
+                handleStream.lastLog = Date.now();
+                const hasPosition = streamData && streamData.playerPosition;
+                const hasSpeed = streamData && typeof streamData.speed === 'number';
+                console.log(`[Stream] Sending data - hasPosition: ${hasPosition}, speed: ${streamData?.speed || 0}`);
+            }
             res.write(`data: ${JSON.stringify(streamData)}\n\n`);
         } catch (err) {
+            console.error(`[Stream] Error getting telemetry: ${err.message}`);
             res.write(`data: {"error": "Failed to fetch TSW data: ${err.message}"}\n\n`);
         }
     }, 100);
