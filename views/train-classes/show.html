@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Class Details - TSW HUD Project</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        h1 { color: var(--accent-color); text-align: center; margin-bottom: 30px; }
+        .card { background: var(--bg-secondary); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        h2 { color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { font-weight: bold; color: var(--accent-color); width: 120px; flex-shrink: 0; }
+        .detail-value { color: var(--text-primary); }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; }
+        .btn-primary { background: var(--btn-primary-bg); color: #fff; }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--accent-hover); }
+        .btn-danger { background: var(--btn-danger-bg); color: #fff; }
+        .btn-danger:hover { background: var(--btn-danger-hover); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-tertiary); color: var(--accent-color); }
+        tr:hover { background: var(--bg-primary); }
+        .empty-message { text-align: center; color: var(--text-muted); padding: 20px; }
+        .back-link { margin-bottom: 20px; }
+        .back-link a { color: var(--accent-color); text-decoration: none; }
+        .back-link a:hover { text-decoration: underline; }
+        a { color: var(--accent-color); }
+        .actions { white-space: nowrap; }
+        .actions button { padding: 5px 10px; font-size: 12px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+        input[type="text"], select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        input[type="text"]:focus, select:focus { outline: none; border-color: var(--accent-color); }
+        .inline-form { display: flex; gap: 10px; align-items: flex-end; }
+        .inline-form .form-group { flex: 1; margin-bottom: 0; }
+        .inline-form button { margin-top: 0; }
+        .typeahead-container { position: relative; flex: 1; }
+        .typeahead-container input { width: 100%; }
+        .typeahead-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 4px 4px; z-index: 1001; }
+        .typeahead-item { padding: 10px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border-color); }
+        .typeahead-item:last-child { border-bottom: none; }
+        .typeahead-item:hover, .typeahead-item.highlighted { background: var(--bg-tertiary); }
+    </style>
+</head>
+<body data-theme="dark">
+    <h1>Train Class Details</h1>
+
+    <nav class="nav">
+        <a href="/countries">Countries</a>
+        <a href="/">Home</a>
+        <a href="/hud">HUD</a>
+        <a href="/record">Record Map</a>
+        <a href="/routes">Routes</a>
+        <a href="/settings">Settings</a>
+        <a href="/timetables">Timetables</a>
+        <a href="/map">Tracking Map</a>
+        <a href="/train-classes">Train Classes</a>
+        <a href="/trains">Trains</a>
+        <a href="/weather">Weather</a>
+    </nav>
+
+    <div class="back-link">
+        <a href="/train-classes">&larr; Back to Train Classes</a>
+    </div>
+
+    <div class="card">
+        <h2 id="className">Loading...</h2>
+        <div id="classDetails">
+            <p class="empty-message">Loading train class details...</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Trains in this Class</h2>
+        <p style="color: var(--text-muted); margin-bottom: 15px;">
+            Trains assigned to this class. To add a train, edit the train and assign it to this class.
+        </p>
+        <div id="trainsList">
+            <p class="empty-message">Loading trains...</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Routes using this Class</h2>
+        <div id="routesList">
+            <p class="empty-message">Loading routes...</p>
+        </div>
+    </div>
+
+    <script>
+        const classId = window.location.pathname.split('/').pop();
+        let trainClass = null;
+        let trains = [];
+        let routes = [];
+
+        async function loadClass() {
+            try {
+                const response = await fetch('/api/train-classes/' + classId);
+                if (!response.ok) {
+                    document.getElementById('className').textContent = 'Train Class Not Found';
+                    document.getElementById('classDetails').innerHTML = '<p class="empty-message">The requested train class could not be found.</p>';
+                    return;
+                }
+                trainClass = await response.json();
+                renderClass();
+            } catch (error) {
+                console.error('Error loading train class:', error);
+                document.getElementById('classDetails').innerHTML = '<p class="empty-message">Error loading train class</p>';
+            }
+        }
+
+        function renderClass() {
+            document.getElementById('className').textContent = trainClass.name;
+            document.title = trainClass.name + ' - TSW HUD Project';
+
+            let html = '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + trainClass.id + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value">' + escapeHtml(trainClass.name) + '</span></div>';
+
+            document.getElementById('classDetails').innerHTML = html;
+        }
+
+        async function loadTrains() {
+            try {
+                const response = await fetch('/api/train-classes/' + classId + '/trains');
+                trains = await response.json();
+                renderTrains();
+            } catch (error) {
+                console.error('Error loading trains:', error);
+                document.getElementById('trainsList').innerHTML = '<p class="empty-message">Error loading trains</p>';
+            }
+        }
+
+        function renderTrains() {
+            const container = document.getElementById('trainsList');
+
+            if (trains.length === 0) {
+                container.innerHTML = '<p class="empty-message">No trains assigned to this class.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>ID</th><th>Name</th><th class="actions">Actions</th></tr></thead><tbody>';
+            trains.forEach(function(train) {
+                html += '<tr>';
+                html += '<td>' + train.id + '</td>';
+                html += '<td><a href="/trains/' + train.id + '">' + escapeHtml(train.name) + '</a></td>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showTrain(' + train.id + ')">View</button></td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        async function loadRoutes() {
+            try {
+                const response = await fetch('/api/train-classes/' + classId + '/routes');
+                routes = await response.json();
+                renderRoutes();
+            } catch (error) {
+                console.error('Error loading routes:', error);
+                document.getElementById('routesList').innerHTML = '<p class="empty-message">Error loading routes</p>';
+            }
+        }
+
+        function renderRoutes() {
+            const container = document.getElementById('routesList');
+
+            if (routes.length === 0) {
+                container.innerHTML = '<p class="empty-message">No routes are using this train class.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>ID</th><th>Name</th><th class="actions">Actions</th></tr></thead><tbody>';
+            routes.forEach(function(route) {
+                html += '<tr>';
+                html += '<td>' + route.id + '</td>';
+                html += '<td><a href="/routes/' + route.id + '">' + escapeHtml(route.name) + '</a></td>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + route.id + ')">View</button></td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function showTrain(id) {
+            window.location.href = '/trains/' + id;
+        }
+
+        function showRoute(id) {
+            window.location.href = '/routes/' + id;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Theme and color scheme initialization
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', theme);
+
+            var colorScheme = localStorage.getItem('colorScheme');
+            if (colorScheme && colorScheme !== 'default') {
+                document.body.setAttribute('data-color-scheme', colorScheme);
+            }
+        })();
+
+        // Load all data
+        loadClass();
+        loadTrains();
+        loadRoutes();
+    </script>
+</body>
+</html>

@@ -315,9 +315,23 @@
             document.body.setAttribute('data-theme', theme);
         }
 
+        // Apply color scheme for accessibility
+        function applyColorScheme(scheme) {
+            if (scheme && scheme !== 'default') {
+                document.body.setAttribute('data-color-scheme', scheme);
+            } else {
+                document.body.removeAttribute('data-color-scheme');
+            }
+        }
+
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             applyTheme(savedTheme);
+        }
+
+        const savedColorScheme = localStorage.getItem('colorScheme');
+        if (savedColorScheme) {
+            applyColorScheme(savedColorScheme);
         }
 
         fetch('/api/config')
@@ -326,6 +340,10 @@
                 const theme = config.theme || 'dark';
                 applyTheme(theme);
                 localStorage.setItem('theme', theme);
+
+                const colorScheme = config.colorScheme || 'default';
+                applyColorScheme(colorScheme);
+                localStorage.setItem('colorScheme', colorScheme);
             })
             .catch(err => console.error('Failed to load config:', err));
 

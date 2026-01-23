@@ -63,7 +63,6 @@
 
     <nav class="nav">
         <a href="/countries">Countries</a>
-        
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
         <a href="/record">Record Map</a>
@@ -71,6 +70,7 @@
         <a href="/settings">Settings</a>
         <a href="/timetables">Timetables</a>
         <a href="/map">Tracking Map</a>
+        <a href="/train-classes">Train Classes</a>
         <a href="/trains">Trains</a>
         <a href="/weather">Weather</a>
     </nav>
@@ -87,44 +87,48 @@
     </div>
 
     <div class="card">
-        <h2>Add Train to Route</h2>
+        <h2>Add Train Class to Route</h2>
         <div class="add-train-section">
             <div class="form-group">
-                <label for="trainSearch">Add Existing Train:</label>
+                <label for="classSearch">Add Existing Train Class:</label>
                 <div class="typeahead-wrapper">
-                    <input type="text" id="trainSearch" placeholder="Type to search trains..." autocomplete="off">
-                    <input type="hidden" id="selectedTrainId">
-                    <div class="typeahead-dropdown" id="trainDropdown"></div>
+                    <input type="text" id="classSearch" placeholder="Type to search train classes..." autocomplete="off">
+                    <input type="hidden" id="selectedClassId">
+                    <div class="typeahead-dropdown" id="classDropdown"></div>
                 </div>
             </div>
-            <button class="btn-primary" onclick="addExistingTrain()">Add</button>
+            <button class="btn-primary" onclick="addExistingClass()">Add</button>
             <span class="or-divider">OR</span>
             <div class="form-group">
-                <label for="newTrainName">Create New Train:</label>
-                <input type="text" id="newTrainName" placeholder="e.g., Class 395 Javelin">
+                <label for="newClassName">Create New Train Class:</label>
+                <input type="text" id="newClassName" placeholder="e.g., BR Class 185">
             </div>
-            <button class="btn-primary" onclick="createAndAddTrain()">Create & Add</button>
+            <button class="btn-primary" onclick="createAndAddClass()">Create & Add</button>
         </div>
     </div>
 
     <div class="card">
-        <h2>Trains on this Route</h2>
-        <div id="trainsList">
-            <p class="empty-message">Loading trains...</p>
+        <h2>Train Classes on this Route</h2>
+        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 13px;">
+            Click on a train class to see the trains available for that class.
+        </p>
+        <div id="classesList">
+            <p class="empty-message">Loading train classes...</p>
         </div>
     </div>
 
     <script>
         const routeId = window.location.pathname.split('/').pop();
-        let allTrains = [];
-        let routeTrains = [];
-        let availableTrains = [];
+        let allClasses = [];
+        let routeClasses = [];
+        let availableClasses = [];
         let activeIndex = -1;
+        let expandedClassId = null;
 
         // Typeahead elements
-        const trainSearch = document.getElementById('trainSearch');
-        const trainDropdown = document.getElementById('trainDropdown');
-        const selectedTrainId = document.getElementById('selectedTrainId');
+        const classSearch = document.getElementById('classSearch');
+        const classDropdown = document.getElementById('classDropdown');
+        const selectedClassId = document.getElementById('selectedClassId');
 
         async function loadRoute() {
             try {
@@ -154,85 +158,84 @@
             document.getElementById('routeDetails').innerHTML = html;
         }
 
-        async function loadTrains() {
+        async function loadRouteClasses() {
             try {
-                const response = await fetch('/api/routes/' + routeId + '/trains');
-                routeTrains = await response.json();
-                renderTrains(routeTrains);
+                const response = await fetch('/api/routes/' + routeId + '/train-classes');
+                routeClasses = await response.json();
+                renderClasses(routeClasses);
             } catch (error) {
-                console.error('Error loading trains:', error);
-                document.getElementById('trainsList').innerHTML = '<p class="empty-message">Error loading trains</p>';
+                console.error('Error loading train classes:', error);
+                document.getElementById('classesList').innerHTML = '<p class="empty-message">Error loading train classes</p>';
             }
         }
 
-        async function loadAllTrains() {
+        async function loadAllClasses() {
             try {
-                const response = await fetch('/api/trains');
-                allTrains = await response.json();
-                updateAvailableTrains();
+                const response = await fetch('/api/train-classes');
+                allClasses = await response.json();
+                updateAvailableClasses();
             } catch (error) {
-                console.error('Error loading all trains:', error);
+                console.error('Error loading all train classes:', error);
             }
         }
 
-        function updateAvailableTrains() {
-            // Filter out trains already on this route
-            const routeTrainIds = routeTrains.map(function(t) { return t.id; });
-            availableTrains = allTrains.filter(function(t) { return routeTrainIds.indexOf(t.id) === -1; });
+        function updateAvailableClasses() {
+            // Filter out classes already on this route
+            const routeClassIds = routeClasses.map(function(c) { return c.id; });
+            availableClasses = allClasses.filter(function(c) { return routeClassIds.indexOf(c.id) === -1; });
             // Clear the search input
-            trainSearch.value = '';
-            selectedTrainId.value = '';
-            trainDropdown.classList.remove('show');
+            classSearch.value = '';
+            selectedClassId.value = '';
+            classDropdown.classList.remove('show');
         }
 
-        function filterTrains(query) {
-            if (!query) return availableTrains.slice(0, 10); // Show first 10 when empty
+        function filterClasses(query) {
+            if (!query) return availableClasses.slice(0, 10);
             const lowerQuery = query.toLowerCase();
-            return availableTrains.filter(function(t) {
-                return t.name.toLowerCase().includes(lowerQuery);
+            return availableClasses.filter(function(c) {
+                return c.name.toLowerCase().includes(lowerQuery);
             }).slice(0, 10);
         }
 
-        function renderDropdown(trains) {
-            if (trains.length === 0) {
-                trainDropdown.innerHTML = '<div class="typeahead-empty">No trains found</div>';
+        function renderDropdown(classes) {
+            if (classes.length === 0) {
+                classDropdown.innerHTML = '<div class="typeahead-empty">No train classes found</div>';
             } else {
-                trainDropdown.innerHTML = trains.map(function(train, index) {
-                    return '<div class="typeahead-item' + (index === activeIndex ? ' active' : '') + '" data-id="' + train.id + '" data-name="' + escapeHtml(train.name) + '">' + escapeHtml(train.name) + '</div>';
+                classDropdown.innerHTML = classes.map(function(cls, index) {
+                    return '<div class="typeahead-item' + (index === activeIndex ? ' active' : '') + '" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' + escapeHtml(cls.name) + '</div>';
                 }).join('');
 
-                // Add click handlers
-                trainDropdown.querySelectorAll('.typeahead-item').forEach(function(item) {
+                classDropdown.querySelectorAll('.typeahead-item').forEach(function(item) {
                     item.addEventListener('click', function() {
-                        selectTrain(item.dataset.id, item.dataset.name);
+                        selectClass(item.dataset.id, item.dataset.name);
                     });
                 });
             }
-            trainDropdown.classList.add('show');
+            classDropdown.classList.add('show');
         }
 
-        function selectTrain(id, name) {
-            trainSearch.value = name;
-            selectedTrainId.value = id;
-            trainDropdown.classList.remove('show');
+        function selectClass(id, name) {
+            classSearch.value = name;
+            selectedClassId.value = id;
+            classDropdown.classList.remove('show');
             activeIndex = -1;
         }
 
         // Typeahead event handlers
-        trainSearch.addEventListener('input', function() {
-            selectedTrainId.value = ''; // Clear selection when typing
+        classSearch.addEventListener('input', function() {
+            selectedClassId.value = '';
             activeIndex = -1;
-            const filtered = filterTrains(trainSearch.value.trim());
+            const filtered = filterClasses(classSearch.value.trim());
             renderDropdown(filtered);
         });
 
-        trainSearch.addEventListener('focus', function() {
-            const filtered = filterTrains(trainSearch.value.trim());
+        classSearch.addEventListener('focus', function() {
+            const filtered = filterClasses(classSearch.value.trim());
             renderDropdown(filtered);
         });
 
-        trainSearch.addEventListener('keydown', function(e) {
-            const items = trainDropdown.querySelectorAll('.typeahead-item');
+        classSearch.addEventListener('keydown', function(e) {
+            const items = classDropdown.querySelectorAll('.typeahead-item');
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 activeIndex = Math.min(activeIndex + 1, items.length - 1);
@@ -244,12 +247,12 @@
             } else if (e.key === 'Enter') {
                 e.preventDefault();
                 if (activeIndex >= 0 && items[activeIndex]) {
-                    selectTrain(items[activeIndex].dataset.id, items[activeIndex].dataset.name);
-                } else if (selectedTrainId.value) {
-                    addExistingTrain();
+                    selectClass(items[activeIndex].dataset.id, items[activeIndex].dataset.name);
+                } else if (selectedClassId.value) {
+                    addExistingClass();
                 }
             } else if (e.key === 'Escape') {
-                trainDropdown.classList.remove('show');
+                classDropdown.classList.remove('show');
                 activeIndex = -1;
             }
         });
@@ -268,137 +271,112 @@
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.typeahead-wrapper')) {
-                trainDropdown.classList.remove('show');
+                classDropdown.classList.remove('show');
                 activeIndex = -1;
             }
         });
 
-        function renderTrains(trains) {
-            const container = document.getElementById('trainsList');
+        function renderClasses(classes) {
+            const container = document.getElementById('classesList');
 
-            if (trains.length === 0) {
-                container.innerHTML = '<p class="empty-message">No trains assigned to this route yet.</p>';
+            if (classes.length === 0) {
+                container.innerHTML = '<p class="empty-message">No train classes assigned to this route yet.</p>';
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Train Name</th><th class="actions">Actions</th></tr></thead><tbody>';
-            trains.forEach(function(train) {
-                html += '<tr id="train-row-' + train.id + '"><td>' + train.id + '</td>';
-                html += '<td id="train-name-' + train.id + '"><a href="/trains/' + train.id + '?from_route=' + routeId + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(train.name) + '</a></td>';
+            let html = '<table><thead><tr><th>ID</th><th>Train Class</th><th>Trains</th><th class="actions">Actions</th></tr></thead><tbody>';
+            classes.forEach(function(cls) {
+                html += '<tr id="class-row-' + cls.id + '">';
+                html += '<td>' + cls.id + '</td>';
+                html += '<td><a href="/train-classes/' + cls.id + '">' + escapeHtml(cls.name) + '</a></td>';
+                html += '<td><button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="toggleTrains(' + cls.id + ')">Show Trains</button></td>';
                 html += '<td class="actions">';
-                html += '<button class="btn-primary" onclick="showTrain(' + train.id + ')">Show</button>';
-                html += '<button class="btn-edit" onclick="editTrain(' + train.id + ', \'' + escapeHtml(train.name).replace(/'/g, "\\'") + '\')">Edit</button>';
-                html += '<button class="btn-danger" onclick="removeTrain(' + train.id + ')">Remove</button>';
+                html += '<button class="btn-primary" onclick="showClass(' + cls.id + ')">View</button>';
+                html += '<button class="btn-danger" onclick="removeClass(' + cls.id + ')">Remove</button>';
+                html += '</td></tr>';
+                // Hidden row for trains
+                html += '<tr id="trains-row-' + cls.id + '" style="display: none;"><td colspan="4" style="padding: 0;">';
+                html += '<div id="trains-container-' + cls.id + '" style="padding: 10px 20px; background: var(--bg-tertiary);"></div>';
                 html += '</td></tr>';
             });
             html += '</tbody></table>';
             container.innerHTML = html;
         }
 
-        function editTrain(trainId, currentName) {
-            const nameCell = document.getElementById('train-name-' + trainId);
-            const row = document.getElementById('train-row-' + trainId);
-            const actionsCell = row.querySelector('.actions');
+        async function toggleTrains(classId) {
+            const trainsRow = document.getElementById('trains-row-' + classId);
+            const trainsContainer = document.getElementById('trains-container-' + classId);
 
-            // Replace name with input
-            nameCell.innerHTML = '<input type="text" class="edit-input" id="edit-input-' + trainId + '" value="' + currentName + '">';
+            if (trainsRow.style.display === 'none') {
+                trainsRow.style.display = 'table-row';
+                trainsContainer.innerHTML = '<p style="color: var(--text-muted);">Loading trains...</p>';
 
-            // Replace action buttons
-            actionsCell.innerHTML = '<button class="btn-save" onclick="saveTrain(' + trainId + ')">Save</button>' +
-                '<button class="btn-cancel" onclick="cancelEdit(' + trainId + ', \'' + currentName.replace(/'/g, "\\'") + '\')">Cancel</button>';
+                try {
+                    const response = await fetch('/api/routes/' + routeId + '/train-classes/' + classId + '/trains');
+                    const trains = await response.json();
 
-            // Focus the input
-            document.getElementById('edit-input-' + trainId).focus();
-
-            // Allow Enter to save, Escape to cancel
-            document.getElementById('edit-input-' + trainId).addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    saveTrain(trainId);
-                } else if (e.key === 'Escape') {
-                    cancelEdit(trainId, currentName);
+                    if (trains.length === 0) {
+                        trainsContainer.innerHTML = '<p style="color: var(--text-muted);">No trains in this class.</p>';
+                    } else {
+                        let html = '<table style="margin: 0; background: transparent;"><thead><tr><th>ID</th><th>Train Name</th><th class="actions">Actions</th></tr></thead><tbody>';
+                        trains.forEach(function(train) {
+                            html += '<tr>';
+                            html += '<td>' + train.id + '</td>';
+                            html += '<td><a href="/trains/' + train.id + '?from_route=' + routeId + '">' + escapeHtml(train.name) + '</a></td>';
+                            html += '<td class="actions"><button class="btn-primary" onclick="showTrain(' + train.id + ')">View</button></td>';
+                            html += '</tr>';
+                        });
+                        html += '</tbody></table>';
+                        trainsContainer.innerHTML = html;
+                    }
+                } catch (error) {
+                    console.error('Error loading trains:', error);
+                    trainsContainer.innerHTML = '<p style="color: var(--color-error);">Error loading trains</p>';
                 }
-            });
-        }
-
-        async function saveTrain(trainId) {
-            const input = document.getElementById('edit-input-' + trainId);
-            const newName = input.value.trim();
-
-            if (!newName) {
-                alert('Train name cannot be empty');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/trains/' + trainId, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: newName })
-                });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Failed to update train');
-                }
-
-                // Reload trains to refresh the list
-                await loadAllTrains();
-                await loadTrains();
-            } catch (error) {
-                console.error('Error updating train:', error);
-                alert('Error: ' + error.message);
+            } else {
+                trainsRow.style.display = 'none';
             }
         }
 
-        function cancelEdit(trainId, originalName) {
-            const nameCell = document.getElementById('train-name-' + trainId);
-            const row = document.getElementById('train-row-' + trainId);
-            const actionsCell = row.querySelector('.actions');
-
-            // Restore original name link
-            nameCell.innerHTML = '<a href="/trains/' + trainId + '?from_route=' + routeId + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(originalName) + '</a>';
-
-            // Restore original buttons
-            actionsCell.innerHTML = '<button class="btn-primary" onclick="showTrain(' + trainId + ')">Show</button>' +
-                '<button class="btn-edit" onclick="editTrain(' + trainId + ', \'' + originalName.replace(/'/g, "\\'") + '\')">Edit</button>' +
-                '<button class="btn-danger" onclick="removeTrain(' + trainId + ')">Remove</button>';
+        function showClass(classId) {
+            window.location.href = '/train-classes/' + classId;
         }
 
         function showTrain(trainId) {
             window.location.href = '/trains/' + trainId + '?from_route=' + routeId;
         }
 
-        async function addExistingTrain() {
-            var trainId = selectedTrainId.value;
-            if (!trainId) {
-                alert('Please select a train from the list');
+        async function addExistingClass() {
+            var classId = selectedClassId.value;
+            if (!classId) {
+                alert('Please select a train class from the list');
                 return;
             }
 
             try {
-                await fetch('/api/routes/' + routeId + '/trains', {
+                await fetch('/api/routes/' + routeId + '/train-classes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ train_id: parseInt(trainId) })
+                    body: JSON.stringify({ class_id: parseInt(classId) })
                 });
-                await loadTrains();
-                updateAvailableTrains();
+                await loadRouteClasses();
+                updateAvailableClasses();
             } catch (error) {
-                console.error('Error adding train:', error);
-                alert('Error adding train to route');
+                console.error('Error adding train class:', error);
+                alert('Error adding train class to route');
             }
         }
 
-        async function createAndAddTrain() {
-            var name = document.getElementById('newTrainName').value.trim();
+        async function createAndAddClass() {
+            var name = document.getElementById('newClassName').value.trim();
             if (!name) {
-                alert('Please enter a train name');
+                alert('Please enter a train class name');
                 return;
             }
 
             try {
-                // Create the new train
-                var createResponse = await fetch('/api/trains', {
+                // Create the new train class
+                var createResponse = await fetch('/api/train-classes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name: name })
@@ -406,63 +384,67 @@
 
                 if (!createResponse.ok) {
                     var error = await createResponse.json();
-                    throw new Error(error.error || 'Failed to create train');
+                    throw new Error(error.error || 'Failed to create train class');
                 }
 
-                var newTrain = await createResponse.json();
+                var newClass = await createResponse.json();
 
                 // Add to this route
-                await fetch('/api/routes/' + routeId + '/trains', {
+                await fetch('/api/routes/' + routeId + '/train-classes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ train_id: newTrain.id })
+                    body: JSON.stringify({ class_id: newClass.id })
                 });
 
-                document.getElementById('newTrainName').value = '';
-                await loadAllTrains();
-                await loadTrains();
+                document.getElementById('newClassName').value = '';
+                await loadAllClasses();
+                await loadRouteClasses();
             } catch (error) {
-                console.error('Error creating train:', error);
+                console.error('Error creating train class:', error);
                 alert('Error: ' + error.message);
             }
         }
 
-        async function removeTrain(trainId) {
-            if (!confirm('Remove this train from the route?')) return;
+        async function removeClass(classId) {
+            if (!confirm('Remove this train class from the route?')) return;
 
             try {
-                await fetch('/api/routes/' + routeId + '/trains', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ train_id: trainId })
+                await fetch('/api/routes/' + routeId + '/train-classes/' + classId, {
+                    method: 'DELETE'
                 });
-                await loadTrains();
-                updateAvailableTrains();
+                await loadRouteClasses();
+                updateAvailableClasses();
             } catch (error) {
-                console.error('Error removing train:', error);
-                alert('Error removing train from route');
+                console.error('Error removing train class:', error);
+                alert('Error removing train class from route');
             }
         }
 
         function escapeHtml(text) {
+            if (!text) return '';
             var div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // Allow Enter key to create new train
-        document.getElementById('newTrainName').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') createAndAddTrain();
+        // Allow Enter key to create new class
+        document.getElementById('newClassName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') createAndAddClass();
         });
 
-        // Theme initialization
+        // Theme and color scheme initialization
         (function() {
             var theme = localStorage.getItem('theme') || 'dark';
             document.body.setAttribute('data-theme', theme);
+
+            var colorScheme = localStorage.getItem('colorScheme');
+            if (colorScheme && colorScheme !== 'default') {
+                document.body.setAttribute('data-color-scheme', colorScheme);
+            }
         })();
 
         loadRoute();
-        loadAllTrains().then(loadTrains);
+        loadAllClasses().then(loadRouteClasses);
     </script>
 </body>
 </html>

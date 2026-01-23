@@ -34,7 +34,6 @@
 
     <nav class="nav">
         <a href="/countries">Countries</a>
-        
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
         <a href="/record">Record Map</a>
@@ -42,6 +41,7 @@
         <a href="/settings">Settings</a>
         <a href="/timetables">Timetables</a>
         <a href="/map">Tracking Map</a>
+        <a href="/train-classes">Train Classes</a>
         <a href="/trains">Trains</a>
         <a href="/weather">Weather</a>
     </nav>
@@ -156,10 +156,15 @@
             }
         }
 
-        // Theme initialization
+        // Theme and color scheme initialization
         (function() {
             var theme = localStorage.getItem('theme') || 'dark';
             document.body.setAttribute('data-theme', theme);
+
+            var colorScheme = localStorage.getItem('colorScheme');
+            if (colorScheme && colorScheme !== 'default') {
+                document.body.setAttribute('data-color-scheme', colorScheme);
+            }
         })();
 
         loadPreset();

@@ -1,650 +1,812 @@
 [
     {
-        "id":  1,
-        "name":  "ACS-64"
+        "id": 1,
+        "name": "ACS-64",
+        "class_id": 1
     },
     {
-        "id":  2,
-        "name":  "GP38-2"
+        "id": 2,
+        "name": "GP38-2",
+        "class_id": 2
     },
     {
-        "id":  3,
-        "name":  "SBB RABe 523"
+        "id": 3,
+        "name": "SBB RABe 523",
+        "class_id": 3
     },
     {
-        "id":  4,
-        "name":  "1972 Mark 2 Stock"
+        "id": 4,
+        "name": "1972 Mark 2 Stock",
+        "class_id": 4
     },
     {
-        "id":  5,
-        "name":  "Class 377/2 SN"
+        "id": 5,
+        "name": "Class 377/2 SN",
+        "class_id": 5
     },
     {
-        "id":  6,
-        "name":  "BR Class 387"
+        "id": 6,
+        "name": "BR Class 387",
+        "class_id": 6
     },
     {
-        "id":  7,
-        "name":  "AC4400CW"
+        "id": 7,
+        "name": "AC4400CW",
+        "class_id": 7
     },
     {
-        "id":  8,
-        "name":  "SD40-2"
+        "id": 8,
+        "name": "SD40-2",
+        "class_id": 8
     },
     {
-        "id":  9,
-        "name":  "F40PH-3"
+        "id": 9,
+        "name": "F40PH-3",
+        "class_id": 9
     },
     {
-        "id":  10,
-        "name":  "SD70ACe"
+        "id": 10,
+        "name": "SD70ACe",
+        "class_id": 10
     },
     {
-        "id":  11,
-        "name":  "ES44AC"
+        "id": 11,
+        "name": "ES44AC",
+        "class_id": 11
     },
     {
-        "id":  12,
-        "name":  "Ge 4 4 II"
+        "id": 12,
+        "name": "Ge 4 4 II",
+        "class_id": 12
     },
     {
-        "id":  13,
-        "name":  "BR 101"
+        "id": 13,
+        "name": "BR 101",
+        "class_id": 13
     },
     {
-        "id":  14,
-        "name":  "BR 103"
+        "id": 14,
+        "name": "BR 103",
+        "class_id": 14
     },
     {
-        "id":  15,
-        "name":  "BR 110"
+        "id": 15,
+        "name": "BR 110",
+        "class_id": 15
     },
     {
-        "id":  16,
-        "name":  "BR 155"
+        "id": 16,
+        "name": "BR 155",
+        "class_id": 16
     },
     {
-        "id":  17,
-        "name":  "BR 155 PRESS"
+        "id": 17,
+        "name": "BR 155 PRESS",
+        "class_id": 17
     },
     {
-        "id":  18,
-        "name":  "BR 182"
+        "id": 18,
+        "name": "BR 182",
+        "class_id": 18
     },
     {
-        "id":  19,
-        "name":  "BR 182 Dispolok"
+        "id": 19,
+        "name": "BR 182 Dispolok",
+        "class_id": 19
     },
     {
-        "id":  20,
-        "name":  "BR 182 MRCE"
+        "id": 20,
+        "name": "BR 182 MRCE",
+        "class_id": 20
     },
     {
-        "id":  21,
-        "name":  "BR 185 2 DB"
+        "id": 21,
+        "name": "BR 185 2 DB",
+        "class_id": 21
     },
     {
-        "id":  22,
-        "name":  "BR 185 2 Railion"
+        "id": 22,
+        "name": "BR 185 2 Railion",
+        "class_id": 22
     },
     {
-        "id":  23,
-        "name":  "BR 185 5 MRCE"
+        "id": 23,
+        "name": "BR 185 5 MRCE",
+        "class_id": 23
     },
     {
-        "id":  24,
-        "name":  "BR 185 6 Railpool"
+        "id": 24,
+        "name": "BR 185 6 Railpool",
+        "class_id": 24
     },
     {
-        "id":  25,
-        "name":  "BR 187"
+        "id": 25,
+        "name": "BR 187",
+        "class_id": 25
     },
     {
-        "id":  26,
-        "name":  "BR 363 DBB"
+        "id": 26,
+        "name": "BR 363 DBB",
+        "class_id": 26
     },
     {
-        "id":  27,
-        "name":  "BR 363 Railion"
+        "id": 27,
+        "name": "BR 363 Railion",
+        "class_id": 27
     },
     {
-        "id":  28,
-        "name":  "BR 401 ICE1"
+        "id": 28,
+        "name": "BR 401 ICE1",
+        "class_id": 28
     },
     {
-        "id":  29,
-        "name":  "BR 425"
+        "id": 29,
+        "name": "BR 425",
+        "class_id": 29
     },
     {
-        "id":  30,
-        "name":  "BR 612"
+        "id": 30,
+        "name": "BR 612",
+        "class_id": 30
     },
     {
-        "id":  31,
-        "name":  "DB Bnrdzf 463 0"
+        "id": 31,
+        "name": "DB Bnrdzf 463 0",
+        "class_id": 31
     },
     {
-        "id":  32,
-        "name":  "DB G6 Shunter"
+        "id": 32,
+        "name": "DB G6 Shunter",
+        "class_id": 32
     },
     {
-        "id":  33,
-        "name":  "Class 323 WMR"
+        "id": 33,
+        "name": "Class 323 WMR",
+        "class_id": 33
     },
     {
-        "id":  34,
-        "name":  "Class 37 5 RF"
+        "id": 34,
+        "name": "Class 37 5 RF",
+        "class_id": 34
     },
     {
-        "id":  35,
-        "name":  "Class 43 HST"
+        "id": 35,
+        "name": "Class 43 HST",
+        "class_id": 35
     },
     {
-        "id":  36,
-        "name":  "Class 66 EWS"
+        "id": 36,
+        "name": "Class 66 EWS",
+        "class_id": 36
     },
     {
-        "id":  37,
-        "name":  "Class 66 EWS RHTT"
+        "id": 37,
+        "name": "Class 66 EWS RHTT",
+        "class_id": 37
     },
     {
-        "id":  38,
-        "name":  "ACS-64 V AMTK"
+        "id": 38,
+        "name": "ACS-64 V AMTK",
+        "class_id": 38
     },
     {
-        "id":  39,
-        "name":  "Amtrak Acela"
+        "id": 39,
+        "name": "Amtrak Acela",
+        "class_id": 39
     },
     {
-        "id":  40,
-        "name":  "CTC-3 Steuerwagen"
+        "id": 40,
+        "name": "CTC-3 Steuerwagen",
+        "class_id": 40
     },
     {
-        "id":  41,
-        "name":  "F40PH-3C"
+        "id": 41,
+        "name": "F40PH-3C",
+        "class_id": 41
     },
     {
-        "id":  42,
-        "name":  "ES44C4"
+        "id": 42,
+        "name": "ES44C4",
+        "class_id": 42
     },
     {
-        "id":  43,
-        "name":  "F7 CJP Santa Fe"
+        "id": 43,
+        "name": "F7 CJP Santa Fe",
+        "class_id": 43
     },
     {
-        "id":  44,
-        "name":  "SD40-2 BNSF"
+        "id": 44,
+        "name": "SD40-2 BNSF",
+        "class_id": 44
     },
     {
-        "id":  45,
-        "name":  "Class 20"
+        "id": 45,
+        "name": "Class 20",
+        "class_id": 45
     },
     {
-        "id":  46,
-        "name":  "Class 31"
+        "id": 46,
+        "name": "Class 31",
+        "class_id": 46
     },
     {
-        "id":  47,
-        "name":  "Class 314"
+        "id": 47,
+        "name": "Class 314",
+        "class_id": 47
     },
     {
-        "id":  48,
-        "name":  "Class 37 5 RSR"
+        "id": 48,
+        "name": "Class 37 5 RSR",
+        "class_id": 48
     },
     {
-        "id":  49,
-        "name":  "Class 47 4"
+        "id": 49,
+        "name": "Class 47 4",
+        "class_id": 49
     },
     {
-        "id":  50,
-        "name":  "F7 CRR"
+        "id": 50,
+        "name": "F7 CRR",
+        "class_id": 50
     },
     {
-        "id":  51,
-        "name":  "SD40 CRR"
+        "id": 51,
+        "name": "SD40 CRR",
+        "class_id": 51
     },
     {
-        "id":  52,
-        "name":  "Class 08 BR Blue"
+        "id": 52,
+        "name": "Class 08 BR Blue",
+        "class_id": 52
     },
     {
-        "id":  53,
-        "name":  "Class 08 Thornaby"
+        "id": 53,
+        "name": "Class 08 Thornaby",
+        "class_id": 53
     },
     {
-        "id":  54,
-        "name":  "Class 101"
+        "id": 54,
+        "name": "Class 101",
+        "class_id": 54
     },
     {
-        "id":  55,
-        "name":  "Class 45 1"
+        "id": 55,
+        "name": "Class 45 1",
+        "class_id": 55
     },
     {
-        "id":  56,
-        "name":  "Class 52 BR Blue"
+        "id": 56,
+        "name": "Class 52 BR Blue",
+        "class_id": 56
     },
     {
-        "id":  57,
-        "name":  "Class 313 2"
+        "id": 57,
+        "name": "Class 313 2",
+        "class_id": 57
     },
     {
-        "id":  58,
-        "name":  "Class 377 4"
+        "id": 58,
+        "name": "Class 377 4",
+        "class_id": 58
     },
     {
-        "id":  59,
-        "name":  "Class 40"
+        "id": 59,
+        "name": "Class 40",
+        "class_id": 59
     },
     {
-        "id":  60,
-        "name":  "Class 66 DB Schenker"
+        "id": 60,
+        "name": "Class 66 DB Schenker",
+        "class_id": 60
     },
     {
-        "id":  61,
-        "name":  "Class 323 NT"
+        "id": 61,
+        "name": "Class 323 NT",
+        "class_id": 61
     },
     {
-        "id":  62,
-        "name":  "LMS Jubilee"
+        "id": 62,
+        "name": "LMS Jubilee",
+        "class_id": 62
     },
     {
-        "id":  63,
-        "name":  "Class 166"
+        "id": 63,
+        "name": "Class 166",
+        "class_id": 63
     },
     {
-        "id":  64,
-        "name":  "M3A"
+        "id": 64,
+        "name": "M3A",
+        "class_id": 64
     },
     {
-        "id":  65,
-        "name":  "M7A"
+        "id": 65,
+        "name": "M7A",
+        "class_id": 65
     },
     {
-        "id":  66,
-        "name":  "BR 112"
+        "id": 66,
+        "name": "BR 112",
+        "class_id": 66
     },
     {
-        "id":  67,
-        "name":  "BR 146 2"
+        "id": 67,
+        "name": "BR 146 2",
+        "class_id": 67
     },
     {
-        "id":  68,
-        "name":  "BR 406 ICE 3M"
+        "id": 68,
+        "name": "BR 406 ICE 3M",
+        "class_id": 68
     },
     {
-        "id":  69,
-        "name":  "DoSto 766 2 767 2"
+        "id": 69,
+        "name": "DoSto 766 2 767 2",
+        "class_id": 69
     },
     {
-        "id":  70,
-        "name":  "BR 143"
+        "id": 70,
+        "name": "BR 143",
+        "class_id": 70
     },
     {
-        "id":  71,
-        "name":  "BR 403 ICE3"
+        "id": 71,
+        "name": "BR 403 ICE3",
+        "class_id": 71
     },
     {
-        "id":  72,
-        "name":  "BR 423 S-München"
+        "id": 72,
+        "name": "BR 423 S-München",
+        "class_id": 72
     },
     {
-        "id":  73,
-        "name":  "BR 422"
+        "id": 73,
+        "name": "BR 422",
+        "class_id": 73
     },
     {
-        "id":  74,
-        "name":  "Class 484"
+        "id": 74,
+        "name": "Class 484",
+        "class_id": 74
     },
     {
-        "id":  75,
-        "name":  "TGV Duplex"
+        "id": 75,
+        "name": "TGV Duplex",
+        "class_id": 75
     },
     {
-        "id":  76,
-        "name":  "BR 628 2"
+        "id": 76,
+        "name": "BR 628 2",
+        "class_id": 76
     },
     {
-        "id":  77,
-        "name":  "DB Bnrdzf 463 0 Mintgrün"
+        "id": 77,
+        "name": "DB Bnrdzf 463 0 Mintgrün",
+        "class_id": 77
     },
     {
-        "id":  78,
-        "name":  "Class 375 9"
+        "id": 78,
+        "name": "Class 375 9",
+        "class_id": 78
     },
     {
-        "id":  79,
-        "name":  "Class 387 2"
+        "id": 79,
+        "name": "Class 387 2",
+        "class_id": 79
     },
     {
-        "id":  80,
-        "name":  "1972 MkII Tube Stock LT"
+        "id": 80,
+        "name": "1972 MkII Tube Stock LT",
+        "class_id": 80
     },
     {
-        "id":  81,
-        "name":  "1972 MkII Tube Stock LU"
+        "id": 81,
+        "name": "1972 MkII Tube Stock LU",
+        "class_id": 81
     },
     {
-        "id":  82,
-        "name":  "M3 LIRR"
+        "id": 82,
+        "name": "M3 LIRR",
+        "class_id": 82
     },
     {
-        "id":  83,
-        "name":  "M7 LIRR"
+        "id": 83,
+        "name": "M7 LIRR",
+        "class_id": 83
     },
     {
-        "id":  84,
-        "name":  "RABe 523"
+        "id": 84,
+        "name": "RABe 523",
+        "class_id": 84
     },
     {
-        "id":  85,
-        "name":  "BR 204"
+        "id": 85,
+        "name": "BR 204",
+        "class_id": 85
     },
     {
-        "id":  86,
-        "name":  "BR 442 VVO"
+        "id": 86,
+        "name": "BR 442 VVO",
+        "class_id": 86
     },
     {
-        "id":  87,
-        "name":  "ALP-46"
+        "id": 87,
+        "name": "ALP-46",
+        "class_id": 87
     },
     {
-        "id":  88,
-        "name":  "Amfleet Cab Car"
+        "id": 88,
+        "name": "Amfleet Cab Car",
+        "class_id": 88
     },
     {
-        "id":  89,
-        "name":  "NJT Commuter Cab Car"
+        "id": 89,
+        "name": "NJT Commuter Cab Car",
+        "class_id": 89
     },
     {
-        "id":  90,
-        "name":  "BR 365"
+        "id": 90,
+        "name": "BR 365",
+        "class_id": 90
     },
     {
-        "id":  91,
-        "name":  "GP38-2 CN"
+        "id": 91,
+        "name": "GP38-2 CN",
+        "class_id": 91
     },
     {
-        "id":  92,
-        "name":  "GP9RM CN"
+        "id": 92,
+        "name": "GP9RM CN",
+        "class_id": 92
     },
     {
-        "id":  93,
-        "name":  "Doppelstock-Steuerwagen CTX"
+        "id": 93,
+        "name": "Doppelstock-Steuerwagen CTX",
+        "class_id": 93
     },
     {
-        "id":  94,
-        "name":  "F40PH-2CAT"
+        "id": 94,
+        "name": "F40PH-2CAT",
+        "class_id": 94
     },
     {
-        "id":  95,
-        "name":  "GP38-2 UP"
+        "id": 95,
+        "name": "GP38-2 UP",
+        "class_id": 95
     },
     {
-        "id":  96,
-        "name":  "MP15DC"
+        "id": 96,
+        "name": "MP15DC",
+        "class_id": 96
     },
     {
-        "id":  97,
-        "name":  "MP36PH-3C Caltrain"
+        "id": 97,
+        "name": "MP36PH-3C Caltrain",
+        "class_id": 97
     },
     {
-        "id":  98,
-        "name":  "Steuerwagen CT97"
+        "id": 98,
+        "name": "Steuerwagen CT97",
+        "class_id": 98
     },
     {
-        "id":  99,
-        "name":  "BR 1442 Talent 2"
+        "id": 99,
+        "name": "BR 1442 Talent 2",
+        "class_id": 99
     },
     {
-        "id":  100,
-        "name":  "AC4400CW CSX"
+        "id": 100,
+        "name": "AC4400CW CSX",
+        "class_id": 100
     },
     {
-        "id":  101,
-        "name":  "GP38-2 CSX"
+        "id": 101,
+        "name": "GP38-2 CSX",
+        "class_id": 101
     },
     {
-        "id":  102,
-        "name":  "SD40 CSX-s"
+        "id": 102,
+        "name": "SD40 CSX-s",
+        "class_id": 102
     },
     {
-        "id":  103,
-        "name":  "SD40-2 YN CSX"
+        "id": 103,
+        "name": "SD40-2 YN CSX",
+        "class_id": 103
     },
     {
-        "id":  104,
-        "name":  "SD40-2 YN3b CSX"
+        "id": 104,
+        "name": "SD40-2 YN3b CSX",
+        "class_id": 104
     },
     {
-        "id":  105,
-        "name":  "BR 423 S-Köln"
+        "id": 105,
+        "name": "BR 423 S-Köln",
+        "class_id": 105
     },
     {
-        "id":  106,
-        "name":  "BR 442 DB"
+        "id": 106,
+        "name": "BR 442 DB",
+        "class_id": 106
     },
     {
-        "id":  107,
-        "name":  "Class 33 GRN"
+        "id": 107,
+        "name": "Class 33 GRN",
+        "class_id": 107
     },
     {
-        "id":  108,
-        "name":  "Class 37 7 EPX"
+        "id": 108,
+        "name": "Class 37 7 EPX",
+        "class_id": 108
     },
     {
-        "id":  109,
-        "name":  "Class 375 9 SEW"
+        "id": 109,
+        "name": "Class 375 9 SEW",
+        "class_id": 109
     },
     {
-        "id":  110,
-        "name":  "Class 395"
+        "id": 110,
+        "name": "Class 395",
+        "class_id": 110
     },
     {
-        "id":  111,
-        "name":  "Class 465 9"
+        "id": 111,
+        "name": "Class 465 9",
+        "class_id": 111
     },
     {
-        "id":  112,
-        "name":  "Class 700 0 Thameslink"
+        "id": 112,
+        "name": "Class 700 0 Thameslink",
+        "class_id": 112
     },
     {
-        "id":  113,
-        "name":  "LMS Stanier 8F"
+        "id": 113,
+        "name": "LMS Stanier 8F",
+        "class_id": 113
     },
     {
-        "id":  114,
-        "name":  "Class 150 2"
+        "id": 114,
+        "name": "Class 150 2",
+        "class_id": 114
     },
     {
-        "id":  115,
-        "name":  "Class 09"
+        "id": 115,
+        "name": "Class 09",
+        "class_id": 115
     },
     {
-        "id":  116,
-        "name":  "Class 47 GRN"
+        "id": 116,
+        "name": "Class 47 GRN",
+        "class_id": 116
     },
     {
-        "id":  117,
-        "name":  "DB BR 185"
+        "id": 117,
+        "name": "DB BR 185",
+        "class_id": 117
     },
     {
-        "id":  118,
-        "name":  "ÖBB 4024"
+        "id": 118,
+        "name": "ÖBB 4024",
+        "class_id": 118
     },
     {
-        "id":  119,
-        "name":  "ÖBB 1116"
+        "id": 119,
+        "name": "ÖBB 1116",
+        "class_id": 119
     },
     {
-        "id":  120,
-        "name":  "DB BR 363"
+        "id": 120,
+        "name": "DB BR 363",
+        "class_id": 120
     },
     {
-        "id":  121,
-        "name":  "DB BR 642"
+        "id": 121,
+        "name": "DB BR 642",
+        "class_id": 121
     },
     {
-        "id":  122,
-        "name":  "DB BR 111"
+        "id": 122,
+        "name": "DB BR 111",
+        "class_id": 122
     },
     {
-        "id":  123,
-        "name":  "ABe 8/12"
+        "id": 123,
+        "name": "ABe 8/12",
+        "class_id": 123
     },
     {
-        "id":  124,
-        "name":  "Class 66 DB"
+        "id": 124,
+        "name": "Class 66 DB",
+        "class_id": 124
     },
     {
-        "id":  125,
-        "name":  "BR Class 801"
+        "id": 125,
+        "name": "BR Class 801",
+        "class_id": 125
     },
     {
-        "id":  126,
-        "name":  "BR Class 08"
+        "id": 126,
+        "name": "BR Class 08",
+        "class_id": 126
     },
     {
-        "id":  127,
-        "name":  "BR Class 47"
+        "id": 127,
+        "name": "BR Class 47",
+        "class_id": 127
     },
     {
-        "id":  128,
-        "name":  "BR Class 142"
+        "id": 128,
+        "name": "BR Class 142",
+        "class_id": 128
     },
     {
-        "id":  129,
-        "name":  "BR Class 710"
+        "id": 129,
+        "name": "BR Class 710",
+        "class_id": 129
     },
     {
-        "id":  130,
-        "name":  "BR Class 170"
+        "id": 130,
+        "name": "BR Class 170",
+        "class_id": 130
     },
     {
-        "id":  131,
-        "name":  "F125"
+        "id": 131,
+        "name": "F125",
+        "class_id": 131
     },
     {
-        "id":  132,
-        "name":  "Rotem Bi-Level Cab Car Metrolink"
+        "id": 132,
+        "name": "Rotem Bi-Level Cab Car Metrolink",
+        "class_id": 132
     },
     {
-        "id":  133,
-        "name":  "M7"
+        "id": 133,
+        "name": "M7",
+        "class_id": 133
     },
     {
-        "id":  134,
-        "name":  "M9"
+        "id": 134,
+        "name": "M9",
+        "class_id": 134
     },
     {
-        "id":  135,
-        "name":  "ÖBB 1020"
+        "id": 135,
+        "name": "ÖBB 1020",
+        "class_id": 135
     },
     {
-        "id":  136,
-        "name":  "DB BR 114"
+        "id": 136,
+        "name": "DB BR 114",
+        "class_id": 136
     },
     {
-        "id":  137,
-        "name":  "DB BR 146"
+        "id": 137,
+        "name": "DB BR 146",
+        "class_id": 137
     },
     {
-        "id":  138,
-        "name":  "DB BR 193"
+        "id": 138,
+        "name": "DB BR 193",
+        "class_id": 138
     },
     {
-        "id":  139,
-        "name":  "DB BR 411 ICE-T"
+        "id": 139,
+        "name": "DB BR 411 ICE-T",
+        "class_id": 139
     },
     {
-        "id":  140,
-        "name":  "DB BR 423"
+        "id": 140,
+        "name": "DB BR 423",
+        "class_id": 140
     },
     {
-        "id":  141,
-        "name":  "DB BR 406 ICE 3M"
+        "id": 141,
+        "name": "DB BR 406 ICE 3M",
+        "class_id": 141
     },
     {
-        "id":  142,
-        "name":  "DB BR 425"
+        "id": 142,
+        "name": "DB BR 425",
+        "class_id": 142
     },
     {
-        "id":  143,
-        "name":  "DB BR 430"
+        "id": 143,
+        "name": "DB BR 430",
+        "class_id": 143
     },
     {
-        "id":  144,
-        "name":  "ICMm Koploper"
+        "id": 144,
+        "name": "ICMm Koploper",
+        "class_id": 144
     },
     {
-        "id":  145,
-        "name":  "SNG Sprinter"
+        "id": 145,
+        "name": "SNG Sprinter",
+        "class_id": 145
     },
     {
-        "id":  146,
-        "name":  "Class 350/1"
+        "id": 146,
+        "name": "Class 350/1",
+        "class_id": 146
     },
     {
-        "id":  147,
-        "name":  "BR Class 87"
+        "id": 147,
+        "name": "BR Class 87",
+        "class_id": 147
     },
     {
-        "id":  148,
-        "name":  "BR Class 101"
+        "id": 148,
+        "name": "BR Class 101",
+        "class_id": 148
     },
     {
-        "id":  149,
-        "name":  "BR Class 378"
+        "id": 149,
+        "name": "BR Class 378",
+        "class_id": 149
     },
     {
-        "id":  150,
-        "name":  "BR Class 150"
+        "id": 150,
+        "name": "BR Class 150",
+        "class_id": 150
     },
     {
-        "id":  151,
-        "name":  "BR Class 153"
+        "id": 151,
+        "name": "BR Class 153",
+        "class_id": 151
     },
     {
-        "id":  152,
-        "name":  "BR Class 323"
+        "id": 152,
+        "name": "BR Class 323",
+        "class_id": 152
     },
     {
-        "id":  153,
-        "name":  "MP36PH-3C"
+        "id": 153,
+        "name": "MP36PH-3C",
+        "class_id": 153
     },
     {
-        "id":  154,
-        "name":  "HSP46"
+        "id": 154,
+        "name": "HSP46",
+        "class_id": 154
     },
     {
-        "id":  155,
-        "name":  "DB BR 442"
+        "id": 155,
+        "name": "DB BR 442",
+        "class_id": 155
     },
     {
-        "id":  156,
-        "name":  "DB BR 140"
+        "id": 156,
+        "name": "DB BR 140",
+        "class_id": 156
     },
     {
-        "id":  157,
-        "name":  "BR Class 802"
+        "id": 157,
+        "name": "BR Class 802",
+        "class_id": 157
     },
     {
-        "id":  158,
-        "name":  "BR Class 20"
+        "id": 158,
+        "name": "BR Class 20",
+        "class_id": 158
     },
     {
-        "id":  159,
-        "name":  "BR Class 86"
+        "id": 159,
+        "name": "BR Class 86",
+        "class_id": 159
     },
     {
-        "id":  160,
-        "name":  "Arrow III"
+        "id": 160,
+        "name": "Arrow III",
+        "class_id": 160
     },
     {
-        "id":  161,
-        "name":  "M8"
+        "id": 161,
+        "name": "M8",
+        "class_id": 161
     },
     {
-        "id":  162,
-        "name":  "Class 390 AWC"
+        "id": 162,
+        "name": "Class 390 AWC",
+        "class_id": 162
     }
 ]

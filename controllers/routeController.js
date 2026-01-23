@@ -96,6 +96,32 @@ const routeController = {
         const body = await parseBody(req);
         routeDb.removeTrain(routeId, body.train_id);
         sendJson(res, { success: true });
+    },
+
+    // GET /api/routes/:id/train-classes
+    getTrainClasses: async (req, res, routeId) => {
+        const trainClasses = routeDb.getTrainClasses(routeId);
+        sendJson(res, trainClasses);
+    },
+
+    // POST /api/routes/:id/train-classes
+    addTrainClass: async (req, res, routeId) => {
+        const body = await parseBody(req);
+        routeDb.addTrainClass(routeId, body.class_id);
+        sendJson(res, { success: true }, 201);
+    },
+
+    // DELETE /api/routes/:id/train-classes
+    removeTrainClass: async (req, res, routeId) => {
+        const body = await parseBody(req);
+        routeDb.removeTrainClass(routeId, body.class_id);
+        sendJson(res, { success: true });
+    },
+
+    // GET /api/routes/:id/train-classes/:classId/trains
+    getTrainsForClass: async (req, res, routeId, classId) => {
+        const trains = routeDb.getTrainsForClass(routeId, classId);
+        sendJson(res, trains);
     }
 };
 

@@ -57,7 +57,6 @@
 
     <nav class="nav">
         <a href="/countries">Countries</a>
-        
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
         <a href="/record">Record Map</a>
@@ -65,6 +64,7 @@
         <a href="/settings">Settings</a>
         <a href="/timetables">Timetables</a>
         <a href="/map">Tracking Map</a>
+        <a href="/train-classes">Train Classes</a>
         <a href="/trains">Trains</a>
         <a href="/weather">Weather</a>
     </nav>
@@ -230,9 +230,12 @@
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Name</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Class</th><th class="actions">Actions</th></tr></thead><tbody>';
             paginatedTrains.forEach(function(t) {
+                var className = t.class_name || '-';
+                var classLink = t.class_id ? '<a href="/train-classes/' + t.class_id + '">' + escapeHtml(className) + '</a>' : '-';
                 html += '<tr><td>' + t.id + '</td><td><a href="/trains/' + t.id + '">' + escapeHtml(t.name) + '</a></td>';
+                html += '<td>' + classLink + '</td>';
                 html += '<td class="actions"><button class="btn-primary" onclick="showTrain(' + t.id + ')">Show</button>';
                 html += "<button class=\"btn-secondary\" onclick=\"editTrain(" + t.id + ",'" + escapeJs(t.name) + "')\">Edit</button>";
                 html += '<button class="btn-danger" onclick="deleteTrain(' + t.id + ')">Delete</button></td></tr>';
@@ -325,10 +328,15 @@
             } catch (error) { console.error('Error deleting train:', error); alert('Error deleting train'); }
         }
 
-        // Theme initialization
+        // Theme and color scheme initialization
         (function() {
             var theme = localStorage.getItem('theme') || 'dark';
             document.body.setAttribute('data-theme', theme);
+
+            var colorScheme = localStorage.getItem('colorScheme');
+            if (colorScheme && colorScheme !== 'default') {
+                document.body.setAttribute('data-color-scheme', colorScheme);
+            }
         })();
 
         loadTrains();

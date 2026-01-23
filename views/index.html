@@ -134,7 +134,6 @@
 
     <nav class="nav">
         <a href="/countries">Countries</a>
-        
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
         <a href="/record">Record Map</a>
@@ -142,6 +141,7 @@
         <a href="/settings">Settings</a>
         <a href="/timetables">Timetables</a>
         <a href="/map">Tracking Map</a>
+        <a href="/train-classes">Train Classes</a>
         <a href="/trains">Trains</a>
         <a href="/weather">Weather</a>
     </nav>
@@ -157,10 +157,25 @@
             document.body.setAttribute('data-theme', theme);
         }
 
+        // Apply color scheme for accessibility
+        function applyColorScheme(scheme) {
+            if (scheme && scheme !== 'default') {
+                document.body.setAttribute('data-color-scheme', scheme);
+            } else {
+                document.body.removeAttribute('data-color-scheme');
+            }
+        }
+
         // Load theme from localStorage first for instant apply
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             applyTheme(savedTheme);
+        }
+
+        // Load color scheme from localStorage
+        const savedColorScheme = localStorage.getItem('colorScheme');
+        if (savedColorScheme) {
+            applyColorScheme(savedColorScheme);
         }
 
         // Then fetch from server to ensure sync
@@ -170,6 +185,10 @@
                 const theme = config.theme || 'dark';
                 applyTheme(theme);
                 localStorage.setItem('theme', theme);
+
+                const colorScheme = config.colorScheme || 'default';
+                applyColorScheme(colorScheme);
+                localStorage.setItem('colorScheme', colorScheme);
             })
             .catch(err => console.error('Failed to load config:', err));
     </script>

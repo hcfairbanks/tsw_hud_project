@@ -392,6 +392,70 @@
             background: var(--accent-color);
             color: var(--bg-primary);
         }
+        .color-scheme-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .color-scheme-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        .color-scheme-option:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-tertiary);
+        }
+        .color-scheme-option.active {
+            border-color: var(--accent-color);
+            background: var(--bg-tertiary);
+        }
+        .color-scheme-option input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .color-scheme-option input[type="radio"]:checked {
+            border-color: var(--accent-color);
+        }
+        .color-scheme-option input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: var(--accent-color);
+            border-radius: 50%;
+        }
+        .color-scheme-option span {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .color-scheme-preview {
+            display: flex;
+            gap: 4px;
+        }
+        .preview-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+        }
     </style>
 </head>
 <body data-theme="dark">
@@ -399,7 +463,6 @@
 
     <nav class="nav">
         <a href="/countries">Countries</a>
-
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
         <a href="/record">Record Map</a>
@@ -407,6 +470,7 @@
         <a href="/settings">Settings</a>
         <a href="/timetables">Timetables</a>
         <a href="/map">Tracking Map</a>
+        <a href="/train-classes">Train Classes</a>
         <a href="/trains">Trains</a>
         <a href="/weather">Weather</a>
     </nav>
@@ -484,6 +548,45 @@
                     <span>°F</span>
                 </label>
             </div>
+        </div>
+
+        <div class="setting-row">
+            <div class="setting-info">
+                <div class="setting-label">Color Scheme</div>
+                <div class="setting-description">Adjust button colors for color vision accessibility</div>
+            </div>
+        </div>
+        <div class="color-scheme-selector">
+            <label class="color-scheme-option" id="colorSchemeDefault">
+                <input type="radio" name="colorScheme" value="default">
+                <div class="color-scheme-preview">
+                    <span class="preview-dot" style="background: #28a745;"></span>
+                    <span class="preview-dot" style="background: #e94560;"></span>
+                    <span class="preview-dot" style="background: #0066ff;"></span>
+                    <span class="preview-dot" style="background: #ffc107;"></span>
+                </div>
+                <span>Default</span>
+            </label>
+            <label class="color-scheme-option" id="colorSchemeDeuteranopia">
+                <input type="radio" name="colorScheme" value="deuteranopia">
+                <div class="color-scheme-preview">
+                    <span class="preview-dot" style="background: #17a2b8;"></span>
+                    <span class="preview-dot" style="background: #e94560;"></span>
+                    <span class="preview-dot" style="background: #0066ff;"></span>
+                    <span class="preview-dot" style="background: #ffc107;"></span>
+                </div>
+                <span>Red-Green (Deuteranopia/Protanopia)</span>
+            </label>
+            <label class="color-scheme-option" id="colorSchemeTritanopia">
+                <input type="radio" name="colorScheme" value="tritanopia">
+                <div class="color-scheme-preview">
+                    <span class="preview-dot" style="background: #28a745;"></span>
+                    <span class="preview-dot" style="background: #e94560;"></span>
+                    <span class="preview-dot" style="background: #9b59b6;"></span>
+                    <span class="preview-dot" style="background: #e67e22;"></span>
+                </div>
+                <span>Blue-Yellow (Tritanopia)</span>
+            </label>
         </div>
     </div>
 
@@ -669,6 +772,33 @@
             localStorage.setItem('temperatureUnits', units);
         }
 
+        // Apply color scheme selection UI
+        function applyColorScheme(scheme) {
+            // Remove active class from all options
+            document.querySelectorAll('.color-scheme-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+
+            // Update the selected option
+            const optionId = 'colorScheme' + scheme.charAt(0).toUpperCase() + scheme.slice(1);
+            const option = document.getElementById(optionId);
+            if (option) {
+                option.classList.add('active');
+                const radio = option.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            }
+
+            // Apply to body
+            if (scheme === 'default') {
+                document.body.removeAttribute('data-color-scheme');
+            } else {
+                document.body.setAttribute('data-color-scheme', scheme);
+            }
+
+            // Save to localStorage for other pages to read
+            localStorage.setItem('colorScheme', scheme);
+        }
+
         // Apply TSW version selection UI
         function applyTswVersion(version) {
             document.querySelectorAll('.tsw-version-option').forEach(opt => {
@@ -765,6 +895,9 @@
 
                 const temperatureUnits = config.temperatureUnits || 'celsius';
                 applyTemperatureUnits(temperatureUnits);
+
+                const colorScheme = config.colorScheme || 'default';
+                applyColorScheme(colorScheme);
             } catch (err) {
                 console.error('Failed to load settings:', err);
                 showStatus('Failed to load settings', 'error');
@@ -858,6 +991,22 @@
         document.getElementById('tempFahrenheit').addEventListener('click', function() {
             applyTemperatureUnits('fahrenheit');
             saveSetting('temperatureUnits', 'fahrenheit');
+        });
+
+        // Color scheme selection handlers
+        document.getElementById('colorSchemeDefault').addEventListener('click', function() {
+            applyColorScheme('default');
+            saveSetting('colorScheme', 'default');
+        });
+
+        document.getElementById('colorSchemeDeuteranopia').addEventListener('click', function() {
+            applyColorScheme('deuteranopia');
+            saveSetting('colorScheme', 'deuteranopia');
+        });
+
+        document.getElementById('colorSchemeTritanopia').addEventListener('click', function() {
+            applyColorScheme('tritanopia');
+            saveSetting('colorScheme', 'tritanopia');
         });
 
         function showStatus(message, type) {

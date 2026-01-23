@@ -40,7 +40,7 @@
     --color-info: #0066ff;
     --color-info-bg: rgba(0, 102, 255, 0.1);
 
-    /* Button colors */
+    /* Button colors (defaults) */
     --btn-primary-bg: #0066ff;
     --btn-primary-hover: #0052cc;
     --btn-danger-bg: #e94560;
@@ -52,6 +52,28 @@
 
     /* Timetable display gradient */
     --gradient-timetable: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Color scheme: Deuteranopia/Protanopia (red-green color blindness) */
+/* Shifts green toward teal/cyan for better distinction from red */
+[data-color-scheme="deuteranopia"] {
+    --btn-success-bg: #17a2b8;
+    --btn-success-hover: #138496;
+    --color-success: #17a2b8;
+    --color-success-bg: rgba(23, 162, 184, 0.2);
+}
+
+/* Color scheme: Tritanopia (blue-yellow color blindness) */
+/* Shifts blue toward purple and yellow toward orange */
+[data-color-scheme="tritanopia"] {
+    --btn-primary-bg: #9b59b6;
+    --btn-primary-hover: #8e44ad;
+    --btn-warning-bg: #e67e22;
+    --btn-warning-hover: #d35400;
+    --color-info: #9b59b6;
+    --color-info-bg: rgba(155, 89, 182, 0.1);
+    --color-warning: #e67e22;
+    --color-warning-bg: rgba(230, 126, 34, 0.2);
 }
 
 /* Dark theme variables (default) */

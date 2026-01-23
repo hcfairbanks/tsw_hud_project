@@ -85,16 +85,6 @@
         }
         a { color: var(--accent-color); text-decoration: none; }
         a:hover { text-decoration: underline; }
-        .settings-icon {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 24px;
-            transition: color 0.2s;
-        }
-        .settings-icon:hover { color: var(--accent-color); }
         .typeahead-container { position: relative; flex: 2; }
         .typeahead-container input { width: 100%; }
         .typeahead-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 4px 4px; z-index: 1001; }
@@ -119,12 +109,10 @@
     </style>
 </head>
 <body data-theme="dark">
-    <a href="/settings" class="settings-icon" title="Settings">&#9881;</a>
     <h1>Routes</h1>
 
     <nav class="nav">
         <a href="/countries">Countries</a>
-        
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
         <a href="/record">Record Map</a>
@@ -132,6 +120,7 @@
         <a href="/settings">Settings</a>
         <a href="/timetables">Timetables</a>
         <a href="/map">Tracking Map</a>
+        <a href="/train-classes">Train Classes</a>
         <a href="/trains">Trains</a>
         <a href="/weather">Weather</a>
     </nav>

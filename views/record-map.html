@@ -284,9 +284,13 @@
                 <select class="timetable-dropdown" id="routeSelect">
                     <option value="">-- Select a route --</option>
                 </select>
+                <label class="info-label" style="margin-top: 8px;">Select Train Class:</label>
+                <select class="timetable-dropdown" id="trainClassSelect" disabled>
+                    <option value="">-- Select a route first --</option>
+                </select>
                 <label class="info-label" style="margin-top: 8px;">Select Train:</label>
                 <select class="timetable-dropdown" id="trainSelect" disabled>
-                    <option value="">-- Select a route first --</option>
+                    <option value="">-- Select a train class first --</option>
                 </select>
                 <label class="info-label" style="margin-top: 8px;">Select Timetable:</label>
                 <select class="timetable-dropdown" id="timetableSelect" disabled>
@@ -471,8 +475,51 @@
             }
         }
 
-        // Load trains for selected route
-        async function loadTrainsForRoute(routeId) {
+        // Load train classes for selected route
+        async function loadTrainClassesForRoute(routeId) {
+            const trainClassSelect = document.getElementById('trainClassSelect');
+            const trainSelect = document.getElementById('trainSelect');
+            const timetableSelect = document.getElementById('timetableSelect');
+
+            // Reset train class, train, and timetable dropdowns
+            trainClassSelect.innerHTML = '<option value="">-- Loading... --</option>';
+            trainClassSelect.disabled = true;
+            trainSelect.innerHTML = '<option value="">-- Select a train class first --</option>';
+            trainSelect.disabled = true;
+            timetableSelect.innerHTML = '<option value="">-- Select a train first --</option>';
+            timetableSelect.disabled = true;
+
+            if (!routeId) {
+                trainClassSelect.innerHTML = '<option value="">-- Select a route first --</option>';
+                return;
+            }
+
+            try {
+                // Load train classes for this route
+                const response = await fetch('/api/routes/' + routeId + '/train-classes');
+                const trainClasses = await response.json();
+
+                if (trainClasses.length === 0) {
+                    trainClassSelect.innerHTML = '<option value="">-- No train classes for this route --</option>';
+                    return;
+                }
+
+                trainClassSelect.innerHTML = '<option value="">-- Select a train class --</option>';
+                trainClasses.forEach(tc => {
+                    const option = document.createElement('option');
+                    option.value = tc.id;
+                    option.textContent = tc.name;
+                    trainClassSelect.appendChild(option);
+                });
+                trainClassSelect.disabled = false;
+            } catch (err) {
+                console.error('Failed to load train classes:', err);
+                trainClassSelect.innerHTML = '<option value="">-- Error loading train classes --</option>';
+            }
+        }
+
+        // Load trains for selected train class
+        async function loadTrainsForClass(routeId, classId) {
             const trainSelect = document.getElementById('trainSelect');
             const timetableSelect = document.getElementById('timetableSelect');
 
@@ -482,30 +529,30 @@
             timetableSelect.innerHTML = '<option value="">-- Select a train first --</option>';
             timetableSelect.disabled = true;
 
-            if (!routeId) {
-                trainSelect.innerHTML = '<option value="">-- Select a route first --</option>';
-                return;
-            }
-
-            // Get unique train IDs from timetables for this route
-            const timetablesForRoute = allTimetables.filter(t => t.route_id == routeId);
-            const trainIdsForRoute = [...new Set(timetablesForRoute.map(t => t.train_id))];
-
-            if (trainIdsForRoute.length === 0) {
-                trainSelect.innerHTML = '<option value="">-- No trains for this route --</option>';
+            if (!classId) {
+                trainSelect.innerHTML = '<option value="">-- Select a train class first --</option>';
                 return;
             }
 
             try {
-                // Load all trains
-                const trainsResponse = await fetch('/api/trains');
-                const allTrains = await trainsResponse.json();
+                // Load trains for this class on this route
+                const response = await fetch('/api/routes/' + routeId + '/train-classes/' + classId + '/trains');
+                const trains = await response.json();
 
-                // Filter to trains that have timetables on this route
-                const trainsForRoute = allTrains.filter(t => trainIdsForRoute.includes(t.id));
+                // Filter trains that have timetables for this route
+                const timetablesForRoute = allTimetables.filter(t => t.route_id == routeId);
+                const trainIdsWithTimetables = [...new Set(timetablesForRoute.flatMap(t => t.train_ids || (t.train_id ? [t.train_id] : [])))];
+
+                // Filter to trains that have timetables
+                const trainsWithTimetables = trains.filter(t => trainIdsWithTimetables.includes(t.id));
+
+                if (trainsWithTimetables.length === 0) {
+                    trainSelect.innerHTML = '<option value="">-- No trains with timetables in this class --</option>';
+                    return;
+                }
 
                 trainSelect.innerHTML = '<option value="">-- Select a train --</option>';
-                trainsForRoute.forEach(t => {
+                trainsWithTimetables.forEach(t => {
                     const option = document.createElement('option');
                     option.value = t.id;
                     option.textContent = t.name;
@@ -528,8 +575,16 @@
                 return;
             }
 
-            // Filter timetables for this route and train
-            const timetables = allTimetables.filter(t => t.route_id == routeId && t.train_id == trainId);
+            // Filter timetables for this route that have this train
+            // Timetables now have train_ids array (or legacy train_id)
+            const timetables = allTimetables.filter(t => {
+                if (t.route_id != routeId) return false;
+                // Check if train is in train_ids array or matches legacy train_id
+                if (t.train_ids && Array.isArray(t.train_ids)) {
+                    return t.train_ids.includes(parseInt(trainId));
+                }
+                return t.train_id == trainId;
+            });
 
             if (timetables.length === 0) {
                 timetableSelect.innerHTML = '<option value="">-- No timetables found --</option>';
@@ -550,7 +605,14 @@
         // Event listeners for cascading dropdowns
         document.getElementById('routeSelect').addEventListener('change', function() {
             const routeId = this.value;
-            loadTrainsForRoute(routeId);
+            loadTrainClassesForRoute(routeId);
+            document.getElementById('mainBtn').textContent = 'Start';
+        });
+
+        document.getElementById('trainClassSelect').addEventListener('change', function() {
+            const routeId = document.getElementById('routeSelect').value;
+            const classId = this.value;
+            loadTrainsForClass(routeId, classId);
             document.getElementById('mainBtn').textContent = 'Start';
         });
 
@@ -926,7 +988,9 @@
                     document.getElementById('stationDropdown').innerHTML = '<option value="">-- Start recording first --</option>';
                     // Reset all cascading dropdowns
                     document.getElementById('routeSelect').value = '';
-                    document.getElementById('trainSelect').innerHTML = '<option value="">-- Select a route first --</option>';
+                    document.getElementById('trainClassSelect').innerHTML = '<option value="">-- Select a route first --</option>';
+                    document.getElementById('trainClassSelect').disabled = true;
+                    document.getElementById('trainSelect').innerHTML = '<option value="">-- Select a train class first --</option>';
                     document.getElementById('trainSelect').disabled = true;
                     document.getElementById('timetableSelect').innerHTML = '<option value="">-- Select a train first --</option>';
                     document.getElementById('timetableSelect').disabled = true;
@@ -1421,27 +1485,52 @@
             }
         }
 
-        // Helper to select route/train/timetable by timetable ID
+        // Helper to select route/class/train/timetable by timetable ID
         async function selectTimetableById(timetableId) {
             // Find the timetable in our cached list
             const timetable = allTimetables.find(t => t.id == timetableId);
             if (!timetable) return false;
 
-            // Set route dropdown and trigger train load
+            // Set route dropdown and trigger train class load
             const routeSelect = document.getElementById('routeSelect');
             routeSelect.value = timetable.route_id;
-            await loadTrainsForRoute(timetable.route_id);
+            await loadTrainClassesForRoute(timetable.route_id);
 
-            // Set train dropdown and trigger timetable load
-            const trainSelect = document.getElementById('trainSelect');
-            trainSelect.value = timetable.train_id;
-            loadTimetablesForRouteAndTrain(timetable.route_id, timetable.train_id);
+            // Find the train's class
+            // Get the first train from timetable (train_ids array or legacy train_id)
+            const trainId = timetable.train_ids && timetable.train_ids.length > 0
+                ? timetable.train_ids[0]
+                : timetable.train_id;
 
-            // Set timetable dropdown
-            const timetableSelect = document.getElementById('timetableSelect');
-            timetableSelect.value = timetableId;
+            if (trainId) {
+                try {
+                    // Get the train to find its class
+                    const trainResponse = await fetch('/api/trains/' + trainId);
+                    const train = await trainResponse.json();
 
-            return true;
+                    if (train.class_id) {
+                        // Set train class dropdown and trigger train load
+                        const trainClassSelect = document.getElementById('trainClassSelect');
+                        trainClassSelect.value = train.class_id;
+                        await loadTrainsForClass(timetable.route_id, train.class_id);
+
+                        // Set train dropdown and trigger timetable load
+                        const trainSelect = document.getElementById('trainSelect');
+                        trainSelect.value = trainId;
+                        loadTimetablesForRouteAndTrain(timetable.route_id, trainId);
+
+                        // Set timetable dropdown
+                        const timetableSelect = document.getElementById('timetableSelect');
+                        timetableSelect.value = timetableId;
+
+                        return true;
+                    }
+                } catch (err) {
+                    console.error('Error getting train details:', err);
+                }
+            }
+
+            return false;
         }
 
         // Check for any existing recording file and auto-load it

@@ -77,7 +77,6 @@
 
     <nav class="nav">
         <a href="/countries">Countries</a>
-        
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
         <a href="/record">Record Map</a>
@@ -85,6 +84,7 @@
         <a href="/settings">Settings</a>
         <a href="/timetables">Timetables</a>
         <a href="/map">Tracking Map</a>
+        <a href="/train-classes">Train Classes</a>
         <a href="/trains">Trains</a>
         <a href="/weather">Weather</a>
     </nav>
@@ -172,10 +172,10 @@
             }
         }
 
-        // Track selected route/train for typeaheads
+        // Track selected route for typeahead
         let selectedRouteId = null;
-        let selectedTrainId = null;
-        let routeTrains = []; // Trains available for selected route
+        let timetableTrains = []; // Trains assigned to this timetable
+        let routeTrainClasses = []; // Train classes available for selected route
         let routeActiveIndex = -1;
         let trainActiveIndex = -1;
 
@@ -184,11 +184,10 @@
             document.title = (timetable.service_name || 'Timetable') + ' - TSW HUD Project';
 
             const route = allRoutes.find(function(r) { return r.id == timetable.route_id; });
-            const train = allTrains.find(function(t) { return t.id == timetable.train_id; });
 
             // Initialize selected IDs from timetable
             selectedRouteId = timetable.route_id || null;
-            selectedTrainId = timetable.train_id || null;
+            timetableTrains = timetable.trains || [];
 
             let html = '';
             html += '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + timetable.id + '</span></div>';
@@ -205,15 +204,11 @@
             html += '<button type="button" class="clear-btn" onclick="clearRoute()">Clear</button>';
             html += '</span></div>';
 
-            // Train typeahead
-            html += '<div class="detail-row"><span class="detail-label">Train:</span><span class="detail-value typeahead-row">';
-            html += '<div class="typeahead-wrapper">';
-            html += '<input type="text" class="typeahead-input" id="trainSearch" placeholder="' + (selectedRouteId ? 'Type to search trains...' : 'Select a route first') + '" autocomplete="off" value="' + (train ? escapeHtml(train.name) : '') + '"' + (selectedRouteId ? '' : ' disabled') + '>';
-            html += '<div class="typeahead-dropdown" id="trainDropdown"></div>';
+            // Trains section (multi-train)
+            html += '<div class="detail-row" style="align-items: flex-start;"><span class="detail-label">Trains:</span><span class="detail-value">';
+            html += '<div id="trainsSection">';
+            html += renderTrainsSection();
             html += '</div>';
-            if (train) html += '<a href="/trains/' + train.id + '" class="view-link" id="trainViewLink">View</a>';
-            else html += '<span id="trainViewLink"></span>';
-            html += '<button type="button" class="clear-btn" onclick="clearTrain()">Clear</button>';
             html += '</span></div>';
 
             html += '<div class="detail-row"><span class="detail-label">Created:</span><span class="detail-value">' + (timetable.created_at || '-') + '</span></div>';
@@ -222,23 +217,80 @@
 
             // Setup typeahead event handlers
             setupRouteTypeahead();
-            setupTrainTypeahead();
+            setupAddTrainTypeahead();
 
-            // Load trains for selected route
+            // Load train classes for selected route
             if (selectedRouteId) {
-                loadRouteTrains(selectedRouteId);
+                loadRouteTrainClasses(selectedRouteId);
             }
         }
 
-        // Load trains for a specific route
-        async function loadRouteTrains(routeId) {
-            try {
-                const response = await fetch('/api/routes/' + routeId + '/trains');
-                routeTrains = await response.json();
-            } catch (error) {
-                console.error('Error loading route trains:', error);
-                routeTrains = [];
+        function renderTrainsSection() {
+            let html = '';
+
+            if (timetableTrains.length === 0) {
+                html += '<p style="color: var(--text-muted); margin: 0 0 10px 0;">No trains assigned.</p>';
+            } else {
+                html += '<div style="margin-bottom: 10px;">';
+                timetableTrains.forEach(function(train) {
+                    html += '<div style="display: flex; align-items: center; gap: 10px; padding: 5px 0;">';
+                    html += '<a href="/trains/' + train.id + '">' + escapeHtml(train.name) + '</a>';
+                    if (train.class_name) {
+                        html += '<span style="color: var(--text-muted); font-size: 12px;">(' + escapeHtml(train.class_name) + ')</span>';
+                    }
+                    html += '<button class="btn-danger" style="padding: 2px 8px; font-size: 11px;" onclick="removeTrain(' + train.id + ')">Remove</button>';
+                    html += '</div>';
+                });
+                html += '</div>';
             }
+
+            // Add train section
+            html += '<div class="typeahead-row" style="margin-top: 10px;">';
+            html += '<div class="typeahead-wrapper">';
+            html += '<input type="text" class="typeahead-input" id="addTrainSearch" placeholder="' + (selectedRouteId ? 'Type to search trains to add...' : 'Select a route first') + '" autocomplete="off"' + (selectedRouteId ? '' : ' disabled') + ' style="font-size: 14px; padding: 8px;">';
+            html += '<div class="typeahead-dropdown" id="addTrainDropdown"></div>';
+            html += '</div>';
+            html += '</div>';
+
+            return html;
+        }
+
+        function refreshTrainsSection() {
+            document.getElementById('trainsSection').innerHTML = renderTrainsSection();
+            setupAddTrainTypeahead();
+        }
+
+        // Load train classes for a specific route
+        async function loadRouteTrainClasses(routeId) {
+            try {
+                const response = await fetch('/api/routes/' + routeId + '/train-classes');
+                routeTrainClasses = await response.json();
+            } catch (error) {
+                console.error('Error loading route train classes:', error);
+                routeTrainClasses = [];
+            }
+        }
+
+        // Get all trains from the route's train classes (for the dropdown)
+        async function getAvailableTrainsForRoute(routeId) {
+            let available = [];
+            for (const cls of routeTrainClasses) {
+                try {
+                    const response = await fetch('/api/routes/' + routeId + '/train-classes/' + cls.id + '/trains');
+                    const trains = await response.json();
+                    trains.forEach(function(t) {
+                        t.class_name = cls.name;
+                        // Only add if not already in timetable
+                        const alreadyAdded = timetableTrains.some(function(tt) { return tt.id === t.id; });
+                        if (!alreadyAdded) {
+                            available.push(t);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error loading trains for class:', error);
+                }
+            }
+            return available;
         }
 
         // Route typeahead functions
@@ -272,7 +324,6 @@
             const searchInput = document.getElementById('routeSearch');
             const dropdown = document.getElementById('routeDropdown');
             const viewLink = document.getElementById('routeViewLink');
-            const trainSearch = document.getElementById('trainSearch');
 
             searchInput.value = name;
             selectedRouteId = id;
@@ -282,13 +333,11 @@
             // Update view link
             viewLink.outerHTML = '<a href="/routes/' + id + '" class="view-link" id="routeViewLink">View</a>';
 
-            // Clear train selection when route changes
-            clearTrain();
+            // Load train classes for the new route
+            await loadRouteTrainClasses(id);
 
-            // Enable train search and load route trains
-            trainSearch.disabled = false;
-            trainSearch.placeholder = 'Type to search trains...';
-            await loadRouteTrains(id);
+            // Refresh the trains section to enable adding trains
+            refreshTrainsSection();
 
             markUnsaved();
         }
@@ -296,17 +345,16 @@
         function clearRoute() {
             const searchInput = document.getElementById('routeSearch');
             const viewLink = document.getElementById('routeViewLink');
-            const trainSearch = document.getElementById('trainSearch');
 
             searchInput.value = '';
             selectedRouteId = null;
             viewLink.outerHTML = '<span id="routeViewLink"></span>';
 
-            // Clear and disable train
-            clearTrain();
-            trainSearch.disabled = true;
-            trainSearch.placeholder = 'Select a route first';
-            routeTrains = [];
+            // Clear route train classes
+            routeTrainClasses = [];
+
+            // Refresh trains section to disable adding trains
+            refreshTrainsSection();
 
             markUnsaved();
         }
@@ -322,11 +370,9 @@
                 const filtered = filterRoutes(searchInput.value.trim());
                 renderRouteDropdown(filtered);
 
-                // Clear and disable train when route is being edited
-                clearTrain();
-                document.getElementById('trainSearch').disabled = true;
-                document.getElementById('trainSearch').placeholder = 'Select a route first';
-                routeTrains = [];
+                // Clear route train classes when route is being edited
+                routeTrainClasses = [];
+                refreshTrainsSection();
 
                 markUnsaved();
             });
@@ -369,77 +415,105 @@
             });
         }
 
-        // Train typeahead functions
-        function filterTrains(query) {
-            if (!query) return routeTrains.slice(0, 10);
+        // Add train typeahead functions (for multi-train)
+        let availableTrains = [];
+
+        async function filterAddTrains(query) {
+            // Get available trains (not already added)
+            availableTrains = await getAvailableTrainsForRoute(selectedRouteId);
+            if (!query) return availableTrains.slice(0, 10);
             const lowerQuery = query.toLowerCase();
-            return routeTrains.filter(function(t) {
+            return availableTrains.filter(function(t) {
                 return t.name.toLowerCase().includes(lowerQuery);
             }).slice(0, 10);
         }
 
-        function renderTrainDropdown(trains) {
-            const dropdown = document.getElementById('trainDropdown');
+        function renderAddTrainDropdown(trains) {
+            const dropdown = document.getElementById('addTrainDropdown');
+            if (!dropdown) return;
+
             if (trains.length === 0) {
-                dropdown.innerHTML = '<div class="typeahead-empty">No trains found for this route</div>';
+                dropdown.innerHTML = '<div class="typeahead-empty">No trains available</div>';
             } else {
                 dropdown.innerHTML = trains.map(function(train, index) {
-                    return '<div class="typeahead-item' + (index === trainActiveIndex ? ' active' : '') + '" data-id="' + train.id + '" data-name="' + escapeHtml(train.name) + '">' + escapeHtml(train.name) + '</div>';
+                    let label = escapeHtml(train.name);
+                    if (train.class_name) {
+                        label += ' <span style="color: var(--text-muted);">(' + escapeHtml(train.class_name) + ')</span>';
+                    }
+                    return '<div class="typeahead-item' + (index === trainActiveIndex ? ' active' : '') + '" data-id="' + train.id + '" data-name="' + escapeHtml(train.name) + '">' + label + '</div>';
                 }).join('');
 
                 dropdown.querySelectorAll('.typeahead-item').forEach(function(item) {
                     item.addEventListener('click', function() {
-                        selectTrain(parseInt(item.dataset.id), item.dataset.name);
+                        addTrainToTimetable(parseInt(item.dataset.id), item.dataset.name);
                     });
                 });
             }
             dropdown.classList.add('show');
         }
 
-        function selectTrain(id, name) {
-            const searchInput = document.getElementById('trainSearch');
-            const dropdown = document.getElementById('trainDropdown');
-            const viewLink = document.getElementById('trainViewLink');
+        async function addTrainToTimetable(trainId, trainName) {
+            const dropdown = document.getElementById('addTrainDropdown');
+            const searchInput = document.getElementById('addTrainSearch');
 
-            searchInput.value = name;
-            selectedTrainId = id;
             dropdown.classList.remove('show');
+            searchInput.value = '';
             trainActiveIndex = -1;
 
-            // Update view link
-            viewLink.outerHTML = '<a href="/trains/' + id + '" class="view-link" id="trainViewLink">View</a>';
+            try {
+                await fetch('/api/timetables/' + timetableId + '/trains', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ train_id: trainId })
+                });
 
-            markUnsaved();
+                // Find the train in availableTrains to get class info
+                const train = availableTrains.find(function(t) { return t.id === trainId; });
+                if (train) {
+                    timetableTrains.push(train);
+                } else {
+                    timetableTrains.push({ id: trainId, name: trainName });
+                }
+
+                refreshTrainsSection();
+            } catch (error) {
+                console.error('Error adding train:', error);
+                alert('Error adding train to timetable');
+            }
         }
 
-        function clearTrain() {
-            const searchInput = document.getElementById('trainSearch');
-            const viewLink = document.getElementById('trainViewLink');
+        async function removeTrain(trainId) {
+            if (!confirm('Remove this train from the timetable?')) return;
 
-            searchInput.value = '';
-            selectedTrainId = null;
-            viewLink.outerHTML = '<span id="trainViewLink"></span>';
+            try {
+                await fetch('/api/timetables/' + timetableId + '/trains/' + trainId, {
+                    method: 'DELETE'
+                });
 
-            markUnsaved();
+                timetableTrains = timetableTrains.filter(function(t) { return t.id !== trainId; });
+                refreshTrainsSection();
+            } catch (error) {
+                console.error('Error removing train:', error);
+                alert('Error removing train from timetable');
+            }
         }
 
-        function setupTrainTypeahead() {
-            const searchInput = document.getElementById('trainSearch');
-            const dropdown = document.getElementById('trainDropdown');
+        function setupAddTrainTypeahead() {
+            const searchInput = document.getElementById('addTrainSearch');
+            const dropdown = document.getElementById('addTrainDropdown');
 
-            searchInput.addEventListener('input', function() {
-                selectedTrainId = null;
-                document.getElementById('trainViewLink').outerHTML = '<span id="trainViewLink"></span>';
+            if (!searchInput || !dropdown) return;
+
+            searchInput.addEventListener('input', async function() {
                 trainActiveIndex = -1;
-                const filtered = filterTrains(searchInput.value.trim());
-                renderTrainDropdown(filtered);
-                markUnsaved();
+                const filtered = await filterAddTrains(searchInput.value.trim());
+                renderAddTrainDropdown(filtered);
             });
 
-            searchInput.addEventListener('focus', function() {
+            searchInput.addEventListener('focus', async function() {
                 if (!searchInput.disabled) {
-                    const filtered = filterTrains(searchInput.value.trim());
-                    renderTrainDropdown(filtered);
+                    const filtered = await filterAddTrains(searchInput.value.trim());
+                    renderAddTrainDropdown(filtered);
                 }
             });
 
@@ -448,15 +522,15 @@
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
                     trainActiveIndex = Math.min(trainActiveIndex + 1, items.length - 1);
-                    updateActiveTrainItem(items);
+                    updateActiveAddTrainItem(items);
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
                     trainActiveIndex = Math.max(trainActiveIndex - 1, 0);
-                    updateActiveTrainItem(items);
+                    updateActiveAddTrainItem(items);
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
                     if (trainActiveIndex >= 0 && items[trainActiveIndex]) {
-                        selectTrain(parseInt(items[trainActiveIndex].dataset.id), items[trainActiveIndex].dataset.name);
+                        addTrainToTimetable(parseInt(items[trainActiveIndex].dataset.id), items[trainActiveIndex].dataset.name);
                     }
                 } else if (e.key === 'Escape') {
                     dropdown.classList.remove('show');
@@ -465,7 +539,7 @@
             });
         }
 
-        function updateActiveTrainItem(items) {
+        function updateActiveAddTrainItem(items) {
             items.forEach(function(item, index) {
                 if (index === trainActiveIndex) {
                     item.classList.add('active');
@@ -480,9 +554,9 @@
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.typeahead-wrapper')) {
                 const routeDropdown = document.getElementById('routeDropdown');
-                const trainDropdown = document.getElementById('trainDropdown');
+                const addTrainDropdown = document.getElementById('addTrainDropdown');
                 if (routeDropdown) routeDropdown.classList.remove('show');
-                if (trainDropdown) trainDropdown.classList.remove('show');
+                if (addTrainDropdown) addTrainDropdown.classList.remove('show');
                 routeActiveIndex = -1;
                 trainActiveIndex = -1;
             }
@@ -633,13 +707,12 @@
 
         async function saveChanges() {
             try {
-                // Update timetable service name, route, and train
+                // Update timetable service name and route (trains are managed via junction table)
                 const serviceName = document.getElementById('serviceNameInput').value.trim();
 
                 const updateData = {
                     service_name: serviceName,
-                    route_id: selectedRouteId,
-                    train_id: selectedTrainId
+                    route_id: selectedRouteId
                 };
 
                 const updateRes = await fetch('/api/timetables/' + timetableId, {
@@ -648,8 +721,14 @@
                     body: JSON.stringify(updateData)
                 });
 
+                if (!updateRes.ok) {
+                    const error = await updateRes.json();
+                    throw new Error(error.error || 'Failed to update timetable');
+                }
+
                 const updatedTimetable = await updateRes.json();
                 timetable = { ...timetable, ...updatedTimetable };
+                timetable.trains = timetableTrains;
 
                 // Update/create/delete entries
                 for (var i = 0; i < entries.length; i++) {
@@ -847,10 +926,15 @@
             }
         });
 
-        // Theme initialization
+        // Theme and color scheme initialization
         (function() {
             var theme = localStorage.getItem('theme') || 'dark';
             document.body.setAttribute('data-theme', theme);
+
+            var colorScheme = localStorage.getItem('colorScheme');
+            if (colorScheme && colorScheme !== 'default') {
+                document.body.setAttribute('data-color-scheme', colorScheme);
+            }
         })();
 
         loadData();

@@ -1,0 +1,1626 @@
+[
+    {
+        "route_id": 1,
+        "class_id": 1
+    },
+    {
+        "route_id": 1,
+        "class_id": 2
+    },
+    {
+        "route_id": 2,
+        "class_id": 3
+    },
+    {
+        "route_id": 3,
+        "class_id": 4
+    },
+    {
+        "route_id": 4,
+        "class_id": 5
+    },
+    {
+        "route_id": 4,
+        "class_id": 6
+    },
+    {
+        "route_id": 5,
+        "class_id": 7
+    },
+    {
+        "route_id": 5,
+        "class_id": 8
+    },
+    {
+        "route_id": 6,
+        "class_id": 1
+    },
+    {
+        "route_id": 6,
+        "class_id": 9
+    },
+    {
+        "route_id": 7,
+        "class_id": 10
+    },
+    {
+        "route_id": 7,
+        "class_id": 8
+    },
+    {
+        "route_id": 8,
+        "class_id": 11
+    },
+    {
+        "route_id": 8,
+        "class_id": 2
+    },
+    {
+        "route_id": 9,
+        "class_id": 12
+    },
+    {
+        "route_id": 10,
+        "class_id": 13
+    },
+    {
+        "route_id": 10,
+        "class_id": 14
+    },
+    {
+        "route_id": 10,
+        "class_id": 15
+    },
+    {
+        "route_id": 10,
+        "class_id": 16
+    },
+    {
+        "route_id": 10,
+        "class_id": 17
+    },
+    {
+        "route_id": 10,
+        "class_id": 18
+    },
+    {
+        "route_id": 10,
+        "class_id": 19
+    },
+    {
+        "route_id": 10,
+        "class_id": 20
+    },
+    {
+        "route_id": 10,
+        "class_id": 21
+    },
+    {
+        "route_id": 10,
+        "class_id": 22
+    },
+    {
+        "route_id": 10,
+        "class_id": 23
+    },
+    {
+        "route_id": 10,
+        "class_id": 24
+    },
+    {
+        "route_id": 10,
+        "class_id": 25
+    },
+    {
+        "route_id": 10,
+        "class_id": 26
+    },
+    {
+        "route_id": 10,
+        "class_id": 27
+    },
+    {
+        "route_id": 10,
+        "class_id": 28
+    },
+    {
+        "route_id": 10,
+        "class_id": 29
+    },
+    {
+        "route_id": 10,
+        "class_id": 30
+    },
+    {
+        "route_id": 10,
+        "class_id": 31
+    },
+    {
+        "route_id": 10,
+        "class_id": 32
+    },
+    {
+        "route_id": 11,
+        "class_id": 33
+    },
+    {
+        "route_id": 11,
+        "class_id": 34
+    },
+    {
+        "route_id": 11,
+        "class_id": 35
+    },
+    {
+        "route_id": 11,
+        "class_id": 36
+    },
+    {
+        "route_id": 11,
+        "class_id": 37
+    },
+    {
+        "route_id": 12,
+        "class_id": 38
+    },
+    {
+        "route_id": 12,
+        "class_id": 39
+    },
+    {
+        "route_id": 12,
+        "class_id": 40
+    },
+    {
+        "route_id": 12,
+        "class_id": 41
+    },
+    {
+        "route_id": 13,
+        "class_id": 42
+    },
+    {
+        "route_id": 13,
+        "class_id": 43
+    },
+    {
+        "route_id": 13,
+        "class_id": 44
+    },
+    {
+        "route_id": 14,
+        "class_id": 45
+    },
+    {
+        "route_id": 14,
+        "class_id": 46
+    },
+    {
+        "route_id": 14,
+        "class_id": 47
+    },
+    {
+        "route_id": 14,
+        "class_id": 34
+    },
+    {
+        "route_id": 14,
+        "class_id": 48
+    },
+    {
+        "route_id": 14,
+        "class_id": 49
+    },
+    {
+        "route_id": 14,
+        "class_id": 36
+    },
+    {
+        "route_id": 15,
+        "class_id": 50
+    },
+    {
+        "route_id": 15,
+        "class_id": 51
+    },
+    {
+        "route_id": 16,
+        "class_id": 52
+    },
+    {
+        "route_id": 16,
+        "class_id": 53
+    },
+    {
+        "route_id": 16,
+        "class_id": 54
+    },
+    {
+        "route_id": 16,
+        "class_id": 46
+    },
+    {
+        "route_id": 16,
+        "class_id": 55
+    },
+    {
+        "route_id": 16,
+        "class_id": 49
+    },
+    {
+        "route_id": 16,
+        "class_id": 56
+    },
+    {
+        "route_id": 17,
+        "class_id": 46
+    },
+    {
+        "route_id": 17,
+        "class_id": 57
+    },
+    {
+        "route_id": 17,
+        "class_id": 34
+    },
+    {
+        "route_id": 17,
+        "class_id": 48
+    },
+    {
+        "route_id": 17,
+        "class_id": 58
+    },
+    {
+        "route_id": 17,
+        "class_id": 59
+    },
+    {
+        "route_id": 17,
+        "class_id": 55
+    },
+    {
+        "route_id": 17,
+        "class_id": 49
+    },
+    {
+        "route_id": 17,
+        "class_id": 60
+    },
+    {
+        "route_id": 17,
+        "class_id": 36
+    },
+    {
+        "route_id": 17,
+        "class_id": 37
+    },
+    {
+        "route_id": 18,
+        "class_id": 45
+    },
+    {
+        "route_id": 18,
+        "class_id": 61
+    },
+    {
+        "route_id": 18,
+        "class_id": 34
+    },
+    {
+        "route_id": 18,
+        "class_id": 59
+    },
+    {
+        "route_id": 18,
+        "class_id": 36
+    },
+    {
+        "route_id": 18,
+        "class_id": 37
+    },
+    {
+        "route_id": 18,
+        "class_id": 62
+    },
+    {
+        "route_id": 19,
+        "class_id": 63
+    },
+    {
+        "route_id": 19,
+        "class_id": 35
+    },
+    {
+        "route_id": 19,
+        "class_id": 60
+    },
+    {
+        "route_id": 19,
+        "class_id": 36
+    },
+    {
+        "route_id": 19,
+        "class_id": 37
+    },
+    {
+        "route_id": 20,
+        "class_id": 64
+    },
+    {
+        "route_id": 20,
+        "class_id": 65
+    },
+    {
+        "route_id": 21,
+        "class_id": 13
+    },
+    {
+        "route_id": 21,
+        "class_id": 66
+    },
+    {
+        "route_id": 21,
+        "class_id": 67
+    },
+    {
+        "route_id": 21,
+        "class_id": 16
+    },
+    {
+        "route_id": 21,
+        "class_id": 17
+    },
+    {
+        "route_id": 21,
+        "class_id": 18
+    },
+    {
+        "route_id": 21,
+        "class_id": 19
+    },
+    {
+        "route_id": 21,
+        "class_id": 20
+    },
+    {
+        "route_id": 21,
+        "class_id": 21
+    },
+    {
+        "route_id": 21,
+        "class_id": 22
+    },
+    {
+        "route_id": 21,
+        "class_id": 23
+    },
+    {
+        "route_id": 21,
+        "class_id": 24
+    },
+    {
+        "route_id": 21,
+        "class_id": 25
+    },
+    {
+        "route_id": 21,
+        "class_id": 26
+    },
+    {
+        "route_id": 21,
+        "class_id": 27
+    },
+    {
+        "route_id": 21,
+        "class_id": 68
+    },
+    {
+        "route_id": 21,
+        "class_id": 32
+    },
+    {
+        "route_id": 21,
+        "class_id": 69
+    },
+    {
+        "route_id": 22,
+        "class_id": 15
+    },
+    {
+        "route_id": 22,
+        "class_id": 66
+    },
+    {
+        "route_id": 22,
+        "class_id": 70
+    },
+    {
+        "route_id": 22,
+        "class_id": 67
+    },
+    {
+        "route_id": 22,
+        "class_id": 16
+    },
+    {
+        "route_id": 22,
+        "class_id": 17
+    },
+    {
+        "route_id": 22,
+        "class_id": 18
+    },
+    {
+        "route_id": 22,
+        "class_id": 19
+    },
+    {
+        "route_id": 22,
+        "class_id": 20
+    },
+    {
+        "route_id": 22,
+        "class_id": 21
+    },
+    {
+        "route_id": 22,
+        "class_id": 22
+    },
+    {
+        "route_id": 22,
+        "class_id": 23
+    },
+    {
+        "route_id": 22,
+        "class_id": 25
+    },
+    {
+        "route_id": 22,
+        "class_id": 71
+    },
+    {
+        "route_id": 22,
+        "class_id": 72
+    },
+    {
+        "route_id": 22,
+        "class_id": 29
+    },
+    {
+        "route_id": 22,
+        "class_id": 69
+    },
+    {
+        "route_id": 23,
+        "class_id": 13
+    },
+    {
+        "route_id": 23,
+        "class_id": 15
+    },
+    {
+        "route_id": 23,
+        "class_id": 66
+    },
+    {
+        "route_id": 23,
+        "class_id": 70
+    },
+    {
+        "route_id": 23,
+        "class_id": 67
+    },
+    {
+        "route_id": 23,
+        "class_id": 16
+    },
+    {
+        "route_id": 23,
+        "class_id": 17
+    },
+    {
+        "route_id": 23,
+        "class_id": 18
+    },
+    {
+        "route_id": 23,
+        "class_id": 19
+    },
+    {
+        "route_id": 23,
+        "class_id": 21
+    },
+    {
+        "route_id": 23,
+        "class_id": 22
+    },
+    {
+        "route_id": 23,
+        "class_id": 25
+    },
+    {
+        "route_id": 23,
+        "class_id": 73
+    },
+    {
+        "route_id": 23,
+        "class_id": 29
+    },
+    {
+        "route_id": 23,
+        "class_id": 69
+    },
+    {
+        "route_id": 24,
+        "class_id": 74
+    },
+    {
+        "route_id": 25,
+        "class_id": 75
+    },
+    {
+        "route_id": 26,
+        "class_id": 14
+    },
+    {
+        "route_id": 26,
+        "class_id": 15
+    },
+    {
+        "route_id": 26,
+        "class_id": 28
+    },
+    {
+        "route_id": 26,
+        "class_id": 76
+    },
+    {
+        "route_id": 26,
+        "class_id": 77
+    },
+    {
+        "route_id": 27,
+        "class_id": 63
+    },
+    {
+        "route_id": 27,
+        "class_id": 57
+    },
+    {
+        "route_id": 27,
+        "class_id": 78
+    },
+    {
+        "route_id": 27,
+        "class_id": 58
+    },
+    {
+        "route_id": 27,
+        "class_id": 79
+    },
+    {
+        "route_id": 27,
+        "class_id": 60
+    },
+    {
+        "route_id": 27,
+        "class_id": 36
+    },
+    {
+        "route_id": 27,
+        "class_id": 37
+    },
+    {
+        "route_id": 28,
+        "class_id": 80
+    },
+    {
+        "route_id": 28,
+        "class_id": 81
+    },
+    {
+        "route_id": 29,
+        "class_id": 82
+    },
+    {
+        "route_id": 29,
+        "class_id": 83
+    },
+    {
+        "route_id": 30,
+        "class_id": 84
+    },
+    {
+        "route_id": 31,
+        "class_id": 15
+    },
+    {
+        "route_id": 31,
+        "class_id": 66
+    },
+    {
+        "route_id": 31,
+        "class_id": 70
+    },
+    {
+        "route_id": 31,
+        "class_id": 67
+    },
+    {
+        "route_id": 31,
+        "class_id": 16
+    },
+    {
+        "route_id": 31,
+        "class_id": 17
+    },
+    {
+        "route_id": 31,
+        "class_id": 18
+    },
+    {
+        "route_id": 31,
+        "class_id": 19
+    },
+    {
+        "route_id": 31,
+        "class_id": 21
+    },
+    {
+        "route_id": 31,
+        "class_id": 22
+    },
+    {
+        "route_id": 31,
+        "class_id": 25
+    },
+    {
+        "route_id": 31,
+        "class_id": 85
+    },
+    {
+        "route_id": 31,
+        "class_id": 69
+    },
+    {
+        "route_id": 32,
+        "class_id": 13
+    },
+    {
+        "route_id": 32,
+        "class_id": 15
+    },
+    {
+        "route_id": 32,
+        "class_id": 66
+    },
+    {
+        "route_id": 32,
+        "class_id": 70
+    },
+    {
+        "route_id": 32,
+        "class_id": 67
+    },
+    {
+        "route_id": 32,
+        "class_id": 16
+    },
+    {
+        "route_id": 32,
+        "class_id": 17
+    },
+    {
+        "route_id": 32,
+        "class_id": 18
+    },
+    {
+        "route_id": 32,
+        "class_id": 19
+    },
+    {
+        "route_id": 32,
+        "class_id": 20
+    },
+    {
+        "route_id": 32,
+        "class_id": 21
+    },
+    {
+        "route_id": 32,
+        "class_id": 22
+    },
+    {
+        "route_id": 32,
+        "class_id": 23
+    },
+    {
+        "route_id": 32,
+        "class_id": 25
+    },
+    {
+        "route_id": 32,
+        "class_id": 26
+    },
+    {
+        "route_id": 32,
+        "class_id": 68
+    },
+    {
+        "route_id": 32,
+        "class_id": 86
+    },
+    {
+        "route_id": 32,
+        "class_id": 69
+    },
+    {
+        "route_id": 33,
+        "class_id": 38
+    },
+    {
+        "route_id": 33,
+        "class_id": 87
+    },
+    {
+        "route_id": 33,
+        "class_id": 88
+    },
+    {
+        "route_id": 33,
+        "class_id": 39
+    },
+    {
+        "route_id": 33,
+        "class_id": 89
+    },
+    {
+        "route_id": 34,
+        "class_id": 90
+    },
+    {
+        "route_id": 34,
+        "class_id": 76
+    },
+    {
+        "route_id": 35,
+        "class_id": 52
+    },
+    {
+        "route_id": 35,
+        "class_id": 53
+    },
+    {
+        "route_id": 35,
+        "class_id": 54
+    },
+    {
+        "route_id": 35,
+        "class_id": 59
+    },
+    {
+        "route_id": 35,
+        "class_id": 55
+    },
+    {
+        "route_id": 35,
+        "class_id": 49
+    },
+    {
+        "route_id": 36,
+        "class_id": 91
+    },
+    {
+        "route_id": 36,
+        "class_id": 92
+    },
+    {
+        "route_id": 37,
+        "class_id": 93
+    },
+    {
+        "route_id": 37,
+        "class_id": 94
+    },
+    {
+        "route_id": 37,
+        "class_id": 95
+    },
+    {
+        "route_id": 37,
+        "class_id": 96
+    },
+    {
+        "route_id": 37,
+        "class_id": 97
+    },
+    {
+        "route_id": 37,
+        "class_id": 98
+    },
+    {
+        "route_id": 38,
+        "class_id": 99
+    },
+    {
+        "route_id": 38,
+        "class_id": 18
+    },
+    {
+        "route_id": 38,
+        "class_id": 69
+    },
+    {
+        "route_id": 39,
+        "class_id": 70
+    },
+    {
+        "route_id": 39,
+        "class_id": 99
+    },
+    {
+        "route_id": 39,
+        "class_id": 18
+    },
+    {
+        "route_id": 39,
+        "class_id": 69
+    },
+    {
+        "route_id": 40,
+        "class_id": 15
+    },
+    {
+        "route_id": 40,
+        "class_id": 66
+    },
+    {
+        "route_id": 40,
+        "class_id": 70
+    },
+    {
+        "route_id": 40,
+        "class_id": 67
+    },
+    {
+        "route_id": 40,
+        "class_id": 16
+    },
+    {
+        "route_id": 40,
+        "class_id": 17
+    },
+    {
+        "route_id": 40,
+        "class_id": 18
+    },
+    {
+        "route_id": 40,
+        "class_id": 19
+    },
+    {
+        "route_id": 40,
+        "class_id": 20
+    },
+    {
+        "route_id": 40,
+        "class_id": 21
+    },
+    {
+        "route_id": 40,
+        "class_id": 22
+    },
+    {
+        "route_id": 40,
+        "class_id": 23
+    },
+    {
+        "route_id": 40,
+        "class_id": 73
+    },
+    {
+        "route_id": 40,
+        "class_id": 32
+    },
+    {
+        "route_id": 41,
+        "class_id": 66
+    },
+    {
+        "route_id": 41,
+        "class_id": 70
+    },
+    {
+        "route_id": 41,
+        "class_id": 16
+    },
+    {
+        "route_id": 41,
+        "class_id": 17
+    },
+    {
+        "route_id": 41,
+        "class_id": 18
+    },
+    {
+        "route_id": 41,
+        "class_id": 19
+    },
+    {
+        "route_id": 41,
+        "class_id": 21
+    },
+    {
+        "route_id": 41,
+        "class_id": 22
+    },
+    {
+        "route_id": 41,
+        "class_id": 27
+    },
+    {
+        "route_id": 41,
+        "class_id": 69
+    },
+    {
+        "route_id": 42,
+        "class_id": 100
+    },
+    {
+        "route_id": 42,
+        "class_id": 101
+    },
+    {
+        "route_id": 42,
+        "class_id": 102
+    },
+    {
+        "route_id": 42,
+        "class_id": 44
+    },
+    {
+        "route_id": 42,
+        "class_id": 103
+    },
+    {
+        "route_id": 42,
+        "class_id": 104
+    },
+    {
+        "route_id": 43,
+        "class_id": 13
+    },
+    {
+        "route_id": 43,
+        "class_id": 16
+    },
+    {
+        "route_id": 43,
+        "class_id": 17
+    },
+    {
+        "route_id": 43,
+        "class_id": 18
+    },
+    {
+        "route_id": 43,
+        "class_id": 19
+    },
+    {
+        "route_id": 43,
+        "class_id": 20
+    },
+    {
+        "route_id": 43,
+        "class_id": 21
+    },
+    {
+        "route_id": 43,
+        "class_id": 22
+    },
+    {
+        "route_id": 43,
+        "class_id": 23
+    },
+    {
+        "route_id": 43,
+        "class_id": 24
+    },
+    {
+        "route_id": 43,
+        "class_id": 25
+    },
+    {
+        "route_id": 43,
+        "class_id": 28
+    },
+    {
+        "route_id": 43,
+        "class_id": 71
+    },
+    {
+        "route_id": 44,
+        "class_id": 13
+    },
+    {
+        "route_id": 44,
+        "class_id": 15
+    },
+    {
+        "route_id": 44,
+        "class_id": 66
+    },
+    {
+        "route_id": 44,
+        "class_id": 70
+    },
+    {
+        "route_id": 44,
+        "class_id": 67
+    },
+    {
+        "route_id": 44,
+        "class_id": 21
+    },
+    {
+        "route_id": 44,
+        "class_id": 22
+    },
+    {
+        "route_id": 44,
+        "class_id": 25
+    },
+    {
+        "route_id": 44,
+        "class_id": 68
+    },
+    {
+        "route_id": 44,
+        "class_id": 105
+    },
+    {
+        "route_id": 44,
+        "class_id": 29
+    },
+    {
+        "route_id": 44,
+        "class_id": 106
+    },
+    {
+        "route_id": 44,
+        "class_id": 69
+    },
+    {
+        "route_id": 45,
+        "class_id": 107
+    },
+    {
+        "route_id": 45,
+        "class_id": 108
+    },
+    {
+        "route_id": 45,
+        "class_id": 78
+    },
+    {
+        "route_id": 45,
+        "class_id": 109
+    },
+    {
+        "route_id": 45,
+        "class_id": 110
+    },
+    {
+        "route_id": 45,
+        "class_id": 111
+    },
+    {
+        "route_id": 45,
+        "class_id": 49
+    },
+    {
+        "route_id": 45,
+        "class_id": 36
+    },
+    {
+        "route_id": 45,
+        "class_id": 37
+    },
+    {
+        "route_id": 45,
+        "class_id": 112
+    },
+    {
+        "route_id": 45,
+        "class_id": 62
+    },
+    {
+        "route_id": 45,
+        "class_id": 75
+    },
+    {
+        "route_id": 46,
+        "class_id": 62
+    },
+    {
+        "route_id": 46,
+        "class_id": 113
+    },
+    {
+        "route_id": 47,
+        "class_id": 52
+    },
+    {
+        "route_id": 47,
+        "class_id": 53
+    },
+    {
+        "route_id": 47,
+        "class_id": 54
+    },
+    {
+        "route_id": 47,
+        "class_id": 45
+    },
+    {
+        "route_id": 47,
+        "class_id": 46
+    },
+    {
+        "route_id": 47,
+        "class_id": 34
+    },
+    {
+        "route_id": 48,
+        "class_id": 66
+    },
+    {
+        "route_id": 48,
+        "class_id": 70
+    },
+    {
+        "route_id": 48,
+        "class_id": 99
+    },
+    {
+        "route_id": 48,
+        "class_id": 16
+    },
+    {
+        "route_id": 48,
+        "class_id": 17
+    },
+    {
+        "route_id": 48,
+        "class_id": 18
+    },
+    {
+        "route_id": 48,
+        "class_id": 19
+    },
+    {
+        "route_id": 48,
+        "class_id": 20
+    },
+    {
+        "route_id": 48,
+        "class_id": 21
+    },
+    {
+        "route_id": 48,
+        "class_id": 22
+    },
+    {
+        "route_id": 48,
+        "class_id": 23
+    },
+    {
+        "route_id": 48,
+        "class_id": 24
+    },
+    {
+        "route_id": 48,
+        "class_id": 25
+    },
+    {
+        "route_id": 48,
+        "class_id": 26
+    },
+    {
+        "route_id": 48,
+        "class_id": 27
+    },
+    {
+        "route_id": 48,
+        "class_id": 106
+    },
+    {
+        "route_id": 48,
+        "class_id": 86
+    },
+    {
+        "route_id": 48,
+        "class_id": 30
+    },
+    {
+        "route_id": 48,
+        "class_id": 32
+    },
+    {
+        "route_id": 48,
+        "class_id": 69
+    },
+    {
+        "route_id": 49,
+        "class_id": 52
+    },
+    {
+        "route_id": 49,
+        "class_id": 53
+    },
+    {
+        "route_id": 49,
+        "class_id": 54
+    },
+    {
+        "route_id": 49,
+        "class_id": 114
+    },
+    {
+        "route_id": 49,
+        "class_id": 34
+    },
+    {
+        "route_id": 49,
+        "class_id": 48
+    },
+    {
+        "route_id": 49,
+        "class_id": 59
+    },
+    {
+        "route_id": 49,
+        "class_id": 55
+    },
+    {
+        "route_id": 49,
+        "class_id": 49
+    },
+    {
+        "route_id": 50,
+        "class_id": 52
+    },
+    {
+        "route_id": 50,
+        "class_id": 115
+    },
+    {
+        "route_id": 50,
+        "class_id": 54
+    },
+    {
+        "route_id": 50,
+        "class_id": 45
+    },
+    {
+        "route_id": 50,
+        "class_id": 46
+    },
+    {
+        "route_id": 50,
+        "class_id": 107
+    },
+    {
+        "route_id": 50,
+        "class_id": 34
+    },
+    {
+        "route_id": 50,
+        "class_id": 48
+    },
+    {
+        "route_id": 50,
+        "class_id": 59
+    },
+    {
+        "route_id": 50,
+        "class_id": 55
+    },
+    {
+        "route_id": 50,
+        "class_id": 49
+    },
+    {
+        "route_id": 50,
+        "class_id": 116
+    },
+    {
+        "route_id": 51,
+        "class_id": 117
+    },
+    {
+        "route_id": 51,
+        "class_id": 118
+    },
+    {
+        "route_id": 52,
+        "class_id": 119
+    },
+    {
+        "route_id": 52,
+        "class_id": 118
+    },
+    {
+        "route_id": 53,
+        "class_id": 120
+    },
+    {
+        "route_id": 53,
+        "class_id": 121
+    },
+    {
+        "route_id": 54,
+        "class_id": 122
+    },
+    {
+        "route_id": 54,
+        "class_id": 117
+    },
+    {
+        "route_id": 54,
+        "class_id": 118
+    },
+    {
+        "route_id": 55,
+        "class_id": 123
+    },
+    {
+        "route_id": 56,
+        "class_id": 124
+    },
+    {
+        "route_id": 56,
+        "class_id": 125
+    },
+    {
+        "route_id": 57,
+        "class_id": 126
+    },
+    {
+        "route_id": 57,
+        "class_id": 127
+    },
+    {
+        "route_id": 57,
+        "class_id": 128
+    },
+    {
+        "route_id": 58,
+        "class_id": 129
+    },
+    {
+        "route_id": 59,
+        "class_id": 130
+    },
+    {
+        "route_id": 60,
+        "class_id": 131
+    },
+    {
+        "route_id": 60,
+        "class_id": 132
+    },
+    {
+        "route_id": 61,
+        "class_id": 133
+    },
+    {
+        "route_id": 61,
+        "class_id": 134
+    },
+    {
+        "route_id": 62,
+        "class_id": 122
+    },
+    {
+        "route_id": 62,
+        "class_id": 135
+    },
+    {
+        "route_id": 63,
+        "class_id": 136
+    },
+    {
+        "route_id": 63,
+        "class_id": 137
+    },
+    {
+        "route_id": 63,
+        "class_id": 138
+    },
+    {
+        "route_id": 63,
+        "class_id": 139
+    },
+    {
+        "route_id": 63,
+        "class_id": 140
+    },
+    {
+        "route_id": 64,
+        "class_id": 122
+    },
+    {
+        "route_id": 64,
+        "class_id": 117
+    },
+    {
+        "route_id": 64,
+        "class_id": 141
+    },
+    {
+        "route_id": 64,
+        "class_id": 142
+    },
+    {
+        "route_id": 65,
+        "class_id": 140
+    },
+    {
+        "route_id": 65,
+        "class_id": 143
+    },
+    {
+        "route_id": 66,
+        "class_id": 144
+    },
+    {
+        "route_id": 66,
+        "class_id": 145
+    },
+    {
+        "route_id": 67,
+        "class_id": 4
+    },
+    {
+        "route_id": 67,
+        "class_id": 124
+    },
+    {
+        "route_id": 67,
+        "class_id": 146
+    },
+    {
+        "route_id": 67,
+        "class_id": 5
+    },
+    {
+        "route_id": 162,
+        "class_id": 5
+    },
+    {
+        "route_id": 68,
+        "class_id": 126
+    },
+    {
+        "route_id": 68,
+        "class_id": 127
+    },
+    {
+        "route_id": 68,
+        "class_id": 147
+    },
+    {
+        "route_id": 68,
+        "class_id": 148
+    },
+    {
+        "route_id": 69,
+        "class_id": 149
+    },
+    {
+        "route_id": 70,
+        "class_id": 150
+    },
+    {
+        "route_id": 70,
+        "class_id": 151
+    },
+    {
+        "route_id": 71,
+        "class_id": 124
+    },
+    {
+        "route_id": 71,
+        "class_id": 152
+    },
+    {
+        "route_id": 72,
+        "class_id": 153
+    },
+    {
+        "route_id": 72,
+        "class_id": 131
+    },
+    {
+        "route_id": 73,
+        "class_id": 9
+    },
+    {
+        "route_id": 73,
+        "class_id": 154
+    },
+    {
+        "route_id": 74,
+        "class_id": 137
+    },
+    {
+        "route_id": 74,
+        "class_id": 117
+    },
+    {
+        "route_id": 74,
+        "class_id": 139
+    },
+    {
+        "route_id": 74,
+        "class_id": 155
+    },
+    {
+        "route_id": 75,
+        "class_id": 122
+    },
+    {
+        "route_id": 75,
+        "class_id": 156
+    },
+    {
+        "route_id": 76,
+        "class_id": 150
+    },
+    {
+        "route_id": 76,
+        "class_id": 157
+    },
+    {
+        "route_id": 77,
+        "class_id": 146
+    },
+    {
+        "route_id": 78,
+        "class_id": 158
+    },
+    {
+        "route_id": 78,
+        "class_id": 127
+    },
+    {
+        "route_id": 78,
+        "class_id": 159
+    },
+    {
+        "route_id": 79,
+        "class_id": 160
+    },
+    {
+        "route_id": 79,
+        "class_id": 87
+    },
+    {
+        "route_id": 80,
+        "class_id": 1
+    },
+    {
+        "route_id": 80,
+        "class_id": 161
+    },
+    {
+        "route_id": 81,
+        "class_id": 91
+    },
+    {
+        "route_id": 81,
+        "class_id": 92
+    }
+]

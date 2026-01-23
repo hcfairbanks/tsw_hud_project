@@ -1,0 +1,22 @@
+[
+    {
+        "timetable_id": 1,
+        "train_id": 146
+    },
+    {
+        "timetable_id": 2,
+        "train_id": 146
+    },
+    {
+        "timetable_id": 3,
+        "train_id": 146
+    },
+    {
+        "timetable_id": 4,
+        "train_id": 146
+    },
+    {
+        "timetable_id": 5,
+        "train_id": 91
+    }
+]

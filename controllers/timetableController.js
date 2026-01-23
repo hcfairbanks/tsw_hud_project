@@ -23,13 +23,14 @@ function generateRawEntryData(entries) {
 }
 
 /**
- * Get timetable metadata for export (serviceName, routeName, countryName, trainName)
+ * Get timetable metadata for export (serviceName, routeName, countryName, trainName/trainNames)
  * @param {Object} timetable - Timetable object with route_id and train_id
- * @returns {Object} - { serviceName, routeName, countryName, trainName }
+ * @returns {Object} - { serviceName, routeName, countryName, trainName, trainNames }
  */
 function getTimetableExportMetadata(timetable) {
     let routeName = null;
     let trainName = null;
+    let trainNames = [];
     let countryName = null;
 
     if (timetable && timetable.route_id) {
@@ -40,16 +41,30 @@ function getTimetableExportMetadata(timetable) {
             countryName = country ? country.name : null;
         }
     }
-    if (timetable && timetable.train_id) {
+
+    // Get all trains from junction table
+    if (timetable && timetable.id) {
+        const trains = timetableDb.getTrains(timetable.id);
+        trainNames = trains.map(t => t.name);
+        // For backward compatibility, set trainName to first train
+        trainName = trainNames.length > 0 ? trainNames[0] : null;
+    }
+
+    // Fallback to legacy train_id if no trains in junction table
+    if (!trainName && timetable && timetable.train_id) {
         const train = trainDb.getById(timetable.train_id);
         trainName = train ? train.name : null;
+        if (trainName) {
+            trainNames = [trainName];
+        }
     }
 
     return {
         serviceName: timetable ? timetable.service_name : 'Unknown',
         routeName: routeName,
         countryName: countryName,
-        trainName: trainName
+        trainName: trainName,
+        trainNames: trainNames
     };
 }
 
@@ -202,6 +217,7 @@ function buildTimetableExportJson(options) {
         routeName: metadata.routeName,
         countryName: metadata.countryName,
         trainName: metadata.trainName,
+        trainNames: metadata.trainNames || [],  // New: array of train names
         totalPoints: formattedCoordinates.length,
         totalMarkers: exportMarkers.length,
         coordinates: formattedCoordinates,
@@ -228,16 +244,26 @@ const timetableController = {
             timetables = timetables.filter(t => t.route_id === routeId);
         }
 
-        // Filter by train_id if provided
+        // Filter by train_id if provided - check both legacy train_id and junction table
         if (trainId) {
-            timetables = timetables.filter(t => t.train_id === trainId);
+            timetables = timetables.filter(t => {
+                // Check legacy train_id
+                if (t.train_id === trainId) return true;
+                // Check junction table
+                const trains = timetableDb.getTrains(t.id);
+                return trains.some(train => train.id === trainId);
+            });
         }
 
-        // Add coordinate counts
-        const timetablesWithCounts = timetables.map(t => ({
-            ...t,
-            coordinate_count: timetableCoordinateDb.getCount(t.id)
-        }));
+        // Add coordinate counts and trains array
+        const timetablesWithCounts = timetables.map(t => {
+            const trains = timetableDb.getTrains(t.id);
+            return {
+                ...t,
+                trains: trains,
+                coordinate_count: timetableCoordinateDb.getCount(t.id)
+            };
+        });
 
         sendJson(res, timetablesWithCounts);
     },
@@ -250,11 +276,18 @@ const timetableController = {
 
         // Step 1: Create the timetable
         const serviceName = body.service_name || 'Untitled';
+
+        // Check for unique service name
+        if (timetableDb.serviceNameExists(serviceName)) {
+            return sendJson(res, { error: 'A timetable with this service name already exists' }, 409);
+        }
+
         const routeId = body.route_id || null;
         const trainId = body.train_id || null;
-        const result = timetableDb.create(serviceName, routeId, trainId);
+        const trainIds = body.train_ids || null;  // New: array of train IDs
+        const result = timetableDb.create(serviceName, routeId, trainId, trainIds);
         const timetableId = result.lastInsertRowid;
-        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId);
+        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId, 'train_ids:', trainIds);
 
         // Step 2: Deduplicate entries based on unique time values
         // An entry is considered duplicate if it has the same action and time1/time2 combination
@@ -323,6 +356,7 @@ const timetableController = {
         const timetable = timetableDb.getById(id);
         if (timetable) {
             timetable.entries = entryDb.getByTimetableId(id);
+            timetable.trains = timetableDb.getTrains(id);
             sendJson(res, timetable);
         } else {
             sendJson(res, { error: 'Timetable not found' }, 404);
@@ -336,16 +370,23 @@ const timetableController = {
         console.log('Timetable ID:', id);
         console.log('Body received:', JSON.stringify(body, null, 2));
 
+        // Check for unique service name (excluding current timetable)
+        if (body.service_name !== undefined && timetableDb.serviceNameExists(body.service_name, parseInt(id))) {
+            return sendJson(res, { error: 'A timetable with this service name already exists' }, 409);
+        }
+
         // Build update data object with only the fields that were provided
         const updateData = {};
         if (body.service_name !== undefined) updateData.service_name = body.service_name;
         if (body.route_id !== undefined) updateData.route_id = body.route_id;
         if (body.train_id !== undefined) updateData.train_id = body.train_id;
+        if (body.train_ids !== undefined) updateData.train_ids = body.train_ids;  // New: array of train IDs
 
         timetableDb.update(id, updateData);
 
-        // Return the updated timetable
+        // Return the updated timetable with trains
         const updated = timetableDb.getById(id);
+        updated.trains = timetableDb.getTrains(id);
         sendJson(res, updated);
     },
 
@@ -574,27 +615,40 @@ const timetableController = {
             }
         }
 
-        // Step 3: Look up or create train by name
+        // Step 3: Look up or create trains by name
+        // Support both trainName (single) and trainNames (array)
+        let trainIds = [];
         let trainId = null;
         let trainCreated = false;
-        if (body.trainName) {
-            const existingTrain = trainDb.getByName(body.trainName);
+        let trainsCreated = [];
+
+        // Get train names from either trainNames array or single trainName
+        const trainNamesToProcess = body.trainNames && Array.isArray(body.trainNames) && body.trainNames.length > 0
+            ? body.trainNames
+            : (body.trainName ? [body.trainName] : []);
+
+        for (const trainName of trainNamesToProcess) {
+            const existingTrain = trainDb.getByName(trainName);
             if (existingTrain) {
-                trainId = existingTrain.id;
-                console.log(`Found existing train: ${body.trainName} (ID: ${trainId})`);
+                trainIds.push(existingTrain.id);
+                console.log(`Found existing train: ${trainName} (ID: ${existingTrain.id})`);
             } else {
                 // Create new train
-                const trainResult = trainDb.create(body.trainName);
-                trainId = trainResult.lastInsertRowid;
-                trainCreated = true;
-                console.log(`Created new train: ${body.trainName} (ID: ${trainId})`);
+                const trainResult = trainDb.create(trainName);
+                trainIds.push(trainResult.lastInsertRowid);
+                trainsCreated.push(trainName);
+                console.log(`Created new train: ${trainName} (ID: ${trainResult.lastInsertRowid})`);
             }
         }
 
+        // For backward compatibility, set trainId to first train
+        trainId = trainIds.length > 0 ? trainIds[0] : null;
+        trainCreated = trainsCreated.length > 0;
+
         // Step 4: Create the timetable with route and train IDs
-        const result = timetableDb.create(serviceName, routeId, trainId);
+        const result = timetableDb.create(serviceName, routeId, trainId, trainIds);
         const timetableId = result.lastInsertRowid;
-        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId);
+        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_ids:', trainIds);
 
         // Step 5: Import coordinates if present
         if (body.coordinates && Array.isArray(body.coordinates) && body.coordinates.length > 0) {
@@ -651,6 +705,46 @@ const timetableController = {
             markersImported: body.markers ? body.markers.length : 0,
             entriesImported: body.csvData ? body.csvData.length : 0
         }, 201);
+    },
+
+    // GET /api/timetables/:id/trains
+    getTrains: async (req, res, timetableId) => {
+        const timetable = timetableDb.getById(timetableId);
+        if (!timetable) {
+            return sendJson(res, { error: 'Timetable not found' }, 404);
+        }
+        const trains = timetableDb.getTrains(timetableId);
+        sendJson(res, trains);
+    },
+
+    // POST /api/timetables/:id/trains
+    addTrain: async (req, res, timetableId) => {
+        const timetable = timetableDb.getById(timetableId);
+        if (!timetable) {
+            return sendJson(res, { error: 'Timetable not found' }, 404);
+        }
+        const body = await parseBody(req);
+        if (!body.train_id) {
+            return sendJson(res, { error: 'train_id is required' }, 400);
+        }
+        timetableDb.addTrain(timetableId, body.train_id);
+        const trains = timetableDb.getTrains(timetableId);
+        sendJson(res, { success: true, trains: trains }, 201);
+    },
+
+    // DELETE /api/timetables/:id/trains
+    removeTrain: async (req, res, timetableId) => {
+        const timetable = timetableDb.getById(timetableId);
+        if (!timetable) {
+            return sendJson(res, { error: 'Timetable not found' }, 404);
+        }
+        const body = await parseBody(req);
+        if (!body.train_id) {
+            return sendJson(res, { error: 'train_id is required' }, 400);
+        }
+        timetableDb.removeTrain(timetableId, body.train_id);
+        const trains = timetableDb.getTrains(timetableId);
+        sendJson(res, { success: true, trains: trains });
     }
 };
 

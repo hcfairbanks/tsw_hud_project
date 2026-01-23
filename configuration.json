@@ -1,10 +1,11 @@
 {
   "developmentMode": false,
   "apiKey": "",
-  "theme": "dark",
+  "theme": "light",
   "tswVersion": "tsw6",
   "tsw5KeyPath": "",
   "tsw6KeyPath": "",
   "distanceUnits": "metric",
-  "temperatureUnits": "celsius"
+  "temperatureUnits": "celsius",
+  "colorScheme": "default"
 }

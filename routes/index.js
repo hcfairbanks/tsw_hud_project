@@ -3,6 +3,7 @@ const { serveFile, sendJson, parseBody } = require('../utils/http');
 const countryController = require('../controllers/countryController');
 const routeController = require('../controllers/routeController');
 const trainController = require('../controllers/trainController');
+const trainClassController = require('../controllers/trainClassController');
 const timetableController = require('../controllers/timetableController');
 const entryController = require('../controllers/entryController');
 const ocrController = require('../controllers/ocrController');
@@ -81,12 +82,6 @@ async function handleRoutes(req, res) {
         return true;
     }
 
-    // Load timetable page (mobile/tablet friendly)
-    if (pathname === '/load' || pathname === '/load.html') {
-        serveFile(res, 'load.html', 'text/html');
-        return true;
-    }
-
     // Weather control page
     if (pathname === '/weather' || pathname === '/weather.html') {
         serveFile(res, 'weather.html', 'text/html');
@@ -121,6 +116,19 @@ async function handleRoutes(req, res) {
     const trainShowMatch = pathname.match(/^\/trains\/(\d+)$/);
     if (trainShowMatch) {
         serveFile(res, 'trains/show.html', 'text/html');
+        return true;
+    }
+
+    // Train Classes list page
+    if (pathname === '/train-classes') {
+        serveFile(res, 'train-classes/index.html', 'text/html');
+        return true;
+    }
+
+    // Train Class show page /train-classes/:id
+    const trainClassShowMatch = pathname.match(/^\/train-classes\/(\d+)$/);
+    if (trainClassShowMatch) {
+        serveFile(res, 'train-classes/show.html', 'text/html');
         return true;
     }
 
@@ -283,7 +291,7 @@ async function handleRoutes(req, res) {
     const routeTrainsMatch = pathname.match(/^\/api\/routes\/(\d+)\/trains$/);
     if (routeTrainsMatch) {
         const routeId = parseInt(routeTrainsMatch[1]);
-        
+
         if (method === 'GET') {
             await routeController.getTrains(req, res, routeId);
             return true;
@@ -294,6 +302,37 @@ async function handleRoutes(req, res) {
         }
         if (method === 'DELETE') {
             await routeController.removeTrain(req, res, routeId);
+            return true;
+        }
+    }
+
+    // Route train classes API
+    const routeTrainClassesMatch = pathname.match(/^\/api\/routes\/(\d+)\/train-classes$/);
+    if (routeTrainClassesMatch) {
+        const routeId = parseInt(routeTrainClassesMatch[1]);
+
+        if (method === 'GET') {
+            await routeController.getTrainClasses(req, res, routeId);
+            return true;
+        }
+        if (method === 'POST') {
+            await routeController.addTrainClass(req, res, routeId);
+            return true;
+        }
+        if (method === 'DELETE') {
+            await routeController.removeTrainClass(req, res, routeId);
+            return true;
+        }
+    }
+
+    // Get trains for a specific class on a route
+    const routeClassTrainsMatch = pathname.match(/^\/api\/routes\/(\d+)\/train-classes\/(\d+)\/trains$/);
+    if (routeClassTrainsMatch) {
+        const routeId = parseInt(routeClassTrainsMatch[1]);
+        const classId = parseInt(routeClassTrainsMatch[2]);
+
+        if (method === 'GET') {
+            await routeController.getTrainsForClass(req, res, routeId, classId);
             return true;
         }
     }
@@ -336,9 +375,65 @@ async function handleRoutes(req, res) {
     const trainRoutesMatch = pathname.match(/^\/api\/trains\/(\d+)\/routes$/);
     if (trainRoutesMatch) {
         const trainId = parseInt(trainRoutesMatch[1]);
-        
+
         if (method === 'GET') {
             await trainController.getRoutes(req, res, trainId);
+            return true;
+        }
+    }
+
+    // ============================================
+    // Train Class API Routes
+    // ============================================
+
+    if (pathname === '/api/train-classes') {
+        if (method === 'GET') {
+            await trainClassController.getAll(req, res);
+            return true;
+        }
+        if (method === 'POST') {
+            await trainClassController.create(req, res);
+            return true;
+        }
+    }
+
+    // Single train class operations
+    const trainClassMatch = pathname.match(/^\/api\/train-classes\/(\d+)$/);
+    if (trainClassMatch) {
+        const id = parseInt(trainClassMatch[1]);
+
+        if (method === 'GET') {
+            await trainClassController.getById(req, res, id);
+            return true;
+        }
+        if (method === 'PUT') {
+            await trainClassController.update(req, res, id);
+            return true;
+        }
+        if (method === 'DELETE') {
+            await trainClassController.delete(req, res, id);
+            return true;
+        }
+    }
+
+    // Train class trains API
+    const trainClassTrainsMatch = pathname.match(/^\/api\/train-classes\/(\d+)\/trains$/);
+    if (trainClassTrainsMatch) {
+        const classId = parseInt(trainClassTrainsMatch[1]);
+
+        if (method === 'GET') {
+            await trainClassController.getTrains(req, res, classId);
+            return true;
+        }
+    }
+
+    // Train class routes API
+    const trainClassRoutesMatch = pathname.match(/^\/api\/train-classes\/(\d+)\/routes$/);
+    if (trainClassRoutesMatch) {
+        const classId = parseInt(trainClassRoutesMatch[1]);
+
+        if (method === 'GET') {
+            await trainClassController.getRoutes(req, res, classId);
             return true;
         }
     }
@@ -396,6 +491,25 @@ async function handleRoutes(req, res) {
         }
         if (method === 'DELETE') {
             await timetableController.delete(req, res, id);
+            return true;
+        }
+    }
+
+    // Timetable trains API
+    const timetableTrainsMatch = pathname.match(/^\/api\/timetables\/(\d+)\/trains$/);
+    if (timetableTrainsMatch) {
+        const timetableId = parseInt(timetableTrainsMatch[1]);
+
+        if (method === 'GET') {
+            await timetableController.getTrains(req, res, timetableId);
+            return true;
+        }
+        if (method === 'POST') {
+            await timetableController.addTrain(req, res, timetableId);
+            return true;
+        }
+        if (method === 'DELETE') {
+            await timetableController.removeTrain(req, res, timetableId);
             return true;
         }
     }
