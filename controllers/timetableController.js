@@ -335,8 +335,18 @@ const timetableController = {
         console.log('=== SAVE: Updating timetable ===');
         console.log('Timetable ID:', id);
         console.log('Body received:', JSON.stringify(body, null, 2));
-        timetableDb.update(id, body.service_name);
-        sendJson(res, { id, service_name: body.service_name });
+
+        // Build update data object with only the fields that were provided
+        const updateData = {};
+        if (body.service_name !== undefined) updateData.service_name = body.service_name;
+        if (body.route_id !== undefined) updateData.route_id = body.route_id;
+        if (body.train_id !== undefined) updateData.train_id = body.train_id;
+
+        timetableDb.update(id, updateData);
+
+        // Return the updated timetable
+        const updated = timetableDb.getById(id);
+        sendJson(res, updated);
     },
 
     // DELETE /api/timetables/:id

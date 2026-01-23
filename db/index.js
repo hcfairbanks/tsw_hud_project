@@ -745,9 +745,29 @@ const timetableDb = {
         saveDatabase();
         return { lastInsertRowid: lastId };
     },
-    update: (id, serviceName) => {
-        db.run('UPDATE timetables SET service_name = ? WHERE id = ?', [serviceName, id]);
-        saveDatabase();
+    update: (id, data) => {
+        // Build dynamic update query based on provided fields
+        const updates = [];
+        const params = [];
+
+        if (data.service_name !== undefined) {
+            updates.push('service_name = ?');
+            params.push(data.service_name);
+        }
+        if (data.route_id !== undefined) {
+            updates.push('route_id = ?');
+            params.push(data.route_id);
+        }
+        if (data.train_id !== undefined) {
+            updates.push('train_id = ?');
+            params.push(data.train_id);
+        }
+
+        if (updates.length > 0) {
+            params.push(id);
+            db.run(`UPDATE timetables SET ${updates.join(', ')} WHERE id = ?`, params);
+            saveDatabase();
+        }
     },
     delete: (id) => {
         db.run('DELETE FROM timetable_entries WHERE timetable_id = ?', [id]);

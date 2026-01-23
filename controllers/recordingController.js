@@ -256,6 +256,12 @@ function stop(req, res) {
     recordingStartTime = null;
     routeOutputFilePath = null;
 
+    // Clear auto-stop interval when recording stops
+    if (autoStopCheckInterval) {
+        clearInterval(autoStopCheckInterval);
+        autoStopCheckInterval = null;
+    }
+
     console.log('Recording stopped');
 
     // Process the recording file
@@ -350,6 +356,12 @@ function reset(req, res) {
     currentHeight = null;
     recordingStartTime = null;
     routeOutputFilePath = null;
+
+    // Clear auto-stop interval when resetting
+    if (autoStopCheckInterval) {
+        clearInterval(autoStopCheckInterval);
+        autoStopCheckInterval = null;
+    }
 
     console.log('Recording state reset');
     sendJson(res, { success: true, message: 'Recording state reset' });

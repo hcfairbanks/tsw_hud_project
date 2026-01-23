@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { sendJson, parseBody } = require('../utils/http');
 const { timetableDb, timetableDataDb, timetableCoordinateDb, timetableMarkerDb, entryDb } = require('../db');
+const { processRawData } = require('./routeProcessingController');
 
 /**
  * Get all timetables with coordinate counts (for selection dropdown)
@@ -109,19 +110,46 @@ async function saveProcessedJson(req, res) {
             return;
         }
 
-        // Construct path to processed_routes folder
+        // Try to find the processed file first
         const processedRoutesDir = path.join(__dirname, '..', 'processed_routes');
-        const filePath = path.join(processedRoutesDir, filename);
+        const processedFilePath = path.join(processedRoutesDir, filename);
 
-        // Check if file exists
-        if (!fs.existsSync(filePath)) {
-            sendJson(res, { error: `File not found: ${filename}` }, 404);
+        // Also prepare raw file path as fallback
+        const recordingDataDir = path.join(__dirname, '..', 'recording_data');
+        const rawFilename = filename.replace('processed_', 'raw_data_');
+        const rawFilePath = path.join(recordingDataDir, rawFilename);
+
+        let processedData;
+        let usedRawFile = false;
+
+        if (fs.existsSync(processedFilePath)) {
+            // Processed file exists - read it directly
+            const jsonContent = fs.readFileSync(processedFilePath, 'utf8');
+            processedData = JSON.parse(jsonContent);
+            console.log(`Loaded processed file: ${filename}`);
+
+            // Check if processed file has valid timetableId, if not fall back to raw
+            if (!processedData.timetableId && fs.existsSync(rawFilePath)) {
+                console.log(`Processed file has null timetableId, falling back to raw file: ${rawFilename}`);
+                const rawContent = fs.readFileSync(rawFilePath, 'utf8');
+                const rawData = JSON.parse(rawContent);
+                processedData = processRawData(rawData);
+                usedRawFile = true;
+                console.log(`Processed raw file on-the-fly: ${rawFilename}`);
+            }
+        } else if (fs.existsSync(rawFilePath)) {
+            // Processed file doesn't exist, but raw file does - process it on the fly
+            console.log(`Processed file not found, processing raw file: ${rawFilename}`);
+            const rawContent = fs.readFileSync(rawFilePath, 'utf8');
+            const rawData = JSON.parse(rawContent);
+            processedData = processRawData(rawData);
+            usedRawFile = true;
+            console.log(`Processed raw file on-the-fly: ${rawFilename}`);
+        } else {
+            // Neither file exists
+            sendJson(res, { error: `File not found: ${filename} (also tried ${rawFilename})` }, 404);
             return;
         }
-
-        // Read and parse JSON
-        const jsonContent = fs.readFileSync(filePath, 'utf8');
-        const processedData = JSON.parse(jsonContent);
 
         const timetableId = processedData.timetableId;
         if (!timetableId) {

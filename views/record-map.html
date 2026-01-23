@@ -1318,8 +1318,8 @@
                     // Update the cascading dropdowns to match the timetable
                     await selectTimetableById(result.timetableId);
 
-                    // Update Start button to show Resume
-                    document.getElementById('mainBtn').textContent = 'Resume';
+                    // Update UI to show paused state (enables Save button)
+                    updateUIFromRecording({ isRecording: true, isPaused: true });
 
                     // Load the route data to display on map
                     await loadRouteData();
@@ -1464,8 +1464,8 @@
                         // Update the cascading dropdowns to match the timetable
                         await selectTimetableById(loadResult.timetableId);
 
-                        // Update Start button to show Resume
-                        document.getElementById('mainBtn').textContent = 'Resume';
+                        // Update UI to show paused state (enables Save button)
+                        updateUIFromRecording({ isRecording: true, isPaused: true });
 
                         // Update dev tools status
                         const statusEl = document.getElementById('loadFileStatus');
