@@ -510,13 +510,25 @@ function parseSubscriptionData(rawData) {
                         streamData.weather.FogDensity = entry.Values.FogDensity;
                     }
                 }
-                // Extract front right door status
+                // Extract front right door status (CurrentDrivableActor)
                 else if (entry.Path === 'CurrentDrivableActor/PassengerDoor_FR.Function.GetCurrentInputValue' && entry.Values['ReturnValue'] !== undefined) {
                     streamData.doorFrontRight = entry.Values['ReturnValue'];
                 }
-                // Extract front left door status
+                // Extract front left door status (CurrentDrivableActor)
                 else if (entry.Path === 'CurrentDrivableActor/PassengerDoor_FL.Function.GetCurrentInputValue' && entry.Values['ReturnValue'] !== undefined) {
                     streamData.doorFrontLeft = entry.Values['ReturnValue'];
+                }
+                // Fallback: Extract back right door status (CurrentFormation - some trains use this)
+                else if (entry.Path === 'CurrentFormation/1/Door_PassengerDoor_BR.Function.GetCurrentOutputValue' && entry.Values['ReturnValue'] !== undefined) {
+                    if (streamData.doorFrontRight === null) {
+                        streamData.doorFrontRight = entry.Values['ReturnValue'];
+                    }
+                }
+                // Fallback: Extract back left door status (CurrentFormation - some trains use this)
+                else if (entry.Path === 'CurrentFormation/1/Door_PassengerDoor_BL.Function.GetCurrentOutputValue' && entry.Values['ReturnValue'] !== undefined) {
+                    if (streamData.doorFrontLeft === null) {
+                        streamData.doorFrontLeft = entry.Values['ReturnValue'];
+                    }
                 }
                 // Fallback: DriverInput reverser for diesel/steam trains
                 else if (entry.Path === 'DriverInput/Reverser.Function.GetCurrentNotchIndex' && entry.Values['ReturnValue'] !== undefined) {
