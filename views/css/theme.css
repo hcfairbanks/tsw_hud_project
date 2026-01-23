@@ -16,17 +16,17 @@
     --light-shadow: rgba(0, 0, 0, 0.15);
     --light-shadow-strong: rgba(0, 0, 0, 0.3);
 
-    /* Dark theme (current admin pages) */
-    --dark-bg-primary: #1a1a2e;
-    --dark-bg-secondary: #16213e;
-    --dark-bg-tertiary: #0f3460;
+    /* Dark theme (inverted - no blues) */
+    --dark-bg-primary: #1a1a1a;
+    --dark-bg-secondary: #252525;
+    --dark-bg-tertiary: #333333;
     --dark-text-primary: #eeeeee;
     --dark-text-secondary: #aaaaaa;
     --dark-text-muted: #888888;
-    --dark-border: #0f3460;
-    --dark-border-accent: #00d4ff;
-    --dark-accent: #00d4ff;
-    --dark-accent-hover: #00b8e6;
+    --dark-border: #444444;
+    --dark-border-accent: #ffffff;
+    --dark-accent: #ffffff;
+    --dark-accent-hover: #cccccc;
     --dark-shadow: rgba(0, 0, 0, 0.3);
     --dark-shadow-strong: rgba(0, 0, 0, 0.5);
 

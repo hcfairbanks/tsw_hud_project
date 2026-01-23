@@ -1433,7 +1433,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
 
         function redrawButtons() {
             if (currentData) {
-                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight, currentData.distanceUnits, currentPlayerPosition);
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorFrontLeft, currentData.doorFrontRight, currentData.distanceUnits, currentPlayerPosition);
             } else {
                 draw(0);
             }
@@ -1577,7 +1577,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         // Redraw at regular intervals to support flashing
         setInterval(function() {
             if (currentData) {
-                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight, currentData.distanceUnits, currentPlayerPosition);
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorFrontLeft, currentData.doorFrontRight, currentData.distanceUnits, currentPlayerPosition);
             }
         }, 100);
 
@@ -1589,7 +1589,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                 currentPlayerPosition = data.playerPosition;
             }
             document.getElementById('display').innerText = JSON.stringify(data, null, 2);
-            draw(Math.round(data.speed), data.limit, data.isSlipping, data.powerHandle, data.incline, data.nextSpeedLimit, data.distanceToNextSpeedLimit, data.trainBreak, data.trainBrakeActive, data.locomotiveBrakeHandle, data.locomotiveBrakeActive, data.electricDynamicBrake, data.electricBrakeActive, data.isTractionLocked, data.localTime, data.timetableTime, data.timetableLabel, data.distanceToStation, data.reverser, data.doorBackLeft, data.doorBackRight, data.distanceUnits, currentPlayerPosition);
+            draw(Math.round(data.speed), data.limit, data.isSlipping, data.powerHandle, data.incline, data.nextSpeedLimit, data.distanceToNextSpeedLimit, data.trainBreak, data.trainBrakeActive, data.locomotiveBrakeHandle, data.locomotiveBrakeActive, data.electricDynamicBrake, data.electricBrakeActive, data.isTractionLocked, data.localTime, data.timetableTime, data.timetableLabel, data.distanceToStation, data.reverser, data.doorFrontLeft, data.doorFrontRight, data.distanceUnits, currentPlayerPosition);
         };
 
         eventSource.onerror = () => {

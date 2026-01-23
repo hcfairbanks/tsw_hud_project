@@ -338,20 +338,22 @@ function parseSubscriptionData(rawData) {
             FogDensity: null
         },
         // Door status
-        doorBackRight: null,
-        doorBackLeft: null,
+        doorFrontRight: null,
+        doorFrontLeft: null,
         // Reverser position (0=reverse, 1=neutral, 2=forward, -1=handle removed)
         reverser: null,
         // Distance units preference for frontend display
         distanceUnits: units,
         // Temperature units preference for frontend display
-        temperatureUnits: getTemperatureUnits()
+        temperatureUnits: getTemperatureUnits(),
+        // Camera mode (e.g., FirstPerson_Standing when walking)
+        cameraMode: null
     };
 
     if (rawData.Entries && rawData.Entries.length > 0) {
         for (const entry of rawData.Entries) {
             if (entry.NodeValid && entry.Values) {
-                // Extract GPS coordinates
+                // Extract GPS coordinates and camera mode
                 if (entry.Path === 'DriverAid.PlayerInfo') {
                     if (entry.Values.geoLocation &&
                         typeof entry.Values.geoLocation.longitude === 'number' &&
@@ -372,6 +374,10 @@ function parseSubscriptionData(rawData) {
                             // Store geoLocation for recording after all entries are processed
                             streamData._geoLocation = entry.Values.geoLocation;
                         }
+                    }
+                    // Extract camera mode (e.g., FirstPerson_Standing when walking)
+                    if (entry.Values.cameraMode) {
+                        streamData.cameraMode = entry.Values.cameraMode;
                     }
                 }
                 // Extract track data for markers and height
@@ -449,17 +455,29 @@ function parseSubscriptionData(rawData) {
                 // Extract speed limit and gradient from DriverAid.Data
                 else if (entry.Path === 'DriverAid.Data') {
                     if (entry.Values['speedLimit'] && entry.Values['speedLimit']['value']) {
-                        streamData.limit = Math.round(entry.Values['speedLimit']['value'] * speedConversionFactor);
+                        const rawLimit = entry.Values['speedLimit']['value'] * speedConversionFactor;
+                        // Sanity check: ignore garbage values (valid train speeds are under 500)
+                        if (rawLimit >= 0 && rawLimit < 500) {
+                            streamData.limit = Math.round(rawLimit);
+                        }
                     }
                     if (entry.Values['gradient'] !== undefined) {
                         streamData.incline = parseFloat(entry.Values['gradient'].toFixed(1)); // Rounded for display
                         streamData._rawGradient = entry.Values['gradient']; // Raw value for recording
                     }
                     if (entry.Values['nextSpeedLimit'] && entry.Values['nextSpeedLimit']['value']) {
-                        streamData.nextSpeedLimit = Math.round(entry.Values['nextSpeedLimit']['value'] * speedConversionFactor);
+                        const rawNextLimit = entry.Values['nextSpeedLimit']['value'] * speedConversionFactor;
+                        // Sanity check: ignore garbage values
+                        if (rawNextLimit >= 0 && rawNextLimit < 500) {
+                            streamData.nextSpeedLimit = Math.round(rawNextLimit);
+                        }
                     }
                     if (entry.Values['distanceToNextSpeedLimit'] !== undefined) {
-                        streamData.distanceToNextSpeedLimit = Math.round(entry.Values['distanceToNextSpeedLimit'] / distanceConversionFactor);
+                        const rawDistance = entry.Values['distanceToNextSpeedLimit'] / distanceConversionFactor;
+                        // Sanity check: ignore garbage values (reasonable max ~100km/60mi)
+                        if (rawDistance >= 0 && rawDistance < 100000) {
+                            streamData.distanceToNextSpeedLimit = Math.round(rawDistance);
+                        }
                     }
                 }
                 // Extract local time
@@ -492,13 +510,13 @@ function parseSubscriptionData(rawData) {
                         streamData.weather.FogDensity = entry.Values.FogDensity;
                     }
                 }
-                // Extract back right door status
-                else if (entry.Path === 'CurrentFormation/1/Door_PassengerDoor_BR.Function.GetCurrentOutputValue' && entry.Values['ReturnValue'] !== undefined) {
-                    streamData.doorBackRight = entry.Values['ReturnValue'];
+                // Extract front right door status
+                else if (entry.Path === 'CurrentDrivableActor/PassengerDoor_FR.Function.GetCurrentInputValue' && entry.Values['ReturnValue'] !== undefined) {
+                    streamData.doorFrontRight = entry.Values['ReturnValue'];
                 }
-                // Extract back left door status
-                else if (entry.Path === 'CurrentFormation/1/Door_PassengerDoor_BL.Function.GetCurrentOutputValue' && entry.Values['ReturnValue'] !== undefined) {
-                    streamData.doorBackLeft = entry.Values['ReturnValue'];
+                // Extract front left door status
+                else if (entry.Path === 'CurrentDrivableActor/PassengerDoor_FL.Function.GetCurrentInputValue' && entry.Values['ReturnValue'] !== undefined) {
+                    streamData.doorFrontLeft = entry.Values['ReturnValue'];
                 }
                 // Fallback: DriverInput reverser for diesel/steam trains
                 else if (entry.Path === 'DriverInput/Reverser.Function.GetCurrentNotchIndex' && entry.Values['ReturnValue'] !== undefined) {

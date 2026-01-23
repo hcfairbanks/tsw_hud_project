@@ -111,7 +111,7 @@
             border-radius: 50%;
         }
         .toggle-switch input:checked + .toggle-slider {
-            background-color: var(--accent-color);
+            background-color: #0066ff;
         }
         .toggle-switch input:checked + .toggle-slider:before {
             transform: translateX(24px);
@@ -164,7 +164,7 @@
             border: 1px solid var(--border-color);
         }
         .theme-preview.dark {
-            background: linear-gradient(135deg, #1a1a2e 50%, #16213e 50%);
+            background: linear-gradient(135deg, #1a1a1a 50%, #252525 50%);
         }
         .theme-preview.light {
             background: linear-gradient(135deg, #f5f5f5 50%, #ffffff 50%);
@@ -399,7 +399,7 @@
 
     <nav class="nav">
         <a href="/countries">Countries</a>
-        
+
         <a href="/">Home</a>
         <a href="/hud">HUD</a>
         <a href="/record">Record Map</a>
@@ -410,6 +410,25 @@
         <a href="/trains">Trains</a>
         <a href="/weather">Weather</a>
     </nav>
+
+    <div class="card">
+        <h2>Server Information</h2>
+        <div class="server-urls">
+            <div class="url-row">
+                <span class="url-label">Local:</span>
+                <div class="url-value"><a id="localUrl" href="#" target="_blank">Loading...</a></div>
+                <button class="btn-copy" onclick="copyUrl('local')">Copy</button>
+            </div>
+            <div class="url-row">
+                <span class="url-label">Network:</span>
+                <div class="url-value"><a id="networkUrl" href="#" target="_blank">Loading...</a></div>
+                <button class="btn-copy" onclick="copyUrl('network')">Copy</button>
+            </div>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 15px; margin-bottom: 0;">
+            Use the Network URL to access the dashboard from other devices on the same network.
+        </p>
+    </div>
 
     <div class="card">
         <h2>Appearance</h2>
@@ -529,12 +548,11 @@
     </div>
 
     <div class="card">
-        <h2>General Settings</h2>
+        <h2>Development Mode</h2>
 
         <div class="setting-row">
             <div class="setting-info">
-                <div class="setting-label">Development Mode</div>
-                <div class="setting-description">Show development tools in Map and Record Map pages</div>
+                <div class="setting-label">Enable Development Mode</div>
             </div>
             <label class="toggle-switch">
                 <input type="checkbox" id="developmentMode" onchange="saveSetting('developmentMode', this.checked)">
@@ -543,25 +561,6 @@
         </div>
 
         <div id="statusMessage" class="status-message"></div>
-    </div>
-
-    <div class="card">
-        <h2>Server Information</h2>
-        <div class="server-urls">
-            <div class="url-row">
-                <span class="url-label">Local:</span>
-                <div class="url-value"><a id="localUrl" href="#" target="_blank">Loading...</a></div>
-                <button class="btn-copy" onclick="copyUrl('local')">Copy</button>
-            </div>
-            <div class="url-row">
-                <span class="url-label">Network:</span>
-                <div class="url-value"><a id="networkUrl" href="#" target="_blank">Loading...</a></div>
-                <button class="btn-copy" onclick="copyUrl('network')">Copy</button>
-            </div>
-        </div>
-        <p style="font-size: 11px; color: var(--text-muted); margin-top: 15px; margin-bottom: 0;">
-            Use the Network URL to access the dashboard from other devices on the same network.
-        </p>
     </div>
 
     <div class="card">
@@ -614,10 +613,9 @@
         function applyTheme(theme) {
             document.body.setAttribute('data-theme', theme);
 
-            // Update theme selector UI
-            document.querySelectorAll('.theme-option').forEach(opt => {
-                opt.classList.remove('active');
-            });
+            // Update theme selector UI (only target theme options, not units)
+            document.getElementById('themeDark').classList.remove('active');
+            document.getElementById('themeLight').classList.remove('active');
             if (theme === 'dark') {
                 document.getElementById('themeDark').classList.add('active');
             } else {

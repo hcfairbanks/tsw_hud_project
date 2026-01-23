@@ -977,14 +977,6 @@ function drawTimeBox(options, localTime) {
     options.ctx.textAlign = 'left';
     options.ctx.textBaseline = 'top';
     options.ctx.fillText(displayValue, startX, startY);
-
-    // Draw thin line under in-game time
-    options.ctx.strokeStyle = boxColor;
-    options.ctx.lineWidth = 3;
-    options.ctx.beginPath();
-    options.ctx.moveTo(startX, startY + 62);
-    options.ctx.lineTo(startX + 250, startY + 62);  // Longer to match time width
-    options.ctx.stroke();
 }
 
 function drawTimetableBox(options, timetableTime, timetableLabel, distanceToStation, distanceUnits) {
@@ -1308,7 +1300,7 @@ function drawCurvedSpeedBar(options, speed, speedLimit) {
     }
 }
 
-function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLimit, distanceToNextSpeedLimit, trainBrakeValue, trainBrakeActive, locomotiveBrakeValue, locomotiveBrakeActive, electricDynamicBrakeValue, electricBrakeActive, isTractionLocked, localTime, timetableTime, timetableLabel, distanceToStation, reverser, doorLeft, doorRight, distanceUnits, playerPosition, temperature, temperatureUnits) {
+function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLimit, distanceToNextSpeedLimit, trainBrakeValue, trainBrakeActive, locomotiveBrakeValue, locomotiveBrakeActive, electricDynamicBrakeValue, electricBrakeActive, isTractionLocked, localTime, timetableTime, timetableLabel, distanceToStation, reverser, doorLeft, doorRight, distanceUnits, playerPosition, temperature, temperatureUnits, cameraMode) {
     var canvas = document.getElementById('tutorial');
     if (canvas !== null && canvas.getContext) {
         var options = buildOptionsAsJSON(canvas, iSpeed);
@@ -1318,26 +1310,37 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         drawTextMarkers(options);
         drawCurvedSpeedBar(options, iSpeed, speedLimit);
         drawSpeedBox(options, speedLimit, isSlipping);
-        // TEMP: Always show all brake boxes
-        drawBrakeBox(options, trainBrakeValue);
-        drawLocomotiveBrakeBox(options, locomotiveBrakeValue);
-        drawElectricDynamicBrakeBox(options, electricDynamicBrakeValue);
+        if (trainBrakeActive) {
+            drawBrakeBox(options, trainBrakeValue);
+        }
+        if (locomotiveBrakeActive) {
+            drawLocomotiveBrakeBox(options, locomotiveBrakeValue);
+        }
+        if (electricBrakeActive) {
+            drawElectricDynamicBrakeBox(options, electricDynamicBrakeValue);
+        }
         drawSpeedLimitBox(options, speedLimit);
-        // TEMP: Always show door indicators (use 0 as default to show closed state)
-        drawDoorIndicators(options, doorLeft !== null ? doorLeft : 0, doorRight !== null ? doorRight : 0);
+        // Only show door indicators when in driving mode (or when cameraMode not yet set)
+        if (!cameraMode || cameraMode === 'ExteriorAttached_Driving' || cameraMode === 'FirstPerson_Driving') {
+            drawDoorIndicators(options, doorLeft, doorRight);
+        }
         drawPowerHandleBox(options, powerHandle, isTractionLocked);
         drawGradientBox(options, incline);
         drawReverserIndicator(options, reverser);
-        // TEMP: Always show next speed limit boxes
-        drawNextSpeedLimitBox(options, nextSpeedLimit);
-        drawDistanceToNextSpeedLimitBox(options, distanceToNextSpeedLimit, distanceUnits);
+        if (distanceToNextSpeedLimit !== undefined && distanceToNextSpeedLimit !== null && distanceToNextSpeedLimit > 1) {
+            drawNextSpeedLimitBox(options, nextSpeedLimit);
+            drawDistanceToNextSpeedLimitBox(options, distanceToNextSpeedLimit, distanceUnits);
+        }
         // Draw station selector if we have timetable items
         if (cachedTimetableItems && cachedTimetableItems.length > 0) {
             stationSelectorBounds = drawStationSelector(options, cachedTimetableItems, selectedStationIndex, playerPosition, distanceUnits, stationScrollOffset);
         }
         drawTimeBox(options, localTime);
-        drawTimetableBox(options, timetableTime, timetableLabel, distanceToStation, distanceUnits);
-        drawDistanceToDestination(options, distanceUnits);
+        // Only show timetable info when a map is loaded
+        if (cachedTimetableItems && cachedTimetableItems.length > 0) {
+            drawTimetableBox(options, timetableTime, timetableLabel, distanceToStation, distanceUnits);
+            drawDistanceToDestination(options, distanceUnits);
+        }
         drawLoadButton(options, isLoadHovered, isLoadPressed);
         drawFullscreenButton(options, isFullscreenHovered, isFullscreenPressed);
         // Only show Refresh and Save Location in development mode
@@ -1535,7 +1538,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         function redrawButtons() {
             if (currentData) {
                 var temp = currentData.weather ? currentData.weather.Temperature : null;
-                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight, currentData.distanceUnits, currentPlayerPosition, temp, currentData.temperatureUnits);
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorFrontLeft, currentData.doorFrontRight, currentData.distanceUnits, currentPlayerPosition, temp, currentData.temperatureUnits);
             } else {
                 draw(0);
             }
@@ -1828,6 +1831,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         const eventSource = new EventSource('/stream');
 
         var currentData = null;
+        var lastKnownCameraMode = null;  // Cache camera mode to avoid flickering on null values
         var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
                       (typeof window.orientation !== 'undefined') ||
                       (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
@@ -1836,7 +1840,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
         setInterval(function() {
             if (currentData) {
                 var temp = currentData.weather ? currentData.weather.Temperature : null;
-                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorBackLeft, currentData.doorBackRight, currentData.distanceUnits, currentPlayerPosition, temp, currentData.temperatureUnits);
+                draw(Math.round(currentData.speed), currentData.limit, currentData.isSlipping, currentData.powerHandle, currentData.incline, currentData.nextSpeedLimit, currentData.distanceToNextSpeedLimit, currentData.trainBreak, currentData.trainBrakeActive, currentData.locomotiveBrakeHandle, currentData.locomotiveBrakeActive, currentData.electricDynamicBrake, currentData.electricBrakeActive, currentData.isTractionLocked, currentData.localTime, currentData.timetableTime, currentData.timetableLabel, currentData.distanceToStation, currentData.reverser, currentData.doorFrontLeft, currentData.doorFrontRight, currentData.distanceUnits, currentPlayerPosition, temp, currentData.temperatureUnits, lastKnownCameraMode);
             }
         }, 100);
 
@@ -1847,8 +1851,12 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             if (data.playerPosition) {
                 currentPlayerPosition = data.playerPosition;
             }
+            // Only update camera mode when we get a valid value (ignore nulls)
+            if (data.cameraMode) {
+                lastKnownCameraMode = data.cameraMode;
+            }
             var temp = data.weather ? data.weather.Temperature : null;
-            draw(Math.round(data.speed), data.limit, data.isSlipping, data.powerHandle, data.incline, data.nextSpeedLimit, data.distanceToNextSpeedLimit, data.trainBreak, data.trainBrakeActive, data.locomotiveBrakeHandle, data.locomotiveBrakeActive, data.electricDynamicBrake, data.electricBrakeActive, data.isTractionLocked, data.localTime, data.timetableTime, data.timetableLabel, data.distanceToStation, data.reverser, data.doorBackLeft, data.doorBackRight, data.distanceUnits, currentPlayerPosition, temp, data.temperatureUnits);
+            draw(Math.round(data.speed), data.limit, data.isSlipping, data.powerHandle, data.incline, data.nextSpeedLimit, data.distanceToNextSpeedLimit, data.trainBreak, data.trainBrakeActive, data.locomotiveBrakeHandle, data.locomotiveBrakeActive, data.electricDynamicBrake, data.electricBrakeActive, data.isTractionLocked, data.localTime, data.timetableTime, data.timetableLabel, data.distanceToStation, data.reverser, data.doorFrontLeft, data.doorFrontRight, data.distanceUnits, currentPlayerPosition, temp, data.temperatureUnits, lastKnownCameraMode);
         };
 
         eventSource.onerror = () => {
