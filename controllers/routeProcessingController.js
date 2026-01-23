@@ -606,7 +606,7 @@ function processRawData(rawData) {
 }
 
 /**
- * Process a raw recording file and save to processed_routes (only in development mode)
+ * Process a raw recording file (does NOT write to disk - that's done in saveProcessedJson)
  */
 function processRecordingFile(inputFilename) {
     const inputPath = path.join(recordingDataDir, inputFilename);
@@ -622,21 +622,9 @@ function processRecordingFile(inputFilename) {
     // Process the data
     const processedData = processRawData(rawData);
 
-    // Generate output filename
+    // Generate output filename (for reference, actual file writing happens in saveProcessedJson)
     const outputFilename = inputFilename.replace('raw_data_', 'processed_');
     const outputPath = path.join(processedRoutesDir, outputFilename);
-
-    // Only save to processed_routes in development mode
-    const config = loadConfig();
-    if (config.developmentMode) {
-        if (!fs.existsSync(processedRoutesDir)) {
-            fs.mkdirSync(processedRoutesDir, { recursive: true });
-        }
-        fs.writeFileSync(outputPath, JSON.stringify(processedData, null, 2));
-        console.log(`  Saved processed file: ${outputFilename}`);
-    } else {
-        console.log(`  Skipping processed file save (not in development mode)`);
-    }
 
     return {
         inputFile: inputFilename,

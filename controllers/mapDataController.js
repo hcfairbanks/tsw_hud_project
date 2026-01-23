@@ -4,6 +4,7 @@ const path = require('path');
 const { sendJson, parseBody } = require('../utils/http');
 const { timetableDb, timetableDataDb, timetableCoordinateDb, timetableMarkerDb, entryDb } = require('../db');
 const { processRawData } = require('./routeProcessingController');
+const { loadConfig } = require('./configController');
 
 /**
  * Get all timetables with coordinate counts (for selection dropdown)
@@ -96,9 +97,11 @@ async function importFromRecording(req, res) {
 
 /**
  * Save processed JSON data to the database
+ * - Always processes raw file on-the-fly (unified flow for both dev and non-dev modes)
  * - Coordinates -> timetable_coordinates (as JSON string)
  * - Markers -> timetable_markers
  * - Timetable entries -> update lat/lng in timetable_entries by matching destination to location
+ * - In dev mode: writes the processed file to disk at the end
  */
 async function saveProcessedJson(req, res) {
     try {
@@ -110,44 +113,24 @@ async function saveProcessedJson(req, res) {
             return;
         }
 
-        // Try to find the processed file first
+        // Prepare paths
         const processedRoutesDir = path.join(__dirname, '..', 'processed_routes');
-        const processedFilePath = path.join(processedRoutesDir, filename);
-
-        // Also prepare raw file path as fallback
         const recordingDataDir = path.join(__dirname, '..', 'recording_data');
         const rawFilename = filename.replace('processed_', 'raw_data_');
         const rawFilePath = path.join(recordingDataDir, rawFilename);
+        const processedFilePath = path.join(processedRoutesDir, filename);
 
         let processedData;
-        let usedRawFile = false;
 
-        if (fs.existsSync(processedFilePath)) {
-            // Processed file exists - read it directly
-            const jsonContent = fs.readFileSync(processedFilePath, 'utf8');
-            processedData = JSON.parse(jsonContent);
-            console.log(`Loaded processed file: ${filename}`);
-
-            // Check if processed file has valid timetableId, if not fall back to raw
-            if (!processedData.timetableId && fs.existsSync(rawFilePath)) {
-                console.log(`Processed file has null timetableId, falling back to raw file: ${rawFilename}`);
-                const rawContent = fs.readFileSync(rawFilePath, 'utf8');
-                const rawData = JSON.parse(rawContent);
-                processedData = processRawData(rawData);
-                usedRawFile = true;
-                console.log(`Processed raw file on-the-fly: ${rawFilename}`);
-            }
-        } else if (fs.existsSync(rawFilePath)) {
-            // Processed file doesn't exist, but raw file does - process it on the fly
-            console.log(`Processed file not found, processing raw file: ${rawFilename}`);
+        // Always process from raw file (unified flow for both modes)
+        if (fs.existsSync(rawFilePath)) {
+            console.log(`Processing raw file on-the-fly: ${rawFilename}`);
             const rawContent = fs.readFileSync(rawFilePath, 'utf8');
             const rawData = JSON.parse(rawContent);
             processedData = processRawData(rawData);
-            usedRawFile = true;
-            console.log(`Processed raw file on-the-fly: ${rawFilename}`);
         } else {
-            // Neither file exists
-            sendJson(res, { error: `File not found: ${filename} (also tried ${rawFilename})` }, 404);
+            // Raw file doesn't exist
+            sendJson(res, { error: `Raw file not found: ${rawFilename}` }, 404);
             return;
         }
 
@@ -219,6 +202,18 @@ async function saveProcessedJson(req, res) {
             }
         }
 
+        // In development mode, write the processed file to disk at the end
+        const config = loadConfig();
+        let savedProcessedFile = false;
+        if (config.developmentMode) {
+            if (!fs.existsSync(processedRoutesDir)) {
+                fs.mkdirSync(processedRoutesDir, { recursive: true });
+            }
+            fs.writeFileSync(processedFilePath, JSON.stringify(processedData, null, 2));
+            savedProcessedFile = true;
+            console.log(`Dev mode: Saved processed file: ${filename}`);
+        }
+
         sendJson(res, {
             success: true,
             timetableId,
@@ -226,7 +221,8 @@ async function saveProcessedJson(req, res) {
             coordinateCount,
             markerCount,
             entryUpdates,
-            filename
+            filename,
+            savedProcessedFile
         });
 
     } catch (err) {
