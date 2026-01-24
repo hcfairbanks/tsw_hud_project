@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Record Map - TSW HUD Project</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
     <style>
         * {
             margin: 0;
@@ -332,31 +333,31 @@
     <div id="map"></div>
 
     <div class="info-panel">
-        <a href="/" class="nav-link">Back to Home</a>
+        <a href="/" class="nav-link" data-i18n="record.backToHome">Back to Home</a>
         <h2><span class="recording-indicator stopped" id="recordingIndicator">●</span> <span id="recordingText">Not Recording</span></h2>
 
         <div class="info-item" style="margin-bottom: 15px;">
-            <span class="info-label">Coordinates:</span>
+            <span class="info-label" data-i18n="record.coordinates">Coordinates:</span>
             <span class="info-value" id="coordCount">0</span>
         </div>
 
         <div class="info-group">
             <div id="timetableSelector" style="margin-bottom: 10px;">
-                <label class="info-label">Select Route:</label>
+                <label class="info-label" data-i18n="record.selectRoute">Select Route:</label>
                 <div class="typeahead-container">
                     <input type="text" class="typeahead-input" id="routeInput" placeholder="Type to search routes..." autocomplete="off">
                     <div id="routeDropdown" class="typeahead-dropdown"></div>
                     <input type="hidden" id="routeSelect" value="">
                 </div>
-                <label class="info-label" style="margin-top: 8px;">Select Train Class:</label>
+                <label class="info-label" style="margin-top: 8px;" data-i18n="record.selectTrainClass">Select Train Class:</label>
                 <select class="timetable-dropdown" id="trainClassSelect" disabled>
                     <option value="">-- Select a route first --</option>
                 </select>
-                <label class="info-label" style="margin-top: 8px;">Select Train:</label>
+                <label class="info-label" style="margin-top: 8px;" data-i18n="record.selectTrain">Select Train:</label>
                 <select class="timetable-dropdown" id="trainSelect" disabled>
                     <option value="">-- Select a train class first --</option>
                 </select>
-                <label class="info-label" style="margin-top: 8px;">Select Timetable:</label>
+                <label class="info-label" style="margin-top: 8px;" data-i18n="record.selectTimetable">Select Timetable:</label>
                 <select class="timetable-dropdown" id="timetableSelect" disabled>
                     <option value="">-- Select a train first --</option>
                 </select>
@@ -369,7 +370,7 @@
         </div>
 
         <div class="info-group">
-            <h3>Recording Mode</h3>
+            <h3 data-i18n="record.recordingMode">Recording Mode</h3>
             <div style="display: flex; gap: 15px; margin-bottom: 5px;">
                 <label style="display: flex; align-items: center; cursor: pointer;">
                     <input type="radio" name="recordMode" value="manual" onchange="handleModeChange(this.value)" style="margin-right: 5px;">
@@ -386,20 +387,20 @@
         </div>
 
         <div class="info-group">
-            <h3>Current Position</h3>
+            <h3 data-i18n="record.currentPosition">Current Position</h3>
             <div class="info-item">
-                <span class="info-label">Latitude:</span>
+                <span class="info-label" data-i18n="record.latitude">Latitude:</span>
                 <span class="info-value position-display" id="currentLat">-</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Longitude:</span>
+                <span class="info-label" data-i18n="record.longitude">Longitude:</span>
                 <span class="info-value position-display" id="currentLng">-</span>
             </div>
         </div>
 
         <div class="info-group">
-            <h3>Save Station Position</h3>
-            <label class="info-label">Select Station:</label>
+            <h3 data-i18n="record.saveStationPosition">Save Station Position</h3>
+            <label class="info-label" data-i18n="record.selectStation">Select Station:</label>
             <select class="timetable-dropdown" id="stationDropdown">
                 <option value="">-- Start recording first --</option>
             </select>
@@ -446,20 +447,20 @@
         </div>
 
         <div class="legend">
-            <h3>Map Legend</h3>
+            <h3 data-i18n="record.mapLegend">Map Legend</h3>
             <div class="legend-item">
                 <div class="legend-line" style="background: #0066ff;"></div>
-                <span>Route Path</span>
+                <span data-i18n="record.routePath">Route Path</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #ffa500;"></div>
-                <span>Current Train Position</span>
+                <span data-i18n="record.currentTrainPosition">Current Train Position</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #00cc66;"></div>
-                <span>Saved Station</span>
+                <span data-i18n="record.savedStation">Saved Station</span>
             </div>
-            <button class="follow-btn" id="followBtn" onclick="toggleFollowTrain()">Follow Train</button>
+            <button class="follow-btn" id="followBtn" onclick="toggleFollowTrain()" data-i18n="record.followTrain">Follow Train</button>
         </div>
     </div>
 
@@ -1882,5 +1883,6 @@
 
         initialize();
     </script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

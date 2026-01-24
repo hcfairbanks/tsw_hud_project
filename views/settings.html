@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - TSW HUD Project</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
     <style>
         * {
             box-sizing: border-box;
@@ -472,101 +473,150 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Settings</h1>
+    <h1 data-i18n="settings.title">Settings</h1>
 
-    <nav class="nav">
-        <a href="/countries">Countries</a>
-        <a href="/">Home</a>
-        <a href="/hud">HUD</a>
-        <a href="/record">Record Map</a>
-        <a href="/routes">Routes</a>
-        <a href="/settings">Settings</a>
-        <a href="/timetables">Timetables</a>
-        <a href="/map">Tracking Map</a>
-        <a href="/train-classes">Train Classes</a>
-        <a href="/trains">Trains</a>
-        <a href="/weather">Weather</a>
-    </nav>
+    <nav id="main-nav"></nav>
 
     <div class="card">
-        <h2>Server Information</h2>
+        <h2 data-i18n="settings.serverInfo">Server Information</h2>
         <div class="server-urls">
             <div class="url-row">
-                <span class="url-label">Local:</span>
+                <span class="url-label" data-i18n="settings.local">Local:</span>
                 <div class="url-value"><a id="localUrl" href="#" target="_blank">Loading...</a></div>
                 <button class="btn-copy" onclick="copyUrl('local')">Copy</button>
             </div>
             <div class="url-row">
-                <span class="url-label">Network:</span>
+                <span class="url-label" data-i18n="settings.network">Network:</span>
                 <div class="url-value"><a id="networkUrl" href="#" target="_blank">Loading...</a></div>
                 <button class="btn-copy" onclick="copyUrl('network')">Copy</button>
             </div>
         </div>
-        <p style="font-size: 11px; color: var(--text-muted); margin-top: 15px; margin-bottom: 0;">
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 15px; margin-bottom: 0;" data-i18n="settings.networkUrlNote">
             Use the Network URL to access the dashboard from other devices on the same network.
         </p>
     </div>
 
     <div class="card">
-        <h2>Appearance</h2>
+        <h2 data-i18n="settings.appearance">Appearance</h2>
 
         <div class="setting-row">
             <div class="setting-info">
-                <div class="setting-label">Theme</div>
-                <div class="setting-description">Choose between dark and light mode</div>
+                <div class="setting-label" data-i18n="settings.theme">Theme</div>
+                <div class="setting-description" data-i18n="settings.themeDesc">Choose between dark and light mode</div>
             </div>
             <div class="theme-selector">
                 <label class="theme-option" id="themeDark">
                     <input type="radio" name="theme" value="dark">
                     <div class="theme-preview dark"></div>
-                    <span>Dark</span>
+                    <span data-i18n="settings.dark">Dark</span>
                 </label>
                 <label class="theme-option" id="themeLight">
                     <input type="radio" name="theme" value="light">
                     <div class="theme-preview light"></div>
-                    <span>Light</span>
+                    <span data-i18n="settings.light">Light</span>
                 </label>
             </div>
         </div>
 
         <div class="setting-row">
             <div class="setting-info">
-                <div class="setting-label">Distance Units</div>
-                <div class="setting-description">Choose between metric (km/m) and imperial (miles/feet)</div>
+                <div class="setting-label" data-i18n="settings.language">Language</div>
+                <div class="setting-description" data-i18n="settings.languageDesc">Select your preferred language</div>
+            </div>
+        </div>
+        <div class="language-selector-settings" id="languageSelectorSettings">
+            <label class="language-option" data-lang="en">
+                <input type="radio" name="language" value="en">
+                <span class="fi fi-gb"></span>
+                <span class="language-name">English</span>
+            </label>
+            <label class="language-option" data-lang="en-US">
+                <input type="radio" name="language" value="en-US">
+                <span class="fi fi-us"></span>
+                <span class="language-name">English (US)</span>
+            </label>
+            <label class="language-option" data-lang="fr">
+                <input type="radio" name="language" value="fr">
+                <span class="fi fi-fr"></span>
+                <span class="language-name">Francais</span>
+            </label>
+            <label class="language-option" data-lang="de">
+                <input type="radio" name="language" value="de">
+                <span class="fi fi-de"></span>
+                <span class="language-name">Deutsch</span>
+            </label>
+            <label class="language-option" data-lang="it">
+                <input type="radio" name="language" value="it">
+                <span class="fi fi-it"></span>
+                <span class="language-name">Italiano</span>
+            </label>
+            <label class="language-option" data-lang="es">
+                <input type="radio" name="language" value="es">
+                <span class="fi fi-es"></span>
+                <span class="language-name">Espanol</span>
+            </label>
+            <label class="language-option" data-lang="pl">
+                <input type="radio" name="language" value="pl">
+                <span class="fi fi-pl"></span>
+                <span class="language-name">Polski</span>
+            </label>
+            <label class="language-option" data-lang="ru">
+                <input type="radio" name="language" value="ru">
+                <span class="fi fi-ru"></span>
+                <span class="language-name">Russkiy</span>
+            </label>
+            <label class="language-option" data-lang="zh">
+                <input type="radio" name="language" value="zh">
+                <span class="fi fi-cn"></span>
+                <span class="language-name">Zhongwen</span>
+            </label>
+            <label class="language-option" data-lang="ja">
+                <input type="radio" name="language" value="ja">
+                <span class="fi fi-jp"></span>
+                <span class="language-name">Nihongo</span>
+            </label>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+        <div class="setting-row">
+            <div class="setting-info">
+                <div class="setting-label" data-i18n="settings.distanceUnits">Distance Units</div>
+                <div class="setting-description" data-i18n="settings.distanceUnitsDesc">Choose between metric (km/m) and imperial (miles/feet)</div>
             </div>
             <div class="theme-selector">
                 <label class="theme-option" id="unitsMetric">
                     <input type="radio" name="distanceUnits" value="metric">
-                    <span>km / m</span>
+                    <span data-i18n="settings.metric">km / m</span>
                 </label>
                 <label class="theme-option" id="unitsImperial">
                     <input type="radio" name="distanceUnits" value="imperial">
-                    <span>mi / ft</span>
+                    <span data-i18n="settings.imperial">mi / ft</span>
                 </label>
             </div>
         </div>
 
         <div class="setting-row">
             <div class="setting-info">
-                <div class="setting-label">Temperature Units</div>
-                <div class="setting-description">Choose between Celsius and Fahrenheit</div>
+                <div class="setting-label" data-i18n="settings.temperatureUnits">Temperature Units</div>
+                <div class="setting-description" data-i18n="settings.temperatureUnitsDesc">Choose between Celsius and Fahrenheit</div>
             </div>
             <div class="theme-selector">
                 <label class="theme-option" id="tempCelsius">
                     <input type="radio" name="temperatureUnits" value="celsius">
-                    <span>°C</span>
+                    <span data-i18n="settings.celsius">°C</span>
                 </label>
                 <label class="theme-option" id="tempFahrenheit">
                     <input type="radio" name="temperatureUnits" value="fahrenheit">
-                    <span>°F</span>
+                    <span data-i18n="settings.fahrenheit">°F</span>
                 </label>
             </div>
         </div>
 
         <div class="setting-row">
             <div class="setting-info">
-                <div class="setting-label">Color Scheme</div>
-                <div class="setting-description">Adjust button colors for color vision accessibility</div>
+                <div class="setting-label" data-i18n="settings.colorScheme">Color Scheme</div>
+                <div class="setting-description" data-i18n="settings.colorSchemeDesc">Adjust button colors for color vision accessibility</div>
             </div>
         </div>
         <div class="color-scheme-selector">
@@ -578,7 +628,7 @@
                     <span class="preview-dot" style="background: #0066ff;"></span>
                     <span class="preview-dot" style="background: #ffc107;"></span>
                 </div>
-                <span>Default</span>
+                <span data-i18n="settings.default">Default</span>
             </label>
             <label class="color-scheme-option" id="colorSchemeDeuteranopia">
                 <input type="radio" name="colorScheme" value="deuteranopia">
@@ -588,7 +638,7 @@
                     <span class="preview-dot" style="background: #0066ff;"></span>
                     <span class="preview-dot" style="background: #ffc107;"></span>
                 </div>
-                <span>Red-Green (Deuteranopia/Protanopia)</span>
+                <span data-i18n="settings.deuteranopia">Red-Green (Deuteranopia/Protanopia)</span>
             </label>
             <label class="color-scheme-option" id="colorSchemeTritanopia">
                 <input type="radio" name="colorScheme" value="tritanopia">
@@ -598,29 +648,29 @@
                     <span class="preview-dot" style="background: #9b59b6;"></span>
                     <span class="preview-dot" style="background: #e67e22;"></span>
                 </div>
-                <span>Blue-Yellow (Tritanopia)</span>
+                <span data-i18n="settings.tritanopia">Blue-Yellow (Tritanopia)</span>
             </label>
         </div>
     </div>
 
     <div class="card">
-        <h2>API Configuration</h2>
+        <h2 data-i18n="settings.apiConfig">API Configuration</h2>
 
         <div class="setting-row">
             <div class="setting-info">
-                <div class="setting-label">Select TSW Version</div>
-                <div class="setting-description">Choose which Train Sim World version to use for API connection</div>
+                <div class="setting-label" data-i18n="settings.selectTswVersion">Select TSW Version</div>
+                <div class="setting-description" data-i18n="settings.selectTswVersionDesc">Choose which Train Sim World version to use for API connection</div>
             </div>
         </div>
 
         <div class="tsw-version-selector">
             <label class="tsw-version-option" id="versionTsw5">
                 <input type="radio" name="tswVersion" value="tsw5">
-                <span>Train Sim World 5</span>
+                <span data-i18n="settings.tsw5">Train Sim World 5</span>
             </label>
             <label class="tsw-version-option" id="versionTsw6">
                 <input type="radio" name="tswVersion" value="tsw6">
-                <span>Train Sim World 6</span>
+                <span data-i18n="settings.tsw6">Train Sim World 6</span>
             </label>
         </div>
 
@@ -644,9 +694,9 @@
 
         <div class="setting-row" style="border-top: 1px solid var(--border-color); margin-top: 10px;">
             <div class="setting-info">
-                <div class="setting-label">Direct API Key Override</div>
-                <div class="setting-description">Manually enter API key (overrides path settings)</div>
-                <div class="api-key-note">If set, this key will be used instead of reading from the file path</div>
+                <div class="setting-label" data-i18n="settings.apiKeyOverride">Direct API Key Override</div>
+                <div class="setting-description" data-i18n="settings.apiKeyOverrideDesc">Manually enter API key (overrides path settings)</div>
+                <div class="api-key-note" data-i18n="settings.apiKeyOverrideNote">If set, this key will be used instead of reading from the file path</div>
             </div>
         </div>
         <div class="setting-row" style="padding-top: 0;">
@@ -664,12 +714,12 @@
     </div>
 
     <div class="card">
-        <h2>Contributor</h2>
+        <h2 data-i18n="settings.contributor">Contributor</h2>
 
         <div class="setting-row">
             <div class="setting-info">
-                <div class="setting-label">Contributor Name</div>
-                <div class="setting-description">Your name will be added to timetables you create or add coordinates to</div>
+                <div class="setting-label" data-i18n="settings.contributorName">Contributor Name</div>
+                <div class="setting-description" data-i18n="settings.contributorNameDesc">Your name will be added to timetables you create or add coordinates to</div>
             </div>
         </div>
         <div class="setting-row" style="padding-top: 0;">
@@ -681,7 +731,7 @@
     </div>
 
     <div class="card">
-        <h2>Development Mode</h2>
+        <h2 data-i18n="settings.developmentMode">Development Mode</h2>
 
         <div class="setting-row">
             <div class="setting-info">
@@ -697,14 +747,14 @@
     </div>
 
     <div class="card">
-        <h2>Advanced</h2>
+        <h2 data-i18n="settings.advanced">Advanced</h2>
 
         <div class="link-row">
             <div class="setting-info">
-                <div class="setting-label">API Subscription Management</div>
-                <div class="setting-description">View and manage TSW API subscriptions</div>
+                <div class="setting-label" data-i18n="settings.apiSubscriptions">API Subscription Management</div>
+                <div class="setting-description" data-i18n="settings.apiSubscriptionsDesc">View and manage TSW API subscriptions</div>
             </div>
-            <a href="/api-subscriptions" class="link-btn">Manage Subscriptions</a>
+            <a href="/api-subscriptions" class="link-btn" data-i18n="settings.manageSubscriptions">Manage Subscriptions</a>
         </div>
     </div>
 
@@ -931,6 +981,10 @@
                 const colorScheme = config.colorScheme || 'default';
                 applyColorScheme(colorScheme);
 
+                // Load language
+                const language = config.language || 'en';
+                applyLanguage(language);
+
                 // Load contributor name
                 document.getElementById('contributorName').value = config.contributorName || '';
             } catch (err) {
@@ -1078,11 +1132,68 @@
             }, 3000);
         }
 
+        // Apply language selection UI
+        function applyLanguage(lang) {
+            // Remove active class from all options
+            document.querySelectorAll('.language-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+
+            // Update the selected option
+            const option = document.querySelector('.language-option[data-lang="' + lang + '"]');
+            if (option) {
+                option.classList.add('active');
+                const radio = option.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            }
+
+            // Update nav selector
+            const navSelector = document.getElementById('navLanguageSelector');
+            if (navSelector) {
+                navSelector.value = lang;
+            }
+
+            // Update flag in nav
+            const flagMap = {
+                'en': 'gb', 'en-US': 'us', 'fr': 'fr', 'de': 'de',
+                'it': 'it', 'es': 'es', 'pl': 'pl', 'ru': 'ru',
+                'zh': 'cn', 'ja': 'jp'
+            };
+            const flagEl = document.getElementById('navLanguageFlag');
+            if (flagEl && flagMap[lang]) {
+                flagEl.className = 'fi fi-' + flagMap[lang];
+            }
+
+            // Save to localStorage
+            localStorage.setItem('language', lang);
+        }
+
+        // Language selection handlers
+        document.querySelectorAll('.language-option').forEach(function(opt) {
+            opt.addEventListener('click', function() {
+                const lang = this.getAttribute('data-lang');
+                applyLanguage(lang);
+                saveSetting('language', lang);
+                // Use i18n to change language if available
+                if (typeof i18n !== 'undefined') {
+                    i18n.setLanguage(lang);
+                }
+            });
+        });
+
         // Load settings on page load
         loadDefaultPaths();
         loadSettings();
         loadCurrentKey();
         loadServerUrls();
+    </script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/i18n.js"></script>
+    <script>
+        // Update language setting when loaded
+        document.addEventListener('languageChanged', function(e) {
+            applyLanguage(e.detail.language);
+        });
     </script>
 </body>
 </html>

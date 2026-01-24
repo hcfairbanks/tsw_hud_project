@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSW HUD PROJECT</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
     <style>
         * {
             box-sizing: border-box;
@@ -132,46 +133,34 @@
 <body data-theme="dark">
     <h1>TSW HUD PROJECT</h1>
 
-    <nav class="nav">
-        <a href="/countries">Countries</a>
-        <a href="/">Home</a>
-        <a href="/hud">HUD</a>
-        <a href="/record">Record Map</a>
-        <a href="/routes">Routes</a>
-        <a href="/settings">Settings</a>
-        <a href="/timetables">Timetables</a>
-        <a href="/map">Tracking Map</a>
-        <a href="/train-classes">Train Classes</a>
-        <a href="/trains">Trains</a>
-        <a href="/weather">Weather</a>
-    </nav>
+    <nav id="main-nav"></nav>
 
     <div class="card">
-        <h2>Welcome</h2>
-        <p>Use the navigation above to manage routes and extract timetables from Train Sim World.</p>
+        <h2 data-i18n="home.welcome">Welcome</h2>
+        <p data-i18n="home.welcomeMessage">Use the navigation above to manage routes and extract timetables from Train Sim World.</p>
     </div>
 
     <!-- Instructions Section -->
     <div class="card">
-        <h2>Getting Started Guide</h2>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">Learn how to use the TSW HUD PROJECT to track your train journeys.</p>
+        <h2 data-i18n="home.gettingStarted">Getting Started Guide</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;" data-i18n="home.gettingStartedDesc">Learn how to use the TSW HUD PROJECT to track your train journeys.</p>
 
         <!-- Instruction 1: Extract Timetable from Images -->
         <div class="instruction-card">
             <div class="instruction-header" onclick="toggleInstruction('ocr')">
                 <span class="instruction-number">1</span>
-                <h3>Extract Timetable from Images (OCR)</h3>
+                <h3 data-i18n="home.instruction1Title">Extract Timetable from Images (OCR)</h3>
                 <span class="instruction-toggle" id="ocr-toggle">+</span>
             </div>
             <div class="instruction-content" id="ocr-content">
-                <p class="instruction-intro">Use OCR to automatically extract timetable data from Train Sim World screenshots.</p>
+                <p class="instruction-intro" data-i18n="home.instruction1Intro">Use OCR to automatically extract timetable data from Train Sim World screenshots.</p>
 
                 <div class="instruction-step">
-                    <h4>Step 1: Capture Screenshots in TSW</h4>
-                    <p>In Train Sim World, open your timetable and take screenshots of:</p>
+                    <h4><span data-i18n="instructions.step">Step</span> 1: <span data-i18n="instructions.captureScreenshots">Capture Screenshots in TSW</span></h4>
+                    <p data-i18n="instructions.captureScreenshotsDesc">In Train Sim World, open your timetable and take screenshots of:</p>
                     <ul>
-                        <li>The timetable header showing the service name and times</li>
-                        <li>The detailed timetable entries showing stops, platforms, and times</li>
+                        <li data-i18n="instructions.timetableHeader">The timetable header showing the service name and times</li>
+                        <li data-i18n="instructions.timetableEntries">The detailed timetable entries showing stops, platforms, and times</li>
                     </ul>
                     <div class="instruction-images">
                         <div class="instruction-image">
@@ -186,36 +175,36 @@
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 2: Upload Images</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 2: <span data-i18n="instructions.uploadImages">Upload Images</span></h4>
                     <ol>
-                        <li>Go to the <a href="/timetables">Timetables</a> page</li>
-                        <li>In the "Extract from Images" section, click or drag your screenshots into the upload area</li>
-                        <li>The system will automatically process the images using OCR</li>
+                        <li data-i18n="instructions.uploadImagesStep1">Go to the Timetables page</li>
+                        <li data-i18n="instructions.uploadImagesStep2">In the "Extract from Images" section, click or drag your screenshots into the upload area</li>
+                        <li data-i18n="instructions.uploadImagesStep3">The system will automatically process the images using OCR</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 3: Review and Edit Extracted Data</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 3: <span data-i18n="instructions.reviewData">Review and Edit Extracted Data</span></h4>
                     <ol>
-                        <li>Review the extracted timetable entries in the table</li>
-                        <li>Click on any cell to edit if the OCR made mistakes</li>
-                        <li>Ensure the Action type is correctly selected for each row</li>
-                        <li>Check that times are in HH:MM:SS format (e.g., 16:13:00)</li>
+                        <li data-i18n="instructions.reviewDataStep1">Review the extracted timetable entries in the table</li>
+                        <li data-i18n="instructions.reviewDataStep2">Click on any cell to edit if the OCR made mistakes</li>
+                        <li data-i18n="instructions.reviewDataStep3">Ensure the Action type is correctly selected for each row</li>
+                        <li data-i18n="instructions.reviewDataStep4">Check that times are in HH:MM:SS format (e.g., 16:13:00)</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 4: Complete the Timetable</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 4: <span data-i18n="instructions.completeTimetable">Complete the Timetable</span></h4>
                     <ol>
-                        <li>Enter or verify the <strong>Service Name</strong></li>
-                        <li>Select a <strong>Route</strong> from the dropdown</li>
-                        <li>Select at least one <strong>Train</strong> for this service</li>
-                        <li>Click <strong>"Create Timetable"</strong> to save</li>
+                        <li data-i18n="instructions.completeTimetableStep1">Enter or verify the Service Name</li>
+                        <li data-i18n="instructions.completeTimetableStep2">Select a Route from the dropdown</li>
+                        <li data-i18n="instructions.completeTimetableStep3">Select at least one Train for this service</li>
+                        <li data-i18n="instructions.completeTimetableStep4">Click "Create Timetable" to save</li>
                     </ol>
                 </div>
 
                 <div class="instruction-warning">
-                    <strong>Important:</strong> The first location and first platform are not included in the in-game timetable screenshots and will need to be added manually. This data can be added after creating the timetable without any issues.
+                    <strong data-i18n="instructions.important">Important:</strong> <span data-i18n="instructions.importantFirstLocation">The first location and first platform are not included in the in-game timetable screenshots and will need to be added manually. This data can be added after creating the timetable without any issues.</span>
                 </div>
             </div>
         </div>
@@ -224,49 +213,49 @@
         <div class="instruction-card">
             <div class="instruction-header" onclick="toggleInstruction('manual')">
                 <span class="instruction-number">2</span>
-                <h3>Create Timetable Manually</h3>
+                <h3 data-i18n="home.instruction2Title">Create Timetable Manually</h3>
                 <span class="instruction-toggle" id="manual-toggle">+</span>
             </div>
             <div class="instruction-content" id="manual-content">
-                <p class="instruction-intro">Build a timetable from scratch by entering each stop manually.</p>
+                <p class="instruction-intro" data-i18n="home.instruction2Intro">Build a timetable from scratch by entering each stop manually.</p>
 
                 <div class="instruction-step">
-                    <h4>Step 1: Start a New Timetable</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 1: <span data-i18n="instructions.startNewTimetable">Start a New Timetable</span></h4>
                     <ol>
-                        <li>Go to the <a href="/timetables">Timetables</a> page</li>
-                        <li>Click the <strong>"+ Create New Timetable"</strong> button</li>
+                        <li data-i18n="instructions.startNewTimetableStep1">Go to the Timetables page</li>
+                        <li data-i18n="instructions.startNewTimetableStep2">Click the "+ Create New Timetable" button</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 2: Enter Basic Information</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 2: <span data-i18n="instructions.enterBasicInfo">Enter Basic Information</span></h4>
                     <ol>
-                        <li>Enter the <strong>Service Name</strong> (e.g., "1C84 London Paddington to Penzance")</li>
-                        <li>Select the <strong>Route</strong> from the dropdown</li>
-                        <li>Select one or more <strong>Trains</strong> that can run this service</li>
+                        <li data-i18n="instructions.enterBasicInfoStep1">Enter the Service Name (e.g., "1C84 London Paddington to Penzance")</li>
+                        <li data-i18n="instructions.enterBasicInfoStep2">Select the Route from the dropdown</li>
+                        <li data-i18n="instructions.enterBasicInfoStep3">Select one or more Trains that can run this service</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 3: Add Timetable Entries</h4>
-                    <p>Click <strong>"+ Add Entry"</strong> to add stops. For each entry:</p>
+                    <h4><span data-i18n="instructions.step">Step</span> 3: <span data-i18n="instructions.addEntries">Add Timetable Entries</span></h4>
+                    <p data-i18n="instructions.addEntriesDesc">Click "+ Add Entry" to add stops. For each entry:</p>
                     <ul>
-                        <li><strong>Action:</strong> Select the type (WAIT FOR SERVICE, STOP AT LOCATION, LOAD PASSENGERS, etc.)</li>
-                        <li><strong>Location:</strong> Enter the station name</li>
-                        <li><strong>Platform:</strong> Enter the platform number if applicable</li>
-                        <li><strong>Time 1:</strong> Arrival time (HH:MM:SS format)</li>
-                        <li><strong>Time 2:</strong> Departure time (HH:MM:SS format)</li>
+                        <li data-i18n="instructions.addEntriesAction">Action: Select the type (WAIT FOR SERVICE, STOP AT LOCATION, LOAD PASSENGERS, etc.)</li>
+                        <li data-i18n="instructions.addEntriesLocation">Location: Enter the station name</li>
+                        <li data-i18n="instructions.addEntriesPlatform">Platform: Enter the platform number if applicable</li>
+                        <li data-i18n="instructions.addEntriesTime1">Time 1: Arrival time (HH:MM:SS format)</li>
+                        <li data-i18n="instructions.addEntriesTime2">Time 2: Departure time (HH:MM:SS format)</li>
                     </ul>
-                    <p>Use the <strong>"Quick Add Common Entries"</strong> buttons to quickly add preset actions.</p>
+                    <p data-i18n="instructions.addEntriesQuickAdd">Use the "Quick Add Common Entries" buttons to quickly add preset actions.</p>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 4: Save the Timetable</h4>
-                    <p>Click <strong>"Create Timetable"</strong> when all entries are added.</p>
+                    <h4><span data-i18n="instructions.step">Step</span> 4: <span data-i18n="instructions.saveTimetable">Save the Timetable</span></h4>
+                    <p data-i18n="instructions.saveTimetableDesc">Click "Create Timetable" when all entries are added.</p>
                 </div>
 
                 <div class="instruction-tip">
-                    <strong>Tip:</strong> You can always edit the timetable later by clicking on it in the timetables list.
+                    <strong data-i18n="instructions.tip">Tip:</strong> <span data-i18n="instructions.tipEditLater">You can always edit the timetable later by clicking on it in the timetables list.</span>
                 </div>
             </div>
         </div>
@@ -275,33 +264,33 @@
         <div class="instruction-card">
             <div class="instruction-header" onclick="toggleInstruction('import')">
                 <span class="instruction-number">3</span>
-                <h3>Import Timetable from JSON</h3>
+                <h3 data-i18n="home.instruction3Title">Import Timetable from JSON</h3>
                 <span class="instruction-toggle" id="import-toggle">+</span>
             </div>
             <div class="instruction-content" id="import-content">
-                <p class="instruction-intro">Import previously exported timetables or share timetables with others.</p>
+                <p class="instruction-intro" data-i18n="home.instruction3Intro">Import previously exported timetables or share timetables with others.</p>
 
                 <div class="instruction-step">
-                    <h4>Importing a Timetable</h4>
+                    <h4 data-i18n="instructions.importingTimetable">Importing a Timetable</h4>
                     <ol>
-                        <li>Go to the <a href="/timetables">Timetables</a> page</li>
-                        <li>In the "Import Timetable" section, click or drag a JSON file into the upload area</li>
-                        <li>The system will validate and import the timetable automatically</li>
-                        <li>You'll be redirected to the timetable view on success</li>
+                        <li data-i18n="instructions.importingStep1">Go to the Timetables page</li>
+                        <li data-i18n="instructions.importingStep2">In the "Import Timetable" section, click or drag a JSON file into the upload area</li>
+                        <li data-i18n="instructions.importingStep3">The system will validate and import the timetable automatically</li>
+                        <li data-i18n="instructions.importingStep4">You'll be redirected to the timetable view on success</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Exporting a Timetable</h4>
+                    <h4 data-i18n="instructions.exportingTimetable">Exporting a Timetable</h4>
                     <ol>
-                        <li>Open any timetable from the list</li>
-                        <li>Click the <strong>"Export JSON"</strong> button</li>
-                        <li>Save the JSON file to share or backup</li>
+                        <li data-i18n="instructions.exportingStep1">Open any timetable from the list</li>
+                        <li data-i18n="instructions.exportingStep2">Click the "Export JSON" button</li>
+                        <li data-i18n="instructions.exportingStep3">Save the JSON file to share or backup</li>
                     </ol>
                 </div>
 
                 <div class="instruction-tip">
-                    <strong>Tip:</strong> JSON exports include all timetable data including coordinates, making them perfect for backups or sharing complete routes.
+                    <strong data-i18n="instructions.tip">Tip:</strong> <span data-i18n="instructions.tipJsonExport">JSON exports include all timetable data including coordinates, making them perfect for backups or sharing complete routes.</span>
                 </div>
             </div>
         </div>
@@ -310,60 +299,60 @@
         <div class="instruction-card">
             <div class="instruction-header" onclick="toggleInstruction('record')">
                 <span class="instruction-number">4</span>
-                <h3>Record Timetable Coordinates</h3>
+                <h3 data-i18n="home.instruction4Title">Record Timetable Coordinates</h3>
                 <span class="instruction-toggle" id="record-toggle">+</span>
             </div>
             <div class="instruction-content" id="record-content">
-                <p class="instruction-intro">Record GPS coordinates for your timetable by running the route in Train Sim World while connected to the HUD Project.</p>
+                <p class="instruction-intro" data-i18n="home.instruction4Intro">Record GPS coordinates for your timetable by running the route in Train Sim World while connected to the HUD Project.</p>
 
                 <div class="instruction-step">
-                    <h4>Step 1: Open the Record Map</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 1: <span data-i18n="instructions.openRecordMap">Open the Record Map</span></h4>
                     <ol>
-                        <li>Go to the <a href="/record">Record Map</a> page</li>
-                        <li>Select your <strong>Route</strong> from the dropdown</li>
-                        <li>Select the <strong>Train Class</strong></li>
-                        <li>Select the <strong>Train</strong></li>
-                        <li>Select the <strong>Timetable</strong> you want to record</li>
+                        <li data-i18n="instructions.openRecordMapStep1">Go to the Record Map page</li>
+                        <li data-i18n="instructions.openRecordMapStep2">Select your Route from the dropdown</li>
+                        <li data-i18n="instructions.openRecordMapStep3">Select the Train Class</li>
+                        <li data-i18n="instructions.openRecordMapStep4">Select the Train</li>
+                        <li data-i18n="instructions.openRecordMapStep5">Select the Timetable you want to record</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 2: Start Recording</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 2: <span data-i18n="instructions.startRecording">Start Recording</span></h4>
                     <ol>
-                        <li>Start Train Sim World and load your service</li>
-                        <li>Click the <strong>"Start"</strong> button on the Record Map page</li>
-                        <li>Begin driving your route - coordinates will be recorded automatically</li>
-                        <li>The map will show your path in real-time</li>
+                        <li data-i18n="instructions.startRecordingStep1">Start Train Sim World and load your service</li>
+                        <li data-i18n="instructions.startRecordingStep2">Click the "Start" button on the Record Map page</li>
+                        <li data-i18n="instructions.startRecordingStep3">Begin driving your route - coordinates will be recorded automatically</li>
+                        <li data-i18n="instructions.startRecordingStep4">The map will show your path in real-time</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 3: Save Station Positions</h4>
-                    <p>As you arrive at each station:</p>
+                    <h4><span data-i18n="instructions.step">Step</span> 3: <span data-i18n="instructions.saveStationPositions">Save Station Positions</span></h4>
+                    <p data-i18n="instructions.saveStationPositionsDesc">As you arrive at each station:</p>
                     <ol>
-                        <li>Select the station from the <strong>"Select Station"</strong> dropdown</li>
-                        <li>Click <strong>"Save Position"</strong> to record the coordinates</li>
-                        <li>The station will be marked with a green marker on the map</li>
+                        <li data-i18n="instructions.saveStationPositionsStep1">Select the station from the "Select Station" dropdown</li>
+                        <li data-i18n="instructions.saveStationPositionsStep2">Click "Save Position" to record the coordinates</li>
+                        <li data-i18n="instructions.saveStationPositionsStep3">The station will be marked with a green marker on the map</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 4: Complete Recording</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 4: <span data-i18n="instructions.completeRecording">Complete Recording</span></h4>
                     <ol>
-                        <li>When finished, click <strong>"Save"</strong> to process and save all data</li>
-                        <li>The recording will be processed and saved to the database</li>
-                        <li>Click <strong>"Reset"</strong> to clear and start fresh if needed</li>
+                        <li data-i18n="instructions.completeRecordingStep1">When finished, click "Save" to process and save all data</li>
+                        <li data-i18n="instructions.completeRecordingStep2">The recording will be processed and saved to the database</li>
+                        <li data-i18n="instructions.completeRecordingStep3">Click "Reset" to clear and start fresh if needed</li>
                     </ol>
                 </div>
 
                 <div class="instruction-tip">
-                    <strong>Recording Modes:</strong><br>
-                    - <strong>Automatic:</strong> Recording auto-stops after 4 minutes of no movement<br>
-                    - <strong>Manual:</strong> Recording continues until you click Save
+                    <strong data-i18n="instructions.recordingModes">Recording Modes:</strong><br>
+                    - <strong data-i18n="instructions.automatic">Automatic:</strong> <span data-i18n="instructions.automaticDesc">Recording auto-stops after 4 minutes of no movement</span><br>
+                    - <strong data-i18n="instructions.manual">Manual:</strong> <span data-i18n="instructions.manualDesc">Recording continues until you click Save</span>
                 </div>
 
                 <div class="instruction-tip">
-                    <strong>Tip:</strong> Use the "Pause" button if you need to take a break during recording. Resume when ready to continue.
+                    <strong data-i18n="instructions.tip">Tip:</strong> <span data-i18n="instructions.tipPause">Use the "Pause" button if you need to take a break during recording. Resume when ready to continue.</span>
                 </div>
             </div>
         </div>
@@ -372,66 +361,66 @@
         <div class="instruction-card">
             <div class="instruction-header" onclick="toggleInstruction('auto-record')">
                 <span class="instruction-number">5</span>
-                <h3>Automatically Record Timetable Coordinates</h3>
+                <h3 data-i18n="home.instruction5Title">Automatically Record Timetable Coordinates</h3>
                 <span class="instruction-toggle" id="auto-record-toggle">+</span>
             </div>
             <div class="instruction-content" id="auto-record-content">
-                <p class="instruction-intro">Automatically record coordinates for your timetable entries while the AI drives the route for you. This explanation sounds more complicated than it is - a video tutorial will be added soon.</p>
+                <p class="instruction-intro" data-i18n="home.instruction5Intro">Automatically record coordinates for your timetable entries while the AI drives the route for you. This explanation sounds more complicated than it is - a video tutorial will be added soon.</p>
 
                 <div class="instruction-step">
-                    <h4>Step 1: In Game Setup</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 1: <span data-i18n="instructions.inGameSetup">In Game Setup</span></h4>
                     <ol>
-                        <li>Start Train Sim World</li>
-                        <li>Select your route</li>
-                        <li>Select your train</li>
-                        <li>Take a screenshot of the service name</li>
-                        <li>Start the timetable</li>
-                        <li><strong>Do not touch any train controls</strong></li>
-                        <li>Navigate to the schedule screen</li>
-                        <li>Take screenshots of the schedule (multiple if needed)</li>
+                        <li data-i18n="instructions.inGameSetupStep1">Start Train Sim World</li>
+                        <li data-i18n="instructions.inGameSetupStep2">Select your route</li>
+                        <li data-i18n="instructions.inGameSetupStep3">Select your train</li>
+                        <li data-i18n="instructions.inGameSetupStep4">Take a screenshot of the service name</li>
+                        <li data-i18n="instructions.inGameSetupStep5">Start the timetable</li>
+                        <li data-i18n="instructions.inGameSetupStep6">Do not touch any train controls</li>
+                        <li data-i18n="instructions.inGameSetupStep7">Navigate to the schedule screen</li>
+                        <li data-i18n="instructions.inGameSetupStep8">Take screenshots of the schedule (multiple if needed)</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 2: In the App</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 2: <span data-i18n="instructions.inTheApp">In the App</span></h4>
                     <ol>
-                        <li>Start the server</li>
-                        <li>Select or create your route</li>
-                        <li>Select or create your train</li>
-                        <li>Upload your screenshots to the <a href="/timetables">Timetables</a> page</li>
+                        <li data-i18n="instructions.inTheAppStep1">Start the server</li>
+                        <li data-i18n="instructions.inTheAppStep2">Select or create your route</li>
+                        <li data-i18n="instructions.inTheAppStep3">Select or create your train</li>
+                        <li data-i18n="instructions.inTheAppStep4">Upload your screenshots to the Timetables page</li>
                     </ol>
                 </div>
 
                 <div class="instruction-warning">
-                    <strong>Important:</strong> The order of screenshots matters! They need to be in chronological order. If your screenshots have timestamps and you followed the flow above, you will be fine.
+                    <strong data-i18n="instructions.important">Important:</strong> <span data-i18n="instructions.importantScreenshotOrder">The order of screenshots matters! They need to be in chronological order. If your screenshots have timestamps and you followed the flow above, you will be fine.</span>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 3: Complete Timetable Data</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 3: <span data-i18n="instructions.completeTimetableData">Complete Timetable Data</span></h4>
                     <ol>
-                        <li>Go to Route Map to get the first location name and platform number</li>
-                        <li>Add the location name and platform number to the timetable</li>
-                        <li>Review and confirm the data - the "Service Name" often has OCR errors, but timetable data is usually accurate</li>
-                        <li>Click <strong>"Create Timetable"</strong></li>
+                        <li data-i18n="instructions.completeTimetableDataStep1">Go to Route Map to get the first location name and platform number</li>
+                        <li data-i18n="instructions.completeTimetableDataStep2">Add the location name and platform number to the timetable</li>
+                        <li data-i18n="instructions.completeTimetableDataStep3">Review and confirm the data - the "Service Name" often has OCR errors, but timetable data is usually accurate</li>
+                        <li data-i18n="instructions.completeTimetableDataStep4">Click "Create Timetable"</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 4: Start Auto Recording</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 4: <span data-i18n="instructions.startAutoRecording">Start Auto Recording</span></h4>
                     <ol>
-                        <li>Go to the <a href="/record">Recording</a> page</li>
-                        <li>Select your route, train, and timetable</li>
-                        <li>Click <strong>"Record"</strong></li>
+                        <li data-i18n="instructions.startAutoRecordingStep1">Go to the Recording page</li>
+                        <li data-i18n="instructions.startAutoRecordingStep2">Select your route, train, and timetable</li>
+                        <li data-i18n="instructions.startAutoRecordingStep3">Click "Record"</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 5: Enable AI Driver (In Game)</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 5: <span data-i18n="instructions.enableAIDriver">Enable AI Driver (In Game)</span></h4>
                     <ol>
-                        <li>Use God Mode to access the console commands</li>
-                        <li>Enable the <strong>"Relinquish Service"</strong> command from the God Mode menu</li>
-                        <li>Sit in the copilot's seat</li>
-                        <li>Come back when automatic recording is complete</li>
+                        <li data-i18n="instructions.enableAIDriverStep1">Use God Mode to access the console commands</li>
+                        <li data-i18n="instructions.enableAIDriverStep2">Enable the "Relinquish Service" command from the God Mode menu</li>
+                        <li data-i18n="instructions.enableAIDriverStep3">Sit in the copilot's seat</li>
+                        <li data-i18n="instructions.enableAIDriverStep4">Come back when automatic recording is complete</li>
                     </ol>
                     <div class="instruction-images">
                         <div class="instruction-image">
@@ -442,13 +431,13 @@
                 </div>
 
                 <div class="instruction-tip">
-                    <strong>How Stop Detection Works:</strong><br>
-                    - Each stop (including the first) must be recorded stopped for a minimum of <strong>30 seconds</strong> to be identified as a stop<br>
-                    - If the train doesn't move for around <strong>5 minutes</strong> (usually at the last stop), the server will automatically stop recording, identify all stops based on timing, and save everything to the database
+                    <strong data-i18n="instructions.stopDetection">How Stop Detection Works:</strong><br>
+                    - <span data-i18n="instructions.stopDetectionDesc1">Each stop (including the first) must be recorded stopped for a minimum of 30 seconds to be identified as a stop</span><br>
+                    - <span data-i18n="instructions.stopDetectionDesc2">If the train doesn't move for around 5 minutes (usually at the last stop), the server will automatically stop recording, identify all stops based on timing, and save everything to the database</span>
                 </div>
 
                 <div class="instruction-tip">
-                    <strong>Benefit:</strong> This method lets you enjoy all the data that comes from a full route recording without having to sit through the entire journey!
+                    <strong data-i18n="instructions.benefit">Benefit:</strong> <span data-i18n="instructions.benefitDesc">This method lets you enjoy all the data that comes from a full route recording without having to sit through the entire journey!</span>
                 </div>
             </div>
         </div>
@@ -457,61 +446,61 @@
         <div class="instruction-card">
             <div class="instruction-header" onclick="toggleInstruction('tracking')">
                 <span class="instruction-number">6</span>
-                <h3>Using the Tracking Map</h3>
+                <h3 data-i18n="home.instruction6Title">Using the Tracking Map</h3>
                 <span class="instruction-toggle" id="tracking-toggle">+</span>
             </div>
             <div class="instruction-content" id="tracking-content">
-                <p class="instruction-intro">View your live train position on the map while playing Train Sim World.</p>
+                <p class="instruction-intro" data-i18n="home.instruction6Intro">View your live train position on the map while playing Train Sim World.</p>
 
                 <div class="instruction-step">
-                    <h4>Step 1: Load a Timetable</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 1: <span data-i18n="instructions.loadTimetable">Load a Timetable</span></h4>
                     <ol>
-                        <li>Go to the <a href="/map">Tracking Map</a> page</li>
-                        <li>In the "Load Timetable" section, select your <strong>Route</strong></li>
-                        <li>Select the <strong>Train Class</strong> and <strong>Train</strong></li>
-                        <li>Select a <strong>Timetable</strong> (only timetables with recorded coordinates will appear)</li>
-                        <li>Click <strong>"Load Timetable"</strong></li>
+                        <li data-i18n="instructions.loadTimetableStep1">Go to the Tracking Map page</li>
+                        <li data-i18n="instructions.loadTimetableStep2">In the "Load Timetable" section, select your Route</li>
+                        <li data-i18n="instructions.loadTimetableStep3">Select the Train Class and Train</li>
+                        <li data-i18n="instructions.loadTimetableStep4">Select a Timetable (only timetables with recorded coordinates will appear)</li>
+                        <li data-i18n="instructions.loadTimetableStep5">Click "Load Timetable"</li>
                     </ol>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 2: View Live Tracking</h4>
-                    <p>Once connected to Train Sim World:</p>
+                    <h4><span data-i18n="instructions.step">Step</span> 2: <span data-i18n="instructions.viewLiveTracking">View Live Tracking</span></h4>
+                    <p data-i18n="instructions.viewLiveTrackingDesc">Once connected to Train Sim World:</p>
                     <ul>
-                        <li>Your train position appears as an <strong>orange marker</strong></li>
-                        <li>The route path is shown as a <strong>blue line</strong></li>
-                        <li>Station stops are marked with <strong>green circles</strong></li>
-                        <li>The info panel shows your current <strong>speed</strong> and <strong>direction</strong></li>
+                        <li data-i18n="instructions.viewLiveTrackingOrange">Your train position appears as an orange marker</li>
+                        <li data-i18n="instructions.viewLiveTrackingBlue">The route path is shown as a blue line</li>
+                        <li data-i18n="instructions.viewLiveTrackingGreen">Station stops are marked with green circles</li>
+                        <li data-i18n="instructions.viewLiveTrackingInfo">The info panel shows your current speed and direction</li>
                     </ul>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 3: Timetable Information</h4>
-                    <p>The timetable display shows:</p>
+                    <h4><span data-i18n="instructions.step">Step</span> 3: <span data-i18n="instructions.timetableInfo">Timetable Information</span></h4>
+                    <p data-i18n="instructions.timetableInfoDesc">The timetable display shows:</p>
                     <ul>
-                        <li><strong>Game Time:</strong> Current in-game time</li>
-                        <li><strong>Next Stop Time:</strong> Scheduled time for the next station</li>
-                        <li><strong>Distance:</strong> Distance remaining to the next stop</li>
+                        <li data-i18n="instructions.timetableInfoGameTime">Game Time: Current in-game time</li>
+                        <li data-i18n="instructions.timetableInfoNextStop">Next Stop Time: Scheduled time for the next station</li>
+                        <li data-i18n="instructions.timetableInfoDistance">Distance: Distance remaining to the next stop</li>
                     </ul>
                 </div>
 
                 <div class="instruction-step">
-                    <h4>Step 4: Follow Mode</h4>
+                    <h4><span data-i18n="instructions.step">Step</span> 4: <span data-i18n="instructions.followMode">Follow Mode</span></h4>
                     <ol>
-                        <li>Click <strong>"Follow Train"</strong> to keep the map centered on your position</li>
-                        <li>Click <strong>"Stop Following"</strong> to browse the map freely</li>
+                        <li data-i18n="instructions.followModeStep1">Click "Follow Train" to keep the map centered on your position</li>
+                        <li data-i18n="instructions.followModeStep2">Click "Stop Following" to browse the map freely</li>
                     </ol>
                 </div>
 
                 <div class="instruction-tip">
-                    <strong>Tip:</strong> Click <strong>"Open HUD"</strong> to open a dedicated heads-up display window that you can position alongside your game.
+                    <strong data-i18n="instructions.tip">Tip:</strong> <span data-i18n="instructions.tipOpenHUD">Click "Open HUD" to open a dedicated heads-up display window that you can position alongside your game.</span>
                 </div>
 
                 <div class="instruction-tip">
-                    <strong>Map Legend:</strong><br>
-                    - <span style="color: #0066ff;">Blue line</span> = Route path<br>
-                    - <span style="color: #00cc66;">Green circles</span> = Timetable stations<br>
-                    - <span style="color: #ffa500;">Orange marker</span> = Your live train position
+                    <strong data-i18n="instructions.mapLegend">Map Legend:</strong><br>
+                    - <span style="color: #0066ff;" data-i18n="instructions.blueLine">Blue line</span> = <span data-i18n="instructions.routePath">Route path</span><br>
+                    - <span style="color: #00cc66;" data-i18n="instructions.greenCircles">Green circles</span> = <span data-i18n="instructions.timetableStations">Timetable stations</span><br>
+                    - <span style="color: #ffa500;" data-i18n="instructions.orangeMarker">Orange marker</span> = <span data-i18n="instructions.liveTrainPosition">Your live train position</span>
                 </div>
             </div>
         </div>
@@ -783,5 +772,7 @@
             }
         });
     </script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

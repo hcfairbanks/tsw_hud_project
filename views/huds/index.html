@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSW HUD - Select Display</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme-loader.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        h1 {
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+        .hud-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+        }
+        .hud-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .hud-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+        .hud-card h2 {
+            color: var(--accent-color);
+            margin: 0 0 12px 0;
+            font-size: 1.5rem;
+            border: none;
+            padding: 0;
+        }
+        .hud-card .device-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+        .hud-card .description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        .hud-card .features {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .hud-card .features ul {
+            margin: 8px 0 0 0;
+            padding-left: 20px;
+        }
+        .hud-card .features li {
+            margin-bottom: 4px;
+        }
+        .hud-card .resolution {
+            display: inline-block;
+            background: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+        .legacy-link {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .legacy-link a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .legacy-link a:hover {
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <nav id="main-nav"></nav>
+
+    <h1>🚂 HUD Displays</h1>
+    <p class="subtitle">Choose the display optimized for your device</p>
+
+    <div class="hud-grid">
+        <a href="/mobile" class="hud-card">
+            <div class="device-icon">📱</div>
+            <h2>Mobile</h2>
+            <p class="description">
+                Full-featured HUD optimized for smartphones in landscape orientation. 
+                Large touch targets and simplified station selector for one-handed operation.
+            </p>
+            <div class="features">
+                <strong>Best for:</strong>
+                <ul>
+                    <li>Samsung Galaxy S23 and similar phones</li>
+                    <li>Landscape orientation</li>
+                    <li>Touch-first interaction</li>
+                </ul>
+            </div>
+            <span class="resolution">1920 × 900 canvas</span>
+        </a>
+
+        <a href="/tablet" class="hud-card">
+            <div class="device-icon">📲</div>
+            <h2>Tablet</h2>
+            <p class="description">
+                Comprehensive HUD with all telemetry data visible at once. 
+                Includes station selector with scroll support and detailed brake information.
+            </p>
+            <div class="features">
+                <strong>Best for:</strong>
+                <ul>
+                    <li>Samsung Tab S9 FE and similar tablets</li>
+                    <li>Mounted tablet displays</li>
+                    <li>Touch or mouse interaction</li>
+                </ul>
+            </div>
+            <span class="resolution">1920 × 900 canvas</span>
+        </a>
+
+        <a href="/desktop" class="hud-card">
+            <div class="device-icon">🖥️</div>
+            <h2>Desktop</h2>
+            <p class="description">
+                Same layout as Tablet HUD, designed for use on a secondary monitor 
+                or browser window alongside the game on PC.
+            </p>
+            <div class="features">
+                <strong>Best for:</strong>
+                <ul>
+                    <li>Secondary PC monitors</li>
+                    <li>Windowed browser alongside game</li>
+                    <li>Mouse interaction</li>
+                </ul>
+            </div>
+            <span class="resolution">1920 × 900 canvas</span>
+        </a>
+
+        <a href="/experiment" class="hud-card">
+            <div class="device-icon">🧪</div>
+            <h2>Experiment</h2>
+            <p class="description">
+                Minimal canvas-based HUD with a compact speedometer design. 
+                Used for testing new layouts and features before rolling out to other HUDs.
+            </p>
+            <div class="features">
+                <strong>Best for:</strong>
+                <ul>
+                    <li>Testing new features</li>
+                    <li>Compact display needs</li>
+                    <li>Development purposes</li>
+                </ul>
+            </div>
+            <span class="resolution">Responsive canvas</span>
+        </a>
+    </div>
+
+    <div class="legacy-link">
+        <a href="/hud">→ Open legacy HUD dashboard</a>
+    </div>
+
+    <script src="/js/navbar.js"></script>
+</body>
+</html>

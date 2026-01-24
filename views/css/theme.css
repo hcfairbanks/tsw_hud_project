@@ -449,3 +449,170 @@
     text-align: center;
     margin-bottom: 10px;
 }
+
+/* Language selector in nav bar - flag dropdown */
+.language-selector-nav {
+    position: relative;
+    margin-left: auto;
+}
+
+.language-selector-nav .current-flag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px 8px 12px;
+    background: var(--bg-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.language-selector-nav .current-flag:hover {
+    background: var(--bg-secondary);
+}
+
+.language-selector-nav .current-flag .fi {
+    font-size: 20px;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px var(--border-color);
+}
+
+.language-selector-nav .current-flag .dropdown-arrow {
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.language-selector-nav .current-flag.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.language-selector-nav .flag-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px var(--shadow-strong);
+    z-index: 1000;
+    min-width: 50px;
+}
+
+.language-selector-nav .flag-dropdown.open {
+    display: block;
+}
+
+.language-selector-nav .flag-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    background: var(--bg-primary);
+    transition: background-color 0.15s ease;
+}
+
+.language-selector-nav .flag-option:first-child {
+    border-radius: 4px 4px 0 0;
+}
+
+.language-selector-nav .flag-option:last-child {
+    border-radius: 0 0 4px 4px;
+}
+
+.language-selector-nav .flag-option:hover {
+    background: var(--bg-secondary);
+}
+
+.language-selector-nav .flag-option.active {
+    background: var(--bg-secondary);
+}
+
+.language-selector-nav .flag-option .fi {
+    font-size: 20px;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px var(--border-color);
+}
+
+/* Hidden select for accessibility/fallback */
+.language-selector-nav select {
+    display: none;
+}
+
+/* Language selector in settings page */
+.language-selector-settings {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.language-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.language-option:hover {
+    border-color: var(--accent-color);
+    background: var(--bg-tertiary);
+}
+
+.language-option.active {
+    border-color: var(--accent-color);
+    background: var(--bg-tertiary);
+}
+
+.language-option input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.language-option input[type="radio"]:checked {
+    border-color: var(--accent-color);
+}
+
+.language-option input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: var(--accent-color);
+    border-radius: 50%;
+}
+
+.language-option .fi {
+    font-size: 20px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.language-option .language-name {
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.language-option .language-name-english {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 4px;
+}

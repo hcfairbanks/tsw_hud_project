@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Route Tracker</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
     <style>
         * {
             margin: 0;
@@ -354,8 +355,8 @@
     <div id="map"></div>
 
     <div class="info-panel">
-        <a href="/" class="nav-link">Back to Home</a>
-        <h2><span class="status-indicator" id="statusIndicator"></span>Tracking</h2>
+        <a href="/" class="nav-link" data-i18n="map.backToHome">Back to Home</a>
+        <h2><span class="status-indicator" id="statusIndicator"></span><span data-i18n="map.tracking">Tracking</span></h2>
 
         <div class="info-item" style="margin-bottom: 15px; display: none;" id="connectionStatusItem">
             <span id="connectionStatus">Lost Connection</span>
@@ -363,11 +364,11 @@
 
         <div class="route-selector">
             <div class="section-header" onclick="toggleTimetableSection()">
-                <h3>Load Timetable</h3>
+                <h3 data-i18n="map.loadTimetable">Load Timetable</h3>
                 <span class="collapse-icon" id="timetableCollapseIcon">▼</span>
             </div>
             <div class="collapsible-content" id="timetableContent">
-                <label style="font-size: 11px; color: #666;">Route:</label>
+                <label style="font-size: 11px; color: #666;" data-i18n="map.route">Route:</label>
                 <div class="typeahead-container" style="position: relative;">
                     <input type="text" id="routeInput" placeholder="Type to search routes..." autocomplete="off"
                         style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
@@ -375,21 +376,21 @@
                     </div>
                     <input type="hidden" id="routeSelect" value="">
                 </div>
-                <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;">Train Class:</label>
+                <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;" data-i18n="map.trainClass">Train Class:</label>
                 <select id="trainClassSelect" onchange="handleTrainClassChange()" disabled>
                     <option value="">-- Select a train class --</option>
                 </select>
-                <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;">Train:</label>
+                <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;" data-i18n="map.train">Train:</label>
                 <select id="trainSelect" onchange="handleTrainChange()" disabled>
                     <option value="">-- Select a train class first --</option>
                 </select>
-                <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;">Timetable:</label>
+                <label style="font-size: 11px; color: #666; margin-top: 8px; display: block;" data-i18n="map.timetable">Timetable:</label>
                 <select id="timetableSelect" onchange="handleTimetableChange()" disabled>
                     <option value="">-- Select a timetable --</option>
                 </select>
-                <button id="loadRouteBtn" onclick="loadSelectedTimetable()" disabled style="margin-top: 10px;">Load Timetable</button>
-                <button id="clearRouteBtn" onclick="clearLoadedRoute()" style="width: 100%; margin-top: 8px; padding: 8px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: none;">Clear Loaded Route</button>
-                <a href="/hud" target="_blank" id="openHudLink" style="display: none; margin-top: 8px; text-align: center; padding: 8px; background: #8b5cf6; color: white; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">Open HUD</a>
+                <button id="loadRouteBtn" onclick="loadSelectedTimetable()" disabled style="margin-top: 10px;" data-i18n="map.loadTimetable">Load Timetable</button>
+                <button id="clearRouteBtn" onclick="clearLoadedRoute()" style="width: 100%; margin-top: 8px; padding: 8px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: none;" data-i18n="map.clearLoadedRoute">Clear Loaded Route</button>
+                <a href="/huds" target="_blank" id="openHudLink" style="display: none; margin-top: 8px; text-align: center; padding: 8px; background: #8b5cf6; color: white; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;" data-i18n="map.openHud">Open HUD</a>
                 <div id="routeInfoGroup" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
                     <h3 id="routeName" style="font-size: 13px; color: #333; margin: 0;">Loading...</h3>
                     <div class="info-item" style="display: none;">
@@ -401,8 +402,8 @@
         </div>
 
         <div class="dev-tools" style="background: rgba(255, 0, 0, 0.15); border: 2px solid rgba(255, 0, 0, 0.4); border-radius: 6px; padding: 12px; margin-top: 15px;">
-            <h3 style="color: #cc0000; margin: 0 0 10px 0; font-size: 14px;">Development Tools</h3>
-            <label style="font-size: 11px; color: #666;">Load JSON File:</label>
+            <h3 style="color: #cc0000; margin: 0 0 10px 0; font-size: 14px;" data-i18n="map.developmentTools">Development Tools</h3>
+            <label style="font-size: 11px; color: #666;" data-i18n="map.loadJsonFile">Load JSON File:</label>
             <input type="file" id="jsonFileInput" accept=".json" onchange="handleFileSelect()" style="width: 100%; margin-top: 5px; font-size: 11px;">
             <div class="status-message" id="devStatusMessage" style="margin-top: 8px;"></div>
         </div>
@@ -417,17 +418,17 @@
         </div>
 
         <div class="info-group">
-            <h3>Train Status</h3>
+            <h3 data-i18n="map.trainStatus">Train Status</h3>
             <div class="info-item">
-                <span class="info-label">Speed:</span>
+                <span class="info-label" data-i18n="map.speed">Speed:</span>
                 <span class="info-value"><span id="speed">0</span> km/h</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Direction:</span>
+                <span class="info-label" data-i18n="map.direction">Direction:</span>
                 <span class="info-value" id="direction">-</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Position:</span>
+                <span class="info-label" data-i18n="map.position">Position:</span>
                 <span class="info-value" style="font-size: 11px;">
                     <div>Lat: <span id="currentLat">-</span></div>
                     <div>Lng: <span id="currentLng">-</span></div>
@@ -436,20 +437,20 @@
         </div>
 
         <div class="legend">
-            <h3>Map Legend</h3>
+            <h3 data-i18n="map.mapLegend">Map Legend</h3>
             <div class="legend-item">
                 <div class="legend-line" style="background: #0066ff;"></div>
-                <span>Route Path</span>
+                <span data-i18n="map.routePath">Route Path</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #00cc66;"></div>
-                <span>Timetable Stations</span>
+                <span data-i18n="map.timetableStations">Timetable Stations</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #ffa500;"></div>
-                <span>Live Train Position</span>
+                <span data-i18n="map.liveTrainPosition">Live Train Position</span>
             </div>
-            <button class="follow-btn" id="followBtn" onclick="toggleFollowTrain()" title="Click to follow train position">Follow Train</button>
+            <button class="follow-btn" id="followBtn" onclick="toggleFollowTrain()" title="Click to follow train position" data-i18n="map.followTrain">Follow Train</button>
         </div>
     </div>
 
@@ -1283,5 +1284,6 @@
 
         console.log('Live Route Tracker initialized');
     </script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

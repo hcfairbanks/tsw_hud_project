@@ -109,80 +109,68 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Routes</h1>
+    <h1 data-i18n="routes.title">Routes</h1>
 
-    <nav class="nav">
-        <a href="/countries">Countries</a>
-        <a href="/">Home</a>
-        <a href="/hud">HUD</a>
-        <a href="/record">Record Map</a>
-        <a href="/routes">Routes</a>
-        <a href="/settings">Settings</a>
-        <a href="/timetables">Timetables</a>
-        <a href="/map">Tracking Map</a>
-        <a href="/train-classes">Train Classes</a>
-        <a href="/trains">Trains</a>
-        <a href="/weather">Weather</a>
-    </nav>
+    <nav id="main-nav"></nav>
     <div class="card">
-        <h2>Add New Route</h2>
+        <h2 data-i18n="routes.addNew">Add New Route</h2>
         <form id="addForm">
             <div class="form-group">
-                <label for="name">Route Name:</label>
-                <input type="text" id="name" name="name" required placeholder="e.g., London Euston to Birmingham">
+                <label for="name" data-i18n="routes.routeName">Route Name:</label>
+                <input type="text" id="name" name="name" required placeholder="e.g., London Euston to Birmingham" data-i18n-placeholder="routes.routeNamePlaceholder">
             </div>
             <div class="form-group">
-                <label for="country">Country:</label>
+                <label for="country" data-i18n="routes.country">Country:</label>
                 <div class="country-select-container" id="countryContainer">
                     <div class="country-select-display" id="countryDisplay" onclick="toggleCountryDropdown('add')">
-                        <span>Select a country...</span>
+                        <span data-i18n="routes.selectCountry">Select a country...</span>
                     </div>
                     <div class="country-dropdown" id="countryDropdown"></div>
                     <input type="hidden" id="country" name="country" required>
                 </div>
             </div>
-            <button type="submit" class="btn-primary">Add Route</button>
+            <button type="submit" class="btn-primary" data-i18n="routes.addRoute">Add Route</button>
         </form>
     </div>
     <div class="card" id="editForm">
-        <h2>Edit Route</h2>
+        <h2 data-i18n="routes.editRoute">Edit Route</h2>
         <form id="editFormInner">
             <input type="hidden" id="editId">
             <div class="form-group">
-                <label for="editName">Route Name:</label>
+                <label for="editName" data-i18n="routes.routeName">Route Name:</label>
                 <input type="text" id="editName" name="name" required>
             </div>
             <div class="form-group">
-                <label for="editCountry">Country:</label>
+                <label for="editCountry" data-i18n="routes.country">Country:</label>
                 <div class="country-select-container" id="editCountryContainer">
                     <div class="country-select-display" id="editCountryDisplay" onclick="toggleCountryDropdown('edit')">
-                        <span>Select a country...</span>
+                        <span data-i18n="routes.selectCountry">Select a country...</span>
                     </div>
                     <div class="country-dropdown" id="editCountryDropdown"></div>
                     <input type="hidden" id="editCountry" name="country" required>
                 </div>
             </div>
-            <button type="submit" class="btn-primary">Save Changes</button>
-            <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
+            <button type="submit" class="btn-primary" data-i18n="common.save">Save Changes</button>
+            <button type="button" class="btn-secondary" onclick="cancelEdit()" data-i18n="common.cancel">Cancel</button>
         </form>
     </div>
     <div class="card">
-        <h2>Routes</h2>
+        <h2 data-i18n="routes.allRoutes">Routes</h2>
         <div class="search-box">
             <div class="typeahead-container">
-                <input type="text" id="routeSearchInput" placeholder="Type to search routes..." autocomplete="off">
+                <input type="text" id="routeSearchInput" placeholder="Type to search routes..." autocomplete="off" data-i18n-placeholder="routes.searchPlaceholder">
                 <div id="routeSearchDropdown" class="typeahead-dropdown"></div>
             </div>
             <div class="filter-country-container" id="filterCountryContainer">
                 <div class="country-select-display" id="filterCountryDisplay" onclick="toggleCountryDropdown('filter')">
-                    <span>All Countries</span>
+                    <span data-i18n="routes.allCountries">All Countries</span>
                 </div>
                 <div class="country-dropdown" id="filterCountryDropdown"></div>
                 <input type="hidden" id="countryFilter">
             </div>
-            <button class="btn-secondary" onclick="clearSearch()">Clear</button>
+            <button class="btn-secondary" onclick="clearSearch()" data-i18n="common.clear">Clear</button>
         </div>
-        <div id="routesList"><p class="empty-message">Loading routes...</p></div>
+        <div id="routesList"><p class="empty-message" data-i18n="common.loading">Loading routes...</p></div>
         <div class="pagination" id="pagination"></div>
     </div>
     <script>
@@ -456,8 +444,8 @@
 
         function renderRoutes(routes) {
             const container = document.getElementById('routesList');
-            if (routes.length === 0) { container.innerHTML = '<p class="empty-message">No routes found.</p>'; return; }
-            let html = '<table><thead><tr><th>Name</th><th>Country</th><th class="actions">Actions</th></tr></thead><tbody>';
+            if (routes.length === 0) { container.innerHTML = '<p class="empty-message" data-i18n="routes.noRoutes">No routes found.</p>'; return; }
+            let html = '<table><thead><tr><th data-i18n="common.name">Name</th><th data-i18n="routes.country">Country</th><th class="actions" data-i18n="common.actions">Actions</th></tr></thead><tbody>';
             routes.forEach(function(r) {
                 // Look up country name from country_id or fallback to country text
                 const country = allCountries.find(function(c) { return c.id == r.country_id; });
@@ -466,12 +454,13 @@
                 html += '<tr><td><a href="/routes/' + r.id + '">' + escapeHtml(r.name) + '</a></td>';
                 var countryFlag = country ? countryCodeToFlag(country.code) : '';
                 html += '<td>' + (country ? '<a href="/countries/' + country.id + '">' + countryFlag + escapeHtml(countryName) + '</a>' : escapeHtml(countryName)) + '</td>';
-                html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + r.id + ')">Show</button>';
-                html += '<button class="btn-secondary" onclick="editRoute(' + r.id + ',\'' + escapeJs(r.name) + '\',' + countryId + ')">Edit</button>';
-                html += '<button class="btn-danger" onclick="deleteRoute(' + r.id + ')">Delete</button></td></tr>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + r.id + ')" data-i18n="common.show">Show</button>';
+                html += '<button class="btn-secondary" onclick="editRoute(' + r.id + ',\'' + escapeJs(r.name) + '\',' + countryId + ')" data-i18n="common.edit">Edit</button>';
+                html += '<button class="btn-danger" onclick="deleteRoute(' + r.id + ')" data-i18n="common.delete">Delete</button></td></tr>';
             });
             html += '</tbody></table>';
             container.innerHTML = html;
+            if (typeof i18n !== 'undefined') i18n.updatePageTranslations();
         }
 
         function showRoute(id) { window.location.href = '/routes/' + id; }
@@ -554,5 +543,7 @@
         loadCountries().then(loadRoutes);
         loadAllRoutesForSearch();
     </script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

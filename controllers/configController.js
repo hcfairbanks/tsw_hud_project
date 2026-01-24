@@ -13,6 +13,7 @@ const defaultConfig = {
     developmentMode: false,
     apiKey: '',
     theme: 'dark', // 'dark' or 'light'
+    language: 'en', // Language code: en, en-US, fr, de, it, es, pl, ru, zh, ja
     tswVersion: 'tsw6', // 'tsw5' or 'tsw6'
     tsw5KeyPath: '', // Path to TSW5 CommAPIKey.txt
     tsw6KeyPath: '',  // Path to TSW6 CommAPIKey.txt

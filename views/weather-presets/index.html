@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Presets - TSW HUD Project</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+    <script src="/js/theme-loader.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
@@ -47,74 +49,62 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Weather Presets</h1>
+    <h1 data-i18n="weatherPresets.title">Weather Presets</h1>
 
-    <nav class="nav">
-        <a href="/countries">Countries</a>
-        <a href="/">Home</a>
-        <a href="/hud">HUD</a>
-        <a href="/record">Record Map</a>
-        <a href="/routes">Routes</a>
-        <a href="/settings">Settings</a>
-        <a href="/timetables">Timetables</a>
-        <a href="/map">Tracking Map</a>
-        <a href="/train-classes">Train Classes</a>
-        <a href="/trains">Trains</a>
-        <a href="/weather">Weather</a>
-    </nav>
+    <nav id="main-nav"></nav>
 
     <div class="card">
-        <h2>Add New Preset</h2>
+        <h2 data-i18n="weatherPresets.addNewPreset">Add New Preset</h2>
         <form id="addForm">
             <div class="form-grid">
                 <div class="form-group full-width">
-                    <label for="name">Preset Name:</label>
-                    <input type="text" id="name" name="name" required placeholder="e.g., Rainy Morning">
+                    <label for="name" data-i18n="weatherPresets.presetName">Preset Name:</label>
+                    <input type="text" id="name" name="name" required data-i18n-placeholder="weatherPresets.presetNamePlaceholder" placeholder="e.g., Rainy Morning">
                 </div>
                 <div class="form-group">
-                    <label for="temperature">Temperature (C):</label>
+                    <label for="temperature" data-i18n="weatherPresets.temperature">Temperature (C):</label>
                     <div class="slider-group">
                         <input type="range" id="temperature" name="temperature" min="-40" max="50" value="20" step="0.5" oninput="updateSliderValue('temperature')">
                         <span class="slider-value" id="temperature-value">20</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="cloudiness">Cloudiness:</label>
+                    <label for="cloudiness" data-i18n="weatherPresets.cloudiness">Cloudiness:</label>
                     <div class="slider-group">
                         <input type="range" id="cloudiness" name="cloudiness" min="0" max="100" value="0" oninput="updateSliderValue('cloudiness')">
                         <span class="slider-value" id="cloudiness-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="precipitation">Precipitation:</label>
+                    <label for="precipitation" data-i18n="weatherPresets.precipitation">Precipitation:</label>
                     <div class="slider-group">
                         <input type="range" id="precipitation" name="precipitation" min="0" max="100" value="0" oninput="updateSliderValue('precipitation')">
                         <span class="slider-value" id="precipitation-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="wetness">Wetness:</label>
+                    <label for="wetness" data-i18n="weatherPresets.wetness">Wetness:</label>
                     <div class="slider-group">
                         <input type="range" id="wetness" name="wetness" min="0" max="100" value="0" oninput="updateSliderValue('wetness')">
                         <span class="slider-value" id="wetness-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="ground_snow">Ground Snow:</label>
+                    <label for="ground_snow" data-i18n="weatherPresets.groundSnow">Ground Snow:</label>
                     <div class="slider-group">
                         <input type="range" id="ground_snow" name="ground_snow" min="0" max="100" value="0" oninput="updateSliderValue('ground_snow')">
                         <span class="slider-value" id="ground_snow-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="piled_snow">Piled Snow:</label>
+                    <label for="piled_snow" data-i18n="weatherPresets.piledSnow">Piled Snow:</label>
                     <div class="slider-group">
                         <input type="range" id="piled_snow" name="piled_snow" min="0" max="100" value="0" oninput="updateSliderValue('piled_snow')">
                         <span class="slider-value" id="piled_snow-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="fog_density">Fog Density:</label>
+                    <label for="fog_density" data-i18n="weatherPresets.fogDensity">Fog Density:</label>
                     <div class="slider-group">
                         <input type="range" id="fog_density" name="fog_density" min="0" max="100" value="0" oninput="updateSliderValue('fog_density')">
                         <span class="slider-value" id="fog_density-value">0%</span>
@@ -122,64 +112,64 @@
                 </div>
             </div>
             <div style="margin-top: 15px;">
-                <button type="submit" class="btn-primary">Add Preset</button>
+                <button type="submit" class="btn-primary" data-i18n="weatherPresets.addPreset">Add Preset</button>
             </div>
         </form>
     </div>
 
     <div class="card" id="editForm">
-        <h2>Edit Preset</h2>
+        <h2 data-i18n="weatherPresets.editPreset">Edit Preset</h2>
         <form id="editFormInner">
             <input type="hidden" id="editId">
             <div class="form-grid">
                 <div class="form-group full-width">
-                    <label for="editName">Preset Name:</label>
+                    <label for="editName" data-i18n="weatherPresets.presetName">Preset Name:</label>
                     <input type="text" id="editName" name="name" required>
                 </div>
                 <div class="form-group">
-                    <label for="editTemperature">Temperature (C):</label>
+                    <label for="editTemperature" data-i18n="weatherPresets.temperature">Temperature (C):</label>
                     <div class="slider-group">
                         <input type="range" id="editTemperature" name="temperature" min="-40" max="50" value="20" step="0.5" oninput="updateEditSliderValue('Temperature')">
                         <span class="slider-value" id="editTemperature-value">20</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="editCloudiness">Cloudiness:</label>
+                    <label for="editCloudiness" data-i18n="weatherPresets.cloudiness">Cloudiness:</label>
                     <div class="slider-group">
                         <input type="range" id="editCloudiness" name="cloudiness" min="0" max="100" value="0" oninput="updateEditSliderValue('Cloudiness')">
                         <span class="slider-value" id="editCloudiness-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="editPrecipitation">Precipitation:</label>
+                    <label for="editPrecipitation" data-i18n="weatherPresets.precipitation">Precipitation:</label>
                     <div class="slider-group">
                         <input type="range" id="editPrecipitation" name="precipitation" min="0" max="100" value="0" oninput="updateEditSliderValue('Precipitation')">
                         <span class="slider-value" id="editPrecipitation-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="editWetness">Wetness:</label>
+                    <label for="editWetness" data-i18n="weatherPresets.wetness">Wetness:</label>
                     <div class="slider-group">
                         <input type="range" id="editWetness" name="wetness" min="0" max="100" value="0" oninput="updateEditSliderValue('Wetness')">
                         <span class="slider-value" id="editWetness-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="editGround_snow">Ground Snow:</label>
+                    <label for="editGround_snow" data-i18n="weatherPresets.groundSnow">Ground Snow:</label>
                     <div class="slider-group">
                         <input type="range" id="editGround_snow" name="ground_snow" min="0" max="100" value="0" oninput="updateEditSliderValue('Ground_snow')">
                         <span class="slider-value" id="editGround_snow-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="editPiled_snow">Piled Snow:</label>
+                    <label for="editPiled_snow" data-i18n="weatherPresets.piledSnow">Piled Snow:</label>
                     <div class="slider-group">
                         <input type="range" id="editPiled_snow" name="piled_snow" min="0" max="100" value="0" oninput="updateEditSliderValue('Piled_snow')">
                         <span class="slider-value" id="editPiled_snow-value">0%</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="editFog_density">Fog Density:</label>
+                    <label for="editFog_density" data-i18n="weatherPresets.fogDensity">Fog Density:</label>
                     <div class="slider-group">
                         <input type="range" id="editFog_density" name="fog_density" min="0" max="100" value="0" oninput="updateEditSliderValue('Fog_density')">
                         <span class="slider-value" id="editFog_density-value">0%</span>
@@ -187,16 +177,16 @@
                 </div>
             </div>
             <div style="margin-top: 15px;">
-                <button type="submit" class="btn-primary">Save</button>
-                <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
+                <button type="submit" class="btn-primary" data-i18n="common.save">Save</button>
+                <button type="button" class="btn-secondary" onclick="cancelEdit()" data-i18n="common.cancel">Cancel</button>
             </div>
         </form>
     </div>
 
     <div class="card">
-        <h2>All Presets</h2>
+        <h2 data-i18n="weatherPresets.allPresets">All Presets</h2>
         <div id="presetsList">
-            <p class="empty-message">Loading presets...</p>
+            <p class="empty-message" data-i18n="weatherPresets.loadingPresets">Loading presets...</p>
         </div>
     </div>
 
@@ -230,14 +220,14 @@
                 allPresets = await response.json();
                 renderPresets();
             } catch (err) {
-                document.getElementById('presetsList').innerHTML = '<p class="empty-message">Error loading presets</p>';
+                document.getElementById('presetsList').innerHTML = `<p class="empty-message">${i18n.t('weatherPresets.errorLoadingPresets')}</p>`;
             }
         }
 
         function renderPresets() {
             const container = document.getElementById('presetsList');
             if (allPresets.length === 0) {
-                container.innerHTML = '<p class="empty-message">No presets found. Add one above!</p>';
+                container.innerHTML = `<p class="empty-message">${i18n.t('weatherPresets.noPresets')}</p>`;
                 return;
             }
 
@@ -245,14 +235,14 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Temp</th>
-                            <th>Cloud</th>
-                            <th>Precip</th>
-                            <th>Wet</th>
-                            <th>Snow</th>
-                            <th>Fog</th>
-                            <th class="actions">Actions</th>
+                            <th>${i18n.t('weatherPresets.tableName')}</th>
+                            <th>${i18n.t('weatherPresets.tableTemp')}</th>
+                            <th>${i18n.t('weatherPresets.tableCloud')}</th>
+                            <th>${i18n.t('weatherPresets.tablePrecip')}</th>
+                            <th>${i18n.t('weatherPresets.tableWet')}</th>
+                            <th>${i18n.t('weatherPresets.tableSnow')}</th>
+                            <th>${i18n.t('weatherPresets.tableFog')}</th>
+                            <th class="actions">${i18n.t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -269,8 +259,8 @@
                         <td>${(preset.ground_snow * 100).toFixed(0)}%</td>
                         <td>${(preset.fog_density * 100).toFixed(0)}%</td>
                         <td class="actions">
-                            <button class="btn-secondary" onclick="editPreset(${preset.id})">Edit</button>
-                            <button class="btn-danger" onclick="deletePreset(${preset.id})">Delete</button>
+                            <button class="btn-secondary" onclick="editPreset(${preset.id})">${i18n.t('common.edit')}</button>
+                            <button class="btn-danger" onclick="deletePreset(${preset.id})">${i18n.t('common.delete')}</button>
                         </td>
                     </tr>
                 `;
@@ -316,13 +306,13 @@
         }
 
         async function deletePreset(id) {
-            if (!confirm('Are you sure you want to delete this preset?')) return;
+            if (!confirm(i18n.t('weatherPresets.confirmDelete'))) return;
 
             try {
                 await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
                 loadPresets();
             } catch (err) {
-                alert('Error deleting preset');
+                alert(i18n.t('weatherPresets.errorDeleting'));
             }
         }
 
@@ -358,10 +348,10 @@
                     loadPresets();
                 } else {
                     const data = await response.json();
-                    alert(data.error || 'Error creating preset');
+                    alert(data.error || i18n.t('weatherPresets.errorCreating'));
                 }
             } catch (err) {
-                alert('Error creating preset');
+                alert(i18n.t('weatherPresets.errorCreating'));
             }
         });
 
@@ -393,10 +383,10 @@
                     loadPresets();
                 } else {
                     const data = await response.json();
-                    alert(data.error || 'Error updating preset');
+                    alert(data.error || i18n.t('weatherPresets.errorUpdating'));
                 }
             } catch (err) {
-                alert('Error updating preset');
+                alert(i18n.t('weatherPresets.errorUpdating'));
             }
         });
 
@@ -414,5 +404,7 @@
         // Initial load
         loadPresets();
     </script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

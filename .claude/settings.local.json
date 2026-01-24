@@ -12,7 +12,10 @@
       "Bash(tail:*)",
       "Bash(grep:*)",
       "Bash(ls:*)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(for f in views/locales/*.json)",
+      "Bash(do echo \"Validating $f...\")",
+      "Bash(done)"
     ]
   }
 }

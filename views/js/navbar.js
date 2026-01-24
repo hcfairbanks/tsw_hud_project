@@ -7,7 +7,7 @@
 (function() {
     var navLinks = [
         { href: '/', label: 'Home' },
-        { href: '/hud', label: 'HUD' },
+        { href: '/huds', label: 'HUD' },
         { href: '/map', label: 'Tracking Map' },
         { href: '/record', label: 'Record Map' },
         { href: '/routes', label: 'Routes' },

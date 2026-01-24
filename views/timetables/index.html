@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timetables - TSW HUD Project</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+    <script src="/js/theme-loader.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
@@ -91,34 +93,22 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Timetables</h1>
+    <h1 data-i18n="timetables.title">Timetables</h1>
 
-    <nav class="nav">
-        <a href="/countries">Countries</a>
-        <a href="/">Home</a>
-        <a href="/hud">HUD</a>
-        <a href="/record">Record Map</a>
-        <a href="/routes">Routes</a>
-        <a href="/settings">Settings</a>
-        <a href="/timetables">Timetables</a>
-        <a href="/map">Tracking Map</a>
-        <a href="/train-classes">Train Classes</a>
-        <a href="/trains">Trains</a>
-        <a href="/weather">Weather</a>
-    </nav>
+    <nav id="main-nav"></nav>
 
     <div class="card" style="display: flex; gap: 20px; align-items: stretch; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 250px;">
-            <h2>Extract from Images</h2>
+            <h2 data-i18n="timetables.extractFromImages">Extract from Images</h2>
             <div class="upload-area" id="imageUploadArea">
                 <div class="upload-icon">&#128247;</div>
-                <div class="upload-text">Click or drag images here</div>
+                <div class="upload-text" data-i18n="timetables.dragDropImages">Click or drag images here</div>
                 <div class="upload-hint">Supports: PNG, JPG, JPEG, GIF, BMP</div>
                 <input type="file" id="imageFileInput" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,image/*" style="display: none;">
             </div>
             <div class="file-list" id="imageFileList"></div>
             <div style="margin-top: 15px;">
-                <button class="btn-secondary" id="clearImagesBtn">Clear</button>
+                <button class="btn-secondary" id="clearImagesBtn" data-i18n="common.reset">Clear</button>
             </div>
             <div class="progress-bar" id="imageProgressBar">
                 <div class="fill" id="imageProgressFill"></div>
@@ -128,16 +118,16 @@
         </div>
         <div style="display: flex; align-items: center; color: var(--text-muted);">OR</div>
         <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <h2 style="margin-bottom: 15px;">Create Manually</h2>
-            <a href="/timetables/create" class="btn-primary" style="padding: 15px 30px; text-decoration: none; border-radius: 4px; font-size: 16px;">+ Create New Timetable</a>
+            <h2 style="margin-bottom: 15px;" data-i18n="timetables.createNew">Create Manually</h2>
+            <a href="/timetables/create" class="btn-primary" style="padding: 15px 30px; text-decoration: none; border-radius: 4px; font-size: 16px;" data-i18n="timetables.createNew">+ Create New Timetable</a>
             <p style="color: var(--text-muted); margin-top: 15px; font-size: 13px; text-align: center;">Build a timetable from scratch by adding entries manually</p>
         </div>
         <div style="display: flex; align-items: center; color: var(--text-muted);">OR</div>
         <div style="flex: 1; min-width: 250px;">
-            <h2>Import Timetable</h2>
+            <h2 data-i18n="timetables.importTimetable">Import Timetable</h2>
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">&#128194;</div>
-                <div class="upload-text">Click to select or drag and drop a JSON file</div>
+                <div class="upload-text" data-i18n="timetables.dragDropJson">Click to select or drag and drop a JSON file</div>
                 <div class="upload-hint">Accepts exported timetable JSON files</div>
                 <input type="file" id="fileInput" accept=".json" onchange="handleFileSelect(event)">
             </div>
@@ -147,25 +137,25 @@
 
     <!-- Extraction Results Section -->
     <div class="card" id="extractResultsSection">
-        <h2>Extracted Timetable</h2>
+        <h2 data-i18n="timetables.extractedTimetable">Extracted Timetable</h2>
 
         <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 15px;">
             <div style="flex: 1; min-width: 200px;">
-                <label style="color: #888; font-size: 12px;">Service Name *</label>
-                <input type="text" class="service-name-input" id="extractServiceName" placeholder="Service Name" required>
+                <label style="color: #888; font-size: 12px;" data-i18n="timetables.serviceName">Service Name *</label>
+                <input type="text" class="service-name-input" id="extractServiceName" data-i18n-placeholder="timetables.serviceNamePlaceholder" placeholder="Service Name" required>
             </div>
             <div style="flex: 1; min-width: 200px;">
-                <label style="color: #888; font-size: 12px;">Route *</label>
+                <label style="color: #888; font-size: 12px;" data-i18n="timetables.route">Route *</label>
                 <div class="typeahead-container">
-                    <input type="text" id="extractRouteInput" placeholder="Select a route..." autocomplete="off" required>
+                    <input type="text" id="extractRouteInput" data-i18n-placeholder="timetables.selectRoute" placeholder="Select a route..." autocomplete="off" required>
                     <div id="extractRouteDropdown" class="typeahead-dropdown"></div>
                     <input type="hidden" id="extractRouteId" value="">
                 </div>
             </div>
             <div style="flex: 1; min-width: 200px;">
-                <label style="color: #888; font-size: 12px;">Trains * (at least one)</label>
+                <label style="color: #888; font-size: 12px;" data-i18n="timetables.trains">Trains * (at least one)</label>
                 <div class="typeahead-container">
-                    <input type="text" id="extractTrainInput" placeholder="Select a route first..." autocomplete="off" disabled>
+                    <input type="text" id="extractTrainInput" data-i18n-placeholder="timetables.selectTrain" placeholder="Select a route first..." autocomplete="off" disabled>
                     <div id="extractTrainDropdown" class="typeahead-dropdown"></div>
                 </div>
                 <div id="extractSelectedTrains" style="margin-top: 8px;"></div>
@@ -177,15 +167,15 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Action</th>
-                        <th>Details</th>
-                        <th>Location</th>
-                        <th>Platform</th>
-                        <th>Time 1</th>
-                        <th>Time 2</th>
-                        <th>Latitude</th>
-                        <th>Longitude</th>
-                        <th class="actions">Actions</th>
+                        <th data-i18n="timetables.action">Action</th>
+                        <th data-i18n="common.description">Details</th>
+                        <th data-i18n="timetables.location">Location</th>
+                        <th data-i18n="timetables.platform">Platform</th>
+                        <th data-i18n="timetables.time1">Time 1</th>
+                        <th data-i18n="timetables.time2">Time 2</th>
+                        <th data-i18n="record.latitude">Latitude</th>
+                        <th data-i18n="record.longitude">Longitude</th>
+                        <th class="actions" data-i18n="common.actions">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="extractTableBody">
@@ -194,13 +184,13 @@
         </div>
 
         <div style="margin-top: 15px;">
-            <button class="btn-success" id="createExtractedBtn">Create Timetable</button>
-            <button class="btn-secondary" id="addExtractRowBtn">Add Row</button>
-            <button class="btn-secondary" id="cancelExtractBtn" style="margin-left: 20px;">Cancel</button>
+            <button class="btn-success" id="createExtractedBtn" data-i18n="timetables.createNew">Create Timetable</button>
+            <button class="btn-secondary" id="addExtractRowBtn" data-i18n="timetables.addEntry">Add Row</button>
+            <button class="btn-secondary" id="cancelExtractBtn" style="margin-left: 20px;" data-i18n="common.cancel">Cancel</button>
         </div>
 
         <div style="margin-top: 20px;">
-            <h3 class="collapsible collapsed" id="rawToggle">Raw OCR Output</h3>
+            <h3 class="collapsible collapsed" id="rawToggle" data-i18n="timetables.rawOcrOutput">Raw OCR Output</h3>
             <div class="collapsible-content hidden" id="rawContent">
                 <div class="raw-text" id="rawText"></div>
             </div>
@@ -208,33 +198,33 @@
     </div>
 
     <div class="card">
-        <h2>All Timetables</h2>
+        <h2 data-i18n="timetables.allTimetables">All Timetables</h2>
         <div class="filter-box">
-            <label>Service:</label>
+            <label data-i18n="timetables.serviceName">Service:</label>
             <div class="typeahead-container">
-                <input type="text" id="serviceInput" placeholder="Type to search services..." autocomplete="off">
+                <input type="text" id="serviceInput" data-i18n-placeholder="common.search" placeholder="Type to search services..." autocomplete="off">
                 <div id="serviceDropdown" class="typeahead-dropdown"></div>
                 <input type="hidden" id="serviceFilter" value="">
             </div>
-            <label>Route:</label>
+            <label data-i18n="timetables.route">Route:</label>
             <div class="typeahead-container">
-                <input type="text" id="routeInput" placeholder="Type to search routes..." autocomplete="off">
+                <input type="text" id="routeInput" data-i18n-placeholder="common.search" placeholder="Type to search routes..." autocomplete="off">
                 <div id="routeDropdown" class="typeahead-dropdown"></div>
                 <input type="hidden" id="routeFilter" value="">
             </div>
-            <label>Train:</label>
+            <label data-i18n="trains.title">Train:</label>
             <div class="typeahead-container">
-                <input type="text" id="trainInput" placeholder="Type to search trains..." autocomplete="off">
+                <input type="text" id="trainInput" data-i18n-placeholder="common.search" placeholder="Type to search trains..." autocomplete="off">
                 <div id="trainDropdown" class="typeahead-dropdown"></div>
                 <input type="hidden" id="trainFilter" value="">
             </div>
-            <label>Status:</label>
+            <label data-i18n="common.status">Status:</label>
             <select id="completedFilter" onchange="renderTimetables(1)">
-                <option value="">All</option>
-                <option value="completed">Completed</option>
-                <option value="not_completed">Not Completed</option>
+                <option value="" data-i18n="common.all">All</option>
+                <option value="completed" data-i18n="timetables.hasCoordinates">Completed</option>
+                <option value="not_completed" data-i18n="timetables.noCoordinates">Not Completed</option>
             </select>
-            <button class="btn-secondary" onclick="clearFilters()">Clear</button>
+            <button class="btn-secondary" onclick="clearFilters()" data-i18n="common.reset">Clear</button>
         </div>
         <div id="timetablesList">
             <p class="empty-message">Loading timetables...</p>
@@ -1320,5 +1310,7 @@
 
         loadData();
     </script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

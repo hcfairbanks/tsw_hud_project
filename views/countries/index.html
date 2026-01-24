@@ -45,58 +45,46 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Countries</h1>
+    <h1 data-i18n="countries.title">Countries</h1>
 
-    <nav class="nav">
-        <a href="/countries">Countries</a>
-        <a href="/">Home</a>
-        <a href="/hud">HUD</a>
-        <a href="/record">Record Map</a>
-        <a href="/routes">Routes</a>
-        <a href="/settings">Settings</a>
-        <a href="/timetables">Timetables</a>
-        <a href="/map">Tracking Map</a>
-        <a href="/train-classes">Train Classes</a>
-        <a href="/trains">Trains</a>
-        <a href="/weather">Weather</a>
-    </nav>
+    <nav id="main-nav"></nav>
 
     <div class="card">
-        <h2>Add New Country</h2>
+        <h2 data-i18n="countries.addNew">Add New Country</h2>
         <form id="addForm" class="add-form">
             <div class="form-group">
-                <label for="name">Country Name:</label>
-                <input type="text" id="name" name="name" required placeholder="e.g., United Kingdom">
+                <label for="name" data-i18n="countries.countryName">Country Name:</label>
+                <input type="text" id="name" name="name" required placeholder="e.g., United Kingdom" data-i18n-placeholder="countries.namePlaceholder">
             </div>
             <div class="form-group code">
-                <label for="code">Code *:</label>
-                <input type="text" id="code" name="code" required placeholder="e.g., GB">
+                <label for="code" data-i18n="countries.code">Code *:</label>
+                <input type="text" id="code" name="code" required placeholder="e.g., GB" data-i18n-placeholder="countries.codePlaceholder">
             </div>
-            <button type="submit" class="btn-primary">Add</button>
+            <button type="submit" class="btn-primary" data-i18n="common.add">Add</button>
         </form>
     </div>
 
     <div class="card" id="editForm">
-        <h2>Edit Country</h2>
+        <h2 data-i18n="countries.editCountry">Edit Country</h2>
         <form id="editFormInner" class="add-form">
             <input type="hidden" id="editId">
             <div class="form-group">
-                <label for="editName">Country Name:</label>
+                <label for="editName" data-i18n="countries.countryName">Country Name:</label>
                 <input type="text" id="editName" name="name" required>
             </div>
             <div class="form-group code">
-                <label for="editCode">Code *:</label>
+                <label for="editCode" data-i18n="countries.code">Code *:</label>
                 <input type="text" id="editCode" name="code" required>
             </div>
-            <button type="submit" class="btn-primary">Save</button>
-            <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
+            <button type="submit" class="btn-primary" data-i18n="common.save">Save</button>
+            <button type="button" class="btn-secondary" onclick="cancelEdit()" data-i18n="common.cancel">Cancel</button>
         </form>
     </div>
 
     <div class="card">
-        <h2>All Countries</h2>
+        <h2 data-i18n="countries.allCountries">All Countries</h2>
         <div id="countriesList">
-            <p class="empty-message">Loading countries...</p>
+            <p class="empty-message" data-i18n="countries.loading">Loading countries...</p>
         </div>
     </div>
 
@@ -111,7 +99,8 @@
                 renderCountries();
             } catch (error) {
                 console.error('Error loading countries:', error);
-                document.getElementById('countriesList').innerHTML = '<p class="empty-message">Error loading countries</p>';
+                var errorMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.errorLoading') : 'Error loading countries';
+                document.getElementById('countriesList').innerHTML = '<p class="empty-message">' + errorMsg + '</p>';
             }
         }
 
@@ -125,20 +114,28 @@
             const container = document.getElementById('countriesList');
 
             if (allCountries.length === 0) {
-                container.innerHTML = '<p class="empty-message">No countries found.</p>';
+                container.innerHTML = '<p class="empty-message" data-i18n="countries.noCountries">No countries found.</p>';
+                if (typeof i18n !== 'undefined') i18n.translatePage();
                 return;
             }
 
-            let html = '<table><thead><tr><th>Name</th><th>Code</th><th class="actions">Actions</th></tr></thead><tbody>';
+            var nameHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.name') : 'Name';
+            var codeHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.code') : 'Code';
+            var actionsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.actions') : 'Actions';
+            var showBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.show') : 'Show';
+            var editBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.edit') : 'Edit';
+            var deleteBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.delete') : 'Delete';
+
+            let html = '<table><thead><tr><th>' + nameHeader + '</th><th>' + codeHeader + '</th><th class="actions">' + actionsHeader + '</th></tr></thead><tbody>';
             allCountries.forEach(function(c) {
                 var flag = countryCodeToFlag(c.code);
                 html += '<tr>';
                 html += '<td><a href="/countries/' + c.id + '">' + flag + escapeHtml(c.name) + '</a></td>';
                 html += '<td>' + escapeHtml(c.code || '') + '</td>';
                 html += '<td class="actions">';
-                html += '<button class="btn-primary" onclick="showCountry(' + c.id + ')">Show</button>';
-                html += '<button class="btn-secondary" onclick="editCountry(' + c.id + ', \'' + escapeJs(c.name) + '\', \'' + escapeJs(c.code || '') + '\')">Edit</button>';
-                html += '<button class="btn-danger" onclick="deleteCountry(' + c.id + ')">Delete</button>';
+                html += '<button class="btn-primary" onclick="showCountry(' + c.id + ')">' + showBtn + '</button>';
+                html += '<button class="btn-secondary" onclick="editCountry(' + c.id + ', \'' + escapeJs(c.name) + '\', \'' + escapeJs(c.code || '') + '\')">' + editBtn + '</button>';
+                html += '<button class="btn-danger" onclick="deleteCountry(' + c.id + ')">' + deleteBtn + '</button>';
                 html += '</td></tr>';
             });
             html += '</tbody></table>';
@@ -238,5 +235,7 @@
 
         loadCountries();
     </script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

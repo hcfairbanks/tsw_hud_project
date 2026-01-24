@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSW Weather Control</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+    <script src="/js/theme-loader.js"></script>
     <style>
         * {
             margin: 0;
@@ -300,30 +302,18 @@
 </head>
 <body data-theme="dark">
     <div class="container">
-        <h1>Weather Control</h1>
+        <h1 data-i18n="weather.title">Weather Control</h1>
 
-        <nav class="nav">
-            <a href="/countries">Countries</a>
-            <a href="/">Home</a>
-            <a href="/hud">HUD</a>
-            <a href="/record">Record Map</a>
-            <a href="/routes">Routes</a>
-            <a href="/settings">Settings</a>
-            <a href="/timetables">Timetables</a>
-            <a href="/map">Tracking Map</a>
-            <a href="/train-classes">Train Classes</a>
-            <a href="/trains">Trains</a>
-            <a href="/weather">Weather</a>
-        </nav>
+        <nav id="main-nav"></nav>
 
         <!-- Preset Selection -->
         <div class="section">
-            <div class="section-title">Presets <a href="/weather-presets" class="nav-btn">Manage Presets</a></div>
+            <div class="section-title"><span data-i18n="weather.presets">Presets</span> <a href="/weather-presets" class="nav-btn" data-i18n="weather.managePresets">Manage Presets</a></div>
             <div class="preset-row">
                 <select class="preset-select" id="presetSelect">
-                    <option value="">-- Select a preset --</option>
+                    <option value="" data-i18n="weather.selectPreset">-- Select a preset --</option>
                 </select>
-                <button class="btn btn-apply" onclick="applyPreset()">Apply Preset</button>
+                <button class="btn btn-apply" onclick="applyPreset()" data-i18n="weather.applyPreset">Apply Preset</button>
             </div>
         </div>
 
@@ -331,54 +321,54 @@
         <div class="weather-grid">
             <!-- Current Weather Status -->
             <div class="section">
-                <div class="section-title">Current Weather</div>
+                <div class="section-title" data-i18n="weather.currentWeather">Current Weather</div>
                 <div class="status-bar" style="justify-content: flex-start; margin-bottom: 15px;">
                     <span class="status-indicator" id="statusIndicator"></span>
-                    <span id="statusText">Connecting...</span>
+                    <span id="statusText" data-i18n="weather.connecting">Connecting...</span>
                 </div>
 
                 <div class="control-row">
-                    <div class="control-label"><span class="icon">🌡️</span> Temperature</div>
+                    <div class="control-label"><span class="icon">🌡️</span> <span data-i18n="weather.temperature">Temperature</span></div>
                     <div class="status-value" id="status-Temperature">--</div>
                 </div>
 
                 <div class="control-row">
-                    <div class="control-label"><span class="icon">☁️</span> Cloudiness</div>
+                    <div class="control-label"><span class="icon">☁️</span> <span data-i18n="weather.cloudiness">Cloudiness</span></div>
                     <div class="status-value" id="status-Cloudiness">--</div>
                 </div>
 
                 <div class="control-row">
-                    <div class="control-label"><span class="icon">🌧️</span> Precipitation</div>
+                    <div class="control-label"><span class="icon">🌧️</span> <span data-i18n="weather.precipitation">Precipitation</span></div>
                     <div class="status-value" id="status-Precipitation">--</div>
                 </div>
 
                 <div class="control-row">
-                    <div class="control-label"><span class="icon">💧</span> Wetness</div>
+                    <div class="control-label"><span class="icon">💧</span> <span data-i18n="weather.wetness">Wetness</span></div>
                     <div class="status-value" id="status-Wetness">--</div>
                 </div>
 
                 <div class="control-row">
-                    <div class="control-label"><span class="icon">❄️</span> Ground Snow</div>
+                    <div class="control-label"><span class="icon">❄️</span> <span data-i18n="weather.groundSnow">Ground Snow</span></div>
                     <div class="status-value" id="status-GroundSnow">--</div>
                 </div>
 
                 <div class="control-row">
-                    <div class="control-label"><span class="icon">⛄</span> Piled Snow</div>
+                    <div class="control-label"><span class="icon">⛄</span> <span data-i18n="weather.piledSnow">Piled Snow</span></div>
                     <div class="status-value" id="status-PiledSnow">--</div>
                 </div>
 
                 <div class="control-row">
-                    <div class="control-label"><span class="icon">🌫️</span> Fog Density</div>
+                    <div class="control-label"><span class="icon">🌫️</span> <span data-i18n="weather.fogDensity">Fog Density</span></div>
                     <div class="status-value" id="status-FogDensity">--</div>
                 </div>
             </div>
 
             <!-- Weather Controls -->
             <div class="section">
-            <div class="section-title">Set Weather</div>
+            <div class="section-title" data-i18n="weather.setWeather">Set Weather</div>
 
             <div class="control-row">
-                <div class="control-label"><span class="icon">🌡️</span> Temperature</div>
+                <div class="control-label"><span class="icon">🌡️</span> <span data-i18n="weather.temperature">Temperature</span></div>
                 <div class="control-input">
                     <input type="range" id="ctrl-Temperature" min="-40" max="50" value="-40" step="0.5" oninput="updateTempSlider()">
                     <span class="slider-value" id="val-Temperature">-40°C</span>
@@ -386,7 +376,7 @@
             </div>
 
             <div class="control-row">
-                <div class="control-label"><span class="icon">☁️</span> Cloudiness</div>
+                <div class="control-label"><span class="icon">☁️</span> <span data-i18n="weather.cloudiness">Cloudiness</span></div>
                 <div class="control-input">
                     <input type="range" id="ctrl-Cloudiness" min="0" max="100" value="0" oninput="updateSlider('Cloudiness')">
                     <span class="slider-value" id="val-Cloudiness">0%</span>
@@ -394,7 +384,7 @@
             </div>
 
             <div class="control-row">
-                <div class="control-label"><span class="icon">🌧️</span> Precipitation</div>
+                <div class="control-label"><span class="icon">🌧️</span> <span data-i18n="weather.precipitation">Precipitation</span></div>
                 <div class="control-input">
                     <input type="range" id="ctrl-Precipitation" min="0" max="100" value="0" oninput="updateSlider('Precipitation')">
                     <span class="slider-value" id="val-Precipitation">0%</span>
@@ -402,7 +392,7 @@
             </div>
 
             <div class="control-row">
-                <div class="control-label"><span class="icon">💧</span> Wetness</div>
+                <div class="control-label"><span class="icon">💧</span> <span data-i18n="weather.wetness">Wetness</span></div>
                 <div class="control-input">
                     <input type="range" id="ctrl-Wetness" min="0" max="100" value="0" oninput="updateSlider('Wetness')">
                     <span class="slider-value" id="val-Wetness">0%</span>
@@ -410,7 +400,7 @@
             </div>
 
             <div class="control-row">
-                <div class="control-label"><span class="icon">❄️</span> Ground Snow</div>
+                <div class="control-label"><span class="icon">❄️</span> <span data-i18n="weather.groundSnow">Ground Snow</span></div>
                 <div class="control-input">
                     <input type="range" id="ctrl-GroundSnow" min="0" max="100" value="0" oninput="updateSlider('GroundSnow')">
                     <span class="slider-value" id="val-GroundSnow">0%</span>
@@ -418,7 +408,7 @@
             </div>
 
             <div class="control-row">
-                <div class="control-label"><span class="icon">⛄</span> Piled Snow</div>
+                <div class="control-label"><span class="icon">⛄</span> <span data-i18n="weather.piledSnow">Piled Snow</span></div>
                 <div class="control-input">
                     <input type="range" id="ctrl-PiledSnow" min="0" max="100" value="0" oninput="updateSlider('PiledSnow')">
                     <span class="slider-value" id="val-PiledSnow">0%</span>
@@ -426,7 +416,7 @@
             </div>
 
             <div class="control-row">
-                <div class="control-label"><span class="icon">🌫️</span> Fog Density</div>
+                <div class="control-label"><span class="icon">🌫️</span> <span data-i18n="weather.fogDensity">Fog Density</span></div>
                 <div class="control-input">
                     <input type="range" id="ctrl-FogDensity" min="0" max="100" value="0" oninput="updateSlider('FogDensity')">
                     <span class="slider-value" id="val-FogDensity">0%</span>
@@ -434,9 +424,9 @@
             </div>
 
             <div class="button-row">
-                <button class="btn btn-reset" onclick="resetWeather()">Reset</button>
-                <button class="btn btn-save" onclick="saveAsPreset()">Save as Preset</button>
-                <button class="btn btn-apply" onclick="applyAllWeather()">Apply Changes</button>
+                <button class="btn btn-reset" onclick="resetWeather()" data-i18n="weather.reset">Reset</button>
+                <button class="btn btn-save" onclick="saveAsPreset()" data-i18n="weather.saveAsPreset">Save as Preset</button>
+                <button class="btn btn-apply" onclick="applyAllWeather()" data-i18n="weather.applyWeather">Apply Changes</button>
             </div>
             </div>
         </div><!-- end weather-grid -->
@@ -727,5 +717,7 @@
         loadConfig();
         loadPresets();
     </script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

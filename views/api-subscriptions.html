@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Subscriptions - TSW HUD Project</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
     <style>
         * {
             box-sizing: border-box;
@@ -229,15 +230,15 @@
     </style>
 </head>
 <body data-theme="dark">
-    <a href="/settings" class="back-link">&larr; Back to Settings</a>
+    <a href="/settings" class="back-link" data-i18n="apiSubscriptions.backToSettings">&larr; Back to Settings</a>
 
-    <h1>API Subscription Management</h1>
+    <h1 data-i18n="apiSubscriptions.title">API Subscription Management</h1>
 
     <div class="card">
-        <h2>Connection Status</h2>
+        <h2 data-i18n="apiSubscriptions.connectionStatus">Connection Status</h2>
 
         <div class="status-row">
-            <span class="status-label">API Key Status</span>
+            <span class="status-label" data-i18n="apiSubscriptions.apiKeyStatus">API Key Status</span>
             <span class="status-value" id="apiKeyStatus">
                 <span class="status-indicator status-pending"></span>
                 Checking...
@@ -245,7 +246,7 @@
         </div>
 
         <div class="status-row">
-            <span class="status-label">Subscriptions Created</span>
+            <span class="status-label" data-i18n="apiSubscriptions.subscriptionsCreated">Subscriptions Created</span>
             <span class="status-value" id="subscriptionStatus">
                 <span class="status-indicator status-pending"></span>
                 Checking...
@@ -253,7 +254,7 @@
         </div>
 
         <div class="status-row">
-            <span class="status-label">API Key Source</span>
+            <span class="status-label" data-i18n="apiSubscriptions.apiKeySource">API Key Source</span>
             <span class="status-value" id="apiKeySource">-</span>
         </div>
 
@@ -261,24 +262,23 @@
     </div>
 
     <div class="card">
-        <h2>Subscription Actions</h2>
+        <h2 data-i18n="apiSubscriptions.subscriptionActions">Subscription Actions</h2>
 
         <div class="warning-box">
-            <strong>Note:</strong> Resetting subscriptions will disconnect and reconnect to the TSW CommAPI.
-            This is useful if the game was restarted or if data is not updating properly.
+            <strong data-i18n="apiSubscriptions.note">Note:</strong> <span data-i18n="apiSubscriptions.resetNote">Resetting subscriptions will disconnect and reconnect to the TSW CommAPI. This is useful if the game was restarted or if data is not updating properly.</span>
         </div>
 
         <div class="actions-container">
-            <button class="btn btn-warning" id="btnReset" onclick="resetSubscriptions()">
+            <button class="btn btn-warning" id="btnReset" onclick="resetSubscriptions()" data-i18n="apiSubscriptions.resetSubscriptions">
                 Reset Subscriptions
             </button>
-            <button class="btn btn-danger" id="btnDelete" onclick="deleteSubscriptions()">
+            <button class="btn btn-danger" id="btnDelete" onclick="deleteSubscriptions()" data-i18n="apiSubscriptions.deleteSubscriptions">
                 Delete Subscriptions
             </button>
-            <button class="btn btn-success" id="btnCreate" onclick="createSubscriptions()">
+            <button class="btn btn-success" id="btnCreate" onclick="createSubscriptions()" data-i18n="apiSubscriptions.createSubscriptions">
                 Create Subscriptions
             </button>
-            <button class="btn btn-primary" id="btnRefresh" onclick="refreshStatus()">
+            <button class="btn btn-primary" id="btnRefresh" onclick="refreshStatus()" data-i18n="apiSubscriptions.refreshStatus">
                 Refresh Status
             </button>
         </div>
@@ -287,11 +287,11 @@
     </div>
 
     <div class="card">
-        <h2>Live Data Preview</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+        <h2 data-i18n="apiSubscriptions.liveDataPreview">Live Data Preview</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;" data-i18n="apiSubscriptions.liveDataPreviewDesc">
             Preview of current subscription data from TSW:
         </p>
-        <button class="btn btn-primary" onclick="fetchLiveData()" style="margin-bottom: 10px;">
+        <button class="btn btn-primary" onclick="fetchLiveData()" style="margin-bottom: 10px;" data-i18n="apiSubscriptions.fetchLiveData">
             Fetch Live Data
         </button>
         <div class="data-preview" id="dataPreview">
@@ -300,8 +300,8 @@
     </div>
 
     <div class="card">
-        <h2>Subscription Endpoints</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+        <h2 data-i18n="apiSubscriptions.subscriptionEndpoints">Subscription Endpoints</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;" data-i18n="apiSubscriptions.subscriptionEndpointsDesc">
             The following endpoints are subscribed when active:
         </p>
         <div class="subscription-list" id="subscriptionList">
@@ -527,5 +527,6 @@
         displaySubscriptionList();
         refreshStatus();
     </script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

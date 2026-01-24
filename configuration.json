@@ -1,12 +1,13 @@
 {
-  "developmentMode": false,
+  "developmentMode": true,
   "apiKey": "",
-  "theme": "light",
+  "theme": "dark",
+  "language": "en",
   "tswVersion": "tsw6",
   "tsw5KeyPath": "",
   "tsw6KeyPath": "",
   "distanceUnits": "metric",
   "temperatureUnits": "celsius",
-  "colorScheme": "default",
-  "contributorName": "Henry Wise"
+  "contributorName": "Henry Wise",
+  "colorScheme": "default"
 }

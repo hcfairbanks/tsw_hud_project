@@ -46,27 +46,39 @@ async function handleRoutes(req, res) {
         return true;
     }
 
-    // HUD dashboard page
+    // HUD dashboard page (legacy)
     if (pathname === '/hud' || pathname === '/hud.html') {
         serveFile(res, 'hud.html', 'text/html');
         return true;
     }
 
-    // Mobile HUD (optimized for Samsung Galaxy S23 landscape)
-    if (pathname === '/hud_1' || pathname === '/hud_1.html') {
-        serveFile(res, 'hud_1.html', 'text/html');
+    // HUDs index page
+    if (pathname === '/huds' || pathname === '/huds/') {
+        serveFile(res, 'huds/index.html', 'text/html');
+        return true;
+    }
+
+    // Experiment HUD
+    if (pathname === '/experiment' || pathname === '/experiment.html') {
+        serveFile(res, 'huds/experiment.html', 'text/html');
         return true;
     }
 
     // Tablet HUD (optimized for Samsung Tab S9 FE)
-    if (pathname === '/hud_2' || pathname === '/hud_2.html') {
-        serveFile(res, 'hud_2.html', 'text/html');
+    if (pathname === '/tablet' || pathname === '/tablet.html') {
+        serveFile(res, 'huds/tablet.html', 'text/html');
         return true;
     }
 
-    // HUD 3
-    if (pathname === '/hud_3' || pathname === '/hud_3.html') {
-        serveFile(res, 'hud_3.html', 'text/html');
+    // Mobile HUD (optimized for Samsung Galaxy S23 landscape)
+    if (pathname === '/mobile' || pathname === '/mobile.html') {
+        serveFile(res, 'huds/mobile.html', 'text/html');
+        return true;
+    }
+
+    // Desktop HUD
+    if (pathname === '/desktop' || pathname === '/desktop.html') {
+        serveFile(res, 'huds/desktop.html', 'text/html');
         return true;
     }
 
@@ -198,6 +210,12 @@ async function handleRoutes(req, res) {
     // JS files
     if (pathname.startsWith('/js/') && pathname.endsWith('.js')) {
         serveFile(res, pathname.substring(1), 'application/javascript');
+        return true;
+    }
+
+    // Locale JSON files for i18n
+    if (pathname.startsWith('/locales/') && pathname.endsWith('.json')) {
+        serveFile(res, pathname.substring(1), 'application/json');
         return true;
     }
 

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Train Classes - TSW HUD Project</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+    <script src="/js/theme-loader.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
@@ -53,53 +55,41 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Train Classes</h1>
+    <h1 data-i18n="trainClasses.title">Train Classes</h1>
 
-    <nav class="nav">
-        <a href="/countries">Countries</a>
-        <a href="/">Home</a>
-        <a href="/hud">HUD</a>
-        <a href="/record">Record Map</a>
-        <a href="/routes">Routes</a>
-        <a href="/settings">Settings</a>
-        <a href="/timetables">Timetables</a>
-        <a href="/map">Tracking Map</a>
-        <a href="/train-classes">Train Classes</a>
-        <a href="/trains">Trains</a>
-        <a href="/weather">Weather</a>
-    </nav>
+    <nav id="main-nav"></nav>
     <div class="card">
-        <h2>Add New Train Class</h2>
+        <h2 data-i18n="trainClasses.addNew">Add New Train Class</h2>
         <form id="addForm">
             <div class="form-group">
-                <label for="name">Class Name:</label>
-                <input type="text" id="name" name="name" required placeholder="e.g., BR Class 185">
+                <label for="name" data-i18n="trainClasses.className">Class Name:</label>
+                <input type="text" id="name" name="name" required placeholder="e.g., BR Class 185" data-i18n-placeholder="trainClasses.classNamePlaceholder">
             </div>
-            <button type="submit" class="btn-primary">Add Train Class</button>
+            <button type="submit" class="btn-primary" data-i18n="trainClasses.addTrainClass">Add Train Class</button>
         </form>
     </div>
     <div class="card" id="editForm">
-        <h2>Edit Train Class</h2>
+        <h2 data-i18n="trainClasses.editTrainClass">Edit Train Class</h2>
         <form id="editFormInner">
             <input type="hidden" id="editId">
             <div class="form-group">
-                <label for="editName">Class Name:</label>
-                <input type="text" id="editName" name="name" required>
+                <label for="editName" data-i18n="trainClasses.className">Class Name:</label>
+                <input type="text" id="editName" name="name" required data-i18n-placeholder="trainClasses.classNamePlaceholder">
             </div>
-            <button type="submit" class="btn-primary">Save Changes</button>
-            <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
+            <button type="submit" class="btn-primary" data-i18n="common.save">Save Changes</button>
+            <button type="button" class="btn-secondary" onclick="cancelEdit()" data-i18n="common.cancel">Cancel</button>
         </form>
     </div>
     <div class="card">
-        <h2>Train Classes</h2>
+        <h2 data-i18n="trainClasses.allClasses">Train Classes</h2>
         <div class="search-box">
             <div class="typeahead-container">
-                <input type="text" id="searchInput" placeholder="Type to search train classes..." autocomplete="off">
+                <input type="text" id="searchInput" placeholder="Type to search train classes..." autocomplete="off" data-i18n-placeholder="trainClasses.searchPlaceholder">
                 <div id="classSearchDropdown" class="typeahead-dropdown"></div>
             </div>
-            <button class="btn-secondary" onclick="clearSearch()">Clear</button>
+            <button class="btn-secondary" onclick="clearSearch()" data-i18n="common.clear">Clear</button>
         </div>
-        <div id="classesList"><p class="empty-message">Loading train classes...</p></div>
+        <div id="classesList"><p class="empty-message" data-i18n="trainClasses.loading">Loading train classes...</p></div>
         <div class="pagination" id="pagination"></div>
     </div>
     <script>
@@ -123,7 +113,8 @@
                 renderClasses(1);
             } catch (error) {
                 console.error('Error loading train classes:', error);
-                document.getElementById('classesList').innerHTML = '<p class="empty-message">Error loading train classes</p>';
+                var errorMsg = typeof i18n !== 'undefined' ? i18n.t('trainClasses.errorLoading') : 'Error loading train classes';
+                document.getElementById('classesList').innerHTML = '<p class="empty-message" data-i18n="trainClasses.errorLoading">' + errorMsg + '</p>';
             }
         }
 
@@ -199,7 +190,8 @@
             }).slice(0, 20);
 
             if (filtered.length === 0) {
-                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No train classes found</div>';
+                var noClassesMsg = typeof i18n !== 'undefined' ? i18n.t('trainClasses.noClasses') : 'No train classes found';
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);" data-i18n="trainClasses.noClasses">' + noClassesMsg + '</div>';
             } else {
                 dropdown.innerHTML = filtered.map(function(cls) {
                     return '<div class="typeahead-item" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' +
@@ -240,19 +232,27 @@
             var paginatedClasses = classes.slice(start, start + currentLimit);
 
             if (classes.length === 0) {
-                container.innerHTML = '<p class="empty-message">No train classes found.</p>';
+                container.innerHTML = '<p class="empty-message" data-i18n="trainClasses.noClasses">' + (typeof i18n !== 'undefined' ? i18n.t('trainClasses.noClasses') : 'No train classes found.') + '</p>';
                 document.getElementById('pagination').innerHTML = '';
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Trains</th><th class="actions">Actions</th></tr></thead><tbody>';
+            var idHeader = typeof i18n !== 'undefined' ? i18n.t('common.id') : 'ID';
+            var nameHeader = typeof i18n !== 'undefined' ? i18n.t('trainClasses.name') : 'Name';
+            var trainsHeader = typeof i18n !== 'undefined' ? i18n.t('nav.trains') : 'Trains';
+            var actionsHeader = typeof i18n !== 'undefined' ? i18n.t('common.actions') : 'Actions';
+            var showText = typeof i18n !== 'undefined' ? i18n.t('common.show') : 'Show';
+            var editText = typeof i18n !== 'undefined' ? i18n.t('common.edit') : 'Edit';
+            var deleteText = typeof i18n !== 'undefined' ? i18n.t('common.delete') : 'Delete';
+
+            let html = '<table><thead><tr><th data-i18n="common.id">' + idHeader + '</th><th data-i18n="trainClasses.name">' + nameHeader + '</th><th data-i18n="nav.trains">' + trainsHeader + '</th><th class="actions" data-i18n="common.actions">' + actionsHeader + '</th></tr></thead><tbody>';
             paginatedClasses.forEach(function(c) {
                 const count = trainCounts[c.id] || 0;
                 html += '<tr><td>' + c.id + '</td><td><a href="/train-classes/' + c.id + '">' + escapeHtml(c.name) + '</a></td>';
                 html += '<td><span class="train-count">' + count + ' train' + (count !== 1 ? 's' : '') + '</span></td>';
-                html += '<td class="actions"><button class="btn-primary" onclick="showClass(' + c.id + ')">Show</button>';
-                html += "<button class=\"btn-secondary\" onclick=\"editClass(" + c.id + ",'" + escapeJs(c.name) + "')\">Edit</button>";
-                html += '<button class="btn-danger" onclick="deleteClass(' + c.id + ')">Delete</button></td></tr>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showClass(' + c.id + ')" data-i18n="common.show">' + showText + '</button>';
+                html += "<button class=\"btn-secondary\" onclick=\"editClass(" + c.id + ",'" + escapeJs(c.name) + "')\" data-i18n=\"common.edit\">" + editText + "</button>";
+                html += '<button class="btn-danger" onclick="deleteClass(' + c.id + ')" data-i18n="common.delete">' + deleteText + '</button></td></tr>';
             });
             html += '</tbody></table>';
             container.innerHTML = html;
@@ -262,14 +262,18 @@
 
         function renderPagination(total, totalPages) {
             var container = document.getElementById('pagination');
+            var showingText = typeof i18n !== 'undefined' ? i18n.t('common.showing') : 'Showing';
+            var trainClassesText = typeof i18n !== 'undefined' ? i18n.t('trainClasses.trainClasses') : 'train classes';
+            var ofText = typeof i18n !== 'undefined' ? i18n.t('common.of') : 'of';
+
             if (totalPages <= 1) {
-                container.innerHTML = '<span class="pagination-info">Showing ' + total + ' train classes</span>';
+                container.innerHTML = '<span class="pagination-info">' + showingText + ' ' + total + ' ' + trainClassesText + '</span>';
                 return;
             }
 
             var html = '<button class="btn-secondary" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>&laquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>&lsaquo;</button>';
-            html += '<span class="pagination-info">' + currentPage + ' of ' + totalPages + '</span>';
+            html += '<span class="pagination-info">' + currentPage + ' ' + ofText + ' ' + totalPages + '</span>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&rsaquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&raquo;</button>';
             html += '<div class="per-page"><label>&nbsp;</label><select onchange="changeLimit(this.value)">';
@@ -365,5 +369,7 @@
 
         loadClasses();
     </script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>
