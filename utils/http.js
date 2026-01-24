@@ -115,11 +115,22 @@ function sendJson(res, data, statusCode = 200) {
  * Serve static file
  */
 function serveFile(res, filePath, contentType) {
-    // Try appDir first (for compiled exe), then project root (for dev)
-    let fullPath = path.join(appDir, 'views', filePath);
-    if (!fs.existsSync(fullPath)) {
-        fullPath = path.join(__dirname, '..', 'views', filePath);
+    let fullPath;
+
+    // For paths starting with 'images/', serve from project root
+    if (filePath.startsWith('images/')) {
+        fullPath = path.join(appDir, filePath);
+        if (!fs.existsSync(fullPath)) {
+            fullPath = path.join(__dirname, '..', filePath);
+        }
+    } else {
+        // Default: look in views folder (css/, js/, and html files)
+        fullPath = path.join(appDir, 'views', filePath);
+        if (!fs.existsSync(fullPath)) {
+            fullPath = path.join(__dirname, '..', 'views', filePath);
+        }
     }
+
     if (fs.existsSync(fullPath)) {
         res.writeHead(200, { 'Content-Type': contentType });
         res.end(fs.readFileSync(fullPath));

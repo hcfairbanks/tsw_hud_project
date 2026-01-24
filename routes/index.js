@@ -201,6 +201,27 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // Image files
+    if (pathname.startsWith('/images/')) {
+        const decodedPath = decodeURIComponent(pathname.substring(1));
+        if (pathname.endsWith('.png')) {
+            serveFile(res, decodedPath, 'image/png');
+            return true;
+        }
+        if (pathname.endsWith('.jpg') || pathname.endsWith('.jpeg')) {
+            serveFile(res, decodedPath, 'image/jpeg');
+            return true;
+        }
+        if (pathname.endsWith('.gif')) {
+            serveFile(res, decodedPath, 'image/gif');
+            return true;
+        }
+        if (pathname.endsWith('.svg')) {
+            serveFile(res, decodedPath, 'image/svg+xml');
+            return true;
+        }
+    }
+
     // ============================================
     // Country API Routes
     // ============================================
