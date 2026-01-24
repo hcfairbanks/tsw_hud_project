@@ -177,6 +177,68 @@
             border-color: #0066ff;
         }
 
+        .typeahead-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .typeahead-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-top: 8px;
+            background: white;
+            color: #333;
+        }
+
+        .typeahead-input:focus {
+            outline: none;
+            border-color: #0066ff;
+        }
+
+        .typeahead-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            z-index: 1001;
+        }
+
+        .typeahead-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .typeahead-item:last-child {
+            border-bottom: none;
+        }
+
+        .typeahead-item:hover,
+        .typeahead-item.highlighted {
+            background: #f0f0f0;
+        }
+
+        .typeahead-item .route-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .typeahead-item .country-name {
+            font-size: 11px;
+            color: #666;
+        }
+
         .legend {
             margin-top: 15px;
             padding: 12px;
@@ -281,9 +343,11 @@
         <div class="info-group">
             <div id="timetableSelector" style="margin-bottom: 10px;">
                 <label class="info-label">Select Route:</label>
-                <select class="timetable-dropdown" id="routeSelect">
-                    <option value="">-- Select a route --</option>
-                </select>
+                <div class="typeahead-container">
+                    <input type="text" class="typeahead-input" id="routeInput" placeholder="Type to search routes..." autocomplete="off">
+                    <div id="routeDropdown" class="typeahead-dropdown"></div>
+                    <input type="hidden" id="routeSelect" value="">
+                </div>
                 <label class="info-label" style="margin-top: 8px;">Select Train Class:</label>
                 <select class="timetable-dropdown" id="trainClassSelect" disabled>
                     <option value="">-- Select a route first --</option>
@@ -438,6 +502,8 @@
 
         // Store all timetables for filtering
         let allTimetables = [];
+        let allRoutesWithTimetables = [];
+        let routeHighlightedIndex = -1;
 
         // Load routes that have timetables for selector
         async function loadRoutesWithTimetables() {
@@ -450,8 +516,7 @@
                 const routeIdsWithTimetables = [...new Set(allTimetables.map(t => t.route_id))];
 
                 if (routeIdsWithTimetables.length === 0) {
-                    const routeSelect = document.getElementById('routeSelect');
-                    routeSelect.innerHTML = '<option value="">-- No routes with timetables --</option>';
+                    document.getElementById('routeInput').placeholder = 'No routes with timetables';
                     return;
                 }
 
@@ -460,22 +525,108 @@
                 const allRoutes = await routesResponse.json();
 
                 // Filter to only routes that have timetables
-                const routesWithTimetables = allRoutes.filter(r => routeIdsWithTimetables.includes(r.id));
+                allRoutesWithTimetables = allRoutes.filter(r => routeIdsWithTimetables.includes(r.id));
 
-                const routeSelect = document.getElementById('routeSelect');
-                routeSelect.innerHTML = '<option value="">-- Select a route --</option>';
-                routesWithTimetables.forEach(r => {
-                    const option = document.createElement('option');
-                    option.value = r.id;
-                    option.textContent = r.name;
-                    routeSelect.appendChild(option);
-                });
+                // Setup the typeahead
+                setupRouteTypeahead();
+                console.log('Routes with timetables loaded:', allRoutesWithTimetables.length);
             } catch (err) {
                 console.error('Failed to load routes:', err);
             }
         }
 
-        // Load train classes for selected route
+        // Setup typeahead for route input
+        function setupRouteTypeahead() {
+            const input = document.getElementById('routeInput');
+            const dropdown = document.getElementById('routeDropdown');
+            const hiddenSelect = document.getElementById('routeSelect');
+
+            // Show dropdown on focus
+            input.addEventListener('focus', function() {
+                showRouteDropdown(this.value);
+            });
+
+            // Filter on input
+            input.addEventListener('input', function() {
+                routeHighlightedIndex = -1;
+                hiddenSelect.value = '';
+                showRouteDropdown(this.value);
+            });
+
+            // Keyboard navigation
+            input.addEventListener('keydown', function(e) {
+                const items = dropdown.querySelectorAll('.typeahead-item[data-id]');
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    routeHighlightedIndex = Math.min(routeHighlightedIndex + 1, items.length - 1);
+                    updateRouteHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    routeHighlightedIndex = Math.max(routeHighlightedIndex - 1, 0);
+                    updateRouteHighlight(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (routeHighlightedIndex >= 0 && items[routeHighlightedIndex]) {
+                        items[routeHighlightedIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Hide dropdown on click outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.typeahead-container')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function updateRouteHighlight(items) {
+            items.forEach((item, idx) => {
+                item.classList.toggle('highlighted', idx === routeHighlightedIndex);
+            });
+            if (routeHighlightedIndex >= 0 && items[routeHighlightedIndex]) {
+                items[routeHighlightedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showRouteDropdown(filter) {
+            const dropdown = document.getElementById('routeDropdown');
+            const filterLower = (filter || '').toLowerCase();
+
+            const filtered = allRoutesWithTimetables.filter(route =>
+                route.name.toLowerCase().includes(filterLower)
+            );
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: #999;">No routes found</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(route => `
+                    <div class="typeahead-item" data-id="${route.id}" data-name="${route.name}">
+                        <div class="route-name">${route.name}</div>
+                    </div>
+                `).join('');
+
+                // Add click handlers
+                dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        const name = this.dataset.name;
+                        document.getElementById('routeInput').value = name;
+                        document.getElementById('routeSelect').value = id;
+                        dropdown.style.display = 'none';
+                        loadTrainClassesForRoute(id);
+                        document.getElementById('mainBtn').textContent = 'Start';
+                    });
+                });
+            }
+
+            dropdown.style.display = 'block';
+        }
+
+        // Load train classes for selected route (filtered to only those with timetables)
         async function loadTrainClassesForRoute(routeId) {
             const trainClassSelect = document.getElementById('trainClassSelect');
             const trainSelect = document.getElementById('trainSelect');
@@ -495,17 +646,37 @@
             }
 
             try {
+                // Get timetables for this route
+                const timetablesForRoute = allTimetables.filter(t => t.route_id == routeId);
+
+                // Get all train IDs that have timetables for this route
+                const trainIdsWithTimetables = [...new Set(timetablesForRoute.flatMap(t => t.train_ids || (t.train_id ? [t.train_id] : [])))];
+
                 // Load train classes for this route
                 const response = await fetch('/api/routes/' + routeId + '/train-classes');
                 const trainClasses = await response.json();
 
-                if (trainClasses.length === 0) {
-                    trainClassSelect.innerHTML = '<option value="">-- No train classes for this route --</option>';
+                // Load all trains for this route to find which classes have trains with timetables
+                const trainsResponse = await fetch('/api/routes/' + routeId + '/trains');
+                const allTrainsForRoute = await trainsResponse.json();
+
+                // Find which class IDs have at least one train with a timetable
+                const classIdsWithTimetables = [...new Set(
+                    allTrainsForRoute
+                        .filter(t => trainIdsWithTimetables.includes(t.id))
+                        .map(t => t.class_id)
+                )];
+
+                // Filter train classes to only those with timetables
+                const trainClassesWithTimetables = trainClasses.filter(tc => classIdsWithTimetables.includes(tc.id));
+
+                if (trainClassesWithTimetables.length === 0) {
+                    trainClassSelect.innerHTML = '<option value="">-- No train classes with timetables --</option>';
                     return;
                 }
 
                 trainClassSelect.innerHTML = '<option value="">-- Select a train class --</option>';
-                trainClasses.forEach(tc => {
+                trainClassesWithTimetables.forEach(tc => {
                     const option = document.createElement('option');
                     option.value = tc.id;
                     option.textContent = tc.name;
@@ -603,11 +774,7 @@
         }
 
         // Event listeners for cascading dropdowns
-        document.getElementById('routeSelect').addEventListener('change', function() {
-            const routeId = this.value;
-            loadTrainClassesForRoute(routeId);
-            document.getElementById('mainBtn').textContent = 'Start';
-        });
+        // Note: Route selection is handled by typeahead click handlers in showRouteDropdown()
 
         document.getElementById('trainClassSelect').addEventListener('change', function() {
             const routeId = document.getElementById('routeSelect').value;

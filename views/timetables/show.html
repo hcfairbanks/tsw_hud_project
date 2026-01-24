@@ -228,6 +228,14 @@
 
             html += '<div class="detail-row"><span class="detail-label">Created:</span><span class="detail-value">' + (timetable.created_at || '-') + '</span></div>';
 
+            // Display contributor information
+            if (timetable.contributor) {
+                html += '<div class="detail-row"><span class="detail-label">Contributor:</span><span class="detail-value">' + escapeHtml(timetable.contributor) + '</span></div>';
+            }
+            if (timetable.coordinates_contributor) {
+                html += '<div class="detail-row"><span class="detail-label">Coordinates:</span><span class="detail-value">' + escapeHtml(timetable.coordinates_contributor) + '</span></div>';
+            }
+
             document.getElementById('timetableDetails').innerHTML = html;
 
             // Setup typeahead event handlers

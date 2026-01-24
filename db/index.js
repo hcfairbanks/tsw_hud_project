@@ -673,6 +673,23 @@ const routeDb = {
         stmt.free();
         return results;
     },
+    // Get routes that have timetables with coordinates
+    getRoutesWithCoordinates: () => {
+        const stmt = db.prepare(`
+            SELECT DISTINCT r.*, c.name as country_name
+            FROM routes r
+            LEFT JOIN countries c ON r.country_id = c.id
+            INNER JOIN timetables t ON t.route_id = r.id
+            INNER JOIN timetable_coordinates tc ON tc.timetable_id = t.id
+            ORDER BY r.name
+        `);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
     getPaginated: (page = 1, limit = 10, search = '', countryId = null) => {
         const offset = (page - 1) * limit;
         let countQuery = 'SELECT COUNT(*) as total FROM routes';
@@ -828,6 +845,44 @@ const routeDb = {
             ORDER BY t.name
         `);
         stmt.bind([classId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    // Get train classes for a route that have timetables with coordinates
+    getTrainClassesWithCoordinates: (routeId) => {
+        const stmt = db.prepare(`
+            SELECT DISTINCT tc.* FROM train_classes tc
+            INNER JOIN route_train_classes rtc ON tc.id = rtc.class_id
+            INNER JOIN trains tr ON tr.class_id = tc.id
+            INNER JOIN timetable_trains tt ON tt.train_id = tr.id
+            INNER JOIN timetables t ON t.id = tt.timetable_id AND t.route_id = ?
+            INNER JOIN timetable_coordinates tco ON tco.timetable_id = t.id
+            WHERE rtc.route_id = ?
+            ORDER BY tc.name
+        `);
+        stmt.bind([routeId, routeId]);
+        const results = [];
+        while (stmt.step()) {
+            results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+    },
+    // Get trains for a route/class that have timetables with coordinates
+    getTrainsForClassWithCoordinates: (routeId, classId) => {
+        const stmt = db.prepare(`
+            SELECT DISTINCT tr.* FROM trains tr
+            INNER JOIN timetable_trains tt ON tt.train_id = tr.id
+            INNER JOIN timetables t ON t.id = tt.timetable_id AND t.route_id = ?
+            INNER JOIN timetable_coordinates tco ON tco.timetable_id = t.id
+            WHERE tr.class_id = ?
+            ORDER BY tr.name
+        `);
+        stmt.bind([routeId, classId]);
         const results = [];
         while (stmt.step()) {
             results.push(stmt.getAsObject());

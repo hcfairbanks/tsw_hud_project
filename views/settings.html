@@ -664,6 +664,23 @@
     </div>
 
     <div class="card">
+        <h2>Contributor</h2>
+
+        <div class="setting-row">
+            <div class="setting-info">
+                <div class="setting-label">Contributor Name</div>
+                <div class="setting-description">Your name will be added to timetables you create or add coordinates to</div>
+            </div>
+        </div>
+        <div class="setting-row" style="padding-top: 0;">
+            <div class="api-key-container" style="width: 100%;">
+                <input type="text" id="contributorName" class="setting-input" style="flex: 1; width: auto;" placeholder="Enter your name">
+                <button class="btn-save" onclick="saveContributorName()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
         <h2>Development Mode</h2>
 
         <div class="setting-row">
@@ -913,10 +930,19 @@
 
                 const colorScheme = config.colorScheme || 'default';
                 applyColorScheme(colorScheme);
+
+                // Load contributor name
+                document.getElementById('contributorName').value = config.contributorName || '';
             } catch (err) {
                 console.error('Failed to load settings:', err);
                 showStatus('Failed to load settings', 'error');
             }
+        }
+
+        // Save contributor name
+        async function saveContributorName() {
+            const contributorName = document.getElementById('contributorName').value.trim();
+            await saveSetting('contributorName', contributorName);
         }
 
         // Save a setting

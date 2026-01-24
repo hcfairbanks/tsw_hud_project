@@ -228,6 +228,12 @@
                 <div id="trainDropdown" class="typeahead-dropdown"></div>
                 <input type="hidden" id="trainFilter" value="">
             </div>
+            <label>Status:</label>
+            <select id="completedFilter" onchange="renderTimetables(1)">
+                <option value="">All</option>
+                <option value="completed">Completed</option>
+                <option value="not_completed">Not Completed</option>
+            </select>
             <button class="btn-secondary" onclick="clearFilters()">Clear</button>
         </div>
         <div id="timetablesList">
@@ -516,6 +522,18 @@
                 });
             }
 
+            // Apply completed filter
+            var completedFilter = document.getElementById('completedFilter').value;
+            if (completedFilter === 'completed') {
+                timetables = timetables.filter(function(t) {
+                    return t.coordinates_complete === true;
+                });
+            } else if (completedFilter === 'not_completed') {
+                timetables = timetables.filter(function(t) {
+                    return t.coordinates_complete !== true;
+                });
+            }
+
             var total = timetables.length;
             var totalPages = Math.ceil(total / currentLimit);
             if (currentPage > totalPages) currentPage = totalPages || 1;
@@ -529,7 +547,7 @@
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Service Name</th><th>Route</th><th>Trains</th><th>Created</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>Service Name</th><th>Route</th><th>Trains</th><th>Status</th><th class="actions">Actions</th></tr></thead><tbody>';
             paginatedTimetables.forEach(function(t) {
                 const route = allRoutes.find(function(r) { return r.id == t.route_id; });
 
@@ -546,12 +564,16 @@
                     }
                 }
 
+                // Determine completed status
+                const completedStatus = t.coordinates_complete
+                    ? '<span class="status-badge completed">Completed</span>'
+                    : '<span class="status-badge incomplete">Not Completed</span>';
+
                 html += '<tr>';
-                html += '<td>' + t.id + '</td>';
                 html += '<td><a href="/timetables/' + t.id + '">' + escapeHtml(t.service_name || 'Untitled') + '</a></td>';
                 html += '<td>' + (route ? '<a href="/routes/' + route.id + '">' + escapeHtml(route.name) + '</a>' : '-') + '</td>';
                 html += '<td>' + trainDisplay + '</td>';
-                html += '<td>' + (t.created_at || '-') + '</td>';
+                html += '<td>' + completedStatus + '</td>';
                 html += '<td class="actions">';
                 html += '<button class="btn-primary" onclick="showTimetable(' + t.id + ')">Show</button>';
                 html += '<button class="btn-danger" onclick="deleteTimetable(' + t.id + ')">Delete</button>';
@@ -615,6 +637,7 @@
             document.getElementById('routeFilter').value = '';
             document.getElementById('trainInput').value = '';
             document.getElementById('trainFilter').value = '';
+            document.getElementById('completedFilter').value = '';
             document.getElementById('serviceDropdown').style.display = 'none';
             document.getElementById('routeDropdown').style.display = 'none';
             document.getElementById('trainDropdown').style.display = 'none';

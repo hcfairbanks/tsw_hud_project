@@ -9,6 +9,12 @@ const routeController = {
         sendJson(res, routes);
     },
 
+    // GET /api/routes/with-coordinates - routes that have timetables with coordinates
+    getWithCoordinates: async (req, res) => {
+        const routes = routeDb.getRoutesWithCoordinates();
+        sendJson(res, routes);
+    },
+
     // GET /api/routes/paginated?page=1&limit=10&search=term&country_id=1
     getPaginated: async (req, res) => {
         const url = new URL(req.url, `http://${req.headers.host}`);
@@ -121,6 +127,18 @@ const routeController = {
     // GET /api/routes/:id/train-classes/:classId/trains
     getTrainsForClass: async (req, res, routeId, classId) => {
         const trains = routeDb.getTrainsForClass(routeId, classId);
+        sendJson(res, trains);
+    },
+
+    // GET /api/routes/:id/train-classes-with-coordinates
+    getTrainClassesWithCoordinates: async (req, res, routeId) => {
+        const trainClasses = routeDb.getTrainClassesWithCoordinates(routeId);
+        sendJson(res, trainClasses);
+    },
+
+    // GET /api/routes/:id/train-classes/:classId/trains-with-coordinates
+    getTrainsForClassWithCoordinates: async (req, res, routeId, classId) => {
+        const trains = routeDb.getTrainsForClassWithCoordinates(routeId, classId);
         sendJson(res, trains);
     }
 };

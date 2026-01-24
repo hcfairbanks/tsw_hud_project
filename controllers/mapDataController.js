@@ -75,6 +75,12 @@ async function importFromRecording(req, res) {
             // Import coordinates
             if (recordingData.coordinates && Array.isArray(recordingData.coordinates)) {
                 coordinateCount = timetableCoordinateDb.insert(timetableId, recordingData.coordinates);
+
+                // Set coordinates_contributor from config
+                const config = loadConfig();
+                if (config.contributorName) {
+                    timetableDb.update(timetableId, { coordinates_contributor: config.contributorName });
+                }
             }
 
             // Import markers
@@ -155,6 +161,13 @@ async function saveProcessedJson(req, res) {
         if (processedData.coordinates && Array.isArray(processedData.coordinates)) {
             coordinateCount = timetableCoordinateDb.insert(timetableId, processedData.coordinates);
             console.log(`Saved ${coordinateCount} coordinates for timetable ${timetableId}`);
+
+            // Set coordinates_contributor from config
+            const contributorConfig = loadConfig();
+            if (contributorConfig.contributorName) {
+                timetableDb.update(timetableId, { coordinates_contributor: contributorConfig.contributorName });
+                console.log(`Set coordinates_contributor: ${contributorConfig.contributorName}`);
+            }
         }
 
         // 2. Save markers

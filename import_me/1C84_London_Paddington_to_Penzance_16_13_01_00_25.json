@@ -8,6 +8,8 @@
   "trainNames": ["Class 802/0 GWR","Class 802/1 GWR"],
   "totalPoints": 975,
   "totalMarkers": 6,
+  "coordinates_contributor": "Henry Wise",
+  "contributor": "Henry Wise",
   "coordinates": [
     {
       "latitude": 50.728790604014506,

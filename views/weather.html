@@ -255,15 +255,22 @@
             color: var(--text-primary);
         }
 
-        .preset-link {
+        .nav-btn {
             color: var(--accent-color);
             text-decoration: none;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
             font-size: 12px;
             margin-left: 10px;
+            text-transform: none;
+            letter-spacing: normal;
+            font-weight: normal;
         }
 
-        .preset-link:hover {
-            text-decoration: underline;
+        .nav-btn:hover {
+            background: var(--accent-hover);
+            color: var(--bg-primary);
         }
 
         .notification {
@@ -311,7 +318,7 @@
 
         <!-- Preset Selection -->
         <div class="section">
-            <div class="section-title">Presets <a href="/weather-presets" class="preset-link">Manage Presets</a></div>
+            <div class="section-title">Presets <a href="/weather-presets" class="nav-btn">Manage Presets</a></div>
             <div class="preset-row">
                 <select class="preset-select" id="presetSelect">
                     <option value="">-- Select a preset --</option>

@@ -457,13 +457,13 @@
         function renderRoutes(routes) {
             const container = document.getElementById('routesList');
             if (routes.length === 0) { container.innerHTML = '<p class="empty-message">No routes found.</p>'; return; }
-            let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Country</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>Name</th><th>Country</th><th class="actions">Actions</th></tr></thead><tbody>';
             routes.forEach(function(r) {
                 // Look up country name from country_id or fallback to country text
                 const country = allCountries.find(function(c) { return c.id == r.country_id; });
                 const countryName = country ? country.name : r.country;
                 const countryId = r.country_id || '';
-                html += '<tr><td>' + r.id + '</td><td><a href="/routes/' + r.id + '">' + escapeHtml(r.name) + '</a></td>';
+                html += '<tr><td><a href="/routes/' + r.id + '">' + escapeHtml(r.name) + '</a></td>';
                 var countryFlag = country ? countryCodeToFlag(country.code) : '';
                 html += '<td>' + (country ? '<a href="/countries/' + country.id + '">' + countryFlag + escapeHtml(countryName) + '</a>' : escapeHtml(countryName)) + '</td>';
                 html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + r.id + ')">Show</button>';

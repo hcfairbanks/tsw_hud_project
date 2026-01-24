@@ -664,12 +664,12 @@
         let allRoutes = [];
         let highlightedIndex = -1;
 
-        // Load routes for typeahead
+        // Load routes for typeahead (only routes with timetables that have coordinates)
         async function loadRoutes() {
             try {
-                const response = await fetch('/api/routes');
+                const response = await fetch('/api/routes/with-coordinates');
                 allRoutes = await response.json();
-                console.log('Routes loaded:', allRoutes.length);
+                console.log('Routes with coordinates loaded:', allRoutes.length);
             } catch (err) {
                 console.error('Failed to load routes:', err);
             }
@@ -766,7 +766,7 @@
             dropdown.style.display = 'block';
         }
 
-        // Handle route selection - load train classes for this route
+        // Handle route selection - load train classes for this route (only those with coordinates)
         async function handleRouteChange() {
             const routeId = document.getElementById('routeSelect').value;
             const trainClassSelect = document.getElementById('trainClassSelect');
@@ -786,7 +786,7 @@
             if (!routeId) return;
 
             try {
-                const response = await fetch(`/api/routes/${routeId}/train-classes`);
+                const response = await fetch(`/api/routes/${routeId}/train-classes-with-coordinates`);
                 const trainClasses = await response.json();
 
                 if (trainClasses.length > 0) {
@@ -799,13 +799,13 @@
                     });
                 }
 
-                console.log('Train classes loaded:', trainClasses.length);
+                console.log('Train classes with coordinates loaded:', trainClasses.length);
             } catch (err) {
                 console.error('Failed to load train classes:', err);
             }
         }
 
-        // Handle train class selection - load trains for this route+class
+        // Handle train class selection - load trains for this route+class (only those with coordinates)
         async function handleTrainClassChange() {
             const routeId = document.getElementById('routeSelect').value;
             const classId = document.getElementById('trainClassSelect').value;
@@ -823,7 +823,7 @@
             if (!classId) return;
 
             try {
-                const response = await fetch(`/api/routes/${routeId}/train-classes/${classId}/trains`);
+                const response = await fetch(`/api/routes/${routeId}/train-classes/${classId}/trains-with-coordinates`);
                 const trains = await response.json();
 
                 if (trains.length > 0) {
@@ -836,7 +836,7 @@
                     });
                 }
 
-                console.log('Trains loaded:', trains.length);
+                console.log('Trains with coordinates loaded:', trains.length);
             } catch (err) {
                 console.error('Failed to load trains:', err);
             }

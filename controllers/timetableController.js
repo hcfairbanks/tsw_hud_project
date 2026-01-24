@@ -2,6 +2,7 @@
 const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, routeDb, trainDb, countryDb, stationMappingDb, saveDatabase } = require('../db');
 const { sendJson, parseBody } = require('../utils/http');
 const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
+const { loadConfig } = require('./configController');
 
 // Time format validation helper (HH:MM:SS)
 const TIME_FORMAT_REGEX = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
@@ -44,9 +45,9 @@ function generateRawEntryData(entries) {
 }
 
 /**
- * Get timetable metadata for export (serviceName, routeName, countryName, trainName/trainNames)
+ * Get timetable metadata for export (serviceName, routeName, countryName, trainName/trainNames, contributor, coordinates_contributor)
  * @param {Object} timetable - Timetable object with route_id and train_id
- * @returns {Object} - { serviceName, routeName, countryName, trainName, trainNames }
+ * @returns {Object} - { serviceName, routeName, countryName, trainNames, contributor, coordinates_contributor }
  */
 function getTimetableExportMetadata(timetable) {
     let routeName = null;
@@ -72,7 +73,9 @@ function getTimetableExportMetadata(timetable) {
         serviceName: timetable ? timetable.service_name : 'Unknown',
         routeName: routeName,
         countryName: countryName,
-        trainNames: trainNames
+        trainNames: trainNames,
+        contributor: timetable ? timetable.contributor : null,
+        coordinates_contributor: timetable ? timetable.coordinates_contributor : null
     };
 }
 
@@ -225,6 +228,8 @@ function buildTimetableExportJson(options) {
         routeName: metadata.routeName,
         countryName: metadata.countryName,
         trainNames: metadata.trainNames || [],
+        contributor: metadata.contributor || null,
+        coordinates_contributor: metadata.coordinates_contributor || null,
         totalPoints: formattedCoordinates.length,
         totalMarkers: exportMarkers.length,
         coordinates: formattedCoordinates,
@@ -262,13 +267,25 @@ const timetableController = {
             });
         }
 
-        // Add coordinate counts and trains array
+        // Add coordinate counts, trains array, and coordinates_complete status
         const timetablesWithCounts = timetables.map(t => {
             const trains = timetableDb.getTrains(t.id);
+            const entries = entryDb.getByTimetableId(t.id);
+
+            // Check if any entries have valid coordinates
+            // A timetable is completed if at least one entry has valid latitude/longitude
+            const coordinates_complete = entries.some(entry => {
+                const lat = parseFloat(entry.latitude);
+                const lng = parseFloat(entry.longitude);
+                return !isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0);
+            });
+
             return {
                 ...t,
                 trains: trains,
-                coordinate_count: timetableCoordinateDb.getCount(t.id)
+                coordinate_count: timetableCoordinateDb.getCount(t.id),
+                entry_count: entries.length,
+                coordinates_complete: coordinates_complete
             };
         });
 
@@ -329,9 +346,14 @@ const timetableController = {
 
         const routeId = body.route_id;
         const trainId = body.train_id || trainIds[0];  // Use first train for backward compatibility
-        const result = timetableDb.create(serviceName, routeId, trainId, trainIds);
+
+        // Get contributor name from config
+        const config = loadConfig();
+        const contributor = config.contributorName || null;
+
+        const result = timetableDb.create(serviceName, routeId, trainId, trainIds, contributor);
         const timetableId = result.lastInsertRowid;
-        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId, 'train_ids:', trainIds);
+        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId, 'train_ids:', trainIds, 'contributor:', contributor);
 
         // Step 2: Deduplicate entries based on unique time values
         // An entry is considered duplicate if it has the same action and time1/time2 combination
@@ -763,15 +785,22 @@ const timetableController = {
             }
         }
 
-        // Step 4: Create the timetable with route and train IDs
-        const result = timetableDb.create(serviceName, routeId, trainId, trainIds);
+        // Step 4: Create the timetable with route and train IDs (include contributor from import)
+        const importedContributor = body.contributor || null;
+        const result = timetableDb.create(serviceName, routeId, trainId, trainIds, importedContributor);
         const timetableId = result.lastInsertRowid;
-        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_ids:', trainIds);
+        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_ids:', trainIds, 'contributor:', importedContributor);
 
         // Step 5: Import coordinates if present
         if (body.coordinates && Array.isArray(body.coordinates) && body.coordinates.length > 0) {
             console.log(`Importing ${body.coordinates.length} coordinates...`);
             timetableCoordinateDb.insert(timetableId, body.coordinates);
+
+            // Set coordinates_contributor from import if present
+            if (body.coordinates_contributor) {
+                timetableDb.update(timetableId, { coordinates_contributor: body.coordinates_contributor });
+                console.log(`Set coordinates_contributor from import: ${body.coordinates_contributor}`);
+            }
         }
 
         // Step 6: Import markers if present
@@ -818,6 +847,8 @@ const timetableController = {
             train_id: trainId,
             train_ids: trainIds,
             train_names: trainNamesToProcess,
+            contributor: importedContributor,
+            coordinates_contributor: body.coordinates_contributor || null,
             message: 'Timetable imported successfully',
             coordinatesImported: body.coordinates ? body.coordinates.length : 0,
             markersImported: body.markers ? body.markers.length : 0,

@@ -8,6 +8,8 @@
   "trainNames": ["Class 150/2 GWR"],
   "totalPoints": 171,
   "totalMarkers": 6,
+  "coordinates_contributor": "Henry Wise",
+  "contributor": "Henry Wise",
   "coordinates": [
     {
       "latitude": 50.434875495085706,

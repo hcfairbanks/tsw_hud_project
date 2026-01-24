@@ -257,6 +257,12 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // Routes with timetables that have coordinates (for tracking map)
+    if (pathname === '/api/routes/with-coordinates' && method === 'GET') {
+        await routeController.getWithCoordinates(req, res);
+        return true;
+    }
+
     if (pathname === '/api/routes') {
         if (method === 'GET') {
             await routeController.getAll(req, res);
@@ -333,6 +339,29 @@ async function handleRoutes(req, res) {
 
         if (method === 'GET') {
             await routeController.getTrainsForClass(req, res, routeId, classId);
+            return true;
+        }
+    }
+
+    // Get train classes with coordinates for a route (for tracking map)
+    const routeTrainClassesWithCoordsMatch = pathname.match(/^\/api\/routes\/(\d+)\/train-classes-with-coordinates$/);
+    if (routeTrainClassesWithCoordsMatch) {
+        const routeId = parseInt(routeTrainClassesWithCoordsMatch[1]);
+
+        if (method === 'GET') {
+            await routeController.getTrainClassesWithCoordinates(req, res, routeId);
+            return true;
+        }
+    }
+
+    // Get trains with coordinates for a specific class on a route (for tracking map)
+    const routeClassTrainsWithCoordsMatch = pathname.match(/^\/api\/routes\/(\d+)\/train-classes\/(\d+)\/trains-with-coordinates$/);
+    if (routeClassTrainsWithCoordsMatch) {
+        const routeId = parseInt(routeClassTrainsWithCoordsMatch[1]);
+        const classId = parseInt(routeClassTrainsWithCoordsMatch[2]);
+
+        if (method === 'GET') {
+            await routeController.getTrainsForClassWithCoordinates(req, res, routeId, classId);
             return true;
         }
     }

@@ -7,5 +7,6 @@
   "tsw6KeyPath": "",
   "distanceUnits": "metric",
   "temperatureUnits": "celsius",
-  "colorScheme": "default"
+  "colorScheme": "default",
+  "contributorName": "Henry Wise"
 }

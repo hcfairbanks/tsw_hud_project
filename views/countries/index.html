@@ -129,11 +129,10 @@
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Code</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>Name</th><th>Code</th><th class="actions">Actions</th></tr></thead><tbody>';
             allCountries.forEach(function(c) {
                 var flag = countryCodeToFlag(c.code);
                 html += '<tr>';
-                html += '<td>' + c.id + '</td>';
                 html += '<td><a href="/countries/' + c.id + '">' + flag + escapeHtml(c.name) + '</a></td>';
                 html += '<td>' + escapeHtml(c.code || '') + '</td>';
                 html += '<td class="actions">';
