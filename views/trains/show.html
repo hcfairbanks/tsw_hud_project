@@ -39,21 +39,15 @@
         .context-info { background: var(--bg-tertiary); padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; color: var(--text-secondary); }
         .context-info a { color: var(--accent-color); text-decoration: none; }
         .context-info a:hover { text-decoration: underline; }
-        .upload-area { border: 2px dashed var(--border-color); border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
-        .upload-area:hover, .upload-area.dragover { border-color: var(--accent-color); background: var(--bg-tertiary); }
-        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: var(--bg-primary); border-radius: 4px; margin-bottom: 5px; }
-        .file-item .remove { color: var(--color-error); cursor: pointer; }
-        .editable-cell { cursor: pointer; position: relative; }
-        .editable-cell:hover { background: var(--bg-tertiary); }
-        .editable-cell input { width: 100%; padding: 5px; border: 1px solid var(--accent-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
-        .action-select { padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 12px; min-width: 140px; }
-        .action-select:focus { outline: none; border-color: var(--accent-color); }
         a { color: var(--accent-color); }
-        .btn-success { background: var(--btn-success-bg); color: #fff; }
-        .btn-success:hover { background: var(--btn-success-hover); }
-        .progress-bar { background: var(--bg-tertiary); }
-        .progress-fill { background: var(--btn-primary-bg); }
-        .progress-text { color: var(--text-muted); }
+        .typeahead-container { position: relative; display: inline-block; min-width: 200px; }
+        .typeahead-container input { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .typeahead-container input:focus { outline: none; border-color: var(--accent-color); }
+        .typeahead-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 4px 4px; z-index: 1001; }
+        .typeahead-item { padding: 8px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border-color); }
+        .typeahead-item:last-child { border-bottom: none; }
+        .typeahead-item:hover, .typeahead-item.highlighted { background: var(--bg-tertiary); }
+        .typeahead-item .item-name { color: var(--text-primary); }
     </style>
 </head>
 <body data-theme="dark">
@@ -81,56 +75,6 @@
         <h2 id="trainName">Loading...</h2>
         <div id="trainDetails">
             <p class="empty-message">Loading train details...</p>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2>Extract New Timetable</h2>
-        <p style="color: #888; margin-bottom: 15px;">
-            Upload screenshots to extract timetable data via OCR. Route and train will be automatically assigned.
-        </p>
-        <div class="upload-area" id="uploadArea">
-            <div style="font-size: 48px; margin-bottom: 10px;">📁</div>
-            <p>Click or drag images here</p>
-            <p style="color: #666; font-size: 12px;">Supports: PNG, JPG, JPEG, GIF, BMP</p>
-            <input type="file" id="fileInput" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,image/*" style="display:none;">
-        </div>
-        <div id="fileList" style="margin-top: 15px;"></div>
-        <div style="margin-top: 15px;">
-            <button class="btn-primary" id="processBtn" disabled>Process Images</button>
-            <button class="btn-secondary" id="clearBtn">Clear All</button>
-        </div>
-        <div id="progressBar" style="width:100%;height:20px;background:#0f3460;border-radius:10px;overflow:hidden;margin-top:15px;display:none;">
-            <div id="progressFill" style="height:100%;background:#00d4ff;width:0%;transition:width 0.3s;"></div>
-        </div>
-        <div id="progressText" style="text-align:center;margin-top:10px;color:#888;"></div>
-
-        <div id="extractResults" style="display:none;margin-top:20px;">
-            <label style="color: #888; font-size: 12px;">Service Name:</label>
-            <input type="text" id="serviceName" placeholder="Service Name" style="width:100%;padding:10px;border:1px solid #0f3460;border-radius:4px;background:#1a1a2e;color:#eee;font-size:16px;margin-bottom:15px;">
-
-            <div id="extractTableContainer">
-                <table id="extractTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Action</th>
-                            <th>Details</th>
-                            <th>Location</th>
-                            <th>Platform</th>
-                            <th>Time 1</th>
-                            <th>Time 2</th>
-                            <th class="actions">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="extractTableBody"></tbody>
-                </table>
-            </div>
-
-            <div style="margin-top: 15px;">
-                <button class="btn-primary" id="saveExtractBtn">Create Timetable</button>
-                <button class="btn-secondary" id="addRowBtn">Add Row</button>
-            </div>
         </div>
     </div>
 
@@ -187,11 +131,26 @@
             }
 
             let html = '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + train.id + '</span></div>';
-            html += '<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value">' + escapeHtml(train.name) + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value" id="nameDisplay">' + escapeHtml(train.name) + ' <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 10px;" onclick="showNameEdit()">Edit</button></span></div>';
+            html += '<div class="detail-row" id="nameEditRow" style="display: none;"><span class="detail-label">Change Name:</span><span class="detail-value"><input type="text" id="nameInput" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; min-width: 200px;" placeholder="Enter train name..."> <button class="btn-primary" style="padding: 4px 12px; font-size: 12px;" onclick="saveNameChange()">Save</button> <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="cancelNameEdit()">Cancel</button></span></div>';
             html += '<div class="detail-row"><span class="detail-label">Class:</span><span class="detail-value" id="classDisplay">' + classDisplay + ' <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 10px;" onclick="showClassEdit()">Edit</button></span></div>';
-            html += '<div class="detail-row" id="classEditRow" style="display: none;"><span class="detail-label">Change Class:</span><span class="detail-value"><select id="classSelect" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); min-width: 200px;"><option value="">-- No Class --</option></select> <button class="btn-primary" style="padding: 4px 12px; font-size: 12px;" onclick="saveClassChange()">Save</button> <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="cancelClassEdit()">Cancel</button></span></div>';
+            html += '<div class="detail-row" id="classEditRow" style="display: none;"><span class="detail-label">Change Class:</span><span class="detail-value"><div class="typeahead-container"><input type="text" id="classInput" placeholder="Type to search classes..." autocomplete="off"><div id="classDropdown" class="typeahead-dropdown"></div><input type="hidden" id="classSelect" value=""></div> <button class="btn-primary" style="padding: 4px 12px; font-size: 12px;" onclick="saveClassChange()">Save</button> <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="cancelClassEdit()">Cancel</button></span></div>';
 
             document.getElementById('trainDetails').innerHTML = html;
+
+            // Add keyboard handlers for name input
+            const nameInput = document.getElementById('nameInput');
+            if (nameInput) {
+                nameInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveNameChange();
+                    } else if (e.key === 'Escape') {
+                        cancelNameEdit();
+                    }
+                });
+            }
+
             loadTrainClasses();
         }
 
@@ -199,28 +158,146 @@
             try {
                 const response = await fetch('/api/train-classes');
                 allClasses = await response.json();
-                populateClassSelect();
+                setupClassTypeahead();
             } catch (error) {
                 console.error('Error loading train classes:', error);
             }
         }
 
-        function populateClassSelect() {
-            const select = document.getElementById('classSelect');
-            if (!select) return;
-            allClasses.forEach(function(cls) {
-                const option = document.createElement('option');
-                option.value = cls.id;
-                option.textContent = cls.name;
-                if (currentTrain && currentTrain.class_id == cls.id) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
+        let classHighlightedIndex = -1;
+
+        function setupClassTypeahead() {
+            const input = document.getElementById('classInput');
+            const dropdown = document.getElementById('classDropdown');
+            const hidden = document.getElementById('classSelect');
+
+            if (!input) return;
+
+            input.addEventListener('focus', function() { showClassDropdown(this.value); });
+            input.addEventListener('input', function() {
+                classHighlightedIndex = -1;
+                hidden.value = '';
+                showClassDropdown(this.value);
             });
+            input.addEventListener('keydown', function(e) {
+                const items = dropdown.querySelectorAll('.typeahead-item[data-id]');
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    classHighlightedIndex = Math.min(classHighlightedIndex + 1, items.length - 1);
+                    updateClassHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    classHighlightedIndex = Math.max(classHighlightedIndex - 1, 0);
+                    updateClassHighlight(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (classHighlightedIndex >= 0 && items[classHighlightedIndex]) {
+                        items[classHighlightedIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Hide dropdown on click outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.typeahead-container')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function updateClassHighlight(items) {
+            items.forEach(function(item, idx) {
+                item.classList.toggle('highlighted', idx === classHighlightedIndex);
+            });
+            if (classHighlightedIndex >= 0 && items[classHighlightedIndex]) {
+                items[classHighlightedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showClassDropdown(filter) {
+            const dropdown = document.getElementById('classDropdown');
+            const filterLower = (filter || '').toLowerCase();
+
+            const filtered = allClasses.filter(function(cls) {
+                return cls.name.toLowerCase().includes(filterLower);
+            });
+
+            // Add "No Class" option at the top
+            let html = '<div class="typeahead-item" data-id="" data-name=""><div class="item-name" style="color: var(--text-muted);">-- No Class --</div></div>';
+
+            if (filtered.length === 0) {
+                html += '<div class="typeahead-item" style="color: var(--text-muted);">No classes found</div>';
+            } else {
+                html += filtered.map(function(cls) {
+                    return '<div class="typeahead-item" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' +
+                        '<div class="item-name">' + escapeHtml(cls.name) + '</div></div>';
+                }).join('');
+            }
+
+            dropdown.innerHTML = html;
+
+            dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    document.getElementById('classInput').value = this.dataset.name;
+                    document.getElementById('classSelect').value = this.dataset.id;
+                    dropdown.style.display = 'none';
+                });
+            });
+
+            dropdown.style.display = 'block';
+        }
+
+        function showNameEdit() {
+            document.getElementById('nameEditRow').style.display = 'flex';
+            const input = document.getElementById('nameInput');
+            input.value = currentTrain ? currentTrain.name : '';
+            input.focus();
+            input.select();
+        }
+
+        function cancelNameEdit() {
+            document.getElementById('nameEditRow').style.display = 'none';
+        }
+
+        async function saveNameChange() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (!name) {
+                alert('Name cannot be empty');
+                return;
+            }
+            try {
+                const response = await fetch('/api/trains/' + trainId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to update train name');
+                }
+                // Reload train to show updated name
+                loadTrain();
+            } catch (error) {
+                console.error('Error updating train name:', error);
+                alert('Error updating train name: ' + error.message);
+            }
         }
 
         function showClassEdit() {
             document.getElementById('classEditRow').style.display = 'flex';
+            // Pre-fill with current class
+            const input = document.getElementById('classInput');
+            const hidden = document.getElementById('classSelect');
+            if (currentTrain && currentTrain.class_id) {
+                input.value = currentTrain.class_name || '';
+                hidden.value = currentTrain.class_id;
+            } else {
+                input.value = '';
+                hidden.value = '';
+            }
+            input.focus();
         }
 
         function cancelClassEdit() {
@@ -353,257 +430,6 @@
             div.textContent = text;
             return div.innerHTML;
         }
-
-        // ====================================
-        // EXTRACTION FUNCTIONALITY
-        // ====================================
-        let selectedFiles = [];
-        let extractedEntries = [];
-
-        const ACTIONS = [
-            'WAIT FOR SERVICE',
-            'STOP AT LOCATION',
-            'LOAD PASSENGERS',
-            'UNLOAD PASSENGERS',
-            'GO VIA LOCATION',
-            'UNCOUPLE VEHICLES',
-            'COUPLE TO FORMATION'
-        ];
-
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const fileListEl = document.getElementById('fileList');
-        const processBtn = document.getElementById('processBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const progressBar = document.getElementById('progressBar');
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
-        const extractResults = document.getElementById('extractResults');
-        const extractTableBody = document.getElementById('extractTableBody');
-        const serviceNameInput = document.getElementById('serviceName');
-
-        uploadArea.addEventListener('click', function() { fileInput.click(); });
-        fileInput.addEventListener('change', function(e) { handleFiles(e.target.files); });
-
-        uploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-        uploadArea.addEventListener('dragleave', function() {
-            uploadArea.classList.remove('dragover');
-        });
-        uploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
-        });
-
-        function handleFiles(files) {
-            for (var i = 0; i < files.length; i++) {
-                if (/\.(png|jpg|jpeg|gif|bmp)$/i.test(files[i].name)) {
-                    selectedFiles.push(files[i]);
-                }
-            }
-            selectedFiles.sort(function(a, b) { return a.name.localeCompare(b.name); });
-            renderFileList();
-        }
-
-        function renderFileList() {
-            fileListEl.innerHTML = selectedFiles.map(function(file, index) {
-                return '<div class="file-item"><span>' + (index + 1) + '. ' + escapeHtml(file.name) + ' (' + (file.size / 1024).toFixed(1) + ' KB)</span><span class="remove" onclick="removeFile(' + index + ')">✕</span></div>';
-            }).join('');
-            processBtn.disabled = selectedFiles.length === 0;
-        }
-
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            renderFileList();
-        }
-
-        clearBtn.addEventListener('click', function() {
-            selectedFiles = [];
-            fileInput.value = '';
-            renderFileList();
-        });
-
-        processBtn.addEventListener('click', async function() {
-            if (selectedFiles.length === 0) return;
-
-            processBtn.disabled = true;
-            progressBar.style.display = 'block';
-            progressFill.style.width = '0%';
-            progressText.textContent = 'Uploading images...';
-
-            var formData = new FormData();
-            selectedFiles.forEach(function(file) { formData.append('images', file, file.name); });
-
-            try {
-                var response = await fetch('/api/extract', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    var error = await response.json();
-                    throw new Error(error.error || 'Processing failed');
-                }
-
-                progressFill.style.width = '100%';
-                progressText.textContent = 'Complete!';
-
-                var data = await response.json();
-                displayExtractResults(data);
-            } catch (error) {
-                progressText.textContent = 'Error: ' + error.message;
-                console.error('Error:', error);
-            } finally {
-                processBtn.disabled = false;
-                setTimeout(function() { progressBar.style.display = 'none'; }, 2000);
-            }
-        });
-
-        function displayExtractResults(data) {
-            extractedEntries = data.entries || [];
-            serviceNameInput.value = data.service_name || '';
-            extractResults.style.display = 'block';
-            renderExtractTable();
-        }
-
-        function renderExtractTable() {
-            extractTableBody.innerHTML = extractedEntries.map(function(entry, index) {
-                var actionOptions = ACTIONS.map(function(a) {
-                    return '<option value="' + a + '"' + (entry.action === a ? ' selected' : '') + '>' + a + '</option>';
-                }).join('');
-
-                return '<tr data-index="' + index + '">' +
-                    '<td>' + (index + 1) + '</td>' +
-                    '<td><select class="action-select" onchange="updateExtractEntry(' + index + ', \'action\', this.value)"><option value="">-- Select --</option>' + actionOptions + '</select></td>' +
-                    '<td class="editable-cell" data-field="details">' + escapeHtml(entry.details || '') + '</td>' +
-                    '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>' +
-                    '<td class="editable-cell" data-field="platform">' + escapeHtml(entry.platform || '') + '</td>' +
-                    '<td class="editable-cell" data-field="time1">' + escapeHtml(entry.time1 || '') + '</td>' +
-                    '<td class="editable-cell" data-field="time2">' + escapeHtml(entry.time2 || '') + '</td>' +
-                    '<td class="actions"><button class="btn-danger" onclick="deleteExtractRow(' + index + ')">Delete</button></td>' +
-                    '</tr>';
-            }).join('');
-
-            document.querySelectorAll('#extractTableBody .editable-cell').forEach(function(cell) {
-                cell.addEventListener('click', makeExtractCellEditable);
-            });
-        }
-
-        function updateExtractEntry(index, field, value) {
-            extractedEntries[index][field] = value;
-        }
-
-        function makeExtractCellEditable(e) {
-            var cell = e.target;
-            if (cell.querySelector('input')) return;
-
-            var currentValue = cell.textContent;
-            var field = cell.dataset.field;
-            var row = cell.parentElement;
-            var index = parseInt(row.dataset.index);
-
-            var input = document.createElement('input');
-            input.type = 'text';
-            input.value = currentValue;
-
-            input.addEventListener('blur', function() {
-                var newValue = input.value;
-                extractedEntries[index][field] = newValue;
-                cell.textContent = newValue;
-            });
-
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    input.blur();
-                } else if (e.key === 'Escape') {
-                    cell.textContent = currentValue;
-                }
-            });
-
-            cell.textContent = '';
-            cell.appendChild(input);
-            input.focus();
-            input.select();
-        }
-
-        function deleteExtractRow(index) {
-            if (!confirm('Delete this row?')) return;
-            extractedEntries.splice(index, 1);
-            renderExtractTable();
-        }
-
-        document.getElementById('addRowBtn').addEventListener('click', function() {
-            extractedEntries.push({
-                action: 'STOP AT LOCATION',
-                details: '',
-                location: '',
-                platform: '',
-                time1: '',
-                time2: '',
-                latitude: '',
-                longitude: ''
-            });
-            renderExtractTable();
-        });
-
-        document.getElementById('saveExtractBtn').addEventListener('click', async function() {
-            if (extractedEntries.length === 0) {
-                alert('No entries to save');
-                return;
-            }
-
-            // Get the selected route ID from filter (or fromRouteId)
-            var selectedRouteId = document.getElementById('routeFilter').value || fromRouteId || null;
-
-            var payload = {
-                service_name: serviceNameInput.value || 'Untitled',
-                route_id: selectedRouteId ? parseInt(selectedRouteId) : null,
-                train_id: parseInt(trainId),
-                entries: extractedEntries.map(function(entry) {
-                    return {
-                        action: entry.action || '',
-                        details: entry.details || '',
-                        location: entry.location || '',
-                        platform: entry.platform || '',
-                        time1: entry.time1 || '',
-                        time2: entry.time2 || '',
-                        latitude: entry.latitude || '',
-                        longitude: entry.longitude || ''
-                    };
-                })
-            };
-
-            try {
-                var response = await fetch('/api/timetables', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to create timetable');
-                }
-
-                alert('Timetable created successfully!');
-
-                // Reset extraction form
-                extractedEntries = [];
-                selectedFiles = [];
-                fileInput.value = '';
-                serviceNameInput.value = '';
-                renderFileList();
-                extractResults.style.display = 'none';
-
-                // Reload timetables to show the new one
-                loadTimetables();
-            } catch (err) {
-                console.error('Save error:', err);
-                alert('Error saving: ' + err.message);
-            }
-        });
 
         // Theme and color scheme initialization
         (function() {
