@@ -3,6 +3,27 @@ const { timetableDb, entryDb, timetableCoordinateDb, timetableMarkerDb, routeDb,
 const { sendJson, parseBody } = require('../utils/http');
 const { preprocessTimetableEntries, calculateMarkerPositions, mapTimetableToMarkers } = require('./processingController');
 
+// Time format validation helper (HH:MM:SS)
+const TIME_FORMAT_REGEX = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
+
+function isValidTimeFormat(time) {
+    if (!time || time.trim() === '') return true; // Empty is allowed
+    return TIME_FORMAT_REGEX.test(time);
+}
+
+function validateEntryTimes(entries) {
+    const invalidEntries = [];
+    entries.forEach((entry, index) => {
+        if (entry.time1 && !isValidTimeFormat(entry.time1)) {
+            invalidEntries.push({ index: index + 1, field: 'time1', value: entry.time1 });
+        }
+        if (entry.time2 && !isValidTimeFormat(entry.time2)) {
+            invalidEntries.push({ index: index + 1, field: 'time2', value: entry.time2 });
+        }
+    });
+    return invalidEntries;
+}
+
 // Helper function to generate raw entry data for export
 // Preserves the original database structure (time1/time2) for accurate import
 function generateRawEntryData(entries) {
@@ -29,7 +50,6 @@ function generateRawEntryData(entries) {
  */
 function getTimetableExportMetadata(timetable) {
     let routeName = null;
-    let trainName = null;
     let trainNames = [];
     let countryName = null;
 
@@ -46,24 +66,12 @@ function getTimetableExportMetadata(timetable) {
     if (timetable && timetable.id) {
         const trains = timetableDb.getTrains(timetable.id);
         trainNames = trains.map(t => t.name);
-        // For backward compatibility, set trainName to first train
-        trainName = trainNames.length > 0 ? trainNames[0] : null;
-    }
-
-    // Fallback to legacy train_id if no trains in junction table
-    if (!trainName && timetable && timetable.train_id) {
-        const train = trainDb.getById(timetable.train_id);
-        trainName = train ? train.name : null;
-        if (trainName) {
-            trainNames = [trainName];
-        }
     }
 
     return {
         serviceName: timetable ? timetable.service_name : 'Unknown',
         routeName: routeName,
         countryName: countryName,
-        trainName: trainName,
         trainNames: trainNames
     };
 }
@@ -216,8 +224,7 @@ function buildTimetableExportJson(options) {
         serviceName: metadata.serviceName,
         routeName: metadata.routeName,
         countryName: metadata.countryName,
-        trainName: metadata.trainName,
-        trainNames: metadata.trainNames || [],  // New: array of train names
+        trainNames: metadata.trainNames || [],
         totalPoints: formattedCoordinates.length,
         totalMarkers: exportMarkers.length,
         coordinates: formattedCoordinates,
@@ -274,17 +281,54 @@ const timetableController = {
         console.log('=== CREATE TIMETABLE ===');
         console.log('Body received:', JSON.stringify(body, null, 2));
 
-        // Step 1: Create the timetable
-        const serviceName = body.service_name || 'Untitled';
+        // Step 1: Validate required fields
+        const serviceName = body.service_name ? body.service_name.trim() : '';
+
+        // Validate service name is provided
+        if (!serviceName) {
+            return sendJson(res, { error: 'A timetable must have a service name.' }, 400);
+        }
+
+        // Validate route is provided
+        if (!body.route_id) {
+            return sendJson(res, { error: 'A timetable must have a route. Please select a route.' }, 400);
+        }
+
+        // Validate at least one train is provided
+        const trainIds = body.train_ids || (body.train_id ? [body.train_id] : null);
+        if (!trainIds || trainIds.length === 0) {
+            return sendJson(res, { error: 'A timetable must have at least one train. Please select a train.' }, 400);
+        }
 
         // Check for unique service name
         if (timetableDb.serviceNameExists(serviceName)) {
             return sendJson(res, { error: 'A timetable with this service name already exists' }, 409);
         }
 
-        const routeId = body.route_id || null;
-        const trainId = body.train_id || null;
-        const trainIds = body.train_ids || null;  // New: array of train IDs
+        // Verify the route exists
+        const route = routeDb.getById(body.route_id);
+        if (!route) {
+            return sendJson(res, { error: 'The specified route does not exist' }, 400);
+        }
+
+        // Verify all trains exist
+        for (const tid of trainIds) {
+            const train = trainDb.getById(tid);
+            if (!train) {
+                return sendJson(res, { error: `Train with ID ${tid} does not exist` }, 400);
+            }
+        }
+
+        // Validate time format for all entries (HH:MM:SS)
+        const entriesForValidation = body.entries || [];
+        const invalidTimes = validateEntryTimes(entriesForValidation);
+        if (invalidTimes.length > 0) {
+            const errorDetails = invalidTimes.map(e => `Entry ${e.index} ${e.field}: "${e.value}"`).join(', ');
+            return sendJson(res, { error: `Invalid time format. Times must be HH:MM:SS (e.g., 08:30:00). ${errorDetails}` }, 400);
+        }
+
+        const routeId = body.route_id;
+        const trainId = body.train_id || trainIds[0];  // Use first train for backward compatibility
         const result = timetableDb.create(serviceName, routeId, trainId, trainIds);
         const timetableId = result.lastInsertRowid;
         console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId, 'train_ids:', trainIds);
@@ -370,9 +414,60 @@ const timetableController = {
         console.log('Timetable ID:', id);
         console.log('Body received:', JSON.stringify(body, null, 2));
 
-        // Check for unique service name (excluding current timetable)
-        if (body.service_name !== undefined && timetableDb.serviceNameExists(body.service_name, parseInt(id))) {
-            return sendJson(res, { error: 'A timetable with this service name already exists' }, 409);
+        // Get current timetable to check existing values
+        const currentTimetable = timetableDb.getById(id);
+        if (!currentTimetable) {
+            return sendJson(res, { error: 'Timetable not found' }, 404);
+        }
+
+        // Validate service name if being updated
+        if (body.service_name !== undefined) {
+            const trimmedName = body.service_name.trim();
+            if (!trimmedName) {
+                return sendJson(res, { error: 'A timetable must have a service name.' }, 400);
+            }
+            // Check for unique service name (excluding current timetable)
+            if (timetableDb.serviceNameExists(trimmedName, parseInt(id))) {
+                return sendJson(res, { error: 'A timetable with this service name already exists' }, 409);
+            }
+        }
+
+        // Determine final route_id after update
+        const finalRouteId = body.route_id !== undefined ? body.route_id : currentTimetable.route_id;
+        if (!finalRouteId) {
+            return sendJson(res, { error: 'A timetable must have a route. Please select a route.' }, 400);
+        }
+
+        // Verify the route exists if being changed
+        if (body.route_id !== undefined) {
+            const route = routeDb.getById(body.route_id);
+            if (!route) {
+                return sendJson(res, { error: 'The specified route does not exist' }, 400);
+            }
+        }
+
+        // Determine final train_ids after update
+        let finalTrainIds;
+        if (body.train_ids !== undefined) {
+            finalTrainIds = body.train_ids;
+        } else {
+            // Get current trains from junction table
+            const currentTrains = timetableDb.getTrains(id);
+            finalTrainIds = currentTrains.map(t => t.id);
+        }
+
+        if (!finalTrainIds || finalTrainIds.length === 0) {
+            return sendJson(res, { error: 'A timetable must have at least one train. Please select a train.' }, 400);
+        }
+
+        // Verify all new trains exist
+        if (body.train_ids !== undefined) {
+            for (const tid of body.train_ids) {
+                const train = trainDb.getById(tid);
+                if (!train) {
+                    return sendJson(res, { error: `Train with ID ${tid} does not exist` }, 400);
+                }
+            }
         }
 
         // Build update data object with only the fields that were provided
@@ -380,7 +475,7 @@ const timetableController = {
         if (body.service_name !== undefined) updateData.service_name = body.service_name;
         if (body.route_id !== undefined) updateData.route_id = body.route_id;
         if (body.train_id !== undefined) updateData.train_id = body.train_id;
-        if (body.train_ids !== undefined) updateData.train_ids = body.train_ids;  // New: array of train IDs
+        if (body.train_ids !== undefined) updateData.train_ids = body.train_ids;
 
         timetableDb.update(id, updateData);
 
@@ -615,17 +710,17 @@ const timetableController = {
             }
         }
 
-        // Step 3: Look up or create trains by name
-        // Support both trainName (single) and trainNames (array)
+        // Step 3: Look up trains by name (trains must already exist)
         let trainIds = [];
         let trainId = null;
-        let trainCreated = false;
-        let trainsCreated = [];
+        let missingTrains = [];
 
-        // Get train names from either trainNames array or single trainName
-        const trainNamesToProcess = body.trainNames && Array.isArray(body.trainNames) && body.trainNames.length > 0
-            ? body.trainNames
-            : (body.trainName ? [body.trainName] : []);
+        // Get train names from trainNames array and deduplicate
+        const trainNamesToProcess = body.trainNames && Array.isArray(body.trainNames)
+            ? [...new Set(body.trainNames.filter(name => typeof name === 'string' && name.trim().length > 0))]
+            : [];
+
+        console.log('trainNamesToProcess:', JSON.stringify(trainNamesToProcess));
 
         for (const trainName of trainNamesToProcess) {
             const existingTrain = trainDb.getByName(trainName);
@@ -633,17 +728,40 @@ const timetableController = {
                 trainIds.push(existingTrain.id);
                 console.log(`Found existing train: ${trainName} (ID: ${existingTrain.id})`);
             } else {
-                // Create new train
-                const trainResult = trainDb.create(trainName);
-                trainIds.push(trainResult.lastInsertRowid);
-                trainsCreated.push(trainName);
-                console.log(`Created new train: ${trainName} (ID: ${trainResult.lastInsertRowid})`);
+                missingTrains.push(trainName);
+                console.log(`Train not found: ${trainName}`);
             }
+        }
+
+        // Reject import if any trains are missing
+        if (missingTrains.length > 0) {
+            const trainList = missingTrains.map(t => `"${t}"`).join(', ');
+            sendJson(res, {
+                error: `The following trains do not exist: ${trainList}. Please create them first.`,
+                missingTrains: missingTrains
+            }, 400);
+            return;
         }
 
         // For backward compatibility, set trainId to first train
         trainId = trainIds.length > 0 ? trainIds[0] : null;
-        trainCreated = trainsCreated.length > 0;
+
+        // Validate time format for csvData entries (HH:MM:SS)
+        if (body.csvData && Array.isArray(body.csvData) && body.csvData.length > 0) {
+            // Transform csvData to match validation format (handles old arrival/departure format too)
+            const entriesToValidate = body.csvData.map(csvEntry => {
+                const hasNewFormat = csvEntry.time1 !== undefined || csvEntry.time2 !== undefined;
+                return {
+                    time1: hasNewFormat ? (csvEntry.time1 || '') : (csvEntry.arrival || ''),
+                    time2: hasNewFormat ? (csvEntry.time2 || '') : (csvEntry.departure || '')
+                };
+            });
+            const invalidTimes = validateEntryTimes(entriesToValidate);
+            if (invalidTimes.length > 0) {
+                const errorDetails = invalidTimes.map(e => `Entry ${e.index} ${e.field}: "${e.value}"`).join(', ');
+                return sendJson(res, { error: `Invalid time format. Times must be HH:MM:SS (e.g., 08:30:00). ${errorDetails}` }, 400);
+            }
+        }
 
         // Step 4: Create the timetable with route and train IDs
         const result = timetableDb.create(serviceName, routeId, trainId, trainIds);
@@ -698,8 +816,8 @@ const timetableController = {
             route_name: body.routeName || null,
             route_created: routeCreated,
             train_id: trainId,
-            train_name: body.trainName || null,
-            train_created: trainCreated,
+            train_ids: trainIds,
+            train_names: trainNamesToProcess,
             message: 'Timetable imported successfully',
             coordinatesImported: body.coordinates ? body.coordinates.length : 0,
             markersImported: body.markers ? body.markers.length : 0,
@@ -732,7 +850,7 @@ const timetableController = {
         sendJson(res, { success: true, trains: trains }, 201);
     },
 
-    // DELETE /api/timetables/:id/trains
+    // DELETE /api/timetables/:id/trains (train_id in body)
     removeTrain: async (req, res, timetableId) => {
         const timetable = timetableDb.getById(timetableId);
         if (!timetable) {
@@ -743,6 +861,17 @@ const timetableController = {
             return sendJson(res, { error: 'train_id is required' }, 400);
         }
         timetableDb.removeTrain(timetableId, body.train_id);
+        const trains = timetableDb.getTrains(timetableId);
+        sendJson(res, { success: true, trains: trains });
+    },
+
+    // DELETE /api/timetables/:id/trains/:trainId (train_id in URL)
+    removeTrainById: async (req, res, timetableId, trainId) => {
+        const timetable = timetableDb.getById(timetableId);
+        if (!timetable) {
+            return sendJson(res, { error: 'Timetable not found' }, 404);
+        }
+        timetableDb.removeTrain(timetableId, trainId);
         const trains = timetableDb.getTrains(timetableId);
         sendJson(res, { success: true, trains: trains });
     }

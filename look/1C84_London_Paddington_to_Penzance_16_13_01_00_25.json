@@ -1,7 +1,13 @@
 {
-  "routeName": null,
-  "timetableId": null,
+  "timetableId": 25,
+  "completed": null,
+  "recordingMode": null,
+  "serviceName": "1C84 London Paddington to Penzance 16:13 01:00",
+  "routeName": "Riviera Line",
+  "countryName": "United Kingdom",
+  "trainNames": ["Class 802/0 GWR","Class 802/1 GWR"],
   "totalPoints": 975,
+  "totalMarkers": 6,
   "coordinates": [
     {
       "latitude": 50.728790604014506,
@@ -6833,46 +6839,184 @@
     {
       "stationName": "Exeter St Davids",
       "markerType": "Platform",
-      "platformLength": 27159.203125,
       "latitude": 50.378043332071954,
-      "longitude": -4.144044500527335
+      "longitude": -4.144044500527335,
+      "platformLength": 27159.203125
     },
     {
       "stationName": "Exeter St Davids 4",
       "markerType": "Platform",
-      "platformLength": 27159.203125,
       "latitude": 50.378043332071954,
-      "longitude": -4.144044500527335
+      "longitude": -4.144044500527335,
+      "platformLength": 27159.203125
     },
     {
       "stationName": "Exeter St Thomas",
       "markerType": "Platform",
-      "platformLength": 10110.5703125,
       "latitude": 50.378043332071954,
-      "longitude": -4.144044500527335
+      "longitude": -4.144044500527335,
+      "platformLength": 10110.5703125
     },
     {
       "stationName": "Marsh Barton",
       "markerType": "Platform",
-      "platformLength": 12883.7041015625,
       "latitude": 50.378043332071954,
-      "longitude": -4.144044500527335
+      "longitude": -4.144044500527335,
+      "platformLength": 12883.7041015625
     },
     {
       "stationName": "Exeter St Thomas 1",
       "markerType": "Platform",
-      "platformLength": 10110.5703125,
       "latitude": 50.378043332071954,
-      "longitude": -4.144044500527335
+      "longitude": -4.144044500527335,
+      "platformLength": 10110.5703125
     },
     {
       "stationName": "Marsh Barton 1",
       "markerType": "Platform",
-      "platformLength": 12883.7041015625,
+      "latitude": 50.378043332071954,
+      "longitude": -4.144044500527335,
+      "platformLength": 12883.7041015625
+    }
+  ],
+  "timetable": [
+    {
+      "index": 0,
+      "destination": "Exeter St Davids",
+      "arrival": "16:13:00",
+      "departure": "16:15:00",
+      "platform": "4",
+      "apiName": "Exeter St Davids 4",
+      "latitude": 50.728790604014506,
+      "longitude": -3.543801631667068
+    },
+    {
+      "index": 1,
+      "destination": "Newton Abbot",
+      "arrival": "16:33:30",
+      "departure": "16:35:30",
+      "platform": "2",
+      "apiName": "Newton Abbot 2",
+      "latitude": 50.52890590132304,
+      "longitude": -3.599204912414483
+    },
+    {
+      "index": 2,
+      "destination": "Totnes",
+      "arrival": "16:46:30",
+      "departure": "16:48:00",
+      "platform": "1",
+      "apiName": "Totnes 1",
+      "latitude": 50.43517283175573,
+      "longitude": -3.6897732448155276
+    },
+    {
+      "index": 3,
+      "destination": "Plymouth",
+      "arrival": "17:13:00",
+      "departure": "",
+      "platform": "6",
+      "apiName": "Plymouth 6",
       "latitude": 50.378043332071954,
       "longitude": -4.144044500527335
     }
   ],
-  "timetable": [],
-  "detectedStops": 0
+  "csvData": [
+    {
+      "index": 0,
+      "action": "WAIT FOR SERVICE",
+      "location": "Exeter St Davids",
+      "platform": "4",
+      "time1": "",
+      "time2": "16:13:00",
+      "details": "Service is scheduled to start at",
+      "latitude": "50.728790604014506",
+      "longitude": "-3.543801631667068",
+      "api_name": "Exeter St Davids 4"
+    },
+    {
+      "index": 1,
+      "action": "LOAD PASSENGERS",
+      "location": "",
+      "platform": "",
+      "time1": "16:15:00",
+      "time2": "",
+      "details": "",
+      "latitude": "",
+      "longitude": "",
+      "api_name": ""
+    },
+    {
+      "index": 2,
+      "action": "STOP AT LOCATION",
+      "location": "Newton Abbot",
+      "platform": "2",
+      "time1": "16:33:30",
+      "time2": "",
+      "details": "Newton Abbot Platform 2 - 16:33:30",
+      "latitude": "50.52890590132304",
+      "longitude": "-3.599204912414483",
+      "api_name": "Newton Abbot 2"
+    },
+    {
+      "index": 3,
+      "action": "LOAD PASSENGERS",
+      "location": "",
+      "platform": "",
+      "time1": "16:35:30",
+      "time2": "",
+      "details": "",
+      "latitude": "",
+      "longitude": "",
+      "api_name": ""
+    },
+    {
+      "index": 4,
+      "action": "STOP AT LOCATION",
+      "location": "Totnes",
+      "platform": "1",
+      "time1": "16:46:30",
+      "time2": "",
+      "details": "Totnes Platform 1 - 16:46:30",
+      "latitude": "50.43517283175573",
+      "longitude": "-3.6897732448155276",
+      "api_name": "Totnes 1"
+    },
+    {
+      "index": 5,
+      "action": "LOAD PASSENGERS",
+      "location": "",
+      "platform": "",
+      "time1": "16:48:00",
+      "time2": "",
+      "details": "",
+      "latitude": "",
+      "longitude": "",
+      "api_name": ""
+    },
+    {
+      "index": 6,
+      "action": "STOP AT LOCATION",
+      "location": "Plymouth",
+      "platform": "6",
+      "time1": "17:13:00",
+      "time2": "",
+      "details": "Plymouth Platform 6 - 17:13:00",
+      "latitude": "50.378043332071954",
+      "longitude": "-4.144044500527335",
+      "api_name": "Plymouth 6"
+    },
+    {
+      "index": 7,
+      "action": "LOAD PASSENGERS",
+      "location": "",
+      "platform": "",
+      "time1": "",
+      "time2": "",
+      "details": "",
+      "latitude": "",
+      "longitude": "",
+      "api_name": ""
+    }
+  ]
 }

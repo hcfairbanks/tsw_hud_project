@@ -11,7 +11,8 @@
       "Bash(dir \"c:\\\\Users\\\\hcfai\\\\Desktop\\\\git\\\\tsw_hud_project\\\\recording_data\"\")",
       "Bash(tail:*)",
       "Bash(grep:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(python -m json.tool:*)"
     ]
   }
 }

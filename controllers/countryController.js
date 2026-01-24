@@ -30,6 +30,11 @@ const countryController = {
             return;
         }
 
+        if (!code) {
+            sendJson(res, { error: 'Country code is required (e.g., GB, US, DE)' }, 400);
+            return;
+        }
+
         // Check if country already exists
         const existing = countryDb.getByName(name);
         if (existing) {
@@ -49,6 +54,11 @@ const countryController = {
 
         if (!name) {
             sendJson(res, { error: 'Country name is required' }, 400);
+            return;
+        }
+
+        if (!code) {
+            sendJson(res, { error: 'Country code is required (e.g., GB, US, DE)' }, 400);
             return;
         }
 

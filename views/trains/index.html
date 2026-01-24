@@ -44,6 +44,9 @@
         .typeahead-item:last-child { border-bottom: none; }
         .typeahead-item:hover, .typeahead-item.highlighted { background: var(--bg-tertiary); }
         .typeahead-item .item-name { font-weight: 600; color: var(--text-primary); }
+        .typeahead-item .item-sub { font-size: 11px; color: var(--text-muted); }
+        select.form-select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        select.form-select:focus { outline: none; border-color: var(--accent-color); }
         .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .pagination button { min-width: 40px; }
         .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -75,6 +78,14 @@
                 <label for="name">Train Name:</label>
                 <input type="text" id="name" name="name" required placeholder="e.g., Class 395 Javelin">
             </div>
+            <div class="form-group">
+                <label for="classSearch">Train Class *:</label>
+                <div class="typeahead-container">
+                    <input type="text" id="classSearch" placeholder="Type to search classes..." autocomplete="off" required>
+                    <input type="hidden" id="classId">
+                    <div id="classSearchDropdown" class="typeahead-dropdown"></div>
+                </div>
+            </div>
             <button type="submit" class="btn-primary">Add Train</button>
         </form>
     </div>
@@ -83,8 +94,16 @@
         <form id="editFormInner">
             <input type="hidden" id="editId">
             <div class="form-group">
-                <label for="editName">Train Name:</label>
+                <label for="editName">Train Name *:</label>
                 <input type="text" id="editName" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="editClassSearch">Train Class *:</label>
+                <div class="typeahead-container">
+                    <input type="text" id="editClassSearch" placeholder="Type to search classes..." autocomplete="off" required>
+                    <input type="hidden" id="editClassId">
+                    <div id="editClassSearchDropdown" class="typeahead-dropdown"></div>
+                </div>
             </div>
             <button type="submit" class="btn-primary">Save Changes</button>
             <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
@@ -97,6 +116,11 @@
                 <input type="text" id="searchInput" placeholder="Type to search trains..." autocomplete="off">
                 <div id="trainSearchDropdown" class="typeahead-dropdown"></div>
             </div>
+            <div class="typeahead-container">
+                <input type="text" id="classFilterInput" placeholder="Filter by class..." autocomplete="off">
+                <input type="hidden" id="classFilterId">
+                <div id="classFilterDropdown" class="typeahead-dropdown"></div>
+            </div>
             <button class="btn-secondary" onclick="clearSearch()">Clear</button>
         </div>
         <div id="trainsList"><p class="empty-message">Loading trains...</p></div>
@@ -105,10 +129,324 @@
     <script>
         const API_URL = '/api/trains';
         let allTrains = [];
+        let allClasses = [];
         let currentSearch = '';
+        let currentClassFilter = null; // {id, name}
         let currentPage = 1;
         let currentLimit = 10;
         let highlightedIndex = -1;
+        let classFilterHighlightedIndex = -1;
+
+        async function loadClasses() {
+            try {
+                const response = await fetch('/api/train-classes');
+                allClasses = await response.json();
+                setupClassTypeahead();
+                setupClassFilterTypeahead();
+                setupEditClassTypeahead();
+            } catch (error) {
+                console.error('Error loading train classes:', error);
+            }
+        }
+
+        // Class filter typeahead for filtering the trains list
+        var classFilterTypeaheadInitialized = false;
+        function setupClassFilterTypeahead() {
+            if (classFilterTypeaheadInitialized) return;
+            classFilterTypeaheadInitialized = true;
+
+            var input = document.getElementById('classFilterInput');
+            var dropdown = document.getElementById('classFilterDropdown');
+            var hiddenInput = document.getElementById('classFilterId');
+
+            function showDropdown() {
+                showClassFilterDropdown(input.value);
+            }
+
+            input.addEventListener('focus', showDropdown);
+            input.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showDropdown();
+            });
+            input.addEventListener('input', function() {
+                classFilterHighlightedIndex = -1;
+                showClassFilterDropdown(this.value);
+            });
+            input.addEventListener('keydown', function(e) {
+                var items = dropdown.querySelectorAll('.typeahead-item[data-id]');
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    classFilterHighlightedIndex = Math.min(classFilterHighlightedIndex + 1, items.length - 1);
+                    updateClassFilterHighlight(items, classFilterHighlightedIndex);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    classFilterHighlightedIndex = Math.max(classFilterHighlightedIndex - 1, 0);
+                    updateClassFilterHighlight(items, classFilterHighlightedIndex);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (classFilterHighlightedIndex >= 0 && items[classFilterHighlightedIndex]) {
+                        items[classFilterHighlightedIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#classFilterInput') && !e.target.closest('#classFilterDropdown')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function updateClassFilterHighlight(items, index) {
+            items.forEach(function(item, idx) {
+                item.classList.toggle('highlighted', idx === index);
+            });
+            if (index >= 0 && items[index]) {
+                items[index].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showClassFilterDropdown(filter) {
+            var dropdown = document.getElementById('classFilterDropdown');
+            var filterLower = String(filter || '').toLowerCase();
+
+            var filtered = allClasses.filter(function(cls) {
+                var name = String(cls.name || '');
+                return name.toLowerCase().includes(filterLower);
+            }).slice(0, 20);
+
+            var html = '<div class="typeahead-item" data-id="" data-name="" style="color: var(--text-muted); font-style: italic;">All Classes</div>';
+
+            if (filtered.length === 0) {
+                html += '<div class="typeahead-item" style="color: var(--text-muted);">No classes found</div>';
+            } else {
+                html += filtered.map(function(cls) {
+                    return '<div class="typeahead-item" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' +
+                        '<div class="item-name">' + escapeHtml(cls.name) + '</div></div>';
+                }).join('');
+            }
+            dropdown.innerHTML = html;
+
+            dropdown.querySelectorAll('.typeahead-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    var classId = this.dataset.id;
+                    var className = this.dataset.name;
+
+                    if (classId) {
+                        document.getElementById('classFilterInput').value = className;
+                        document.getElementById('classFilterId').value = classId;
+                        currentClassFilter = { id: parseInt(classId), name: className };
+                    } else {
+                        document.getElementById('classFilterInput').value = '';
+                        document.getElementById('classFilterId').value = '';
+                        currentClassFilter = null;
+                    }
+                    dropdown.style.display = 'none';
+                    currentPage = 1;
+                    renderTrains(1);
+                });
+            });
+
+            dropdown.style.display = 'block';
+        }
+
+        let classHighlightedIndex = -1;
+        var classTypeaheadInitialized = false;
+
+        function setupClassTypeahead() {
+            if (classTypeaheadInitialized) return; // Prevent duplicate event listeners
+            classTypeaheadInitialized = true;
+
+            var input = document.getElementById('classSearch');
+            var dropdown = document.getElementById('classSearchDropdown');
+            var hiddenInput = document.getElementById('classId');
+
+            // Show dropdown on focus or click
+            function showDropdown() {
+                showClassDropdown(input.value);
+            }
+
+            input.addEventListener('focus', showDropdown);
+            input.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent document click from hiding dropdown
+                showDropdown();
+            });
+            input.addEventListener('input', function() {
+                classHighlightedIndex = -1;
+                hiddenInput.value = ''; // Clear selection when typing
+                showClassDropdown(this.value);
+            });
+            input.addEventListener('keydown', function(e) { handleClassTypeaheadKeydown(e, dropdown); });
+
+            // Prevent clicks inside dropdown from closing it
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Hide dropdown on click outside
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+        }
+
+        function handleClassTypeaheadKeydown(e, dropdown) {
+            var items = dropdown.querySelectorAll('.typeahead-item[data-id]');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                classHighlightedIndex = Math.min(classHighlightedIndex + 1, items.length - 1);
+                updateClassHighlight(items, classHighlightedIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                classHighlightedIndex = Math.max(classHighlightedIndex - 1, 0);
+                updateClassHighlight(items, classHighlightedIndex);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (classHighlightedIndex >= 0 && items[classHighlightedIndex]) {
+                    items[classHighlightedIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function updateClassHighlight(items, index) {
+            items.forEach(function(item, idx) {
+                item.classList.toggle('highlighted', idx === index);
+            });
+            if (index >= 0 && items[index]) {
+                items[index].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showClassDropdown(filter) {
+            var dropdown = document.getElementById('classSearchDropdown');
+            var filterLower = String(filter || '').toLowerCase();
+
+            var filtered = allClasses.filter(function(cls) {
+                var name = String(cls.name || '');
+                return name.toLowerCase().includes(filterLower);
+            }).slice(0, 20);
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No classes found</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(function(cls) {
+                    return '<div class="typeahead-item" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' +
+                        '<div class="item-name">' + escapeHtml(cls.name) + '</div></div>';
+                }).join('');
+
+                dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        var classSearchInput = document.getElementById('classSearch');
+                        classSearchInput.value = this.dataset.name;
+                        classSearchInput.setCustomValidity(''); // Clear validation error
+                        document.getElementById('classId').value = this.dataset.id;
+                        dropdown.style.display = 'none';
+                    });
+                });
+            }
+            dropdown.style.display = 'block';
+        }
+
+        // Edit form class typeahead
+        let editClassHighlightedIndex = -1;
+        var editClassTypeaheadInitialized = false;
+
+        function setupEditClassTypeahead() {
+            if (editClassTypeaheadInitialized) return;
+            editClassTypeaheadInitialized = true;
+
+            var input = document.getElementById('editClassSearch');
+            var dropdown = document.getElementById('editClassSearchDropdown');
+            var hiddenInput = document.getElementById('editClassId');
+
+            function showDropdown() {
+                showEditClassDropdown(input.value);
+            }
+
+            input.addEventListener('focus', showDropdown);
+            input.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showDropdown();
+            });
+            input.addEventListener('input', function() {
+                editClassHighlightedIndex = -1;
+                hiddenInput.value = '';
+                showEditClassDropdown(this.value);
+            });
+            input.addEventListener('keydown', function(e) {
+                var items = dropdown.querySelectorAll('.typeahead-item[data-id]');
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    editClassHighlightedIndex = Math.min(editClassHighlightedIndex + 1, items.length - 1);
+                    updateEditClassHighlight(items, editClassHighlightedIndex);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    editClassHighlightedIndex = Math.max(editClassHighlightedIndex - 1, 0);
+                    updateEditClassHighlight(items, editClassHighlightedIndex);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (editClassHighlightedIndex >= 0 && items[editClassHighlightedIndex]) {
+                        items[editClassHighlightedIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+        }
+
+        function updateEditClassHighlight(items, index) {
+            items.forEach(function(item, idx) {
+                item.classList.toggle('highlighted', idx === index);
+            });
+            if (index >= 0 && items[index]) {
+                items[index].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showEditClassDropdown(filter) {
+            var dropdown = document.getElementById('editClassSearchDropdown');
+            var filterLower = String(filter || '').toLowerCase();
+
+            var filtered = allClasses.filter(function(cls) {
+                var name = String(cls.name || '');
+                return name.toLowerCase().includes(filterLower);
+            }).slice(0, 20);
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No classes found</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(function(cls) {
+                    return '<div class="typeahead-item" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' +
+                        '<div class="item-name">' + escapeHtml(cls.name) + '</div></div>';
+                }).join('');
+
+                dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        var editClassSearchInput = document.getElementById('editClassSearch');
+                        editClassSearchInput.value = this.dataset.name;
+                        editClassSearchInput.setCustomValidity('');
+                        document.getElementById('editClassId').value = this.dataset.id;
+                        dropdown.style.display = 'none';
+                    });
+                });
+            }
+            dropdown.style.display = 'block';
+        }
 
         async function loadTrains() {
             try {
@@ -125,11 +463,24 @@
         // =============================================
         // Typeahead Setup
         // =============================================
+        var trainTypeaheadInitialized = false;
         function setupTypeahead() {
+            if (trainTypeaheadInitialized) return; // Prevent duplicate event listeners
+            trainTypeaheadInitialized = true;
+
             var input = document.getElementById('searchInput');
             var dropdown = document.getElementById('trainSearchDropdown');
 
-            input.addEventListener('focus', function() { showTrainDropdown(this.value); });
+            // Show dropdown on focus or click
+            function showDropdown() {
+                showTrainDropdown(input.value);
+            }
+
+            input.addEventListener('focus', showDropdown);
+            input.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent document click from hiding dropdown
+                showDropdown();
+            });
             input.addEventListener('input', function() {
                 highlightedIndex = -1;
                 currentSearch = this.value.trim();
@@ -138,11 +489,14 @@
             });
             input.addEventListener('keydown', function(e) { handleTypeaheadKeydown(e, dropdown); });
 
+            // Prevent clicks inside dropdown from closing it
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
             // Hide dropdown on click outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.typeahead-container')) {
-                    dropdown.style.display = 'none';
-                }
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
             });
         }
 
@@ -177,10 +531,11 @@
 
         function showTrainDropdown(filter) {
             var dropdown = document.getElementById('trainSearchDropdown');
-            var filterLower = filter.toLowerCase();
+            var filterLower = String(filter || '').toLowerCase();
 
             var filtered = allTrains.filter(function(train) {
-                return train.name.toLowerCase().includes(filterLower);
+                var name = String(train.name || '');
+                return name.toLowerCase().includes(filterLower);
             }).slice(0, 20);
 
             if (filtered.length === 0) {
@@ -210,10 +565,19 @@
             const container = document.getElementById('trainsList');
             let trains = allTrains;
 
+            // Filter by class first
+            if (currentClassFilter) {
+                trains = trains.filter(function(t) {
+                    return t.class_id === currentClassFilter.id;
+                });
+            }
+
+            // Then filter by search term
             if (currentSearch) {
-                const searchLower = currentSearch.toLowerCase();
-                trains = allTrains.filter(function(t) {
-                    return t.name.toLowerCase().includes(searchLower);
+                const searchLower = String(currentSearch).toLowerCase();
+                trains = trains.filter(function(t) {
+                    var name = String(t.name || '');
+                    return name.toLowerCase().includes(searchLower);
                 });
             }
 
@@ -237,7 +601,7 @@
                 html += '<tr><td>' + t.id + '</td><td><a href="/trains/' + t.id + '">' + escapeHtml(t.name) + '</a></td>';
                 html += '<td>' + classLink + '</td>';
                 html += '<td class="actions"><button class="btn-primary" onclick="showTrain(' + t.id + ')">Show</button>';
-                html += "<button class=\"btn-secondary\" onclick=\"editTrain(" + t.id + ",'" + escapeJs(t.name) + "')\">Edit</button>";
+                html += "<button class=\"btn-secondary\" onclick=\"editTrain(" + t.id + ",'" + escapeJs(t.name) + "'," + (t.class_id || 'null') + ",'" + escapeJs(t.class_name || '') + "')\">Edit</button>";
                 html += '<button class="btn-danger" onclick="deleteTrain(' + t.id + ')">Delete</button></td></tr>';
             });
             html += '</tbody></table>';
@@ -281,7 +645,11 @@
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             document.getElementById('trainSearchDropdown').style.display = 'none';
+            document.getElementById('classFilterInput').value = '';
+            document.getElementById('classFilterId').value = '';
+            document.getElementById('classFilterDropdown').style.display = 'none';
             currentSearch = '';
+            currentClassFilter = null;
             currentPage = 1;
             renderTrains(1);
         }
@@ -290,31 +658,88 @@
         function escapeJs(text) { return String(text).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"'); }
 
         document.getElementById('addForm').addEventListener('submit', async function(e) {
+            var classSearchInput = document.getElementById('classSearch');
+            var classId = document.getElementById('classId').value;
+
+            // Use HTML5 custom validity for class selection
+            if (!classId) {
+                classSearchInput.setCustomValidity('Please select a train class from the list');
+                classSearchInput.reportValidity();
+                e.preventDefault();
+                return;
+            } else {
+                classSearchInput.setCustomValidity('');
+            }
+
+            // Let HTML5 validation handle required fields
+            if (!this.checkValidity()) {
+                e.preventDefault();
+                return;
+            }
+
             e.preventDefault();
             var name = document.getElementById('name').value.trim();
+            var data = { name: name, class_id: parseInt(classId) };
             try {
-                await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) });
+                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                const result = await response.json();
+                if (!response.ok) {
+                    alert(result.error || 'Error adding train');
+                    return;
+                }
                 document.getElementById('name').value = '';
+                document.getElementById('classId').value = '';
+                classSearchInput.value = '';
                 allTrains = [];
                 loadTrains();
             } catch (error) { console.error('Error adding train:', error); alert('Error adding train'); }
         });
 
-        function editTrain(id, name) {
+        function editTrain(id, name, classId, className) {
             document.getElementById('editId').value = id;
             document.getElementById('editName').value = name;
+            document.getElementById('editClassId').value = classId || '';
+            document.getElementById('editClassSearch').value = className || '';
+            document.getElementById('editClassSearch').setCustomValidity('');
             document.getElementById('editForm').classList.add('active');
             document.getElementById('editName').focus();
         }
 
-        function cancelEdit() { document.getElementById('editForm').classList.remove('active'); }
+        function cancelEdit() {
+            document.getElementById('editForm').classList.remove('active');
+            document.getElementById('editClassSearch').setCustomValidity('');
+        }
 
         document.getElementById('editFormInner').addEventListener('submit', async function(e) {
+            var editClassSearchInput = document.getElementById('editClassSearch');
+            var editClassId = document.getElementById('editClassId').value;
+
+            // Use HTML5 custom validity for class selection
+            if (!editClassId) {
+                editClassSearchInput.setCustomValidity('Please select a train class from the list');
+                editClassSearchInput.reportValidity();
+                e.preventDefault();
+                return;
+            } else {
+                editClassSearchInput.setCustomValidity('');
+            }
+
+            // Let HTML5 validation handle required fields
+            if (!this.checkValidity()) {
+                e.preventDefault();
+                return;
+            }
+
             e.preventDefault();
             var id = document.getElementById('editId').value;
             var name = document.getElementById('editName').value.trim();
             try {
-                await fetch(API_URL + '/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) });
+                const response = await fetch(API_URL + '/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, class_id: parseInt(editClassId) }) });
+                const result = await response.json();
+                if (!response.ok) {
+                    alert(result.error || 'Error updating train');
+                    return;
+                }
                 cancelEdit();
                 loadTrains();
             } catch (error) { console.error('Error updating train:', error); alert('Error updating train'); }
@@ -339,6 +764,7 @@
             }
         })();
 
+        loadClasses();
         loadTrains();
     </script>
 </body>

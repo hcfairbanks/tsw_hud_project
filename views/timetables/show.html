@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timetable Details - TSW HUD Project</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { box-sizing: border-box; }
         body { font-family: Arial, sans-serif; max-width: 1600px; margin: 0 auto; padding: 20px; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
@@ -70,6 +71,13 @@
         .view-link { font-size: 12px; white-space: nowrap; }
         .clear-btn { padding: 5px 10px; font-size: 12px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; }
         .clear-btn:hover { background: var(--btn-danger-bg); color: #fff; }
+        /* Map styles */
+        #routeMap { height: 400px; border-radius: 6px; }
+        .map-card { display: none; }
+        .map-card.has-coordinates { display: block; }
+        .stop-marker { background: #00cc66; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+        .stop-marker.first { background: #0066ff; }
+        .stop-marker.last { background: #e94560; }
     </style>
 </head>
 <body data-theme="dark">
@@ -100,6 +108,11 @@
         </div>
     </div>
 
+    <div class="card map-card" id="mapCard">
+        <h2>Route Map</h2>
+        <div id="routeMap"></div>
+    </div>
+
     <div class="card">
         <div class="entries-header">
             <h2>Entries <span id="unsavedIndicator" class="unsaved-indicator" style="display:none;">* Unsaved changes</span></h2>
@@ -124,6 +137,7 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const timetableId = window.location.pathname.split('/').pop();
         let timetable = null;
@@ -166,6 +180,7 @@
 
                 renderTimetable();
                 renderEntries();
+                initRouteMap();
             } catch (error) {
                 console.error('Error loading data:', error);
                 document.getElementById('timetableDetails').innerHTML = '<p class="empty-message">Error loading timetable</p>';
@@ -936,6 +951,113 @@
                 document.body.setAttribute('data-color-scheme', colorScheme);
             }
         })();
+
+        // Map variables and initialization
+        let routeMap = null;
+        let routePolyline = null;
+        let stopMarkers = [];
+        let pathCoordinates = [];
+
+        async function initRouteMap() {
+            const mapCard = document.getElementById('mapCard');
+
+            // Fetch the full export data which includes path coordinates
+            try {
+                const exportRes = await fetch('/api/timetables/' + timetableId + '/export');
+                if (exportRes.ok) {
+                    const exportData = await exportRes.json();
+                    pathCoordinates = exportData.coordinates || [];
+                }
+            } catch (err) {
+                console.error('Failed to load coordinates:', err);
+                pathCoordinates = [];
+            }
+
+            // Check if we have path coordinates or entry coordinates
+            const entriesWithCoords = entries.filter(function(entry) {
+                const lat = parseFloat(entry.latitude);
+                const lng = parseFloat(entry.longitude);
+                return !isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0);
+            });
+
+            if (pathCoordinates.length === 0 && entriesWithCoords.length === 0) {
+                mapCard.classList.remove('has-coordinates');
+                return;
+            }
+
+            mapCard.classList.add('has-coordinates');
+
+            // Initialize map if not already done
+            if (!routeMap) {
+                routeMap = L.map('routeMap').setView([51.5, -0.1], 10);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(routeMap);
+            }
+
+            // Clear existing markers and polyline
+            stopMarkers.forEach(function(marker) { marker.remove(); });
+            stopMarkers = [];
+            if (routePolyline) {
+                routePolyline.remove();
+                routePolyline = null;
+            }
+
+            // Draw full path polyline if we have path coordinates
+            if (pathCoordinates.length >= 2) {
+                const pathLatLngs = pathCoordinates.map(function(c) {
+                    return [c.latitude, c.longitude];
+                });
+                routePolyline = L.polyline(pathLatLngs, {
+                    color: '#0066ff',
+                    weight: 4,
+                    opacity: 0.7
+                }).addTo(routeMap);
+            }
+
+            // Add stop markers for entries with coordinates
+            entriesWithCoords.forEach(function(entry, index) {
+                const lat = parseFloat(entry.latitude);
+                const lng = parseFloat(entry.longitude);
+
+                // Determine marker style
+                let markerClass = 'stop-marker';
+                if (index === 0) markerClass += ' first';
+                else if (index === entriesWithCoords.length - 1) markerClass += ' last';
+
+                const icon = L.divIcon({
+                    className: 'stop-marker-wrapper',
+                    html: '<div class="' + markerClass + '"></div>',
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
+                });
+
+                // Build popup content
+                let popupContent = '<strong>' + (index + 1) + '. ' + (entry.location || 'Unknown') + '</strong>';
+                if (entry.platform) popupContent += '<br>Platform: ' + entry.platform;
+                if (entry.time1) popupContent += '<br>Time: ' + entry.time1;
+                if (entry.action) popupContent += '<br>Action: ' + entry.action;
+
+                const marker = L.marker([lat, lng], { icon: icon })
+                    .bindPopup(popupContent)
+                    .addTo(routeMap);
+
+                stopMarkers.push(marker);
+            });
+
+            // Fit map bounds - prefer path coordinates if available, otherwise use entry coords
+            let boundsCoords;
+            if (pathCoordinates.length > 0) {
+                boundsCoords = pathCoordinates.map(function(c) { return [c.latitude, c.longitude]; });
+            } else {
+                boundsCoords = entriesWithCoords.map(function(e) { return [parseFloat(e.latitude), parseFloat(e.longitude)]; });
+            }
+
+            if (boundsCoords.length > 0) {
+                const bounds = L.latLngBounds(boundsCoords);
+                routeMap.fitBounds(bounds, { padding: [30, 30] });
+            }
+        }
 
         loadData();
     </script>

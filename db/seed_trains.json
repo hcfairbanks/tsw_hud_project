@@ -746,7 +746,7 @@
     },
     {
         "id": 150,
-        "name": "BR Class 150",
+        "name": "Class 150/2 GWR",
         "class_id": 150
     },
     {
@@ -781,7 +781,7 @@
     },
     {
         "id": 157,
-        "name": "BR Class 802",
+        "name": "Class 802/0 GWR",
         "class_id": 157
     },
     {
@@ -808,5 +808,10 @@
         "id": 162,
         "name": "Class 390 AWC",
         "class_id": 162
+    },
+    {
+        "id": 163,
+        "name": "Class 802/1 GWR",
+        "class_id": 157
     }
 ]

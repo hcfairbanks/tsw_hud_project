@@ -3,6 +3,20 @@ const fs = require('fs');
 const path = require('path');
 const initSqlJs = require('sql.js');
 
+// Time format validation helper (HH:MM:SS)
+const TIME_FORMAT_REGEX = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
+
+function isValidTimeFormat(time) {
+    if (!time || time.trim() === '') return true; // Empty is allowed
+    return TIME_FORMAT_REGEX.test(time);
+}
+
+function validateTimeFormat(time, fieldName) {
+    if (time && time.trim() !== '' && !isValidTimeFormat(time)) {
+        throw new Error(`Invalid time format for ${fieldName}: "${time}". Must be HH:MM:SS (e.g., 08:30:00)`);
+    }
+}
+
 // Get the directory where the exe is running from (works for both dev and compiled)
 const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
 
@@ -807,13 +821,13 @@ const routeDb = {
     },
     // Get trains for a specific class on a route
     getTrainsForClass: (routeId, classId) => {
+        // Get all trains in the class, not just ones linked to route_trains
         const stmt = db.prepare(`
             SELECT t.* FROM trains t
-            INNER JOIN route_trains rt ON t.id = rt.train_id
-            WHERE rt.route_id = ? AND t.class_id = ?
+            WHERE t.class_id = ?
             ORDER BY t.name
         `);
-        stmt.bind([routeId, classId]);
+        stmt.bind([classId]);
         const results = [];
         while (stmt.step()) {
             results.push(stmt.getAsObject());
@@ -1109,11 +1123,12 @@ const timetableDb = {
         db.run('DELETE FROM timetables WHERE id = ?', [id]);
         saveDatabase();
     },
-    // Get trains associated with a timetable
+    // Get trains associated with a timetable (includes class info)
     getTrains: (timetableId) => {
         const stmt = db.prepare(`
-            SELECT t.* FROM trains t
+            SELECT t.*, tc.name as class_name FROM trains t
             INNER JOIN timetable_trains tt ON t.id = tt.train_id
+            LEFT JOIN train_classes tc ON t.class_id = tc.id
             WHERE tt.timetable_id = ?
             ORDER BY t.name
         `);
@@ -1163,6 +1178,10 @@ const entryDb = {
         return results;
     },
     create: (timetableId, entry, sortOrder) => {
+        // Validate time format (HH:MM:SS)
+        validateTimeFormat(entry.time1, 'time1');
+        validateTimeFormat(entry.time2, 'time2');
+
         console.log(`  -> INSERT timetable_entries: timetable_id=${timetableId}, action=${entry.action}, sort_order=${sortOrder}`);
         db.run(
             'INSERT INTO timetable_entries (timetable_id, action, details, location, platform, time1, time2, latitude, longitude, api_name, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -1180,6 +1199,10 @@ const entryDb = {
         return { lastInsertRowid: lastId };
     },
     update: (id, entry) => {
+        // Validate time format (HH:MM:SS)
+        validateTimeFormat(entry.time1, 'time1');
+        validateTimeFormat(entry.time2, 'time2');
+
         db.run(
             'UPDATE timetable_entries SET action = ?, details = ?, location = ?, platform = ?, time1 = ?, time2 = ?, latitude = ?, longitude = ?, api_name = ? WHERE id = ?',
             [entry.action, entry.details || '', entry.location || '', entry.platform || '', entry.time1 || '', entry.time2 || '', entry.latitude || '', entry.longitude || '', entry.api_name || '', id]

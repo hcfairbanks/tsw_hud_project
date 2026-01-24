@@ -514,6 +514,15 @@ async function handleRoutes(req, res) {
         }
     }
 
+    // Timetable single train removal (with train_id in URL)
+    const timetableTrainRemoveMatch = pathname.match(/^\/api\/timetables\/(\d+)\/trains\/(\d+)$/);
+    if (timetableTrainRemoveMatch && method === 'DELETE') {
+        const timetableId = parseInt(timetableTrainRemoveMatch[1]);
+        const trainId = parseInt(timetableTrainRemoveMatch[2]);
+        await timetableController.removeTrainById(req, res, timetableId, trainId);
+        return true;
+    }
+
     // ============================================
     // Station Name Mapping API Routes
     // ============================================

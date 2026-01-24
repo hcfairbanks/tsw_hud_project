@@ -1382,9 +1382,14 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                     <input type="hidden" id="routeSelectOverlay" value="">
                 </div>
 
+                <label>Train Class:</label>
+                <select id="trainClassSelectOverlay" onchange="handleTrainClassChangeOverlay()" disabled>
+                    <option value="">-- Select a train class --</option>
+                </select>
+
                 <label>Train:</label>
                 <select id="trainSelectOverlay" onchange="handleTrainChangeOverlay()" disabled>
-                    <option value="">-- Select a train --</option>
+                    <option value="">-- Select a train class first --</option>
                 </select>
 
                 <label>Timetable:</label>
@@ -1994,9 +1999,48 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             dropdown.style.display = 'block';
         }
 
-        // Handle route selection - load trains for this route
+        // Handle route selection - load train classes for this route
         async function handleRouteChangeOverlay() {
             const routeId = document.getElementById('routeSelectOverlay').value;
+            const trainClassSelect = document.getElementById('trainClassSelectOverlay');
+            const trainSelect = document.getElementById('trainSelectOverlay');
+            const timetableSelect = document.getElementById('timetableSelectOverlay');
+            const loadBtn = document.getElementById('loadRouteBtnOverlay');
+
+            trainClassSelect.innerHTML = '<option value="">-- Select a train class --</option>';
+            trainClassSelect.disabled = true;
+            trainSelect.innerHTML = '<option value="">-- Select a train class first --</option>';
+            trainSelect.disabled = true;
+            timetableSelect.innerHTML = '<option value="">-- Select a timetable --</option>';
+            timetableSelect.disabled = true;
+            loadBtn.disabled = true;
+
+            if (!routeId) return;
+
+            try {
+                const response = await fetch(`/api/routes/${routeId}/train-classes`);
+                const trainClasses = await response.json();
+
+                if (trainClasses.length > 0) {
+                    trainClassSelect.disabled = false;
+                    trainClasses.forEach(tc => {
+                        const option = document.createElement('option');
+                        option.value = tc.id;
+                        option.textContent = tc.name;
+                        trainClassSelect.appendChild(option);
+                    });
+                }
+
+                console.log('Train classes loaded:', trainClasses.length);
+            } catch (err) {
+                console.error('Failed to load train classes:', err);
+            }
+        }
+
+        // Handle train class selection - load trains for this class
+        async function handleTrainClassChangeOverlay() {
+            const routeId = document.getElementById('routeSelectOverlay').value;
+            const classId = document.getElementById('trainClassSelectOverlay').value;
             const trainSelect = document.getElementById('trainSelectOverlay');
             const timetableSelect = document.getElementById('timetableSelectOverlay');
             const loadBtn = document.getElementById('loadRouteBtnOverlay');
@@ -2007,10 +2051,10 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             timetableSelect.disabled = true;
             loadBtn.disabled = true;
 
-            if (!routeId) return;
+            if (!classId) return;
 
             try {
-                const response = await fetch(`/api/routes/${routeId}/trains`);
+                const response = await fetch(`/api/routes/${routeId}/train-classes/${classId}/trains`);
                 const trains = await response.json();
 
                 if (trains.length > 0) {
@@ -2149,7 +2193,9 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                 // Reset dropdowns
                 document.getElementById('routeInputOverlay').value = '';
                 document.getElementById('routeSelectOverlay').value = '';
-                document.getElementById('trainSelectOverlay').innerHTML = '<option value="">-- Select a train --</option>';
+                document.getElementById('trainClassSelectOverlay').innerHTML = '<option value="">-- Select a train class --</option>';
+                document.getElementById('trainClassSelectOverlay').disabled = true;
+                document.getElementById('trainSelectOverlay').innerHTML = '<option value="">-- Select a train class first --</option>';
                 document.getElementById('trainSelectOverlay').disabled = true;
                 document.getElementById('timetableSelectOverlay').innerHTML = '<option value="">-- Select a timetable --</option>';
                 document.getElementById('timetableSelectOverlay').disabled = true;

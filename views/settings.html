@@ -456,6 +456,19 @@
             border-radius: 50%;
             border: 1px solid var(--border-color);
         }
+        .dev-mode-status {
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .dev-mode-status.enabled {
+            color: var(--color-success);
+            background: var(--color-success-bg);
+        }
+        .dev-mode-status.disabled {
+            color: var(--color-error);
+            background: var(--color-error-bg);
+        }
     </style>
 </head>
 <body data-theme="dark">
@@ -655,10 +668,10 @@
 
         <div class="setting-row">
             <div class="setting-info">
-                <div class="setting-label">Enable Development Mode</div>
+                <div class="setting-label">Development Mode: <span id="devModeStatus" class="dev-mode-status">Disabled</span></div>
             </div>
             <label class="toggle-switch">
-                <input type="checkbox" id="developmentMode" onchange="saveSetting('developmentMode', this.checked)">
+                <input type="checkbox" id="developmentMode" onchange="toggleDevMode(this.checked)">
                 <span class="toggle-slider"></span>
             </label>
         </div>
@@ -878,7 +891,9 @@
                 const response = await fetch('/api/config');
                 const config = await response.json();
 
-                document.getElementById('developmentMode').checked = config.developmentMode || false;
+                const devModeEnabled = config.developmentMode || false;
+                document.getElementById('developmentMode').checked = devModeEnabled;
+                updateDevModeStatus(devModeEnabled);
                 document.getElementById('apiKey').value = config.apiKey || '';
                 document.getElementById('tsw5KeyPath').value = config.tsw5KeyPath || '';
                 document.getElementById('tsw6KeyPath').value = config.tsw6KeyPath || '';
@@ -1008,6 +1023,24 @@
             applyColorScheme('tritanopia');
             saveSetting('colorScheme', 'tritanopia');
         });
+
+        // Update development mode status display
+        function updateDevModeStatus(enabled) {
+            const statusEl = document.getElementById('devModeStatus');
+            if (enabled) {
+                statusEl.textContent = 'Enabled';
+                statusEl.className = 'dev-mode-status enabled';
+            } else {
+                statusEl.textContent = 'Disabled';
+                statusEl.className = 'dev-mode-status disabled';
+            }
+        }
+
+        // Toggle development mode
+        function toggleDevMode(checked) {
+            updateDevModeStatus(checked);
+            saveSetting('developmentMode', checked);
+        }
 
         function showStatus(message, type) {
             const el = document.getElementById('statusMessage');

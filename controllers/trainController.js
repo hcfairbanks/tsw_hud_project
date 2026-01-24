@@ -13,15 +13,25 @@ const trainController = {
     create: async (req, res) => {
         const body = await parseBody(req);
 
+        // Validate required fields
+        if (!body.class_id) {
+            return sendJson(res, { error: 'A train must have a class. Please select a train class.' }, 400);
+        }
+
         // Check if train name already exists
         const existing = trainDb.getByName(body.name);
         if (existing) {
             return sendJson(res, { error: 'A train with this name already exists' }, 409);
         }
 
-        const classId = body.class_id || null;
-        const result = trainDb.create(body.name, classId);
-        sendJson(res, { id: result.lastInsertRowid, name: body.name, class_id: classId }, 201);
+        // Verify the class exists
+        const trainClass = trainClassDb.getById(body.class_id);
+        if (!trainClass) {
+            return sendJson(res, { error: 'The specified train class does not exist' }, 400);
+        }
+
+        const result = trainDb.create(body.name, body.class_id);
+        sendJson(res, { id: result.lastInsertRowid, name: body.name, class_id: body.class_id }, 201);
     },
 
     // GET /api/trains/:id
@@ -53,6 +63,17 @@ const trainController = {
 
         const name = body.name || train.name;
         const classId = body.class_id !== undefined ? body.class_id : train.class_id;
+
+        // Validate that train still has a class
+        if (!classId) {
+            return sendJson(res, { error: 'A train must have a class. Please select a train class.' }, 400);
+        }
+
+        // Verify the class exists
+        const trainClass = trainClassDb.getById(classId);
+        if (!trainClass) {
+            return sendJson(res, { error: 'The specified train class does not exist' }, 400);
+        }
 
         trainDb.update(id, name, classId);
         sendJson(res, { id: parseInt(id), name, class_id: classId });
