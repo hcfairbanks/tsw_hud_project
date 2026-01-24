@@ -65,7 +65,7 @@
         <a href="/weather">Weather</a>
     </nav>
 
-    <div class="back-link">
+    <div class="back-link" id="backLink">
         <a href="/train-classes">&larr; Back to Train Classes</a>
     </div>
 
@@ -95,6 +95,8 @@
 
     <script>
         const classId = window.location.pathname.split('/').pop();
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromRouteId = urlParams.get('from_route');
         let trainClass = null;
         let trains = [];
         let routes = [];
@@ -148,7 +150,7 @@
             trains.forEach(function(train) {
                 html += '<tr>';
                 html += '<td>' + train.id + '</td>';
-                html += '<td><a href="/trains/' + train.id + '">' + escapeHtml(train.name) + '</a></td>';
+                html += '<td><a href="/trains/' + train.id + (fromRouteId ? '?from_route=' + fromRouteId : '') + '">' + escapeHtml(train.name) + '</a></td>';
                 html += '<td class="actions"><button class="btn-primary" onclick="showTrain(' + train.id + ')">View</button></td>';
                 html += '</tr>';
             });
@@ -188,7 +190,7 @@
         }
 
         function showTrain(id) {
-            window.location.href = '/trains/' + id;
+            window.location.href = '/trains/' + id + (fromRouteId ? '?from_route=' + fromRouteId : '');
         }
 
         function showRoute(id) {
@@ -212,6 +214,11 @@
                 document.body.setAttribute('data-color-scheme', colorScheme);
             }
         })();
+
+        // Update back link if we came from a route
+        if (fromRouteId) {
+            document.getElementById('backLink').innerHTML = '<a href="/routes/' + fromRouteId + '">&larr; Back to Route</a>';
+        }
 
         // Load all data
         loadClass();

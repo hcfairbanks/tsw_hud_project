@@ -288,7 +288,7 @@
             classes.forEach(function(cls) {
                 html += '<tr id="class-row-' + cls.id + '">';
                 html += '<td>' + cls.id + '</td>';
-                html += '<td><a href="/train-classes/' + cls.id + '">' + escapeHtml(cls.name) + '</a></td>';
+                html += '<td><a href="/train-classes/' + cls.id + '?from_route=' + routeId + '">' + escapeHtml(cls.name) + '</a></td>';
                 html += '<td><button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="toggleTrains(' + cls.id + ')">Show Trains</button></td>';
                 html += '<td class="actions">';
                 html += '<button class="btn-primary" onclick="showClass(' + cls.id + ')">View</button>';
@@ -339,7 +339,7 @@
         }
 
         function showClass(classId) {
-            window.location.href = '/train-classes/' + classId;
+            window.location.href = '/train-classes/' + classId + '?from_route=' + routeId;
         }
 
         function showTrain(trainId) {

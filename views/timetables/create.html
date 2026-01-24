@@ -692,6 +692,28 @@
             const trainInput = document.getElementById('trainSearch');
             trainInput.disabled = true;
             trainInput.placeholder = 'Select a route first...';
+
+            // Check for URL params to pre-fill route and train
+            const urlParams = new URLSearchParams(window.location.search);
+            const prefilledRouteId = urlParams.get('route_id');
+            const prefilledTrainId = urlParams.get('train_id');
+
+            if (prefilledRouteId) {
+                // Find the route and select it
+                const route = allRoutes.find(function(r) { return r.id == prefilledRouteId; });
+                if (route) {
+                    await selectRoute(route.id, route.name);
+
+                    // Now check for train if provided
+                    if (prefilledTrainId) {
+                        // Find the train in route trains
+                        const train = routeTrains.find(function(t) { return t.id == prefilledTrainId; });
+                        if (train) {
+                            addTrain(train.id, train.name);
+                        }
+                    }
+                }
+            }
         }
 
         init();

@@ -40,14 +40,50 @@
         .context-info a { color: var(--accent-color); text-decoration: none; }
         .context-info a:hover { text-decoration: underline; }
         a { color: var(--accent-color); }
-        .typeahead-container { position: relative; display: inline-block; min-width: 200px; }
-        .typeahead-container input { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .typeahead-container { position: relative; display: block; width: 100%; }
+        .typeahead-container input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
         .typeahead-container input:focus { outline: none; border-color: var(--accent-color); }
         .typeahead-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 4px 4px; z-index: 1001; }
         .typeahead-item { padding: 8px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border-color); }
         .typeahead-item:last-child { border-bottom: none; }
         .typeahead-item:hover, .typeahead-item.highlighted { background: var(--bg-tertiary); }
         .typeahead-item .item-name { color: var(--text-primary); }
+        .typeahead-item .item-sub { font-size: 11px; color: var(--text-muted); }
+        /* Extraction module styles */
+        .upload-area { border: 2px dashed var(--border-color); border-radius: 8px; padding: 30px; text-align: center; margin-bottom: 15px; cursor: pointer; transition: all 0.3s; }
+        .upload-area:hover { border-color: var(--accent-color); background: var(--bg-tertiary); }
+        .upload-area.dragover { border-color: var(--accent-color); background: var(--bg-tertiary); }
+        .upload-area input[type="file"] { display: none; }
+        .upload-icon { font-size: 48px; color: var(--border-color); margin-bottom: 10px; }
+        .upload-text { color: var(--text-secondary); margin-bottom: 5px; }
+        .upload-hint { color: var(--text-muted); font-size: 12px; }
+        .upload-status { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; }
+        .upload-status.success { display: block; background: var(--color-success-bg); color: var(--color-success); }
+        .upload-status.error { display: block; background: var(--color-error-bg); color: var(--color-error); }
+        .upload-status.loading { display: block; background: var(--color-info-bg); color: var(--color-info); }
+        .file-list { margin-top: 15px; text-align: left; }
+        .file-item { display: flex; align-items: center; padding: 8px; background: var(--bg-primary); border-radius: 4px; margin-bottom: 5px; }
+        .progress-bar { width: 100%; height: 20px; background: var(--bg-tertiary); border-radius: 10px; overflow: hidden; margin-top: 15px; display: none; }
+        .progress-bar .fill { height: 100%; background: var(--btn-primary-bg); width: 0%; transition: width 0.3s; }
+        .progress-text { text-align: center; margin-top: 10px; color: var(--text-muted); }
+        .btn-success { background: var(--btn-success-bg); color: #fff; }
+        .btn-success:hover { background: var(--btn-success-hover); }
+        .service-name-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .service-name-input:focus { outline: none; border-color: var(--accent-color); }
+        .editable-cell { cursor: pointer; position: relative; }
+        .editable-cell:hover { background: var(--bg-tertiary); }
+        .editable-cell input { width: 100%; padding: 5px; border: 1px solid var(--accent-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        .action-select { padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 12px; min-width: 140px; }
+        .action-select:focus { outline: none; border-color: var(--accent-color); }
+        .raw-text { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 15px; margin-top: 15px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; white-space: pre-wrap; }
+        .collapsible { cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .collapsible::after { content: '▼'; transition: transform 0.3s; }
+        .collapsible.collapsed::after { transform: rotate(-90deg); }
+        .collapsible-content { display: block; }
+        .collapsible-content.hidden { display: none; }
+        .selected-train-tag { display: inline-flex; align-items: center; gap: 5px; background: var(--bg-tertiary); padding: 5px 10px; border-radius: 4px; margin-right: 8px; margin-bottom: 8px; font-size: 13px; }
+        .selected-train-tag .remove-train { background: none; border: none; color: var(--btn-danger-bg); cursor: pointer; font-size: 14px; padding: 0 2px; }
+        .selected-train-tag .remove-train:hover { color: var(--btn-danger-hover); }
     </style>
 </head>
 <body data-theme="dark">
@@ -76,6 +112,10 @@
         <div id="trainDetails">
             <p class="empty-message">Loading train details...</p>
         </div>
+    </div>
+
+    <div id="extractionContainer">
+        <!-- Extraction module will be rendered here -->
     </div>
 
     <div class="card">
@@ -445,6 +485,48 @@
         // Load everything
         loadTrain();
         loadRoutes().then(loadTimetables);
+    </script>
+    <script src="/js/extraction.js"></script>
+    <script>
+        // Initialize extraction module after train data is loaded
+        // We need to wait for the train data to be available for pre-filling
+        let extractionInitialized = false;
+
+        function initExtractionWhenReady() {
+            if (extractionInitialized) return;
+            if (!currentTrain) {
+                // Wait for train to load
+                setTimeout(initExtractionWhenReady, 100);
+                return;
+            }
+
+            extractionInitialized = true;
+
+            // Get route info if available
+            let prefilledRouteId = fromRouteId || null;
+            let prefilledRouteName = null;
+            if (prefilledRouteId && allRoutes.length > 0) {
+                const route = allRoutes.find(function(r) { return r.id == prefilledRouteId; });
+                if (route) {
+                    prefilledRouteName = route.name;
+                }
+            }
+
+            // Initialize the extraction module
+            ExtractionModule.init({
+                containerId: 'extractionContainer',
+                prefilledRouteId: prefilledRouteId,
+                prefilledRouteName: prefilledRouteName,
+                prefilledTrainId: currentTrain.id,
+                prefilledTrainName: currentTrain.name,
+                onTimetableCreated: function(result) {
+                    console.log('Timetable created:', result);
+                }
+            });
+        }
+
+        // Start checking for train data
+        setTimeout(initExtractionWhenReady, 100);
     </script>
 </body>
 </html>
