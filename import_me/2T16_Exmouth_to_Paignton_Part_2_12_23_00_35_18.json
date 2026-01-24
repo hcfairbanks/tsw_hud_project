@@ -2536,7 +2536,7 @@
   "timetable": [
     {
       "index": 0,
-      "destination": "Dawlish Warren",
+      "location": "Dawlish Warren",
       "time1": "12:23:30",
       "time2": "12:25:30",
       "platform": "1",
@@ -2546,7 +2546,7 @@
     },
     {
       "index": 1,
-      "destination": "Dawlish",
+      "location": "Dawlish",
       "time1": "12:29:00",
       "time2": "12:29:30",
       "platform": "1",
@@ -2556,7 +2556,7 @@
     },
     {
       "index": 2,
-      "destination": "Teignmouth",
+      "location": "Teignmouth",
       "time1": "12:34:00",
       "time2": "12:34:30",
       "platform": "1",
@@ -2566,7 +2566,7 @@
     },
     {
       "index": 3,
-      "destination": "Newton Abbot",
+      "location": "Newton Abbot",
       "time1": "12:41:00",
       "time2": "12:42:00",
       "platform": "1",
@@ -2576,7 +2576,7 @@
     },
     {
       "index": 4,
-      "destination": "Torre",
+      "location": "Torre",
       "time1": "12:50:00",
       "time2": "12:50:30",
       "platform": "1",
@@ -2586,7 +2586,7 @@
     },
     {
       "index": 5,
-      "destination": "Torquay",
+      "location": "Torquay",
       "time1": "12:53:00",
       "time2": "12:53:30",
       "platform": "1",
@@ -2596,7 +2596,7 @@
     },
     {
       "index": 6,
-      "destination": "Paignton",
+      "location": "Paignton",
       "time1": "12:59:00",
       "time2": "",
       "platform": "2",

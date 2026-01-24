@@ -2313,7 +2313,7 @@
   "timetable": [
     {
       "index": 0,
-      "destination": "Newton Abbot",
+      "location": "Newton Abbot",
       "arrival": "06:32:30",
       "departure": "06:34:30",
       "platform": "1",
@@ -2323,7 +2323,7 @@
     },
     {
       "index": 1,
-      "destination": "Teignmouth",
+      "location": "Teignmouth",
       "arrival": "06:41:00",
       "departure": "06:41:30",
       "platform": "2",
@@ -2333,7 +2333,7 @@
     },
     {
       "index": 2,
-      "destination": "Dawlish",
+      "location": "Dawlish",
       "arrival": "06:46:00",
       "departure": "06:46:30",
       "platform": "2",
@@ -2343,7 +2343,7 @@
     },
     {
       "index": 3,
-      "destination": "Dawlish Warren",
+      "location": "Dawlish Warren",
       "arrival": "06:50:00",
       "departure": "06:51:00",
       "platform": "2",
@@ -2353,7 +2353,7 @@
     },
     {
       "index": 4,
-      "destination": "Starcross",
+      "location": "Starcross",
       "arrival": "06:55:00",
       "departure": "06:55:30",
       "platform": "2",
@@ -2363,7 +2363,7 @@
     },
     {
       "index": 5,
-      "destination": "Marsh Barton",
+      "location": "Marsh Barton",
       "arrival": "07:03:00",
       "departure": "07:03:30",
       "platform": "2",
@@ -2373,7 +2373,7 @@
     },
     {
       "index": 6,
-      "destination": "Exeter St Thomas",
+      "location": "Exeter St Thomas",
       "arrival": "07:07:00",
       "departure": "07:07:30",
       "platform": "2",
@@ -2383,7 +2383,7 @@
     },
     {
       "index": 7,
-      "destination": "Exeter St Davids",
+      "location": "Exeter St Davids",
       "arrival": "07:11:00",
       "departure": "01:01:30",
       "platform": "1",

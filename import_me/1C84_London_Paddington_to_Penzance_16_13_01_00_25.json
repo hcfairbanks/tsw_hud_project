@@ -6884,7 +6884,7 @@
   "timetable": [
     {
       "index": 0,
-      "destination": "Exeter St Davids",
+      "location": "Exeter St Davids",
       "arrival": "16:13:00",
       "departure": "16:15:00",
       "platform": "4",
@@ -6894,7 +6894,7 @@
     },
     {
       "index": 1,
-      "destination": "Newton Abbot",
+      "location": "Newton Abbot",
       "arrival": "16:33:30",
       "departure": "16:35:30",
       "platform": "2",
@@ -6904,7 +6904,7 @@
     },
     {
       "index": 2,
-      "destination": "Totnes",
+      "location": "Totnes",
       "arrival": "16:46:30",
       "departure": "16:48:00",
       "platform": "1",
@@ -6914,7 +6914,7 @@
     },
     {
       "index": 3,
-      "destination": "Plymouth",
+      "location": "Plymouth",
       "arrival": "17:13:00",
       "departure": "",
       "platform": "6",

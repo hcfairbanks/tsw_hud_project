@@ -297,12 +297,12 @@ function matchStopsToTimetable(detectedStops, timetable) {
     console.log(`  Entries WITH coordinates: ${entriesWithCoords.length}`);
     entriesWithCoords.forEach((e, i) => {
         const idx = timetable.indexOf(e);
-        console.log(`    [${idx}] ${e.destination}: ${e.latitude?.toFixed(6)}, ${e.longitude?.toFixed(6)}`);
+        console.log(`    [${idx}] ${e.location}: ${e.latitude?.toFixed(6)}, ${e.longitude?.toFixed(6)}`);
     });
     console.log(`  Entries WITHOUT coordinates: ${entriesWithoutCoords.length}`);
     entriesWithoutCoords.forEach((e, i) => {
         const idx = timetable.indexOf(e);
-        console.log(`    [${idx}] ${e.destination}`);
+        console.log(`    [${idx}] ${e.location}`);
     });
     console.log(`  ==============================\n`);
 
@@ -342,9 +342,9 @@ function matchStopsToTimetable(detectedStops, timetable) {
                     distance: Math.round(bestDist),
                     stop: detectedStops[bestStopIdx]
                 });
-                console.log(`  Entry ${entryIndex} "${entry.destination}": Has coords, matched to stop ${bestStopIdx} (${Math.round(bestDist)}m away)`);
+                console.log(`  Entry ${entryIndex} "${entry.location}": Has coords, matched to stop ${bestStopIdx} (${Math.round(bestDist)}m away)`);
             } else {
-                console.log(`  Entry ${entryIndex} "${entry.destination}": Has coords, no nearby stop found`);
+                console.log(`  Entry ${entryIndex} "${entry.location}": Has coords, no nearby stop found`);
             }
         }
     });
@@ -372,7 +372,7 @@ function matchStopsToTimetable(detectedStops, timetable) {
         }
 
         if (nextAvailableStopIdx >= detectedStops.length) {
-            console.log(`  Entry ${entryIndex} "${entry.destination}": No more stops available`);
+            console.log(`  Entry ${entryIndex} "${entry.location}": No more stops available`);
             return result;
         }
 
@@ -385,7 +385,7 @@ function matchStopsToTimetable(detectedStops, timetable) {
         result._autoDetected = true;
         result._stopDurationSeconds = stop.durationSeconds;
 
-        console.log(`  Entry ${entryIndex} "${entry.destination}": Auto-matched to stop ${nextAvailableStopIdx} at (${stop.centroid.latitude.toFixed(6)}, ${stop.centroid.longitude.toFixed(6)}) [${stop.durationSeconds}s]`);
+        console.log(`  Entry ${entryIndex} "${entry.location}": Auto-matched to stop ${nextAvailableStopIdx} at (${stop.centroid.latitude.toFixed(6)}, ${stop.centroid.longitude.toFixed(6)}) [${stop.durationSeconds}s]`);
 
         nextAvailableStopIdx++;
         return result;
@@ -529,7 +529,7 @@ function processRawData(rawData) {
                     _autoDetected: true,
                     _usedLastCoordinate: true
                 };
-                console.log(`  Final entry "${lastEntry.destination}": Used last path coordinate (${lastCoord.latitude.toFixed(6)}, ${lastCoord.longitude.toFixed(6)})`);
+                console.log(`  Final entry "${lastEntry.location}": Used last path coordinate (${lastCoord.latitude.toFixed(6)}, ${lastCoord.longitude.toFixed(6)})`);
             }
         }
     }
@@ -558,10 +558,10 @@ function processRawData(rawData) {
                 if (matchingMarker) {
                     result.latitude = matchingMarker.latitude;
                     result.longitude = matchingMarker.longitude;
-                    console.log(`  Matched timetable "${entry.destination}" (${entry.apiName}) -> marker "${matchingMarker.stationName}"`);
+                    console.log(`  Matched timetable "${entry.location}" (${entry.apiName}) -> marker "${matchingMarker.stationName}"`);
                 }
             } else {
-                console.log(`  Timetable "${entry.destination}" already has coordinates (user-entered)`);
+                console.log(`  Timetable "${entry.location}" already has coordinates (user-entered)`);
             }
 
             return result;
@@ -577,9 +577,9 @@ function processRawData(rawData) {
         const hasCoords = entry.latitude != null && entry.longitude != null;
         const source = entry._autoDetected ? '(auto-detected)' : (hasCoords ? '(from recording)' : '(MISSING)');
         if (hasCoords) {
-            console.log(`  [${idx}] ${entry.destination}: ${entry.latitude.toFixed(6)}, ${entry.longitude.toFixed(6)} ${source}`);
+            console.log(`  [${idx}] ${entry.location}: ${entry.latitude.toFixed(6)}, ${entry.longitude.toFixed(6)} ${source}`);
         } else {
-            console.log(`  [${idx}] ${entry.destination}: NO COORDINATES ${source}`);
+            console.log(`  [${idx}] ${entry.location}: NO COORDINATES ${source}`);
             missingCount++;
         }
     });

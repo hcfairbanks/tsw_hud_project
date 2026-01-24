@@ -456,14 +456,14 @@ function getRouteData(req, res) {
         const savedCoords = savedTimetableCoords.get(index);
         // Find matching original entry to get database coordinates
         const originalEntry = entries.find(e =>
-            (e.location === entry.destination || e.details?.includes(entry.destination))
+            (e.location === entry.location || e.details?.includes(entry.location))
         );
         const dbLat = originalEntry?.latitude ? parseFloat(originalEntry.latitude) : null;
         const dbLng = originalEntry?.longitude ? parseFloat(originalEntry.longitude) : null;
 
         return {
             index: entry.index,
-            destination: entry.destination,
+            location: entry.location,
             arrival: entry.arrival || '',
             departure: entry.departure || '',
             platform: entry.platform || '',
@@ -511,7 +511,7 @@ async function saveTimetableCoords(req, res) {
                 return;
             }
 
-            // Get timetable entries to validate index and get destination name
+            // Get timetable entries to validate index and get location name
             const entries = entryDb.getByTimetableId(currentTimetableId);
             const timetable = timetableDb.getById(currentTimetableId);
 
@@ -542,7 +542,7 @@ async function saveTimetableCoords(req, res) {
             sendJson(res, {
                 success: true,
                 message: `Saved coordinates for index ${index}`,
-                destination: processedEntries[index].destination
+                location: processedEntries[index].location
             });
         } catch (err) {
             sendJson(res, { success: false, error: 'Invalid JSON data' }, 400);
@@ -796,7 +796,7 @@ function getRecordingStateForStream() {
         const savedCoords = savedTimetableCoords.get(idx);
         return {
             index: entry.index,
-            destination: entry.destination,
+            location: entry.location,
             arrival: entry.arrival || '',
             departure: entry.departure || '',
             platform: entry.platform || '',

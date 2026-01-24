@@ -1256,7 +1256,7 @@
   "timetable": [
     {
       "index": 0,
-      "destination": "Paignton Platform 2",
+      "location": "Paignton Platform 2",
       "arrival": "06:02:00",
       "departure": "06:04:00",
       "platform": "2",
@@ -1266,7 +1266,7 @@
     },
     {
       "index": 1,
-      "destination": "Torquay",
+      "location": "Torquay",
       "arrival": "06:08:30",
       "departure": "06:09:00",
       "platform": "2",
@@ -1276,7 +1276,7 @@
     },
     {
       "index": 2,
-      "destination": "Torre",
+      "location": "Torre",
       "arrival": "06:11:30",
       "departure": "06:12:00",
       "platform": "2",
@@ -1286,7 +1286,7 @@
     },
     {
       "index": 3,
-      "destination": "Newton Abbot",
+      "location": "Newton Abbot",
       "arrival": "06:20:00",
       "departure": "",
       "platform": "1",

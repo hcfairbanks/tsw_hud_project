@@ -6821,7 +6821,7 @@
   "timetable": [
     {
       "index": 0,
-      "destination": "Exeter St. Davis ",
+      "location": "Exeter St. Davis ",
       "arrival": "07:25:00",
       "departure": "07:27:00",
       "platform": "1",
@@ -6831,7 +6831,7 @@
     },
     {
       "index": 1,
-      "destination": "Dawlish",
+      "location": "Dawlish",
       "arrival": "07:38:30",
       "departure": "07:39:00",
       "platform": "1",
@@ -6841,7 +6841,7 @@
     },
     {
       "index": 2,
-      "destination": "Teignmouth",
+      "location": "Teignmouth",
       "arrival": "07:43:00",
       "departure": "07:43:30",
       "platform": "1",
@@ -6851,7 +6851,7 @@
     },
     {
       "index": 3,
-      "destination": "Newton Abbot",
+      "location": "Newton Abbot",
       "arrival": "07:49:30",
       "departure": "07:50:30",
       "platform": "2",
@@ -6861,7 +6861,7 @@
     },
     {
       "index": 4,
-      "destination": "Totnes",
+      "location": "Totnes",
       "arrival": "08:02:00",
       "departure": "08:03:00",
       "platform": "1",
@@ -6871,7 +6871,7 @@
     },
     {
       "index": 5,
-      "destination": "Ivybridge",
+      "location": "Ivybridge",
       "arrival": "08:16:30",
       "departure": "08:17:00",
       "platform": "1",
@@ -6881,7 +6881,7 @@
     },
     {
       "index": 6,
-      "destination": "Plymouth",
+      "location": "Plymouth",
       "arrival": "08:31:00",
       "departure": "",
       "platform": "7",

@@ -125,11 +125,11 @@ function buildTimetableExportJson(options) {
     // Preserve any user-entered coordinates from original entries (for DB export)
     if (!savedTimetableCoords) {
         for (const entry of timetableEntries) {
-            if (!entry.destination || !entry.destination.trim()) {
+            if (!entry.location || !entry.location.trim()) {
                 continue;
             }
             const originalEntry = entries.find(e =>
-                (e.location || e.details) === entry.destination &&
+                (e.location || e.details) === entry.location &&
                 e.latitude && e.longitude
             );
             if (originalEntry) {
@@ -158,7 +158,7 @@ function buildTimetableExportJson(options) {
     const exportEntries = timetableEntries.map((e, idx) => {
         const result = {
             index: e.index,
-            destination: e.destination,
+            location: e.location,
             arrival: e.arrival,
             departure: e.departure,
             platform: e.platform,
@@ -552,13 +552,13 @@ const timetableController = {
         const timetableEntries = preprocessTimetableEntries(entries, stationNameMapping);
 
         // Preserve any user-entered coordinates from original entries
-        // Only match if destination is not empty to avoid false matches
+        // Only match if location is not empty to avoid false matches
         for (const entry of timetableEntries) {
-            if (!entry.destination || !entry.destination.trim()) {
-                continue; // Skip entries with empty destination
+            if (!entry.location || !entry.location.trim()) {
+                continue; // Skip entries with empty location
             }
             const originalEntry = entries.find(e =>
-                (e.location || e.details) === entry.destination &&
+                (e.location || e.details) === entry.location &&
                 e.latitude && e.longitude
             );
             if (originalEntry) {
@@ -584,7 +584,7 @@ const timetableController = {
         const exportEntries = timetableEntries.map(e => {
             const result = {
                 index: e.index,
-                destination: e.destination,
+                location: e.location,
                 arrival: e.arrival,
                 departure: e.departure,
                 platform: e.platform,

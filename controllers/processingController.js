@@ -125,7 +125,7 @@ function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
         const action = (entry.action || '').toUpperCase().trim();
 
         if (action === 'WAIT FOR SERVICE') {
-            const destination = entry.location || '';
+            const location = entry.location || '';
             const platform = entry.platform || '';
             // WAIT FOR SERVICE: arrival is time2
             const arrival = entry.time2 || '';
@@ -146,13 +146,13 @@ function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
                 departure = arrival;
             }
 
-            // Build apiName: mapped destination + " Platform " + platform
-            const mappedDestination = stationNameMapping[destination] || destination;
-            const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
+            // Build apiName: mapped location + " Platform " + platform
+            const mappedLocation = stationNameMapping[location] || location;
+            const apiName = (mappedLocation && platform) ? mappedLocation + ' ' + platform : '';
 
             processedEntries.push({
                 index: index++,
-                destination: destination,
+                location: location,
                 arrival: arrival,
                 departure: departure,
                 platform: platform,
@@ -161,7 +161,7 @@ function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
                 longitude: null
             });
         } else if (action === 'STOP AT LOCATION') {
-            const destination = entry.location || '';
+            const location = entry.location || '';
             const platform = entry.platform || '';
             // STOP AT LOCATION: arrival is time1
             const arrival = entry.time1 || '';
@@ -176,13 +176,13 @@ function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
                 }
             }
 
-            // Build apiName: mapped destination + " Platform " + platform
-            const mappedDestination = stationNameMapping[destination] || destination;
-            const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
+            // Build apiName: mapped location + " Platform " + platform
+            const mappedLocation = stationNameMapping[location] || location;
+            const apiName = (mappedLocation && platform) ? mappedLocation + ' ' + platform : '';
 
             processedEntries.push({
                 index: index++,
-                destination: destination,
+                location: location,
                 arrival: arrival,
                 departure: departure,
                 platform: platform,
@@ -192,16 +192,16 @@ function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
             });
         } else if (action === 'UNLOAD PASSENGERS') {
             // UNLOAD PASSENGERS with location = final stop
-            const destination = entry.location || '';
-            if (destination && destination !== '-') {
+            const location = entry.location || '';
+            if (location && location !== '-') {
                 const platform = entry.platform || '';
                 const arrival = entry.time1 || '';
-                const mappedDestination = stationNameMapping[destination] || destination;
-                const apiName = (mappedDestination && platform) ? mappedDestination + ' ' + platform : '';
+                const mappedLocation = stationNameMapping[location] || location;
+                const apiName = (mappedLocation && platform) ? mappedLocation + ' ' + platform : '';
 
                 processedEntries.push({
                     index: index++,
-                    destination: destination,
+                    location: location,
                     arrival: arrival,
                     departure: '',
                     platform: platform,
@@ -429,14 +429,14 @@ async function processRecordingData(req, res) {
         console.log(`  Preprocessed ${entries.length} raw entries into ${timetableEntries.length} station entries`);
 
         // Preserve any user-entered coordinates from original entries
-        // Match by destination/location since indices may differ after preprocessing
-        // Only match if destination is not empty to avoid false matches
+        // Match by location since indices may differ after preprocessing
+        // Only match if location is not empty to avoid false matches
         for (const entry of timetableEntries) {
-            if (!entry.destination || !entry.destination.trim()) {
-                continue; // Skip entries with empty destination
+            if (!entry.location || !entry.location.trim()) {
+                continue; // Skip entries with empty location
             }
             const originalEntry = entries.find(e =>
-                (e.location || e.details) === entry.destination &&
+                (e.location || e.details) === entry.location &&
                 e.latitude && e.longitude
             );
             if (originalEntry) {
@@ -461,7 +461,7 @@ async function processRecordingData(req, res) {
             if (entry.latitude && entry.longitude) {
                 matchedCount++;
             } else if (entry.apiName) {
-                unmatchedEntries.push({ destination: entry.destination, apiName: entry.apiName });
+                unmatchedEntries.push({ location: entry.location, apiName: entry.apiName });
             }
         }
         console.log(`  Coordinate matching: ${matchedCount} matched, ${unmatchedEntries.length} with apiName but no match`);

@@ -56,7 +56,7 @@ function loadTimetable() {
             timetableData = loadedRouteData.timetable;
             console.log(`✓ Using embedded timetable: ${timetableData.length} stops`);
             if (timetableData.length > 0) {
-                console.log(`  First stop: ${timetableData[0].destination} - Departure: ${timetableData[0].departure} (${timetableData[0].apiName})`);
+                console.log(`  First stop: ${timetableData[0].location} - Departure: ${timetableData[0].departure} (${timetableData[0].apiName})`);
             }
             return;
         }
@@ -121,7 +121,7 @@ function getTimetableDisplay(currentTimeISO) {
                 const hasArrivedAtStation = currentDistance <= ARRIVAL_THRESHOLD_METERS;
 
                 if (hasArrivedAtStation) {
-                    console.log(`[Timetable] Arrived at station: ${nextStation.destination} (distance: ${Math.round(currentDistance)}m)`);
+                    console.log(`[Timetable] Arrived at station: ${nextStation.location} (distance: ${Math.round(currentDistance)}m)`);
                     lastArrivedStationIndex = nextStationIndex;
                     closestDistanceToNextStation = Infinity; // Reset for next station
                 }
@@ -156,7 +156,7 @@ function getTimetableDisplay(currentTimeISO) {
             const nextStation = timetableData[nextStationIndex];
             return {
                 time: nextStation.arrival,
-                label: nextStation.destination,
+                label: nextStation.location,
                 targetApiName: nextStation.apiName,
                 showDistance: true
             };
@@ -165,7 +165,7 @@ function getTimetableDisplay(currentTimeISO) {
         // At last station
         if (lastArrivedStationIndex === timetableData.length - 1) {
             const lastStation = timetableData[lastArrivedStationIndex];
-            return { time: lastStation.arrival, label: lastStation.destination, targetApiName: lastStation.apiName, showDistance: false };
+            return { time: lastStation.arrival, label: lastStation.location, targetApiName: lastStation.apiName, showDistance: false };
         }
 
         return { time: null, label: null, targetApiName: null, showDistance: false };
@@ -268,7 +268,7 @@ function getNextTimetableStation(targetApiName) {
 
     // Find the timetable entry that matches the target
     const station = timetableData.find(entry =>
-        entry.apiName === targetApiName || entry.destination === targetApiName
+        entry.apiName === targetApiName || entry.location === targetApiName
     );
 
     if (!station || !station.latitude || !station.longitude) {
@@ -276,7 +276,7 @@ function getNextTimetableStation(targetApiName) {
     }
 
     return {
-        name: station.destination,
+        name: station.location,
         latitude: station.latitude,
         longitude: station.longitude,
         arrival: station.arrival,
@@ -624,7 +624,7 @@ function parseSubscriptionData(rawData) {
             const directStation = timetableData[directTargetIndex];
             if (directStation && directStation.latitude && directStation.longitude) {
                 nextStation = {
-                    name: directStation.destination,
+                    name: directStation.location,
                     latitude: directStation.latitude,
                     longitude: directStation.longitude,
                     arrival: directStation.arrival,

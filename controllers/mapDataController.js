@@ -106,7 +106,7 @@ async function importFromRecording(req, res) {
  * - Always processes raw file on-the-fly (unified flow for both dev and non-dev modes)
  * - Coordinates -> timetable_coordinates (as JSON string)
  * - Markers -> timetable_markers
- * - Timetable entries -> update lat/lng in timetable_entries by matching destination to location
+ * - Timetable entries -> update lat/lng in timetable_entries by matching location field
  * - In dev mode: writes the processed file to disk at the end
  */
 async function saveProcessedJson(req, res) {
@@ -177,28 +177,28 @@ async function saveProcessedJson(req, res) {
         }
 
         // 3. Update timetable entries with lat/lng and apiName from timetable array
-        // Match json.timetable[].destination to timetable_entries.location
-        // Special case: index 0 with empty destination - update WAIT FOR SERVICE at sort_order 0
+        // Match json.timetable[].location to timetable_entries.location
+        // Special case: index 0 with empty location - update WAIT FOR SERVICE at sort_order 0
         console.log(`\n=== SAVING TIMETABLE ENTRIES ===`);
         console.log(`Total entries in processed data: ${processedData.timetable?.length || 0}`);
         if (processedData.timetable && Array.isArray(processedData.timetable)) {
             for (const entry of processedData.timetable) {
                 const hasCoords = entry.latitude && entry.longitude;
-                console.log(`  [${entry.index}] "${entry.destination}": ${hasCoords ? `${entry.latitude.toFixed(6)}, ${entry.longitude.toFixed(6)}` : 'NO COORDS'}`);
+                console.log(`  [${entry.index}] "${entry.location}": ${hasCoords ? `${entry.latitude.toFixed(6)}, ${entry.longitude.toFixed(6)}` : 'NO COORDS'}`);
                 if (hasCoords) {
-                    if (entry.destination) {
-                        // Normal case: match by destination/location
+                    if (entry.location) {
+                        // Normal case: match by location
                         entryDb.updateCoordinatesByLocation(
                             timetableId,
-                            entry.destination,
+                            entry.location,
                             entry.latitude,
                             entry.longitude,
                             entry.apiName || ''
                         );
                         entryUpdates++;
-                        console.log(`    -> Updated entry for location "${entry.destination}"`);
+                        console.log(`    -> Updated entry for location "${entry.location}"`);
                     } else if (entry.index === 0) {
-                        // Special case: first entry with empty destination
+                        // Special case: first entry with empty location
                         // Update the WAIT FOR SERVICE entry at sort_order 0
                         entryDb.updateCoordinatesBySortOrderAndAction(
                             timetableId,
@@ -297,7 +297,7 @@ async function getRouteDataFromDb(req, res, timetableId) {
 
                 timetableArray.push({
                     index: entryIndex,
-                    destination: entry.location || '',
+                    location: entry.location || '',
                     arrival: arrival,
                     departure: departure,
                     platform: entry.platform || '',
@@ -400,7 +400,7 @@ async function remakeProcessedJson(req, res) {
 
                 timetableArray.push({
                     index: entryIndex,
-                    destination: entry.location || '',
+                    location: entry.location || '',
                     arrival: arrival,
                     departure: departure,
                     platform: entry.platform || '',
