@@ -460,7 +460,7 @@
             });
             html += '</tbody></table>';
             container.innerHTML = html;
-            if (typeof i18n !== 'undefined') i18n.updatePageTranslations();
+            if (typeof i18n !== 'undefined') i18n.translatePage();
         }
 
         function showRoute(id) { window.location.href = '/routes/' + id; }

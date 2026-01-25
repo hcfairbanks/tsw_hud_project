@@ -2,10 +2,10 @@
 const fs = require('fs');
 const path = require('path');
 const { sendJson, parseBody } = require('../utils/http');
-const { timetableDb, entryDb, stationMappingDb } = require('../db');
+const { timetableDb, entryDb, stationMappingDb, timetableCoordinateDb, timetableMarkerDb } = require('../db');
 const { preprocessTimetableEntries } = require('./processingController');
 const { buildTimetableExportJson } = require('./timetableController');
-const { processRecordingFile } = require('./routeProcessingController');
+const { processRawData } = require('./routeProcessingController');
 const { loadConfig } = require('./configController');
 
 // Recording configuration
@@ -25,9 +25,10 @@ let recordingStartTime = null;
 let routeOutputFilePath = null;
 let savedTimetableCoords = new Map(); // Stores timetable entry coordinates during recording session only
 
-// Get recording data directory
+// Get recording data directories
 const recordingDataDir = path.join(__dirname, '..', 'recording_data');
 const savedRawDataDir = path.join(__dirname, '..', 'saved_raw_data');
+const processedRoutesDir = path.join(__dirname, '..', 'processed_routes');
 
 // Auto-stop configuration
 const AUTO_STOP_TIMEOUT_MS = 240000; // 4 minutes
@@ -219,7 +220,17 @@ async function start(req, res, timetableId) {
 }
 
 /**
- * Stop recording, save final data, and process the recording
+ * Stop recording, process data, save to database, and clean up
+ * This is the main "Save" action - everything happens here in the backend
+ *
+ * Flow:
+ * 1. Read raw file from recording_data (there will only be 1 file)
+ * 2. Process in memory (stop detection, path simplification, find stops if auto mode)
+ * 3. In dev mode, copy raw file to saved_raw_data/
+ * 4. Save processed data to database (coordinates, markers, timetable entries)
+ * 5. Delete original file from recording_data/
+ * 6. In dev mode, export from database to processed_routes/
+ * 7. Return success with relevant data
  */
 function stop(req, res) {
     if (!isRecording && !isPaused) {
@@ -227,7 +238,9 @@ function stop(req, res) {
         return;
     }
 
-    // Save final data to JSON file only (not database) - mark as completed
+    const config = loadConfig();
+
+    // Capture current state before resetting
     let timetable = null;
     let routeId = null;
     const savedTimetableId = currentTimetableId;
@@ -242,7 +255,7 @@ function stop(req, res) {
         routeId = timetable?.route_id;
     }
 
-    // Reset state before processing
+    // Reset recording state
     isRecording = false;
     isPaused = false;
     currentTimetableId = null;
@@ -256,85 +269,267 @@ function stop(req, res) {
     recordingStartTime = null;
     routeOutputFilePath = null;
 
-    // Clear auto-stop interval when recording stops
+    // Clear auto-stop interval
     if (autoStopCheckInterval) {
         clearInterval(autoStopCheckInterval);
         autoStopCheckInterval = null;
     }
 
-    console.log('Recording stopped');
+    console.log('\n========================================');
+    console.log('Recording stopped - beginning save process');
+    console.log('========================================\n');
 
-    // Process the recording file
-    let processedResult = null;
+    // ========================================
+    // STEP 1: Read and process the raw recording file in memory
+    // ========================================
+    let rawData = null;
+    let processedData = null;
+    let rawFilePath = null;
+
     if (savedOutputFile) {
+        rawFilePath = path.join(recordingDataDir, savedOutputFile);
+
+        if (!fs.existsSync(rawFilePath)) {
+            console.error(`Raw file not found: ${rawFilePath}`);
+            sendJson(res, {
+                success: false,
+                error: 'Recording file not found',
+                timetableId: savedTimetableId
+            }, 500);
+            return;
+        }
+
         try {
-            processedResult = processRecordingFile(savedOutputFile);
-            console.log(`Recording processed: ${processedResult.outputFile}`);
+            // Read raw data
+            const rawContent = fs.readFileSync(rawFilePath, 'utf8');
+            rawData = JSON.parse(rawContent);
+
+            // Process in memory (includes stop detection, path simplification, etc.)
+            processedData = processRawData(rawData);
+
+            console.log(`Step 1: Recording processed in memory`);
+            console.log(`  - Coordinates: ${rawData.coordinates?.length || 0} -> ${processedData.coordinates?.length || 0} (simplified)`);
+            console.log(`  - Markers: ${processedData.markers?.length || 0}`);
+            console.log(`  - Timetable entries: ${processedData.timetable?.length || 0}`);
+            console.log(`  - Detected stops: ${processedData.detectedStops || 0}`);
         } catch (err) {
             console.error('Error processing recording:', err.message);
-            // Still return success for the stop, but include processing error
             sendJson(res, {
-                success: true,
-                message: 'Recording stopped but processing failed',
-                timetableId: savedTimetableId,
-                routeId: routeId,
-                coordinateCount: savedCoordCount,
-                markerCount: savedMarkerCount,
-                outputFile: savedOutputFile,
-                processingError: err.message
-            });
+                success: false,
+                error: 'Failed to process recording: ' + err.message,
+                timetableId: savedTimetableId
+            }, 500);
             return;
         }
     }
 
-    // File management based on development mode
-    const config = loadConfig();
-    const rawFilePath = path.join(recordingDataDir, savedOutputFile);
-    let fileManagement = { action: 'none' };
+    let rawDestFilename = null;
+    let processedDestFilename = null;
 
-    if (config.developmentMode) {
-        // Dev mode: copy to saved_raw_data folder, then delete original
+    // ========================================
+    // STEP 2: Dev mode - copy RAW file to saved_raw_data
+    // ========================================
+    if (config.developmentMode && rawFilePath && fs.existsSync(rawFilePath)) {
         try {
             if (!fs.existsSync(savedRawDataDir)) {
                 fs.mkdirSync(savedRawDataDir, { recursive: true });
             }
-            // Sanitize service name for filename
+
             const serviceName = (timetable?.service_name || 'unknown')
                 .replace(/[<>:"/\\|?*]/g, '_')
                 .replace(/\s+/g, '_');
-            const destFilename = `raw_${serviceName}.json`;
-            const destPath = path.join(savedRawDataDir, destFilename);
-            fs.copyFileSync(rawFilePath, destPath);
-            fs.unlinkSync(rawFilePath);
-            fileManagement = { action: 'moved_to_saved', destination: destFilename };
-            console.log(`Dev mode: Moved raw file to saved_raw_data/${destFilename}`);
+
+            rawDestFilename = `raw_${serviceName}.json`;
+            const rawDestPath = path.join(savedRawDataDir, rawDestFilename);
+            fs.copyFileSync(rawFilePath, rawDestPath);
+            console.log(`Step 2: Copied raw data to saved_raw_data/${rawDestFilename}`);
         } catch (err) {
-            console.error('Error managing raw file (dev mode):', err.message);
-            fileManagement = { action: 'error', error: err.message };
+            console.error('Error copying raw file (dev mode):', err.message);
         }
-    } else {
-        // Normal mode: flag for frontend to delete after DB save
-        fileManagement = { action: 'pending_delete', rawFile: savedOutputFile };
+    } else if (!config.developmentMode) {
+        console.log('Step 2: Skipped (not in dev mode)');
     }
 
+    // ========================================
+    // STEP 3: Save processed data to database
+    // ========================================
+    let dbSaveStats = {
+        coordinateCount: 0,
+        markerCount: 0,
+        entriesUpdated: 0,
+        errors: []
+    };
+
+    if (processedData && savedTimetableId) {
+        try {
+            console.log(`Step 3: Saving to database...`);
+
+            // 3a. Save coordinates
+            if (processedData.coordinates && Array.isArray(processedData.coordinates) && processedData.coordinates.length > 0) {
+                dbSaveStats.coordinateCount = timetableCoordinateDb.insert(savedTimetableId, processedData.coordinates);
+                console.log(`  - Saved ${dbSaveStats.coordinateCount} coordinates`);
+
+                // Set coordinates_contributor from config
+                if (config.contributorName) {
+                    timetableDb.update(savedTimetableId, { coordinates_contributor: config.contributorName });
+                    console.log(`  - Set coordinates_contributor: ${config.contributorName}`);
+                }
+            }
+
+            // 3b. Save markers
+            if (processedData.markers && Array.isArray(processedData.markers) && processedData.markers.length > 0) {
+                dbSaveStats.markerCount = timetableMarkerDb.bulkInsert(savedTimetableId, processedData.markers);
+                console.log(`  - Saved ${dbSaveStats.markerCount} markers`);
+            }
+
+            // 3c. Update timetable entries with coordinates
+            if (processedData.timetable && Array.isArray(processedData.timetable)) {
+                const dbEntries = entryDb.getByTimetableId(savedTimetableId);
+
+                for (const processedEntry of processedData.timetable) {
+                    if (processedEntry.latitude != null && processedEntry.longitude != null) {
+                        // Handle special case: index 0 with empty location (WAIT FOR SERVICE)
+                        if (processedEntry.index === 0 && (!processedEntry.location || processedEntry.location.trim() === '')) {
+                            try {
+                                entryDb.updateCoordinatesBySortOrderAndAction(
+                                    savedTimetableId,
+                                    0,
+                                    'WAIT FOR SERVICE',
+                                    processedEntry.latitude,
+                                    processedEntry.longitude,
+                                    processedEntry.apiName || ''
+                                );
+                                dbSaveStats.entriesUpdated++;
+                                console.log(`  - Updated WAIT FOR SERVICE (index 0): ${processedEntry.latitude.toFixed(6)}, ${processedEntry.longitude.toFixed(6)}`);
+                            } catch (updateErr) {
+                                dbSaveStats.errors.push(`Failed to update WAIT FOR SERVICE: ${updateErr.message}`);
+                            }
+                            continue;
+                        }
+
+                        // Normal case: match by location name
+                        if (processedEntry.location) {
+                            const matchingDbEntry = dbEntries.find(dbEntry => {
+                                const dbLocation = dbEntry.location || dbEntry.details || '';
+                                return dbLocation === processedEntry.location;
+                            });
+
+                            if (matchingDbEntry) {
+                                try {
+                                    entryDb.updateCoordinatesByLocation(
+                                        savedTimetableId,
+                                        processedEntry.location,
+                                        processedEntry.latitude,
+                                        processedEntry.longitude,
+                                        processedEntry.apiName || ''
+                                    );
+                                    dbSaveStats.entriesUpdated++;
+                                    console.log(`  - Updated "${processedEntry.location}": ${processedEntry.latitude.toFixed(6)}, ${processedEntry.longitude.toFixed(6)}`);
+                                } catch (updateErr) {
+                                    dbSaveStats.errors.push(`Failed to update ${processedEntry.location}: ${updateErr.message}`);
+                                }
+                            } else {
+                                console.log(`  - No DB match for "${processedEntry.location}"`);
+                            }
+                        }
+                    }
+                }
+            }
+
+            console.log(`Step 3 complete: ${dbSaveStats.coordinateCount} coords, ${dbSaveStats.markerCount} markers, ${dbSaveStats.entriesUpdated} entries updated`);
+        } catch (err) {
+            console.error('Error saving to database:', err.message);
+            dbSaveStats.errors.push(err.message);
+        }
+    }
+
+    // ========================================
+    // STEP 4: Delete original raw file from recording_data
+    // ========================================
+    if (rawFilePath && fs.existsSync(rawFilePath)) {
+        try {
+            fs.unlinkSync(rawFilePath);
+            console.log('Step 4: Deleted original raw file from recording_data');
+        } catch (err) {
+            console.error('Error deleting raw file:', err.message);
+        }
+    }
+
+    // ========================================
+    // STEP 5: Dev mode - export from database to processed_routes
+    // Uses the same format as /api/timetables/:id/export/download
+    // ========================================
+    if (config.developmentMode && savedTimetableId) {
+        try {
+            if (!fs.existsSync(processedRoutesDir)) {
+                fs.mkdirSync(processedRoutesDir, { recursive: true });
+            }
+
+            // Re-fetch all data from database to get the saved state
+            const freshTimetable = timetableDb.getById(savedTimetableId);
+            const freshEntries = entryDb.getByTimetableId(savedTimetableId);
+            const freshCoordinates = timetableCoordinateDb.getByTimetableId(savedTimetableId);
+            const freshMarkers = timetableMarkerDb.getByTimetableId(savedTimetableId);
+
+            // Use the same export format as the timetable export page
+            const exportData = buildTimetableExportJson({
+                timetable: freshTimetable,
+                entries: freshEntries,
+                coordinates: freshCoordinates,
+                markers: freshMarkers,
+                savedTimetableCoords: null,
+                includeCsvData: true,
+                includeMarkerProcessing: true,
+                completed: true
+            });
+
+            const serviceName = (freshTimetable?.service_name || 'unknown')
+                .replace(/[<>:"/\\|?*]/g, '_')
+                .replace(/\s+/g, '_');
+
+            processedDestFilename = `processed_${serviceName}.json`;
+            const processedDestPath = path.join(processedRoutesDir, processedDestFilename);
+            fs.writeFileSync(processedDestPath, JSON.stringify(exportData, null, 2));
+            console.log(`Step 5: Exported from DB to processed_routes/${processedDestFilename}`);
+        } catch (err) {
+            console.error('Error exporting processed file (dev mode):', err.message);
+        }
+    } else if (!config.developmentMode) {
+        console.log('Step 5: Skipped (not in dev mode)');
+    }
+
+    // ========================================
+    // STEP 6: Return success with all relevant data
+    // ========================================
     const result = {
         success: true,
-        message: 'Recording stopped and processed',
+        message: 'Recording saved successfully',
         timetableId: savedTimetableId,
         routeId: routeId,
-        coordinateCount: savedCoordCount,
-        markerCount: savedMarkerCount,
-        outputFile: savedOutputFile,
-        processedFile: processedResult ? processedResult.outputFile : null,
-        processedStats: processedResult ? {
-            coordinates: processedResult.data.coordinates?.length || 0,
-            markers: processedResult.data.markers?.length || 0,
-            timetableEntries: processedResult.data.timetable?.length || 0,
-            detectedStops: processedResult.data.detectedStops || 0
-        } : null,
-        fileManagement: fileManagement,
-        developmentMode: config.developmentMode
+        serviceName: timetable?.service_name || 'Unknown',
+        stats: {
+            rawCoordinates: savedCoordCount,
+            rawMarkers: savedMarkerCount,
+            processedCoordinates: dbSaveStats.coordinateCount,
+            processedMarkers: dbSaveStats.markerCount,
+            timetableEntries: processedData?.timetable?.length || 0,
+            entriesSavedToDb: dbSaveStats.entriesUpdated,
+            detectedStops: processedData?.detectedStops || 0
+        },
+        developmentMode: config.developmentMode,
+        files: config.developmentMode ? {
+            rawFile: rawDestFilename,
+            processedFile: processedDestFilename
+        } : null
     };
+
+    if (dbSaveStats.errors.length > 0) {
+        result.warnings = dbSaveStats.errors;
+    }
+
+    console.log('\n========================================');
+    console.log('Save process complete');
+    console.log('========================================\n');
 
     sendJson(res, result);
 }
@@ -1104,15 +1299,14 @@ function checkAutoStop() {
 }
 
 /**
- * Trigger auto-stop - sets flag and stops recording
- * Frontend will handle the save-to-DB sequence when it sees the flag
+ * Trigger auto-stop - sets flag so frontend knows to call stop()
+ * Frontend will call the stop endpoint when it sees this flag
  */
 function triggerAutoStop() {
     autoStopped = true;
-    // Note: We don't call stop() here because we want the frontend to handle
-    // the full save sequence. We just set the flag which will be picked up
-    // by getRecordingStateForStream() and sent to the frontend.
-    console.log('Auto-stop flag set - frontend will handle save sequence');
+    // The flag is picked up by getRecordingStateForStream() and sent to the frontend.
+    // Frontend then calls the stop endpoint which handles all processing and DB save.
+    console.log('Auto-stop flag set - frontend will call stop endpoint');
 }
 
 module.exports = {

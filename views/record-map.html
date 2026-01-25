@@ -327,9 +327,83 @@
             font-size: 11px;
             color: #333;
         }
+
+        /* Custom Modal Styles */
+        .custom-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 100px;
+        }
+
+        .custom-modal-overlay.show {
+            display: flex;
+        }
+
+        .custom-modal {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            min-width: 350px;
+            max-width: 500px;
+            max-height: calc(100vh - 150px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .custom-modal-header {
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .custom-modal-header.error {
+            background: #dc3545;
+        }
+
+        .custom-modal-body {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .custom-modal-footer {
+            padding: 15px 20px;
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+
+        .custom-modal-footer button {
+            padding: 10px 25px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+    <!-- Custom Modal for Save Results -->
+    <div id="saveResultModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <div class="custom-modal-header" id="modalHeader">Recording Saved</div>
+            <div class="custom-modal-body" id="modalBody"></div>
+            <div class="custom-modal-footer">
+                <button class="btn-primary" onclick="closeSaveModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
     <div id="map"></div>
 
     <div class="info-panel">
@@ -1020,6 +1094,8 @@
                         stationMarkers.forEach(m => map.removeLayer(m));
                         stationMarkers.clear();
                     }
+                    // Reset auto-stop flag for new recording
+                    autoStopProcessed = false;
                     // Stream will update the rest
 
                     // Refresh recording files dropdown
@@ -1037,96 +1113,93 @@
         // 'recording' = actively recording (can pause)
         // 'paused' = recording paused (can resume)
         let currentRecordingState = 'stopped';
+        let autoStopProcessed = false;  // Prevent multiple auto-stop triggers
+        let isSaving = false;  // Prevent multiple save calls
+
+        // Custom modal functions
+        function showSaveModal(title, message, isError = false) {
+            const modal = document.getElementById('saveResultModal');
+            const header = document.getElementById('modalHeader');
+            const body = document.getElementById('modalBody');
+
+            header.textContent = title;
+            header.className = 'custom-modal-header' + (isError ? ' error' : '');
+            body.textContent = message;
+            modal.classList.add('show');
+        }
+
+        function closeSaveModal() {
+            document.getElementById('saveResultModal').classList.remove('show');
+        }
 
         // Stop recording, process file, and save to database
+        // All processing is done in the backend with a single API call
         async function stopRecording() {
+            // Prevent multiple simultaneous save calls
+            if (isSaving) {
+                console.log('Save already in progress, ignoring duplicate call');
+                return;
+            }
+            isSaving = true;
+
             const stopBtn = document.getElementById('stopBtn');
             stopBtn.disabled = true;
-            stopBtn.textContent = 'Stopping...';
+            stopBtn.textContent = 'Saving...';
 
             try {
-                // Step 1: Stop the recording and process it (combined in backend)
-                const stopResponse = await fetch('/api/recording/stop', { method: 'POST' });
-                const stopResult = await stopResponse.json();
+                // Single API call - backend handles everything:
+                // 1. Read raw file from recording_data
+                // 2. Process in memory (stop detection, path simplification, etc.)
+                // 3. Copy raw file to saved_raw_data (dev mode only)
+                // 4. Save to database (coordinates, markers, timetable entries)
+                // 5. Delete raw file from recording_data
+                // 6. Export to processed_routes (dev mode only)
+                const response = await fetch('/api/recording/stop', { method: 'POST' });
+                const result = await response.json();
 
-                if (!stopResult.success) {
-                    throw new Error(stopResult.error || 'Failed to stop recording');
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to save recording');
                 }
 
-                console.log('Recording stopped and processed:', stopResult);
+                console.log('Recording saved:', result);
 
-                // Check if processing failed
-                if (stopResult.processingError) {
-                    alert(`Recording stopped but processing failed:\n${stopResult.processingError}`);
-                    await loadRecordingFiles();
-                    return;
+                // Build message with save results
+                let msg = `Service: ${result.serviceName}\n\n` +
+                    `Coordinates: ${result.stats.processedCoordinates}\n` +
+                    `Markers: ${result.stats.processedMarkers}\n` +
+                    `Timetable entries updated: ${result.stats.entriesSavedToDb}`;
+
+                if (result.stats.detectedStops > 0) {
+                    msg += `\nAuto-detected stops: ${result.stats.detectedStops}`;
                 }
 
-                // Step 2: Save the processed JSON to the database
-                stopBtn.textContent = 'Saving to DB...';
-
-                const saveResponse = await fetch('/api/map/save-processed', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ filename: stopResult.processedFile })
-                });
-
-                const saveResult = await saveResponse.json();
-
-                if (!saveResult.success) {
-                    throw new Error(saveResult.error || 'Failed to save to database');
-                }
-
-                console.log('Saved to database:', saveResult);
-
-                // Step 3: Handle file management (delete raw file in normal mode)
-                if (stopResult.fileManagement && stopResult.fileManagement.action === 'pending_delete') {
-                    try {
-                        const rawFile = stopResult.fileManagement.rawFile;
-                        const deleteResponse = await fetch(`/api/recording/delete-file/${encodeURIComponent(rawFile)}`, {
-                            method: 'DELETE'
-                        });
-                        const deleteResult = await deleteResponse.json();
-                        if (deleteResult.success) {
-                            console.log('Raw file deleted:', rawFile);
-                        } else {
-                            console.warn('Failed to delete raw file:', deleteResult.error);
-                        }
-                    } catch (deleteErr) {
-                        console.warn('Error deleting raw file:', deleteErr);
+                if (result.developmentMode && result.files) {
+                    msg += `\n\nDev mode files:`;
+                    if (result.files.rawFile) {
+                        msg += `\n  Raw: saved_raw_data/${result.files.rawFile}`;
+                    }
+                    if (result.files.processedFile) {
+                        msg += `\n  Processed: processed_routes/${result.files.processedFile}`;
                     }
                 }
 
-                // Build alert message with stop detection info
-                let alertMsg = `Processing and save complete!\n\n` +
-                    `Output: ${stopResult.processedFile}\n` +
-                    `Coordinates: ${saveResult.coordinateCount}\n` +
-                    `Markers: ${saveResult.markerCount}\n` +
-                    `Entry updates: ${saveResult.entryUpdates}`;
-
-                if (stopResult.processedStats && stopResult.processedStats.detectedStops > 0) {
-                    alertMsg += `\nAuto-detected stops: ${stopResult.processedStats.detectedStops}`;
+                if (result.warnings && result.warnings.length > 0) {
+                    msg += `\n\nWarnings:\n${result.warnings.join('\n')}`;
                 }
 
-                if (stopResult.fileManagement) {
-                    if (stopResult.fileManagement.action === 'moved_to_saved') {
-                        alertMsg += `\n\nDev mode: Raw data saved to saved_raw_data/`;
-                    } else if (stopResult.fileManagement.action === 'pending_delete') {
-                        alertMsg += `\n\nRaw recording file cleaned up`;
-                    }
-                }
-
-                alert(alertMsg);
+                showSaveModal('Recording Saved', msg);
 
                 // Refresh recording files dropdown
                 await loadRecordingFiles();
 
             } catch (err) {
-                console.error('Error processing/saving recording:', err);
-                alert('Error: ' + err.message);
+                console.error('Error saving recording:', err);
+                showSaveModal('Error', err.message, true);
             } finally {
                 stopBtn.textContent = 'Save';
                 stopBtn.disabled = false;
+                autoStopProcessed = false;  // Reset for next recording
+                isSaving = false;  // Reset saving flag
             }
         }
 
@@ -1154,6 +1227,9 @@
                     currentRecordingState = 'stopped';
                     document.getElementById('coordCount').textContent = '0';
                     document.getElementById('stationDropdown').innerHTML = '<option value="">-- Start recording first --</option>';
+                    // Reset route typeahead input
+                    document.getElementById('routeInput').value = '';
+                    document.getElementById('routeDropdown').style.display = 'none';
                     // Reset all cascading dropdowns
                     document.getElementById('routeSelect').value = '';
                     document.getElementById('trainClassSelect').innerHTML = '<option value="">-- Select a route first --</option>';
@@ -1162,11 +1238,11 @@
                     document.getElementById('trainSelect').disabled = true;
                     document.getElementById('timetableSelect').innerHTML = '<option value="">-- Select a train first --</option>';
                     document.getElementById('timetableSelect').disabled = true;
-                    // Reset main button
+                    // Reset main button - disabled until timetable is selected
                     const mainBtn = document.getElementById('mainBtn');
                     mainBtn.textContent = 'Start';
                     mainBtn.className = 'btn-success';
-                    mainBtn.disabled = false;
+                    mainBtn.disabled = true;
                     // Reset dev tools status
                     const statusEl = document.getElementById('loadFileStatus');
                     if (statusEl) {
@@ -1176,6 +1252,10 @@
                     updateUIFromRecording({ isRecording: false, isPaused: false });
                     // Refresh recording files dropdown
                     await loadRecordingFiles();
+                    // Clear URL parameter and redirect to clean /record page
+                    if (window.location.search) {
+                        window.history.replaceState({}, document.title, '/record');
+                    }
                     console.log('Recording state reset');
                 } else {
                     alert('Failed to reset: ' + result.error);
@@ -1352,11 +1432,11 @@
                 currentTimetableId = data.recording.timetableId;
                 document.getElementById('coordCount').textContent = data.recording.coordinateCount || 0;
 
-                // Check for auto-stop trigger
-                if (data.recording.autoStopped) {
+                // Check for auto-stop trigger (only process once)
+                if (data.recording.autoStopped && !autoStopProcessed) {
+                    autoStopProcessed = true;  // Prevent multiple triggers
                     console.log('Auto-stop triggered by backend');
-                    alert('Recording auto-stopped after 4 minutes of no movement.\nSaving to database...');
-                    // Trigger the save sequence
+                    // Trigger the save sequence (the stopRecording alert will show the results)
                     stopRecording();
                     return;
                 }
@@ -1839,6 +1919,13 @@
         // Initialize
         async function initialize() {
             await loadRoutesWithTimetables();
+
+            // Setup modal overlay click to close
+            document.getElementById('saveResultModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeSaveModal();
+                }
+            });
 
             // Setup coordinates picker click handler
             setupCoordinatesPicker();
