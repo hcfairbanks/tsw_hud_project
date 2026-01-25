@@ -964,7 +964,7 @@ function drawStationSelector(options, timetableItems, selectedIdx, playerPositio
         options.ctx.textAlign = 'left';
         options.ctx.textBaseline = 'middle';
 
-        var displayName = item.destination || 'Unknown';
+        var displayName = item.location || 'Unknown';
         if (displayName.length > 22) {
             displayName = displayName.substring(0, 21) + '...';
         }
@@ -1077,7 +1077,7 @@ function drawTimetableBox(options, timetableTime, timetableLabel, distanceToStat
         var selectedStation = cachedTimetableItems[selectedStationIndex];
         displayArrival = selectedStation.arrival || '--:--:--';
         displayDeparture = selectedStation.departure || '--:--:--';
-        displayLabel = selectedStation.destination || '';
+        displayLabel = selectedStation.location || '';
 
         // Calculate distance client-side if we have player position
         if (typeof currentPlayerPosition !== 'undefined' && currentPlayerPosition && selectedStation.latitude && selectedStation.longitude) {

@@ -6,16 +6,16 @@
  */
 (function() {
     var navLinks = [
+        { href: '/extract', label: 'Extract' },
         { href: '/', label: 'Home' },
         { href: '/huds', label: 'HUD' },
-        { href: '/map', label: 'Tracking Map' },
         { href: '/record', label: 'Record Map' },
         { href: '/routes', label: 'Routes' },
-        { href: '/trains', label: 'Trains' },
+        { href: '/settings', label: 'Settings' },
         { href: '/timetables', label: 'Timetables' },
-        { href: '/extract', label: 'Extract' },
-        { href: '/weather', label: 'Weather' },
-        { href: '/settings', label: 'Settings' }
+        { href: '/map', label: 'Tracking Map' },
+        { href: '/trains', label: 'Trains' },
+        { href: '/weather', label: 'Weather' }
     ];
 
     function createNavbar() {
@@ -40,6 +40,11 @@
 
             navContainer.appendChild(a);
         });
+
+        // Add language selector placeholder (populated by i18n.js)
+        var langContainer = document.createElement('div');
+        langContainer.className = 'language-selector-nav';
+        navContainer.appendChild(langContainer);
     }
 
     // Create navbar when DOM is ready

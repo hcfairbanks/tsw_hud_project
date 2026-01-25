@@ -1049,7 +1049,7 @@ async function handleRoutes(req, res) {
         const ip = getInternalIpAddress();
         const port = 3000;
         sendJson(res, {
-            local: `http://localhost:${port}`,
+            local: `http://127.0.0.1:${port}`,
             network: `http://${ip}:${port}`
         });
         return true;

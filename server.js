@@ -4,7 +4,7 @@ const { initDatabase, seedDatabase, closeDatabase } = require('./db');
 const { handleRoutes } = require('./routes');
 const { getInternalIpAddress } = require('./utils/network');
 const { waitForValidApiKey, hasApiKey } = require('./utils/apiKey');
-const { initializeSubscriptions } = require('./controllers/subscriptionController');
+const { startConnectionLoop, stopConnectionLoop } = require('./controllers/subscriptionController');
 const { closeAllConnections } = require('./controllers/streamController');
 
 const PORT = 3000;
@@ -34,6 +34,7 @@ const server = http.createServer(handleRequest);
 // Graceful shutdown
 process.on('SIGINT', () => {
     console.log('\nShutting down server...');
+    stopConnectionLoop();
     closeAllConnections();
     closeDatabase();
     server.close(() => {
@@ -44,6 +45,7 @@ process.on('SIGINT', () => {
 
 process.on('SIGTERM', () => {
     console.log('\nReceived SIGTERM, shutting down...');
+    stopConnectionLoop();
     closeAllConnections();
     closeDatabase();
     server.close(() => {
@@ -70,19 +72,13 @@ async function start() {
         process.exit(1);
     }
 
-    // Initialize TSW subscriptions before starting server
-    console.log('Initializing TSW subscriptions...');
-    try {
-        await initializeSubscriptions();
-        console.log('TSW connection ready - HUD and Map features active');
-    } catch (err) {
-        console.error('Failed to initialize TSW subscriptions:', err.message);
-        console.log('Will retry subscriptions when features are accessed');
-    }
+    // Start TSW connection loop (will retry every 30 seconds until connected)
+    console.log('Starting TSW connection manager...');
+    startConnectionLoop();
 
     server.listen(PORT, () => {
         console.log(`========================================`);
-        console.log(`  Local:   http://localhost:${PORT}`);
+        console.log(`  Local:   http://127.0.0.1:${PORT}`);
         console.log(`  Network: http://${ip}:${PORT}`);
         console.log(`========================================`);
         console.log(`  Pages:`);

@@ -394,7 +394,7 @@ function drawStationPanel(x, y, width, distanceUnits) {
 
     if (cachedTimetableItems && cachedTimetableItems.length > 0 && selectedStationIndex >= 0 && selectedStationIndex < cachedTimetableItems.length) {
         var station = cachedTimetableItems[selectedStationIndex];
-        displayLabel = station.destination || '--';
+        displayLabel = station.location || '--';
         displayArrival = station.arrival || '--:--';
         displayDeparture = station.departure || '--:--';
 
@@ -472,7 +472,7 @@ function drawStationPanel(x, y, width, distanceUnits) {
             ctx.font = isSelected ? 'bold 13px sans-serif' : '13px sans-serif';
             ctx.textAlign = 'left';
 
-            var name = cachedTimetableItems[idx].destination || 'Unknown';
+            var name = cachedTimetableItems[idx].location || 'Unknown';
             var maxW = width - 40;
             while (ctx.measureText(name).width > maxW && name.length > 0) {
                 name = name.slice(0, -1);

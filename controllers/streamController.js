@@ -1,5 +1,6 @@
 'use strict';
 const { getTelemetryData } = require('./telemetryController');
+const { isApiConnected, areSubscriptionsCreated } = require('./subscriptionController');
 
 // Track active SSE connections
 const activeConnections = new Set();
@@ -23,6 +24,12 @@ async function handleStream(req, res) {
 
     // Send data every 100ms for responsive distance updates
     const interval = setInterval(async () => {
+        // Check if connected and subscriptions are ready
+        if (!isApiConnected() || !areSubscriptionsCreated()) {
+            res.write(`data: {"waiting": true, "message": "Waiting for TSW connection..."}\n\n`);
+            return;
+        }
+
         try {
             const streamData = await getTelemetryData();
             // Debug logging - log once every 5 seconds

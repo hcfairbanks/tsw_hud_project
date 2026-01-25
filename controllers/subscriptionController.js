@@ -9,7 +9,7 @@ const path = require('path');
 const appDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
 const configPath = path.join(appDir, 'configuration.json');
 
-const TSW_API_HOST = 'localhost';
+const TSW_API_HOST = '127.0.0.1';
 const TSW_API_PORT = 31270;
 
 // Subscription endpoints
@@ -42,6 +42,8 @@ const subscriptionEndpoints = [
 
 // Track subscription state
 let subscriptionsCreated = false;
+let isConnected = false;
+let connectionRetryInterval = null;
 
 /**
  * Make HTTP request to TSW API
@@ -99,6 +101,87 @@ function tswApiRequest(method, path) {
 
         req.end();
     });
+}
+
+/**
+ * Test connection to TSW API
+ * @returns {Promise<boolean>}
+ */
+async function testConnection() {
+    try {
+        // Simple request to test if TSW API is reachable
+        await tswApiRequest('GET', '/subscription/?Subscription=1');
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
+/**
+ * Check if connected to TSW API
+ * @returns {boolean}
+ */
+function isApiConnected() {
+    return isConnected;
+}
+
+/**
+ * Start connection retry loop
+ * Tries to connect every 30 seconds until successful, then creates subscriptions
+ * @returns {Promise<void>}
+ */
+async function startConnectionLoop() {
+    // Stop any existing retry loop
+    if (connectionRetryInterval) {
+        clearInterval(connectionRetryInterval);
+        connectionRetryInterval = null;
+    }
+
+    // Try initial connection
+    console.log('Attempting to connect to TSW API...');
+    const connected = await testConnection();
+
+    if (connected) {
+        isConnected = true;
+        console.log('TSW API connection successful!');
+        await initializeSubscriptions();
+        return;
+    }
+
+    console.log('TSW API not available. Will retry every 30 seconds...');
+
+    // Set up retry interval
+    connectionRetryInterval = setInterval(async () => {
+        console.log('Retrying TSW API connection...');
+        const connected = await testConnection();
+
+        if (connected) {
+            isConnected = true;
+            console.log('TSW API connection successful!');
+            clearInterval(connectionRetryInterval);
+            connectionRetryInterval = null;
+
+            // Now create subscriptions
+            try {
+                await initializeSubscriptions();
+                console.log('Subscriptions initialized - streaming ready');
+            } catch (err) {
+                console.error('Failed to initialize subscriptions:', err.message);
+            }
+        } else {
+            console.log('TSW API still not available. Retrying in 30 seconds...');
+        }
+    }, 30000);
+}
+
+/**
+ * Stop the connection retry loop
+ */
+function stopConnectionLoop() {
+    if (connectionRetryInterval) {
+        clearInterval(connectionRetryInterval);
+        connectionRetryInterval = null;
+    }
 }
 
 /**
@@ -211,6 +294,7 @@ function getStatus(req, res) {
     sendJson(res, {
         hasApiKey: hasApiKey(),
         apiKeySource: hasApiKey() ? getApiKeySource() : null,
+        isConnected: isConnected,
         subscriptionsCreated: areSubscriptionsCreated()
     });
 }
@@ -280,5 +364,9 @@ module.exports = {
     resetSubscriptionsHandler,
     deleteSubscriptionsHandler,
     createSubscriptionsHandler,
-    getSubscriptionData
+    getSubscriptionData,
+    testConnection,
+    isApiConnected,
+    startConnectionLoop,
+    stopConnectionLoop
 };

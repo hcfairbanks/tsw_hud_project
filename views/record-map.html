@@ -829,7 +829,7 @@
                     // Add markers for stations with saved coordinates
                     data.timetable.forEach((entry, index) => {
                         if (entry.latitude && entry.longitude) {
-                            addStationMarker(index, entry.latitude, entry.longitude, entry.destination);
+                            addStationMarker(index, entry.latitude, entry.longitude, entry.location);
                         }
                     });
                 }
@@ -850,7 +850,7 @@
                 const option = document.createElement('option');
                 option.value = index;
                 const hasCoords = entry.latitude && entry.longitude;
-                option.textContent = `${index + 1}. ${entry.destination}${hasCoords ? ' [SAVED]' : ''}`;
+                option.textContent = `${index + 1}. ${entry.location}${hasCoords ? ' [SAVED]' : ''}`;
                 dropdown.appendChild(option);
 
                 // Track the first unsaved station
@@ -1371,7 +1371,7 @@
                     // Add markers for stations with saved coordinates
                     data.recording.timetable.forEach((entry, index) => {
                         if (entry.latitude && entry.longitude) {
-                            addStationMarker(index, entry.latitude, entry.longitude, entry.destination);
+                            addStationMarker(index, entry.latitude, entry.longitude, entry.location);
                         }
                     });
                 }
@@ -1623,7 +1623,7 @@
                     // Add markers for stations with coordinates
                     data.timetable.forEach((entry, index) => {
                         if (entry.latitude && entry.longitude) {
-                            addStationMarker(index, entry.latitude, entry.longitude, entry.destination);
+                            addStationMarker(index, entry.latitude, entry.longitude, entry.location);
                         }
                     });
 

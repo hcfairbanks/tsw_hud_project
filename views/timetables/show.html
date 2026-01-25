@@ -869,7 +869,7 @@
 
                 if (action === 'WAIT FOR SERVICE' || action === 'STOP AT LOCATION') {
                     var row = {
-                        destination: entry.location || '',
+                        location: entry.location || '',
                         arrival: entry.time2 || entry.time1 || '',
                         departure: '',
                         platform: entry.platform || ''
@@ -900,7 +900,7 @@
                     } else {
                         // Standalone UNLOAD - use its own data
                         combinedRows.push({
-                            destination: entry.location || '',
+                            location: entry.location || '',
                             arrival: entry.time1 || '',
                             departure: '',
                             platform: entry.platform || ''
@@ -911,7 +911,7 @@
 
             combinedRows.forEach(function(row) {
                 lines.push([
-                    escapeCSV(row.destination),
+                    escapeCSV(row.location),
                     escapeCSV(row.arrival),
                     escapeCSV(row.departure),
                     escapeCSV(row.platform)

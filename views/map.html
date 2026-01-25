@@ -1156,12 +1156,12 @@
             timetable.forEach((entry, index) => {
                 // Only show stations that have coordinates
                 if (!entry.latitude || !entry.longitude) {
-                    console.log(`  [${index}] ${entry.destination}: SKIPPED - no coords`);
+                    console.log(`  [${index}] ${entry.location}: SKIPPED - no coords`);
                     return;
                 }
-                console.log(`  [${index}] ${entry.destination}: Adding marker at ${entry.latitude}, ${entry.longitude}`);
+                console.log(`  [${index}] ${entry.location}: Adding marker at ${entry.latitude}, ${entry.longitude}`);
 
-                const stationName = entry.destination || `Station ${index + 1}`;
+                const stationName = entry.location || `Station ${index + 1}`;
                 const stopNumber = entry.index + 1;
 
                 const mapMarker = L.circleMarker([entry.latitude, entry.longitude], {
