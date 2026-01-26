@@ -53,12 +53,6 @@ async function handleRoutes(req, res) {
         return true;
     }
 
-    // HUD dashboard page (legacy)
-    if (pathname === '/hud' || pathname === '/hud.html') {
-        serveFile(res, 'hud.html', 'text/html');
-        return true;
-    }
-
     // HUDs index page
     if (pathname === '/huds' || pathname === '/huds/') {
         serveFile(res, 'huds/index.html', 'text/html');

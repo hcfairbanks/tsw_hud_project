@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSW HUD - Select Display</title>
     <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
     <script src="/js/theme-loader.js"></script>
     <style>
         * {
@@ -12,7 +13,7 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 1200px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
             background-color: var(--bg-primary);
@@ -22,7 +23,7 @@
         h1 {
             color: var(--accent-color);
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
         }
         .hud-grid {
             display: grid;
@@ -82,24 +83,10 @@
             color: var(--text-muted);
             margin-top: 12px;
         }
-        .legacy-link {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-        }
-        .legacy-link a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .legacy-link a:hover {
-            color: var(--accent-color);
-        }
     </style>
 </head>
 <body>
-    <h1>🚂 HUD Displays</h1>
+    <h1>HUD Displays</h1>
 
     <nav id="main-nav"></nav>
 
@@ -177,10 +164,7 @@
         </a>
     </div>
 
-    <div class="legacy-link">
-        <a href="/hud">→ Open legacy HUD dashboard</a>
-    </div>
-
     <script src="/js/navbar.js"></script>
+    <script src="/js/i18n.js"></script>
 </body>
 </html>

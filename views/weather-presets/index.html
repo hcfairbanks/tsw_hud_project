@@ -241,6 +241,7 @@
                             <th>${i18n.t('weatherPresets.tablePrecip')}</th>
                             <th>${i18n.t('weatherPresets.tableWet')}</th>
                             <th>${i18n.t('weatherPresets.tableSnow')}</th>
+                            <th>${i18n.t('weatherPresets.tablePiled')}</th>
                             <th>${i18n.t('weatherPresets.tableFog')}</th>
                             <th class="actions">${i18n.t('common.actions')}</th>
                         </tr>
@@ -257,6 +258,7 @@
                         <td>${(preset.precipitation * 100).toFixed(0)}%</td>
                         <td>${(preset.wetness * 100).toFixed(0)}%</td>
                         <td>${(preset.ground_snow * 100).toFixed(0)}%</td>
+                        <td>${(preset.piled_snow * 100).toFixed(0)}%</td>
                         <td>${(preset.fog_density * 100).toFixed(0)}%</td>
                         <td class="actions">
                             <button class="btn-secondary" onclick="editPreset(${preset.id})">${i18n.t('common.edit')}</button>

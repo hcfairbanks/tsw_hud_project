@@ -763,10 +763,15 @@
             }
         })();
 
-        loadClasses();
-        loadTrains();
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        // Load data after i18n is initialized
+        i18n.init().then(function() {
+            loadClasses();
+            loadTrains();
+        });
+    </script>
 </body>
 </html>

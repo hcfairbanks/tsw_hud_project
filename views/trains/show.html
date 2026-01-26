@@ -112,10 +112,13 @@
         <h2>Timetables</h2>
         <div id="contextInfo" class="context-info" style="display:none;"></div>
         <div class="filter-box">
-            <label for="routeFilter">Filter by Route:</label>
-            <select id="routeFilter" onchange="filterTimetables()">
-                <option value="">All Routes</option>
-            </select>
+            <label for="routeFilterInput">Filter by Route:</label>
+            <div class="typeahead-container" style="flex: 1;">
+                <input type="text" id="routeFilterInput" placeholder="Type to search routes..." autocomplete="off">
+                <div id="routeFilterDropdown" class="typeahead-dropdown"></div>
+                <input type="hidden" id="routeFilter" value="">
+            </div>
+            <button class="btn-secondary" onclick="clearRouteFilter()" style="padding: 10px 15px;">Clear</button>
         </div>
         <div id="timetablesList">
             <p class="empty-message">Loading timetables...</p>
@@ -365,13 +368,10 @@
                     currentRoute = allRoutes.find(function(r) { return r.id == fromRouteId; });
                     if (currentRoute) {
                         document.getElementById('routeFilter').value = fromRouteId;
+                        document.getElementById('routeFilterInput').value = currentRoute.name;
                         document.getElementById('contextInfo').style.display = 'block';
                         document.getElementById('contextInfo').innerHTML = 'Showing timetables for this train on <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
                         document.getElementById('backLink').innerHTML = '<a href="/routes/' + currentRoute.id + '">&larr; Back to ' + escapeHtml(currentRoute.name) + '</a>';
-
-                        // Show Record Route link
-                        document.getElementById('recordRouteBtn').style.display = 'inline-block';
-                        document.getElementById('recordRouteBtn').href = '/record?route_id=' + fromRouteId + '&train_id=' + trainId;
                     }
                 }
             } catch (error) {
@@ -380,13 +380,99 @@
         }
 
         function populateRouteFilter() {
-            const select = document.getElementById('routeFilter');
-            allRoutes.forEach(function(route) {
-                const option = document.createElement('option');
-                option.value = route.id;
-                option.textContent = route.name;
-                select.appendChild(option);
+            setupRouteTypeahead();
+        }
+
+        let routeHighlightedIndex = -1;
+
+        function setupRouteTypeahead() {
+            const input = document.getElementById('routeFilterInput');
+            const dropdown = document.getElementById('routeFilterDropdown');
+            const hidden = document.getElementById('routeFilter');
+
+            if (!input) return;
+
+            input.addEventListener('focus', function() { showRouteDropdown(this.value); });
+            input.addEventListener('input', function() {
+                routeHighlightedIndex = -1;
+                hidden.value = '';
+                showRouteDropdown(this.value);
             });
+            input.addEventListener('keydown', function(e) {
+                const items = dropdown.querySelectorAll('.typeahead-item[data-id]');
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    routeHighlightedIndex = Math.min(routeHighlightedIndex + 1, items.length - 1);
+                    updateRouteHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    routeHighlightedIndex = Math.max(routeHighlightedIndex - 1, 0);
+                    updateRouteHighlight(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (routeHighlightedIndex >= 0 && items[routeHighlightedIndex]) {
+                        items[routeHighlightedIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Hide dropdown on click outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#routeFilterInput') && !e.target.closest('#routeFilterDropdown')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function updateRouteHighlight(items) {
+            items.forEach(function(item, idx) {
+                item.classList.toggle('highlighted', idx === routeHighlightedIndex);
+            });
+            if (routeHighlightedIndex >= 0 && items[routeHighlightedIndex]) {
+                items[routeHighlightedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function showRouteDropdown(filter) {
+            const dropdown = document.getElementById('routeFilterDropdown');
+            const filterLower = (filter || '').toLowerCase();
+
+            const filtered = allRoutes.filter(function(route) {
+                return route.name.toLowerCase().includes(filterLower);
+            });
+
+            // Add "All Routes" option at the top
+            let html = '<div class="typeahead-item" data-id="" data-name=""><div class="item-name" style="color: var(--text-muted);">-- All Routes --</div></div>';
+
+            if (filtered.length === 0) {
+                html += '<div class="typeahead-item" style="color: var(--text-muted);">No routes found</div>';
+            } else {
+                html += filtered.map(function(route) {
+                    return '<div class="typeahead-item" data-id="' + route.id + '" data-name="' + escapeHtml(route.name) + '">' +
+                        '<div class="item-name">' + escapeHtml(route.name) + '</div></div>';
+                }).join('');
+            }
+
+            dropdown.innerHTML = html;
+
+            dropdown.querySelectorAll('.typeahead-item[data-id]').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    document.getElementById('routeFilterInput').value = this.dataset.name;
+                    document.getElementById('routeFilter').value = this.dataset.id;
+                    dropdown.style.display = 'none';
+                    filterTimetables();
+                });
+            });
+
+            dropdown.style.display = 'block';
+        }
+
+        function clearRouteFilter() {
+            document.getElementById('routeFilterInput').value = '';
+            document.getElementById('routeFilter').value = '';
+            filterTimetables();
         }
 
         async function loadTimetables() {

@@ -233,9 +233,14 @@
             }
         })();
 
-        loadCountries();
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        // Load countries after i18n is initialized
+        i18n.init().then(function() {
+            loadCountries();
+        });
+    </script>
 </body>
 </html>

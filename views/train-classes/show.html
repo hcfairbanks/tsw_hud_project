@@ -76,20 +76,12 @@
         </div>
     </div>
 
-    <div class="card">
-        <h2>Routes using this Class</h2>
-        <div id="routesList">
-            <p class="empty-message">Loading routes...</p>
-        </div>
-    </div>
-
     <script>
         const classId = window.location.pathname.split('/').pop();
         const urlParams = new URLSearchParams(window.location.search);
         const fromRouteId = urlParams.get('from_route');
         let trainClass = null;
         let trains = [];
-        let routes = [];
 
         async function loadClass() {
             try {
@@ -148,43 +140,8 @@
             container.innerHTML = html;
         }
 
-        async function loadRoutes() {
-            try {
-                const response = await fetch('/api/train-classes/' + classId + '/routes');
-                routes = await response.json();
-                renderRoutes();
-            } catch (error) {
-                console.error('Error loading routes:', error);
-                document.getElementById('routesList').innerHTML = '<p class="empty-message">Error loading routes</p>';
-            }
-        }
-
-        function renderRoutes() {
-            const container = document.getElementById('routesList');
-
-            if (routes.length === 0) {
-                container.innerHTML = '<p class="empty-message">No routes are using this train class.</p>';
-                return;
-            }
-
-            let html = '<table><thead><tr><th>ID</th><th>Name</th><th class="actions">Actions</th></tr></thead><tbody>';
-            routes.forEach(function(route) {
-                html += '<tr>';
-                html += '<td>' + route.id + '</td>';
-                html += '<td><a href="/routes/' + route.id + '">' + escapeHtml(route.name) + '</a></td>';
-                html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + route.id + ')">View</button></td>';
-                html += '</tr>';
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
         function showTrain(id) {
             window.location.href = '/trains/' + id + (fromRouteId ? '?from_route=' + fromRouteId : '');
-        }
-
-        function showRoute(id) {
-            window.location.href = '/routes/' + id;
         }
 
         function escapeHtml(text) {
@@ -213,7 +170,6 @@
         // Load all data
         loadClass();
         loadTrains();
-        loadRoutes();
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>

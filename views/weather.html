@@ -9,27 +9,17 @@
     <script src="/js/theme-loader.js"></script>
     <style>
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-primary);
-            min-height: 100vh;
-            color: var(--text-primary);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        body[data-theme="dark"] {
-            background: linear-gradient(135deg, #1a1a1a 0%, #252525 50%, #333333 100%);
-        }
-
-        .container {
             max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         /* Side-by-side layout for weather sections on desktop */
@@ -50,11 +40,6 @@
             color: var(--accent-color);
             margin-bottom: 30px;
         }
-
-        body[data-theme="dark"] h1 {
-            color: #ffffff;
-        }
-
 
         .status-bar {
             display: flex;
@@ -301,8 +286,7 @@
     </style>
 </head>
 <body data-theme="dark">
-    <div class="container">
-        <h1 data-i18n="weather.title">Weather Control</h1>
+    <h1 data-i18n="weather.title">Weather Control</h1>
 
         <nav id="main-nav"></nav>
 
@@ -430,7 +414,6 @@
             </div>
             </div>
         </div><!-- end weather-grid -->
-    </div>
 
     <div class="notification" id="notification"></div>
 
