@@ -40,7 +40,14 @@ async function handleRoutes(req, res) {
         serveFile(res, 'index.html', 'text/html');
         return true;
     }
-    
+
+    // Suppress favicon.ico 404 errors
+    if (pathname === '/favicon.ico') {
+        res.writeHead(204);
+        res.end();
+        return true;
+    }
+
     if (pathname === '/extract' || pathname === '/extract.html') {
         serveFile(res, 'extract.html', 'text/html');
         return true;

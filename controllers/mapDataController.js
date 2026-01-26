@@ -290,14 +290,17 @@ async function getRouteDataFromDb(req, res, timetableId) {
             let arrival = '';
             let departure = '';
 
-            if (entry.action === 'WAIT FOR SERVICE') {
-                arrival = entry.time2 || '';
-            } else {
-                arrival = entry.time1 || '';
-            }
+            // GO VIA LOCATION entries have no times - train passes through without stopping
+            if (entry.action !== 'GO VIA LOCATION') {
+                if (entry.action === 'WAIT FOR SERVICE') {
+                    arrival = entry.time2 || '';
+                } else {
+                    arrival = entry.time1 || '';
+                }
 
-            if (i + 1 < entries.length) {
-                departure = entries[i + 1].time1 || '';
+                if (i + 1 < entries.length) {
+                    departure = entries[i + 1].time1 || '';
+                }
             }
 
             const timetableEntry = {
@@ -404,17 +407,20 @@ async function remakeProcessedJson(req, res) {
             let arrival = '';
             let departure = '';
 
-            if (entry.action === 'WAIT FOR SERVICE') {
-                // First entry: arrival is time2 (scheduled start), departure is next entry's time1
-                arrival = entry.time2 || '';
-            } else {
-                // Other entries: arrival is time1
-                arrival = entry.time1 || '';
-            }
+            // GO VIA LOCATION entries have no times - train passes through without stopping
+            if (entry.action !== 'GO VIA LOCATION') {
+                if (entry.action === 'WAIT FOR SERVICE') {
+                    // First entry: arrival is time2 (scheduled start), departure is next entry's time1
+                    arrival = entry.time2 || '';
+                } else {
+                    // Other entries: arrival is time1
+                    arrival = entry.time1 || '';
+                }
 
-            // Departure is always the next entry's time1 (if exists)
-            if (i + 1 < entries.length) {
-                departure = entries[i + 1].time1 || '';
+                // Departure is always the next entry's time1 (if exists)
+                if (i + 1 < entries.length) {
+                    departure = entries[i + 1].time1 || '';
+                }
             }
 
             const timetableEntry = {

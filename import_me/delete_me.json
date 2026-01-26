@@ -1,0 +1,376 @@
+{
+  "timetableId": 27,
+  "completed": null,
+  "recordingMode": null,
+  "serviceName": "asdasdnifest - Willard to Cumberland 06:57 01:27",
+  "routeName": "Training Center",
+  "countryName": "Germany",
+  "trainNames": [
+    "GP38-2 CN"
+  ],
+  "contributor": null,
+  "coordinates_contributor": null,
+  "totalPoints": 29,
+  "totalMarkers": 2,
+  "coordinates": [
+    {
+      "latitude": 51.10945670006648,
+      "longitude": 6.224481436717733,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:03.614Z"
+    },
+    {
+      "latitude": 51.10957423594885,
+      "longitude": 6.224093768869878,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:12.325Z"
+    },
+    {
+      "latitude": 51.10971685393827,
+      "longitude": 6.223724652717303,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:15.697Z"
+    },
+    {
+      "latitude": 51.10988178425379,
+      "longitude": 6.223381635468668,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:18.987Z"
+    },
+    {
+      "latitude": 51.11006871435501,
+      "longitude": 6.22306554017325,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:22.229Z"
+    },
+    {
+      "latitude": 51.1102735133395,
+      "longitude": 6.222783143828355,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:25.390Z"
+    },
+    {
+      "latitude": 51.11049573804846,
+      "longitude": 6.222534676622308,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:28.504Z"
+    },
+    {
+      "latitude": 51.11073161659976,
+      "longitude": 6.222324149131184,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:31.552Z"
+    },
+    {
+      "latitude": 51.11098369650814,
+      "longitude": 6.222150160386056,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:34.601Z"
+    },
+    {
+      "latitude": 51.11121102075596,
+      "longitude": 6.2220329755901025,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:37.214Z"
+    },
+    {
+      "latitude": 51.111457286625175,
+      "longitude": 6.221943192384074,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:39.938Z"
+    },
+    {
+      "latitude": 51.11205570696546,
+      "longitude": 6.2218314002839765,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:46.294Z"
+    },
+    {
+      "latitude": 51.11326791383862,
+      "longitude": 6.221735696644631,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:15:58.557Z"
+    },
+    {
+      "latitude": 51.113611680222064,
+      "longitude": 6.22175605581315,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:01.932Z"
+    },
+    {
+      "latitude": 51.11391805979958,
+      "longitude": 6.221823123500689,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:04.932Z"
+    },
+    {
+      "latitude": 51.114161032823816,
+      "longitude": 6.22191820851544,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:07.336Z"
+    },
+    {
+      "latitude": 51.11439139918912,
+      "longitude": 6.2220457445108455,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:09.657Z"
+    },
+    {
+      "latitude": 51.114616711041975,
+      "longitude": 6.222209328232482,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:11.997Z"
+    },
+    {
+      "latitude": 51.11482873008263,
+      "longitude": 6.222403122856779,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:14.287Z"
+    },
+    {
+      "latitude": 51.11502869835115,
+      "longitude": 6.222627531065392,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:16.562Z"
+    },
+    {
+      "latitude": 51.11521370946668,
+      "longitude": 6.222878989195788,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:18.806Z"
+    },
+    {
+      "latitude": 51.11538085841245,
+      "longitude": 6.22315208636838,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:21.000Z"
+    },
+    {
+      "latitude": 51.115537998909424,
+      "longitude": 6.22346185927511,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:23.273Z"
+    },
+    {
+      "latitude": 51.11566580792807,
+      "longitude": 6.2237670814699015,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:25.354Z"
+    },
+    {
+      "latitude": 51.11577543878106,
+      "longitude": 6.22408604231883,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:27.403Z"
+    },
+    {
+      "latitude": 51.1158690635723,
+      "longitude": 6.224426396757177,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:29.484Z"
+    },
+    {
+      "latitude": 51.11594324777875,
+      "longitude": 6.224778118337046,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:31.549Z"
+    },
+    {
+      "latitude": 51.1160379862404,
+      "longitude": 6.225514888026606,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:35.694Z"
+    },
+    {
+      "latitude": 51.116096512440784,
+      "longitude": 6.226558534685985,
+      "height": 8699.7294921875,
+      "gradient": 0,
+      "timestamp": "2026-01-26T02:16:41.372Z"
+    }
+  ],
+  "markers": [
+    {
+      "stationName": "Metro North",
+      "markerType": "Platform",
+      "latitude": 51.116096512440784,
+      "longitude": 6.226558534685985,
+      "platformLength": 28383.150390625
+    },
+    {
+      "stationName": "Metro South",
+      "markerType": "Platform",
+      "latitude": 51.116096512440784,
+      "longitude": 6.226558534685985,
+      "platformLength": 17038.421875
+    }
+  ],
+  "timetable": [
+    {
+      "index": 0,
+      "location": "Start",
+      "arrival": "06:57:00",
+      "departure": "06:57:00",
+      "platform": "",
+      "apiName": "",
+      "latitude": 51.10945670006648,
+      "longitude": 6.224481436717733
+    },
+    {
+      "index": 1,
+      "location": "Garrett Main No2",
+      "arrival": "",
+      "departure": "",
+      "platform": "",
+      "apiName": "Garrett Main No2",
+      "isPassThrough": true,
+      "latitude": 51.11084310253644,
+      "longitude": 6.2222411496573375
+    },
+    {
+      "index": 2,
+      "location": "Sand Patch No1",
+      "arrival": "",
+      "departure": "",
+      "platform": "",
+      "apiName": "Sand Patch No1",
+      "isPassThrough": true,
+      "latitude": 51.11235256858077,
+      "longitude": 6.221802365170822
+    },
+    {
+      "index": 3,
+      "location": "Hyndman",
+      "arrival": "",
+      "departure": "",
+      "platform": "",
+      "apiName": "Hyndman",
+      "isPassThrough": true,
+      "latitude": 51.11448244822665,
+      "longitude": 6.2221069752594484
+    },
+    {
+      "index": 4,
+      "location": "Ellerslie",
+      "arrival": "",
+      "departure": "",
+      "platform": "",
+      "apiName": "Ellerslie",
+      "isPassThrough": true,
+      "latitude": 51.115450968606645,
+      "longitude": 6.223282902289622
+    },
+    {
+      "index": 5,
+      "location": "Cumberland Receiving Yard",
+      "arrival": "",
+      "departure": "",
+      "platform": "",
+      "apiName": "",
+      "latitude": 51.11606862024491,
+      "longitude": 6.225953342927311
+    }
+  ],
+  "csvData": [
+    {
+      "index": 0,
+      "action": "WAIT FOR SERVICE",
+      "location": "Start",
+      "platform": "",
+      "time1": "",
+      "time2": "06:57:00",
+      "details": "Service is scheduled to start at",
+      "latitude": "51.10945670006648",
+      "longitude": "6.224481436717733",
+      "api_name": ""
+    },
+    {
+      "index": 1,
+      "action": "GO VIA LOCATION",
+      "location": "Garrett Main No2",
+      "platform": "",
+      "time1": "",
+      "time2": "",
+      "details": "Garrett Main No2",
+      "latitude": "51.11084310253644",
+      "longitude": "6.2222411496573375",
+      "api_name": "Garrett Main No2"
+    },
+    {
+      "index": 2,
+      "action": "GO VIA LOCATION",
+      "location": "Sand Patch No1",
+      "platform": "",
+      "time1": "",
+      "time2": "",
+      "details": "Sand Patch No1",
+      "latitude": "51.11235256858077",
+      "longitude": "6.221802365170822",
+      "api_name": "Sand Patch No1"
+    },
+    {
+      "index": 3,
+      "action": "GO VIA LOCATION",
+      "location": "Hyndman",
+      "platform": "",
+      "time1": "",
+      "time2": "",
+      "details": "Hyndman",
+      "latitude": "51.11448244822665",
+      "longitude": "6.2221069752594484",
+      "api_name": "Hyndman"
+    },
+    {
+      "index": 4,
+      "action": "GO VIA LOCATION",
+      "location": "Ellerslie",
+      "platform": "",
+      "time1": "",
+      "time2": "",
+      "details": "Ellerslie",
+      "latitude": "51.115450968606645",
+      "longitude": "6.223282902289622",
+      "api_name": "Ellerslie"
+    },
+    {
+      "index": 5,
+      "action": "STOP AT LOCATION",
+      "location": "Cumberland Receiving Yard",
+      "platform": "",
+      "time1": "",
+      "time2": "",
+      "details": "Cumberland Receiving Yard",
+      "latitude": "51.11606862024491",
+      "longitude": "6.225953342927311",
+      "api_name": ""
+    }
+  ]
+}

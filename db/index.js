@@ -1221,6 +1221,16 @@ const timetableDb = {
 
 // Timetable entries operations
 const entryDb = {
+    getById: (id) => {
+        const stmt = db.prepare('SELECT * FROM timetable_entries WHERE id = ?');
+        stmt.bind([id]);
+        let result = null;
+        if (stmt.step()) {
+            result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+    },
     getByTimetableId: (timetableId) => {
         const stmt = db.prepare('SELECT * FROM timetable_entries WHERE timetable_id = ? ORDER BY sort_order');
         stmt.bind([timetableId]);

@@ -349,6 +349,15 @@ const timetableController = {
             return sendJson(res, { error: `Invalid time format. Times must be HH:MM:SS (e.g., 08:30:00). ${errorDetails}` }, 400);
         }
 
+        // Validate first entry has a location
+        if (entriesForValidation.length > 0) {
+            const firstEntry = entriesForValidation[0];
+            const firstLocation = (firstEntry.location || '').trim();
+            if (!firstLocation) {
+                return sendJson(res, { error: 'The first entry must have a location name.' }, 400);
+            }
+        }
+
         const routeId = body.route_id;
         const trainId = body.train_id || trainIds[0];  // Use first train for backward compatibility
 
@@ -360,28 +369,29 @@ const timetableController = {
         const timetableId = result.lastInsertRowid;
         console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId, 'train_ids:', trainIds, 'contributor:', contributor);
 
-        // Step 2: Deduplicate entries based on unique time values
-        // An entry is considered duplicate if it has the same action and time1/time2 combination
+        // Step 2: Deduplicate entries based on unique key
+        // An entry is considered duplicate if it has the same action, time1/time2, AND location
+        // Location is needed because GO VIA LOCATION entries have no times but different locations
         let entries = body.entries || [];
         if (entries.length > 0) {
-            const seenTimes = new Set();
+            const seenKeys = new Set();
             const uniqueEntries = [];
 
             for (const entry of entries) {
-                // Create a unique key based on action + time1 + time2
+                // Create a unique key based on action + time1 + time2 + location
                 const time1 = (entry.time1 || '').trim();
                 const time2 = (entry.time2 || '').trim();
                 const action = (entry.action || '').trim();
+                const location = (entry.location || '').trim();
 
-                // Use the relevant time field(s) as the unique key
-                // For most entries, time1 is the primary time
-                const timeKey = `${action}|${time1}|${time2}`;
+                // Include location in key to differentiate entries with same action but no times
+                const entryKey = `${action}|${time1}|${time2}|${location}`;
 
-                if (!seenTimes.has(timeKey)) {
-                    seenTimes.add(timeKey);
+                if (!seenKeys.has(entryKey)) {
+                    seenKeys.add(entryKey);
                     uniqueEntries.push(entry);
                 } else {
-                    console.log(`Skipping duplicate entry: ${action} at ${time1 || time2}`);
+                    console.log(`Skipping duplicate entry: ${action} at ${location || time1 || time2}`);
                 }
             }
 

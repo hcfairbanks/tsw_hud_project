@@ -929,6 +929,9 @@ function drawStationSelector(options, timetableItems, selectedIdx, playerPositio
         options.ctx.textBaseline = 'middle';
 
         var displayName = item.location || 'Unknown';
+        if (item.isPassThrough) {
+            displayName += ' [VIA]';
+        }
         if (displayName.length > 18) {
             displayName = displayName.substring(0, 17) + '...';
         }
@@ -999,6 +1002,9 @@ function drawTimetableBox(options, timetableTime, timetableLabel, distanceToStat
         displayArrival = selectedStation.arrival || '--:--:--';
         displayDeparture = selectedStation.departure || '--:--:--';
         displayLabel = selectedStation.location || '';
+        if (selectedStation.isPassThrough) {
+            displayLabel += ' [VIA]';
+        }
         displayIndex = selectedStationIndex + 1;
 
         // Calculate distance client-side if we have player position
@@ -1158,8 +1164,8 @@ function drawLoadButton(options, isHovered, isPressed) {
 function drawSaveLocButton(options, isHovered, isPressed) {
     var boxWidth = 180;
     var boxHeight = 80;
-    // Align left edge with right edge of Train Brake box (center.X - 86 + 250 + 172 = 1296)
-    var boxX = 1296;
+    // Position right of LOAD button (26 + 180 + 50 spacing = 256)
+    var boxX = 286;
     var boxY = 800;
 
     var boxColor, fillColor, backgroundColor;
@@ -1480,9 +1486,9 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             return x >= 1670 && x <= 1890 && y >= 525 && y <= 670;
         }
 
-        // Check if coordinates are within SAVE LOC button bounds (1296, 800, 180x80)
+        // Check if coordinates are within SAVE LOC button bounds (286, 800, 180x80)
         function isInSaveLocButton(x, y) {
-            return x >= 1296 && x <= 1476 && y >= 800 && y <= 880;
+            return x >= 286 && x <= 466 && y >= 800 && y <= 880;
         }
 
         // Toggle fullscreen mode

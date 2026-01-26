@@ -996,7 +996,7 @@ function getRecordingStateForStream() {
     // Build timetable data with saved coordinates
     const timetableData = processedEntries.map((entry, idx) => {
         const savedCoords = savedTimetableCoords.get(idx);
-        return {
+        const result = {
             index: entry.index,
             location: entry.location,
             arrival: entry.arrival || '',
@@ -1006,6 +1006,13 @@ function getRecordingStateForStream() {
             latitude: savedCoords ? savedCoords.latitude : null,
             longitude: savedCoords ? savedCoords.longitude : null
         };
+
+        // Include isPassThrough flag for GO VIA LOCATION entries
+        if (entry.isPassThrough) {
+            result.isPassThrough = true;
+        }
+
+        return result;
     });
 
     // Check if auto-stop was triggered

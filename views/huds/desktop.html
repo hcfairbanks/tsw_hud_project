@@ -1023,6 +1023,9 @@ function drawStationSelector(options, timetableItems, selectedIdx, playerPositio
         options.ctx.textBaseline = 'middle';
 
         var displayName = item.location || 'Unknown';
+        if (item.isPassThrough) {
+            displayName += ' [VIA]';
+        }
         if (displayName.length > 18) {
             displayName = displayName.substring(0, 17) + '...';
         }
@@ -1144,6 +1147,9 @@ function drawTimetableBox(options, timetableTime, timetableLabel, distanceToStat
         displayArrival = selectedStation.arrival || '--:--:--';
         displayDeparture = selectedStation.departure || '--:--:--';
         displayLabel = selectedStation.location || '';
+        if (selectedStation.isPassThrough) {
+            displayLabel += ' [VIA]';
+        }
         displayIndex = selectedStationIndex + 1;
 
         // Calculate distance client-side if we have player position

@@ -29,6 +29,17 @@ const entryController = {
         console.log('=== SAVE: Updating entry ===');
         console.log('Entry ID:', id);
         console.log('Body received:', JSON.stringify(body, null, 2));
+
+        // Get the existing entry to check if it's the first entry
+        const existingEntry = entryDb.getById(id);
+        if (existingEntry && existingEntry.sort_order === 0) {
+            // First entry must have a location
+            const newLocation = (body.location !== undefined ? body.location : existingEntry.location) || '';
+            if (!newLocation.trim()) {
+                return sendJson(res, { error: 'The first entry must have a location name.' }, 400);
+            }
+        }
+
         entryDb.update(id, body);
         sendJson(res, { id, ...body });
     },

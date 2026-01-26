@@ -967,6 +967,10 @@
             else if (firstUnsavedIndex !== null) {
                 dropdown.value = firstUnsavedIndex;
             }
+            // Fallback: select the first entry if nothing else applies
+            else if (timetable.length > 0) {
+                dropdown.value = 0;
+            }
         }
 
         // Add station marker to map
@@ -1463,7 +1467,9 @@
 
                 // Update timetable dropdown and station markers
                 if (data.recording.timetable && data.recording.timetable.length > 0) {
-                    populateStationDropdown(data.recording.timetable);
+                    // On first stream update, select the first unsaved station
+                    const isFirstPopulate = document.getElementById('stationDropdown').options.length === 0;
+                    populateStationDropdown(data.recording.timetable, isFirstPopulate);
 
                     // Add markers for stations with saved coordinates
                     data.recording.timetable.forEach((entry, index) => {
@@ -1895,6 +1901,11 @@
                         iconAnchor: [7, 7]
                     });
                     coordsPickerMarker = L.marker(e.latlng, { icon: pickerIcon }).addTo(map);
+                    // Click on marker to remove it
+                    coordsPickerMarker.on('click', function(ev) {
+                        L.DomEvent.stopPropagation(ev);
+                        clearPickedCoords();
+                    });
                 }
             });
         }

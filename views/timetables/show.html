@@ -756,16 +756,24 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(entry)
                         });
+                        if (!createRes.ok) {
+                            var createError = await createRes.json();
+                            throw new Error(createError.error || 'Failed to create entry ' + (i + 1));
+                        }
                         var created = await createRes.json();
                         entries[i].id = created.id;
                         delete entries[i].isNew;
                     } else if (entry.id) {
                         // Update existing entry
-                        await fetch('/api/entries/' + entry.id, {
+                        var updateEntryRes = await fetch('/api/entries/' + entry.id, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(entry)
                         });
+                        if (!updateEntryRes.ok) {
+                            var entryError = await updateEntryRes.json();
+                            throw new Error(entryError.error || 'Failed to update entry ' + (i + 1));
+                        }
                     }
                 }
 
