@@ -292,8 +292,11 @@ function matchStopsToTimetable(detectedStops, timetable) {
     }
 
     console.log(`\n  === TIMETABLE INPUT STATUS ===`);
-    const entriesWithCoords = timetable.filter(e => e.latitude != null && e.longitude != null);
-    const entriesWithoutCoords = timetable.filter(e => e.latitude == null || e.longitude == null);
+    const passThroughEntries = timetable.filter(e => e.isPassThrough);
+    const stoppableEntries = timetable.filter(e => !e.isPassThrough);
+    const entriesWithCoords = stoppableEntries.filter(e => e.latitude != null && e.longitude != null);
+    const entriesWithoutCoords = stoppableEntries.filter(e => e.latitude == null || e.longitude == null);
+    console.log(`  Total entries: ${timetable.length} (${passThroughEntries.length} pass-through, ${stoppableEntries.length} stops)`);
     console.log(`  Entries WITH coordinates: ${entriesWithCoords.length}`);
     entriesWithCoords.forEach((e, i) => {
         const idx = timetable.indexOf(e);
@@ -304,9 +307,16 @@ function matchStopsToTimetable(detectedStops, timetable) {
         const idx = timetable.indexOf(e);
         console.log(`    [${idx}] ${e.location}`);
     });
+    if (passThroughEntries.length > 0) {
+        console.log(`  Pass-through entries (skipped): ${passThroughEntries.length}`);
+        passThroughEntries.forEach((e, i) => {
+            const idx = timetable.indexOf(e);
+            console.log(`    [${idx}] ${e.location} (GO VIA)`);
+        });
+    }
     console.log(`  ==============================\n`);
 
-    console.log(`  Matching ${detectedStops.length} detected stops to ${entriesWithoutCoords.length} entries needing coordinates`);
+    console.log(`  Matching ${detectedStops.length} detected stops to ${entriesWithoutCoords.length} stoppable entries needing coordinates`);
 
     // Track which stops have been used and store match info
     const usedStops = new Set();
@@ -314,7 +324,9 @@ function matchStopsToTimetable(detectedStops, timetable) {
 
     // For entries WITH coordinates, find and mark the closest stop as "used"
     // This ensures we don't assign that stop to a different entry
+    // Skip pass-through entries - they don't have stops
     timetable.forEach((entry, entryIndex) => {
+        if (entry.isPassThrough) return;  // Skip pass-through entries
         if (entry.latitude != null && entry.longitude != null) {
             let bestStopIdx = -1;
             let bestDist = Infinity;
@@ -355,6 +367,13 @@ function matchStopsToTimetable(detectedStops, timetable) {
 
     const updatedTimetable = timetable.map((entry, entryIndex) => {
         const result = { ...entry };
+
+        // Skip pass-through entries (GO VIA LOCATION) - they don't have stops
+        // User must manually set coordinates for these
+        if (entry.isPassThrough) {
+            console.log(`  Entry ${entryIndex} "${entry.location}": Skipped (pass-through, no stop)`);
+            return result;
+        }
 
         // For entries that already have coordinates, add the match distance info
         if (entry.latitude != null && entry.longitude != null) {

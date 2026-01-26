@@ -2090,19 +2090,20 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                 const response = await fetch(`/api/timetables?route_id=${routeId}&train_id=${trainId}`);
                 const timetables = await response.json();
 
-                const withData = timetables.filter(t => t.coordinate_count > 0);
-
-                if (withData.length > 0) {
+                // Show all timetables, even those without coordinates
+                if (timetables.length > 0) {
                     timetableSelect.disabled = false;
-                    withData.forEach(tt => {
+                    timetables.forEach(tt => {
                         const option = document.createElement('option');
                         option.value = tt.id;
-                        option.textContent = `${tt.service_name} (${tt.coordinate_count} pts)`;
+                        option.textContent = tt.coordinate_count > 0
+                            ? `${tt.service_name} (${tt.coordinate_count} pts)`
+                            : `${tt.service_name} (no coords)`;
                         timetableSelect.appendChild(option);
                     });
                 }
 
-                console.log('Timetables with data:', withData.length);
+                console.log('Timetables loaded:', timetables.length);
             } catch (err) {
                 console.error('Failed to load timetables:', err);
             }

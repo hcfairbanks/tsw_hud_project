@@ -1,0 +1,85 @@
+======================================================================
+File: Image 1 (Service Name)
+======================================================================
+51 Dresden - Meif3en Triebischtal                                06:02 00:45
+
+
+======================================================================
+File: Image 2
+======================================================================
+LOAD PASSENGERS                                                                                                                                           +06:03:10        -
+STOP AT LOCATION           Dresden-Freiberger StraBe Platform 1 - 06:05:44                                                                         +06:05:44        -
+LOAD PASSENGERS                                                                                                                                           +06:05:59        -
+STOP AT LOCATION           Dresden-Mitte Platform 1 - 06:08:32                                                                                       +06:08:32        -
+LOAD PASSENGERS                                                                                                                                           +06:08:41        -
+STOP AT LOCATION           Dresden-Neustadt Platform 1 - 06:11:02                                                                                     +06:11:02        -
+LOAD PASSENGERS                                                                                                                                            +06:11:17         -
+STOP AT LOCATION           Dresden-Bischofsplatz Platform 1 - 06:13:28                                                                                +06:13:28        -
+LOAD PASSENGERS                                                                                                                                            +06:13:43        -
+STOP AT LOCATION           Dresden-Pieschen Platform 1 - 06:16:08                                                                                   +06:16:08        -
+LOAD PASSENGERS                                                                                                                                            +06:16:23        -
+GO VIA LOCATION             As indicated                                                                                                                               i              i
+
+LOAD PASSENGERS                                                                                                                        +06:03:10       -
+STOP AT LOCATION         Dresden-Freiberger StrafBe Platform 1 - 06:05:44                                                                +06:05:44       -
+LOAD PASSENGERS                                                                                                                        +06:05:59       -
+STOP AT LOCATION         Dresden-Mitte Platform 1 - 06:08:32                                                                            +06:08:32       -
+LOAD PASSENGERS                                                                                                                        +06:08:47       -
+STOP AT LOCATION         Dresden-Neustadt Platform 1 - 06:11:02                                                                        +06:11:02       -
+LOAD PASSENGERS                                                                                                                         +06:11:17        -
+STOP AT LOCATION         Dresden-Bischofsplatz Platform 1 - 06:13:28                                                                     +06:13:28       -
+LOAD PASSENGERS                                                                                                                        +06:13:43       -
+STOP AT LOCATION         Dresden-Pieschen Platform 1 - 06:16:08                                                                       +06:16:08       -
+LOAD PASSENGERS                                                                                                                        +06:16:23       -
+GO VIA LOCATION           As indicated                                                                                                            i            i
+
+======================================================================
+File: Image 3
+======================================================================
+STOP AT LOCATION           Dresden-Trachau Platform 1 - 06:19:04                                                                                    +06:19:04        -
+LOAD PASSENGERS                                                                                                                                            +06:19:19        -
+STOP AT LOCATION           Radebeul Ost Platform 1 - 06:22:08                                                                                          +06:22:08        -
+LOAD PASSENGERS                                                                                                                                            +06:22:23        -
+STOP AT LOCATION           Radebeul-Weintraube Platform 1 - 06:25:07                                                                               +06:25:01        -
+LOAD PASSENGERS                                                                                                                                            +06:25:22        -
+STOP AT LOCATION           Radebeul-Kotzschenbroda Platform 1 - 06:28:11                                                                           +06:28:11         -
+LOAD PASSENGERS                                                                                                                                           +06:28:26        -
+STOP AT LOCATION            Radebeul-Zitzschewig Platform 1 - 06:31:03                                                                                         +06:31:03         -
+LOAD PASSENGERS                                                                                                                                            +06:31:18        -
+STOP AT LOCATION            Coswig Platform 1 - 06:34:15                                                                                                            +06:34:15         -
+LOAD PASSENGERS                                                                                                                                           +06:34:25        -
+
+STOP AT LOCATION         Dresden-Trachau Platform 1 - 06:19:04                                                                        +06:19:04       -
+LOAD PASSENGERS                                                                                                                        WHERE       -
+STOP AT LOCATION         Radebeul Ost Platform 1 - 06:22:08                                                                            +06:22:08       -
+LOAD PASSENGERS                                                                                                                        +06:22:23       -
+STOP AT LOCATION         Radebeul-Weintraube Platform 1 - 06:25:07                                                                     +06:25:07       -
+LOAD PASSENGERS                                                                                                                        +06:25:22       -
+STOP AT LOCATION         Radebeul-Kotzschenbroda Platform 1 - 06:28:11                                                                 +06:28:11        -
+LOAD PASSENGERS                                                                                                                        +06:28:26       -
+STOP AT LOCATION         Radebeul-Zitzschewig Platform 1 - 06:31:03                                                                     +06:31:03       -
+LOAD PASSENGERS                                                                                                                        +06:31:18       -
+STOP AT LOCATION         Coswig Platform 1 - 06:34:15                                                                                    +06:34:15       -
+LOAD PASSENGERS                                                                                                                        +06:34:25       -
+
+======================================================================
+File: Image 4
+======================================================================
+STOP AT LOCATION           Neusornewitz Platform 1 - 06:38:23                                                                                          +06:38:23        -
+LOAD PASSENGERS                                                                                                                                           +06:38:33        -
+STOP AT LOCATION           MeiBen Platform 1 - 06:43:20                                                                                               +06:43:20        -
+LOAD PASSENGERS                                                                                                                                           +06:43:30        -
+STOP AT LOCATION           MeiBen-Altstadt Platform 1 - 06:45:29                                                                                       +06:45:29        -
+LOAD PASSENGERS                                                                                                                                           +06:45:39        -
+STOP AT LOCATION           MeiBen-Triebischtal Platform 1 - 06:41:3]                                                                                   +06:47:31         -
+LOAD PASSENGERS                                                                                                                                                 -             -
+
+STOP AT LOCATION         Neusornewitz Platform 1 - 06:38:23                                                                             +06:38:23       -
+LOAD PASSENGERS                                                                                                                        +06:38:33       -
+STOP AT LOCATION         MeiBen Platform 1 - 06:43:20                                                                                 +06:43:20       -
+LOAD PASSENGERS                                                                                                                        +06:43:30       -
+STOP AT LOCATION         MeiBen-Altstadt Platform 1 - 06:45:29                                                                          +06:45:29       -
+LOAD PASSENGERS                                                                                                                        +06:45:39       -
+STOP AT LOCATION         Meif3en-Triebischtal Platform 1 - 06:47:37                                                                      +06:47:37       -
+LOAD PASSENGERS                                                                                                                             -            -
+

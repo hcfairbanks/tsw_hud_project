@@ -1,6 +1,13 @@
 'use strict';
 const { sendJson, parseMultipart } = require('../utils/http');
 
+// Helper to clean OCR values - convert standalone "-" to empty string
+function cleanOcrValue(value) {
+    if (!value) return '';
+    const trimmed = String(value).trim();
+    return trimmed === '-' ? '' : trimmed;
+}
+
 // OCR module - optional, may fail in compiled exe due to native deps
 let ocr = null;
 let ocrAvailable = false;
@@ -43,15 +50,16 @@ const ocrController = {
             
             // DO NOT save to database - just return parsed data for user review
             // User will click "Create Timetable" to save after reviewing/correcting
+            // Clean OCR values - convert standalone "-" to empty string
             const entries = result.rows.map((row, index) => ({
                 action: row.action,
-                details: row.details || '',
-                location: row.location || '',
-                platform: row.platform || '',
-                time1: row.time1 || '',
-                time2: row.time2 || '',
-                latitude: row.latitude || '',
-                longitude: row.longitude || '',
+                details: cleanOcrValue(row.details),
+                location: cleanOcrValue(row.location),
+                platform: cleanOcrValue(row.platform),
+                time1: cleanOcrValue(row.time1),
+                time2: cleanOcrValue(row.time2),
+                latitude: cleanOcrValue(row.latitude),
+                longitude: cleanOcrValue(row.longitude),
                 sort_order: index
             }));
             

@@ -656,7 +656,7 @@ function getRouteData(req, res) {
         const dbLat = originalEntry?.latitude ? parseFloat(originalEntry.latitude) : null;
         const dbLng = originalEntry?.longitude ? parseFloat(originalEntry.longitude) : null;
 
-        return {
+        const result = {
             index: entry.index,
             location: entry.location,
             arrival: entry.arrival || '',
@@ -666,6 +666,13 @@ function getRouteData(req, res) {
             latitude: savedCoords ? savedCoords.latitude : dbLat,
             longitude: savedCoords ? savedCoords.longitude : dbLng
         };
+
+        // Include isPassThrough flag for GO VIA LOCATION entries
+        if (entry.isPassThrough) {
+            result.isPassThrough = true;
+        }
+
+        return result;
     });
 
     sendJson(res, {

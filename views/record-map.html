@@ -924,11 +924,28 @@
                 const option = document.createElement('option');
                 option.value = index;
                 const hasCoords = entry.latitude && entry.longitude;
-                option.textContent = `${index + 1}. ${entry.location}${hasCoords ? ' [SAVED]' : ''}`;
+                const isPassThrough = entry.isPassThrough;
+
+                // Build display text with appropriate indicators
+                let displayText = `${index + 1}. ${entry.location}`;
+                if (isPassThrough) {
+                    displayText += ' [VIA]';  // Indicate pass-through entry
+                }
+                if (hasCoords) {
+                    displayText += ' [SAVED]';
+                }
+                option.textContent = displayText;
+
+                // Style pass-through entries differently
+                if (isPassThrough) {
+                    option.style.fontStyle = 'italic';
+                    option.style.color = '#666';
+                }
+
                 dropdown.appendChild(option);
 
-                // Track the first unsaved station
-                if (firstUnsavedIndex === null && !hasCoords) {
+                // Track the first unsaved station (skip pass-through entries for auto-select)
+                if (firstUnsavedIndex === null && !hasCoords && !isPassThrough) {
                     firstUnsavedIndex = index;
                 }
             });
@@ -1741,7 +1758,15 @@
 
             // Set route dropdown and trigger train class load
             const routeSelect = document.getElementById('routeSelect');
+            const routeInput = document.getElementById('routeInput');
             routeSelect.value = timetable.route_id;
+
+            // Find and set the route name in the visible input
+            const route = allRoutesWithTimetables.find(r => r.id == timetable.route_id);
+            if (route) {
+                routeInput.value = route.name;
+            }
+
             await loadTrainClassesForRoute(timetable.route_id);
 
             // Find the train's class

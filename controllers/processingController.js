@@ -210,6 +210,27 @@ function preprocessTimetableEntries(rawEntries, stationNameMapping = {}) {
                     longitude: null
                 });
             }
+        } else if (action === 'GO VIA LOCATION') {
+            // GO VIA LOCATION - pass-through point, train does not stop here
+            // Include in timetable but mark as pass-through so stop detection skips it
+            const location = entry.location || entry.details || '';
+            if (location && location !== '-') {
+                const platform = entry.platform || '';
+                const mappedLocation = stationNameMapping[location] || location;
+                const apiName = mappedLocation || '';
+
+                processedEntries.push({
+                    index: index++,
+                    location: location,
+                    arrival: '',  // No arrival time - we don't stop
+                    departure: '', // No departure time - we don't stop
+                    platform: platform,
+                    apiName: apiName,
+                    latitude: null,
+                    longitude: null,
+                    isPassThrough: true  // Flag to indicate this is not a stop
+                });
+            }
         }
         // LOAD PASSENGERS alone is skipped - handled above with WAIT/STOP
     }

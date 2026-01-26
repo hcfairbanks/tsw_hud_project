@@ -1,0 +1,7101 @@
+{
+  "timetableId": 14,
+  "completed": false,
+  "recordingMode": "automatic",
+  "serviceName": "TGV 6136 Paris Gare de Lyon 06:02 0033",
+  "routeName": "LGV Mediterranee",
+  "countryName": "France",
+  "trainNames": [
+    "TGV Duplex"
+  ],
+  "contributor": null,
+  "coordinates_contributor": null,
+  "totalPoints": 1003,
+  "totalMarkers": 2,
+  "coordinates": [
+    {
+      "latitude": 43.30490083630503,
+      "longitude": 5.384463458054709,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:31:46.967Z"
+    },
+    {
+      "latitude": 43.30490083747483,
+      "longitude": 5.3844634609901085,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:41.138Z"
+    },
+    {
+      "latitude": 43.30490084403174,
+      "longitude": 5.384463475453982,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:41.225Z"
+    },
+    {
+      "latitude": 43.30490085966587,
+      "longitude": 5.384463510018791,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:41.318Z"
+    },
+    {
+      "latitude": 43.304900894458605,
+      "longitude": 5.384463587232781,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:41.427Z"
+    },
+    {
+      "latitude": 43.304900969089786,
+      "longitude": 5.384463752694279,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:41.554Z"
+    },
+    {
+      "latitude": 43.30490103950868,
+      "longitude": 5.38446390932209,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:41.641Z"
+    },
+    {
+      "latitude": 43.30490116540014,
+      "longitude": 5.384464188762221,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:41.763Z"
+    },
+    {
+      "latitude": 43.304901289785434,
+      "longitude": 5.384464464531385,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:41.862Z"
+    },
+    {
+      "latitude": 43.30490144727654,
+      "longitude": 5.384464814077312,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:41.968Z"
+    },
+    {
+      "latitude": 43.30490165166,
+      "longitude": 5.384465267798884,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:42.089Z"
+    },
+    {
+      "latitude": 43.30490184075577,
+      "longitude": 5.384465687210003,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:42.185Z"
+    },
+    {
+      "latitude": 43.304902096068176,
+      "longitude": 5.384466253934044,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:42.303Z"
+    },
+    {
+      "latitude": 43.304902367677435,
+      "longitude": 5.384466857175249,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:42.416Z"
+    },
+    {
+      "latitude": 43.30490267493795,
+      "longitude": 5.384467538627247,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:42.531Z"
+    },
+    {
+      "latitude": 43.304902985712886,
+      "longitude": 5.384468228644841,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:42.639Z"
+    },
+    {
+      "latitude": 43.30490330826109,
+      "longitude": 5.3844689444073115,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:42.744Z"
+    },
+    {
+      "latitude": 43.3049037015696,
+      "longitude": 5.38446981729258,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:42.865Z"
+    },
+    {
+      "latitude": 43.30490408563015,
+      "longitude": 5.384470669829437,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:42.972Z"
+    },
+    {
+      "latitude": 43.304904440957834,
+      "longitude": 5.3844714581519195,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:43.062Z"
+    },
+    {
+      "latitude": 43.304904907546934,
+      "longitude": 5.38447249379707,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:43.177Z"
+    },
+    {
+      "latitude": 43.30490537195206,
+      "longitude": 5.384473524540743,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:43.286Z"
+    },
+    {
+      "latitude": 43.30490581383479,
+      "longitude": 5.384474505279566,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:43.385Z"
+    },
+    {
+      "latitude": 43.304906335218654,
+      "longitude": 5.3844756625065715,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:43.497Z"
+    },
+    {
+      "latitude": 43.304906944347444,
+      "longitude": 5.38447701412288,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:43.620Z"
+    },
+    {
+      "latitude": 43.304907417824744,
+      "longitude": 5.384478065208167,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:43.711Z"
+    },
+    {
+      "latitude": 43.30490805098208,
+      "longitude": 5.384479470500359,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:43.827Z"
+    },
+    {
+      "latitude": 43.3049086236362,
+      "longitude": 5.384480741224894,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:43.929Z"
+    },
+    {
+      "latitude": 43.3049093178088,
+      "longitude": 5.384482281827273,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:44.049Z"
+    },
+    {
+      "latitude": 43.30490999214499,
+      "longitude": 5.384483778549961,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:44.159Z"
+    },
+    {
+      "latitude": 43.3049106806041,
+      "longitude": 5.384485306407145,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:44.268Z"
+    },
+    {
+      "latitude": 43.30491134989958,
+      "longitude": 5.384486791855773,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:44.370Z"
+    },
+    {
+      "latitude": 43.304912113988884,
+      "longitude": 5.384488487862499,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:44.485Z"
+    },
+    {
+      "latitude": 43.304912893210236,
+      "longitude": 5.384490217210434,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:44.594Z"
+    },
+    {
+      "latitude": 43.304913684531186,
+      "longitude": 5.384491973520076,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:44.702Z"
+    },
+    {
+      "latitude": 43.30491449215901,
+      "longitude": 5.384493765865724,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:44.811Z"
+    },
+    {
+      "latitude": 43.3049152434758,
+      "longitude": 5.3844954334398185,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:44.908Z"
+    },
+    {
+      "latitude": 43.30491618371751,
+      "longitude": 5.38449752017779,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:45.027Z"
+    },
+    {
+      "latitude": 43.304917041265,
+      "longitude": 5.38449942331939,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:45.133Z"
+    },
+    {
+      "latitude": 43.30491805781463,
+      "longitude": 5.384501679437521,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:45.253Z"
+    },
+    {
+      "latitude": 43.30491895368423,
+      "longitude": 5.384503667637041,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:45.357Z"
+    },
+    {
+      "latitude": 43.30491989577336,
+      "longitude": 5.3845057585411915,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:45.463Z"
+    },
+    {
+      "latitude": 43.3049208803919,
+      "longitude": 5.384507943577512,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:45.572Z"
+    },
+    {
+      "latitude": 43.304921797598894,
+      "longitude": 5.384509979568529,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:45.670Z"
+    },
+    {
+      "latitude": 43.304922857681866,
+      "longitude": 5.38451233226643,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:45.782Z"
+    },
+    {
+      "latitude": 43.304924001638796,
+      "longitude": 5.384514871015073,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:45.899Z"
+    },
+    {
+      "latitude": 43.30492501953362,
+      "longitude": 5.384517130075979,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.000Z"
+    },
+    {
+      "latitude": 43.30492632752822,
+      "longitude": 5.3845200333161065,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.133Z"
+    },
+    {
+      "latitude": 43.30492739400218,
+      "longitude": 5.384522399990151,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.230Z"
+    },
+    {
+      "latitude": 43.304928630568696,
+      "longitude": 5.384525144395841,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.349Z"
+    },
+    {
+      "latitude": 43.30492964056091,
+      "longitude": 5.384527386050926,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.439Z"
+    },
+    {
+      "latitude": 43.30493094234476,
+      "longitude": 5.384530275081951,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.556Z"
+    },
+    {
+      "latitude": 43.304932019733265,
+      "longitude": 5.38453266650445,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.651Z"
+    },
+    {
+      "latitude": 43.304933512455015,
+      "longitude": 5.384535979353783,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.778Z"
+    },
+    {
+      "latitude": 43.304934710864714,
+      "longitude": 5.384538639190255,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.880Z"
+    },
+    {
+      "latitude": 43.30493601130274,
+      "longitude": 5.384541525279479,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:46.987Z"
+    },
+    {
+      "latitude": 43.30493733694908,
+      "longitude": 5.384544467498896,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:47.096Z"
+    },
+    {
+      "latitude": 43.30493866814309,
+      "longitude": 5.384547421975626,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:47.200Z"
+    },
+    {
+      "latitude": 43.30494026457468,
+      "longitude": 5.38455096475619,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:47.331Z"
+    },
+    {
+      "latitude": 43.30494148516999,
+      "longitude": 5.384553673862598,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:47.420Z"
+    },
+    {
+      "latitude": 43.30494292158019,
+      "longitude": 5.384556861941236,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:47.528Z"
+    },
+    {
+      "latitude": 43.30494452792714,
+      "longitude": 5.3845604267824765,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:47.648Z"
+    },
+    {
+      "latitude": 43.30494592399173,
+      "longitude": 5.3845635256307425,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:47.750Z"
+    },
+    {
+      "latitude": 43.30494731603473,
+      "longitude": 5.384566614930499,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:47.851Z"
+    },
+    {
+      "latitude": 43.304948968264505,
+      "longitude": 5.384570281741345,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:47.966Z"
+    },
+    {
+      "latitude": 43.3049506549454,
+      "longitude": 5.384574025271537,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:48.083Z"
+    },
+    {
+      "latitude": 43.30495218380408,
+      "longitude": 5.384577418279257,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:48.188Z"
+    },
+    {
+      "latitude": 43.30495362441081,
+      "longitude": 5.384580615914519,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:48.289Z"
+    },
+    {
+      "latitude": 43.3049556050717,
+      "longitude": 5.3845850114825495,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:48.421Z"
+    },
+    {
+      "latitude": 43.30495701189972,
+      "longitude": 5.384588133870134,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:48.514Z"
+    },
+    {
+      "latitude": 43.30495857319595,
+      "longitude": 5.384591598943702,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:48.613Z"
+    },
+    {
+      "latitude": 43.304960307948214,
+      "longitude": 5.384595449105086,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:48.721Z"
+    },
+    {
+      "latitude": 43.304962289607595,
+      "longitude": 5.38459984736199,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:48.847Z"
+    },
+    {
+      "latitude": 43.304963828551834,
+      "longitude": 5.384603262678669,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:48.943Z"
+    },
+    {
+      "latitude": 43.30496583946081,
+      "longitude": 5.384607725652422,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:49.064Z"
+    },
+    {
+      "latitude": 43.30496756496962,
+      "longitude": 5.384611555225641,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:49.169Z"
+    },
+    {
+      "latitude": 43.3049695553692,
+      "longitude": 5.384615972848987,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:49.285Z"
+    },
+    {
+      "latitude": 43.304971168773164,
+      "longitude": 5.384619553380858,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:49.378Z"
+    },
+    {
+      "latitude": 43.304973229932486,
+      "longitude": 5.384624128127856,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:49.498Z"
+    },
+    {
+      "latitude": 43.30497490148454,
+      "longitude": 5.38462783807914,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:49.592Z"
+    },
+    {
+      "latitude": 43.30497708047651,
+      "longitude": 5.3846326738920105,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:49.715Z"
+    },
+    {
+      "latitude": 43.304978941118364,
+      "longitude": 5.3846368034965275,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:49.817Z"
+    },
+    {
+      "latitude": 43.304980936226215,
+      "longitude": 5.384641231419469,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:49.926Z"
+    },
+    {
+      "latitude": 43.304983065292966,
+      "longitude": 5.3846459566778435,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:50.042Z"
+    },
+    {
+      "latitude": 43.30498502827179,
+      "longitude": 5.384650310081974,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:50.146Z"
+    },
+    {
+      "latitude": 43.30498707195068,
+      "longitude": 5.384654845979872,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:50.253Z"
+    },
+    {
+      "latitude": 43.304989238673684,
+      "longitude": 5.384659654465128,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:50.366Z"
+    },
+    {
+      "latitude": 43.304991348912495,
+      "longitude": 5.384664338051641,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:50.479Z"
+    },
+    {
+      "latitude": 43.30499354571335,
+      "longitude": 5.384669213694414,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:50.586Z"
+    },
+    {
+      "latitude": 43.304995708564874,
+      "longitude": 5.384674013841925,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:50.695Z"
+    },
+    {
+      "latitude": 43.304997786869684,
+      "longitude": 5.38467862646753,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:50.798Z"
+    },
+    {
+      "latitude": 43.30499995476145,
+      "longitude": 5.384683437889858,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:50.906Z"
+    },
+    {
+      "latitude": 43.30500210937608,
+      "longitude": 5.384688219776287,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.010Z"
+    },
+    {
+      "latitude": 43.30500463208141,
+      "longitude": 5.3846938187818765,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.132Z"
+    },
+    {
+      "latitude": 43.30500676215503,
+      "longitude": 5.384698546250576,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.232Z"
+    },
+    {
+      "latitude": 43.30500919023206,
+      "longitude": 5.384703935186369,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.346Z"
+    },
+    {
+      "latitude": 43.30501134434124,
+      "longitude": 5.384708715970867,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.447Z"
+    },
+    {
+      "latitude": 43.30501380519457,
+      "longitude": 5.384714177588004,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.559Z"
+    },
+    {
+      "latitude": 43.30501613477729,
+      "longitude": 5.384719347874977,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.666Z"
+    },
+    {
+      "latitude": 43.305018695464135,
+      "longitude": 5.384725031325912,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.782Z"
+    },
+    {
+      "latitude": 43.305020855459,
+      "longitude": 5.384729824984362,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.878Z"
+    },
+    {
+      "latitude": 43.305023385730685,
+      "longitude": 5.384735440543677,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:51.990Z"
+    },
+    {
+      "latitude": 43.30502578808806,
+      "longitude": 5.384740772489382,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:52.094Z"
+    },
+    {
+      "latitude": 43.3050285681174,
+      "longitude": 5.384746942759333,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:52.215Z"
+    },
+    {
+      "latitude": 43.30503085282723,
+      "longitude": 5.384752013165808,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:52.312Z"
+    },
+    {
+      "latitude": 43.30503380598265,
+      "longitude": 5.384758567428841,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:52.439Z"
+    },
+    {
+      "latitude": 43.3050359974023,
+      "longitude": 5.384763431068553,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:52.531Z"
+    },
+    {
+      "latitude": 43.30503897795427,
+      "longitude": 5.384770046123839,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:52.654Z"
+    },
+    {
+      "latitude": 43.30504157981717,
+      "longitude": 5.384775821009766,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:52.760Z"
+    },
+    {
+      "latitude": 43.30504409899106,
+      "longitude": 5.384781412058384,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:52.863Z"
+    },
+    {
+      "latitude": 43.30504670220639,
+      "longitude": 5.384787189526637,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:52.970Z"
+    },
+    {
+      "latitude": 43.30504958897029,
+      "longitude": 5.384793596352226,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:53.085Z"
+    },
+    {
+      "latitude": 43.30505232311123,
+      "longitude": 5.384799664777784,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:53.193Z"
+    },
+    {
+      "latitude": 43.305054779255755,
+      "longitude": 5.3848051158635375,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:53.290Z"
+    },
+    {
+      "latitude": 43.305057856616706,
+      "longitude": 5.3848119458953185,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:53.411Z"
+    },
+    {
+      "latitude": 43.30506061832452,
+      "longitude": 5.384818075361183,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:53.518Z"
+    },
+    {
+      "latitude": 43.30506332658561,
+      "longitude": 5.384824086067153,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:53.621Z"
+    },
+    {
+      "latitude": 43.305066124772125,
+      "longitude": 5.384830296185752,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:53.728Z"
+    },
+    {
+      "latitude": 43.30506947139161,
+      "longitude": 5.384837723954579,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:53.853Z"
+    },
+    {
+      "latitude": 43.3050721885606,
+      "longitude": 5.384843754395527,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:53.954Z"
+    },
+    {
+      "latitude": 43.30507538845337,
+      "longitude": 5.3848508561562145,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:54.073Z"
+    },
+    {
+      "latitude": 43.305078130496,
+      "longitude": 5.3848569418727665,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:54.173Z"
+    },
+    {
+      "latitude": 43.305081244995776,
+      "longitude": 5.38486385451375,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:54.288Z"
+    },
+    {
+      "latitude": 43.30508411040779,
+      "longitude": 5.384870214036136,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:54.391Z"
+    },
+    {
+      "latitude": 43.305087110287474,
+      "longitude": 5.3848768717580064,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:54.501Z"
+    },
+    {
+      "latitude": 43.30509000208425,
+      "longitude": 5.384883289986451,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:54.601Z"
+    },
+    {
+      "latitude": 43.305093510231416,
+      "longitude": 5.384891075895356,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:54.724Z"
+    },
+    {
+      "latitude": 43.30509615141894,
+      "longitude": 5.384896938056457,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:54.816Z"
+    },
+    {
+      "latitude": 43.305099269955235,
+      "longitude": 5.384903859408026,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:54.924Z"
+    },
+    {
+      "latitude": 43.30510317241002,
+      "longitude": 5.384912520657473,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:55.059Z"
+    },
+    {
+      "latitude": 43.305105620147046,
+      "longitude": 5.384917953001948,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:55.141Z"
+    },
+    {
+      "latitude": 43.30510883599784,
+      "longitude": 5.384925090431829,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:55.251Z"
+    },
+    {
+      "latitude": 43.305112816279504,
+      "longitude": 5.3849339240142164,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:55.385Z"
+    },
+    {
+      "latitude": 43.30511607431192,
+      "longitude": 5.384941155324103,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:55.494Z"
+    },
+    {
+      "latitude": 43.30511910090913,
+      "longitude": 5.384947872493323,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:55.592Z"
+    },
+    {
+      "latitude": 43.30512242836726,
+      "longitude": 5.384955257384759,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:55.701Z"
+    },
+    {
+      "latitude": 43.30512569245554,
+      "longitude": 5.384962501816899,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:55.809Z"
+    },
+    {
+      "latitude": 43.305128919393816,
+      "longitude": 5.384969664006537,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:55.912Z"
+    },
+    {
+      "latitude": 43.30513259645107,
+      "longitude": 5.384977824964466,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:56.030Z"
+    },
+    {
+      "latitude": 43.305136183589774,
+      "longitude": 5.384985786149893,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:56.147Z"
+    },
+    {
+      "latitude": 43.30513955961657,
+      "longitude": 5.384993279020016,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:56.252Z"
+    },
+    {
+      "latitude": 43.305142440318654,
+      "longitude": 5.384999672383882,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:56.343Z"
+    },
+    {
+      "latitude": 43.305146436047536,
+      "longitude": 5.38500854077467,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:56.469Z"
+    },
+    {
+      "latitude": 43.30514992065201,
+      "longitude": 5.385016274606084,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:56.574Z"
+    },
+    {
+      "latitude": 43.30515344105992,
+      "longitude": 5.385024087739405,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:56.682Z"
+    },
+    {
+      "latitude": 43.305157006672225,
+      "longitude": 5.385032001612856,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:56.792Z"
+    },
+    {
+      "latitude": 43.30516025764931,
+      "longitude": 5.385039216764179,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:56.890Z"
+    },
+    {
+      "latitude": 43.30516408562627,
+      "longitude": 5.385047713176172,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.005Z"
+    },
+    {
+      "latitude": 43.3051679110898,
+      "longitude": 5.385056203591191,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.120Z"
+    },
+    {
+      "latitude": 43.30517142561831,
+      "longitude": 5.385064003375282,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.224Z"
+    },
+    {
+      "latitude": 43.30517494686126,
+      "longitude": 5.385071818473266,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.331Z"
+    },
+    {
+      "latitude": 43.305178745440394,
+      "longitude": 5.3850802234374076,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.438Z"
+    },
+    {
+      "latitude": 43.30518256518538,
+      "longitude": 5.38508863380588,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.548Z"
+    },
+    {
+      "latitude": 43.305186121012795,
+      "longitude": 5.385096426419905,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.651Z"
+    },
+    {
+      "latitude": 43.305189886193226,
+      "longitude": 5.385104636713942,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.759Z"
+    },
+    {
+      "latitude": 43.305193883640214,
+      "longitude": 5.385113279069605,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.872Z"
+    },
+    {
+      "latitude": 43.30519782134959,
+      "longitude": 5.385121708023627,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:57.986Z"
+    },
+    {
+      "latitude": 43.30520201740452,
+      "longitude": 5.385130600280739,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:58.099Z"
+    },
+    {
+      "latitude": 43.30520590937778,
+      "longitude": 5.385138768461648,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:58.208Z"
+    },
+    {
+      "latitude": 43.3052095948812,
+      "longitude": 5.385146456588009,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:58.307Z"
+    },
+    {
+      "latitude": 43.30521368445853,
+      "longitude": 5.385154948076664,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:58.416Z"
+    },
+    {
+      "latitude": 43.305217846345734,
+      "longitude": 5.385163547627188,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:58.531Z"
+    },
+    {
+      "latitude": 43.30522153731462,
+      "longitude": 5.385171142297063,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:58.629Z"
+    },
+    {
+      "latitude": 43.3052262608966,
+      "longitude": 5.385180854672145,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:58.756Z"
+    },
+    {
+      "latitude": 43.3052297858833,
+      "longitude": 5.385188102231515,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:58.855Z"
+    },
+    {
+      "latitude": 43.30523355419411,
+      "longitude": 5.3851958503130675,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:58.966Z"
+    },
+    {
+      "latitude": 43.305237616596436,
+      "longitude": 5.385204202763767,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:59.076Z"
+    },
+    {
+      "latitude": 43.305241624701196,
+      "longitude": 5.38521244352492,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:59.181Z"
+    },
+    {
+      "latitude": 43.3052453815384,
+      "longitude": 5.3852201682841265,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:59.282Z"
+    },
+    {
+      "latitude": 43.305249643386475,
+      "longitude": 5.3852289327327325,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:59.402Z"
+    },
+    {
+      "latitude": 43.30525415981928,
+      "longitude": 5.385238222706953,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:59.518Z"
+    },
+    {
+      "latitude": 43.30525830422097,
+      "longitude": 5.385246749704452,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:59.629Z"
+    },
+    {
+      "latitude": 43.305261759601365,
+      "longitude": 5.385253860540097,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:59.722Z"
+    },
+    {
+      "latitude": 43.305266339272976,
+      "longitude": 5.385263288686014,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:59.842Z"
+    },
+    {
+      "latitude": 43.30526989874514,
+      "longitude": 5.3852706194780495,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:33:59.938Z"
+    },
+    {
+      "latitude": 43.305274578780384,
+      "longitude": 5.38528026081303,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:00.063Z"
+    },
+    {
+      "latitude": 43.305278421081994,
+      "longitude": 5.385288179401492,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:00.167Z"
+    },
+    {
+      "latitude": 43.30528237785572,
+      "longitude": 5.385296334606032,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:00.273Z"
+    },
+    {
+      "latitude": 43.305286410810076,
+      "longitude": 5.385304648352483,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:00.382Z"
+    },
+    {
+      "latitude": 43.305290251857286,
+      "longitude": 5.3853125679785965,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:00.484Z"
+    },
+    {
+      "latitude": 43.30529486949143,
+      "longitude": 5.385322089726799,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:00.610Z"
+    },
+    {
+      "latitude": 43.30529838157356,
+      "longitude": 5.385329331620458,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:00.702Z"
+    },
+    {
+      "latitude": 43.305302917944296,
+      "longitude": 5.385338685480821,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:00.823Z"
+    },
+    {
+      "latitude": 43.30530646677796,
+      "longitude": 5.385346003343629,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:00.920Z"
+    },
+    {
+      "latitude": 43.30531121238439,
+      "longitude": 5.38535578884945,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:01.046Z"
+    },
+    {
+      "latitude": 43.30531542974491,
+      "longitude": 5.385364485114275,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:01.161Z"
+    },
+    {
+      "latitude": 43.305319124593204,
+      "longitude": 5.385372103920651,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:01.258Z"
+    },
+    {
+      "latitude": 43.30532315142932,
+      "longitude": 5.385380407203604,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:01.367Z"
+    },
+    {
+      "latitude": 43.305327156008914,
+      "longitude": 5.385388664586208,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:01.477Z"
+    },
+    {
+      "latitude": 43.30533123915373,
+      "longitude": 5.385397084216365,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:01.586Z"
+    },
+    {
+      "latitude": 43.30533480889888,
+      "longitude": 5.385404444804401,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:01.679Z"
+    },
+    {
+      "latitude": 43.30533974232704,
+      "longitude": 5.385414617659494,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:01.811Z"
+    },
+    {
+      "latitude": 43.305343236607875,
+      "longitude": 5.385421819014068,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:01.903Z"
+    },
+    {
+      "latitude": 43.30534787691511,
+      "longitude": 5.385431366228248,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:02.029Z"
+    },
+    {
+      "latitude": 43.30535155888871,
+      "longitude": 5.3854389275884795,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:02.125Z"
+    },
+    {
+      "latitude": 43.30535525191191,
+      "longitude": 5.385446498773378,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:02.225Z"
+    },
+    {
+      "latitude": 43.3053592126476,
+      "longitude": 5.38545459840708,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:02.334Z"
+    },
+    {
+      "latitude": 43.30536368324675,
+      "longitude": 5.385463707341703,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:02.450Z"
+    },
+    {
+      "latitude": 43.30536765328422,
+      "longitude": 5.385471765682153,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:02.553Z"
+    },
+    {
+      "latitude": 43.3053716298076,
+      "longitude": 5.385479808143416,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:02.659Z"
+    },
+    {
+      "latitude": 43.305376255159004,
+      "longitude": 5.385489127942063,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:02.780Z"
+    },
+    {
+      "latitude": 43.30538027832158,
+      "longitude": 5.385497210759366,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:02.886Z"
+    },
+    {
+      "latitude": 43.30538472326017,
+      "longitude": 5.385506124967822,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.003Z"
+    },
+    {
+      "latitude": 43.30538852587634,
+      "longitude": 5.385513736569802,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.102Z"
+    },
+    {
+      "latitude": 43.30539249518234,
+      "longitude": 5.385521669669042,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.208Z"
+    },
+    {
+      "latitude": 43.30539750958316,
+      "longitude": 5.385531686659089,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.340Z"
+    },
+    {
+      "latitude": 43.305400591807526,
+      "longitude": 5.385537843301605,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.421Z"
+    },
+    {
+      "latitude": 43.30540532276763,
+      "longitude": 5.3855472933032775,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.543Z"
+    },
+    {
+      "latitude": 43.30540913379028,
+      "longitude": 5.385554906443391,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.643Z"
+    },
+    {
+      "latitude": 43.305413119377235,
+      "longitude": 5.385562868238987,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.746Z"
+    },
+    {
+      "latitude": 43.30541791340259,
+      "longitude": 5.385572414144935,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.873Z"
+    },
+    {
+      "latitude": 43.30542187543736,
+      "longitude": 5.385580248838844,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:03.978Z"
+    },
+    {
+      "latitude": 43.305425668138234,
+      "longitude": 5.385587703297336,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:04.074Z"
+    },
+    {
+      "latitude": 43.30542991869437,
+      "longitude": 5.385596004646937,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:04.182Z"
+    },
+    {
+      "latitude": 43.30543448730783,
+      "longitude": 5.3856048236540275,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:04.302Z"
+    },
+    {
+      "latitude": 43.30543923228549,
+      "longitude": 5.385613854489301,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:04.422Z"
+    },
+    {
+      "latitude": 43.305443717260644,
+      "longitude": 5.385622273919509,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:04.537Z"
+    },
+    {
+      "latitude": 43.30544705137124,
+      "longitude": 5.385628461497625,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:04.619Z"
+    },
+    {
+      "latitude": 43.30545212605296,
+      "longitude": 5.385637763622465,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:04.743Z"
+    },
+    {
+      "latitude": 43.305456392852044,
+      "longitude": 5.385645480274647,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:04.848Z"
+    },
+    {
+      "latitude": 43.305460942537444,
+      "longitude": 5.385653604966073,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:04.957Z"
+    },
+    {
+      "latitude": 43.30546525220711,
+      "longitude": 5.385661205483407,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:05.064Z"
+    },
+    {
+      "latitude": 43.3054693497097,
+      "longitude": 5.38566834624821,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:05.162Z"
+    },
+    {
+      "latitude": 43.30547474094984,
+      "longitude": 5.385677613692396,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:05.287Z"
+    },
+    {
+      "latitude": 43.30547897824474,
+      "longitude": 5.385684805802949,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:05.388Z"
+    },
+    {
+      "latitude": 43.30548438256903,
+      "longitude": 5.385693859560902,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:05.517Z"
+    },
+    {
+      "latitude": 43.30548869502884,
+      "longitude": 5.385700989175694,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:05.615Z"
+    },
+    {
+      "latitude": 43.30549323057851,
+      "longitude": 5.3857084005954,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:05.720Z"
+    },
+    {
+      "latitude": 43.30549761880827,
+      "longitude": 5.385715489290099,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:05.822Z"
+    },
+    {
+      "latitude": 43.30550294692939,
+      "longitude": 5.385723989407397,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:05.941Z"
+    },
+    {
+      "latitude": 43.305507757442584,
+      "longitude": 5.385731564863145,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:06.050Z"
+    },
+    {
+      "latitude": 43.305512204698786,
+      "longitude": 5.385738487968509,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:06.150Z"
+    },
+    {
+      "latitude": 43.30551758403807,
+      "longitude": 5.385746783722771,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:06.274Z"
+    },
+    {
+      "latitude": 43.30552185548027,
+      "longitude": 5.385753333744116,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:06.369Z"
+    },
+    {
+      "latitude": 43.305526655121724,
+      "longitude": 5.385760654788347,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:06.477Z"
+    },
+    {
+      "latitude": 43.3055315982757,
+      "longitude": 5.38576815230174,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:06.579Z"
+    },
+    {
+      "latitude": 43.30553671591464,
+      "longitude": 5.385775901122999,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:06.693Z"
+    },
+    {
+      "latitude": 43.305541273989476,
+      "longitude": 5.385782805995708,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:06.794Z"
+    },
+    {
+      "latitude": 43.305546536203245,
+      "longitude": 5.3857907814771275,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:06.910Z"
+    },
+    {
+      "latitude": 43.305551290866376,
+      "longitude": 5.385797990839037,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:07.016Z"
+    },
+    {
+      "latitude": 43.30555601136719,
+      "longitude": 5.385805151787565,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:07.121Z"
+    },
+    {
+      "latitude": 43.305561361655926,
+      "longitude": 5.3858132719525305,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:07.239Z"
+    },
+    {
+      "latitude": 43.305566759066195,
+      "longitude": 5.385821468372161,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:07.359Z"
+    },
+    {
+      "latitude": 43.30557145327067,
+      "longitude": 5.385828600000566,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:07.463Z"
+    },
+    {
+      "latitude": 43.30557628325208,
+      "longitude": 5.385835941689235,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:07.570Z"
+    },
+    {
+      "latitude": 43.30558110959188,
+      "longitude": 5.3858432808887144,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:07.676Z"
+    },
+    {
+      "latitude": 43.30558552678277,
+      "longitude": 5.3858500010983015,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:07.775Z"
+    },
+    {
+      "latitude": 43.305590414356274,
+      "longitude": 5.3858574397413985,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:07.885Z"
+    },
+    {
+      "latitude": 43.30559590538729,
+      "longitude": 5.385865801534354,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.005Z"
+    },
+    {
+      "latitude": 43.30560095541329,
+      "longitude": 5.385873494989668,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.118Z"
+    },
+    {
+      "latitude": 43.30560520868643,
+      "longitude": 5.38587997147399,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.210Z"
+    },
+    {
+      "latitude": 43.30561047877511,
+      "longitude": 5.3858879569128355,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.330Z"
+    },
+    {
+      "latitude": 43.305615590235426,
+      "longitude": 5.385895655906427,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.441Z"
+    },
+    {
+      "latitude": 43.305620044674214,
+      "longitude": 5.385902327072035,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.539Z"
+    },
+    {
+      "latitude": 43.30562538748099,
+      "longitude": 5.385910266115406,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.660Z"
+    },
+    {
+      "latitude": 43.30563038582832,
+      "longitude": 5.385917604352125,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.764Z"
+    },
+    {
+      "latitude": 43.3056353415443,
+      "longitude": 5.385924794390664,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.872Z"
+    },
+    {
+      "latitude": 43.30564105295124,
+      "longitude": 5.38593297795364,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:08.993Z"
+    },
+    {
+      "latitude": 43.3056454339515,
+      "longitude": 5.385939182155418,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:09.084Z"
+    },
+    {
+      "latitude": 43.3056509654775,
+      "longitude": 5.385946926312581,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:09.199Z"
+    },
+    {
+      "latitude": 43.3056563791442,
+      "longitude": 5.385954410783945,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:09.313Z"
+    },
+    {
+      "latitude": 43.30566090541421,
+      "longitude": 5.385960597676679,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:09.407Z"
+    },
+    {
+      "latitude": 43.30566627441884,
+      "longitude": 5.385967854284752,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:09.521Z"
+    },
+    {
+      "latitude": 43.30567173794132,
+      "longitude": 5.385975149148793,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:09.633Z"
+    },
+    {
+      "latitude": 43.30567669984747,
+      "longitude": 5.385981696965503,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:09.734Z"
+    },
+    {
+      "latitude": 43.305682855145385,
+      "longitude": 5.385989719412303,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:09.859Z"
+    },
+    {
+      "latitude": 43.30568735081948,
+      "longitude": 5.3859955100085095,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:09.952Z"
+    },
+    {
+      "latitude": 43.3056934742827,
+      "longitude": 5.386003305094251,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:10.075Z"
+    },
+    {
+      "latitude": 43.30569850087018,
+      "longitude": 5.386009627041151,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:10.176Z"
+    },
+    {
+      "latitude": 43.30570392810869,
+      "longitude": 5.386016376810133,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:10.285Z"
+    },
+    {
+      "latitude": 43.305709531331004,
+      "longitude": 5.38602326392477,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:10.399Z"
+    },
+    {
+      "latitude": 43.30571493740708,
+      "longitude": 5.386029831118654,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:10.504Z"
+    },
+    {
+      "latitude": 43.30572009789445,
+      "longitude": 5.386036031705668,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:10.605Z"
+    },
+    {
+      "latitude": 43.30572614942838,
+      "longitude": 5.386043236956496,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:10.724Z"
+    },
+    {
+      "latitude": 43.305732145022795,
+      "longitude": 5.386050333402084,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:10.842Z"
+    },
+    {
+      "latitude": 43.30573720509285,
+      "longitude": 5.3860562896165245,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:10.939Z"
+    },
+    {
+      "latitude": 43.305742548843085,
+      "longitude": 5.386062548371137,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:11.044Z"
+    },
+    {
+      "latitude": 43.30574826474145,
+      "longitude": 5.386069235578944,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:11.157Z"
+    },
+    {
+      "latitude": 43.30575422828522,
+      "longitude": 5.386076216090839,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:11.272Z"
+    },
+    {
+      "latitude": 43.30576022814531,
+      "longitude": 5.386083242875795,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:11.388Z"
+    },
+    {
+      "latitude": 43.305765118322356,
+      "longitude": 5.38608897204778,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:11.485Z"
+    },
+    {
+      "latitude": 43.305771217970836,
+      "longitude": 5.386096121579152,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:11.603Z"
+    },
+    {
+      "latitude": 43.305776350242795,
+      "longitude": 5.386102140347333,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:11.702Z"
+    },
+    {
+      "latitude": 43.30578230007715,
+      "longitude": 5.386109120389452,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:11.819Z"
+    },
+    {
+      "latitude": 43.30578736237559,
+      "longitude": 5.386115062373007,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:11.918Z"
+    },
+    {
+      "latitude": 43.30579336682667,
+      "longitude": 5.386122113426194,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:12.035Z"
+    },
+    {
+      "latitude": 43.30579907734536,
+      "longitude": 5.38612882228813,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:12.148Z"
+    },
+    {
+      "latitude": 43.30580441188923,
+      "longitude": 5.386135092224057,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:12.252Z"
+    },
+    {
+      "latitude": 43.305809387461366,
+      "longitude": 5.38614094274239,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:12.349Z"
+    },
+    {
+      "latitude": 43.30581559041659,
+      "longitude": 5.386148240119789,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:12.472Z"
+    },
+    {
+      "latitude": 43.30582086557908,
+      "longitude": 5.386154448165346,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:12.573Z"
+    },
+    {
+      "latitude": 43.30582669546276,
+      "longitude": 5.386161310734982,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:12.687Z"
+    },
+    {
+      "latitude": 43.30583226373535,
+      "longitude": 5.386167866602687,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:12.796Z"
+    },
+    {
+      "latitude": 43.305837800221084,
+      "longitude": 5.3861743866415335,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:12.907Z"
+    },
+    {
+      "latitude": 43.305843796012745,
+      "longitude": 5.386181447963256,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:13.025Z"
+    },
+    {
+      "latitude": 43.30584962136116,
+      "longitude": 5.386188308674997,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:13.143Z"
+    },
+    {
+      "latitude": 43.305854995295654,
+      "longitude": 5.386194637535668,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:13.247Z"
+    },
+    {
+      "latitude": 43.30585961795116,
+      "longitude": 5.386200081734584,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:13.332Z"
+    },
+    {
+      "latitude": 43.305865666774714,
+      "longitude": 5.386207205700213,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:13.450Z"
+    },
+    {
+      "latitude": 43.30587094252483,
+      "longitude": 5.386213419137139,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:13.555Z"
+    },
+    {
+      "latitude": 43.30587655160608,
+      "longitude": 5.38622002498402,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:13.662Z"
+    },
+    {
+      "latitude": 43.30588310763144,
+      "longitude": 5.386227746202126,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:13.792Z"
+    },
+    {
+      "latitude": 43.30588785644307,
+      "longitude": 5.386233338925499,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:13.881Z"
+    },
+    {
+      "latitude": 43.30589397632203,
+      "longitude": 5.386240546680667,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.001Z"
+    },
+    {
+      "latitude": 43.30589930613674,
+      "longitude": 5.38624682382615,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.104Z"
+    },
+    {
+      "latitude": 43.305904657410395,
+      "longitude": 5.386253126043943,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.207Z"
+    },
+    {
+      "latitude": 43.30591015543539,
+      "longitude": 5.386259601187588,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.318Z"
+    },
+    {
+      "latitude": 43.305915648652274,
+      "longitude": 5.38626607075615,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.425Z"
+    },
+    {
+      "latitude": 43.305921038372055,
+      "longitude": 5.386272418279119,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.528Z"
+    },
+    {
+      "latitude": 43.3059270252276,
+      "longitude": 5.386279469307288,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.644Z"
+    },
+    {
+      "latitude": 43.30593304229389,
+      "longitude": 5.386286555804368,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.762Z"
+    },
+    {
+      "latitude": 43.30593849912273,
+      "longitude": 5.386292982444354,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.870Z"
+    },
+    {
+      "latitude": 43.30594428412889,
+      "longitude": 5.386299795634549,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:14.982Z"
+    },
+    {
+      "latitude": 43.30594973889603,
+      "longitude": 5.386306219908576,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:15.088Z"
+    },
+    {
+      "latitude": 43.3059553244569,
+      "longitude": 5.3863127980623435,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:15.197Z"
+    },
+    {
+      "latitude": 43.30596096356363,
+      "longitude": 5.386319439568737,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:15.309Z"
+    },
+    {
+      "latitude": 43.30596580797235,
+      "longitude": 5.38632514501411,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:15.402Z"
+    },
+    {
+      "latitude": 43.30597174242603,
+      "longitude": 5.386332132296502,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:15.518Z"
+    },
+    {
+      "latitude": 43.3059778296904,
+      "longitude": 5.386339301470027,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:15.636Z"
+    },
+    {
+      "latitude": 43.305982648348774,
+      "longitude": 5.386344976742817,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:15.731Z"
+    },
+    {
+      "latitude": 43.305988132121946,
+      "longitude": 5.386351435121041,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:15.840Z"
+    },
+    {
+      "latitude": 43.30599464968913,
+      "longitude": 5.386359111125822,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:15.967Z"
+    },
+    {
+      "latitude": 43.30599947435842,
+      "longitude": 5.386364793259304,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:16.060Z"
+    },
+    {
+      "latitude": 43.30600545966839,
+      "longitude": 5.386371842228687,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:16.176Z"
+    },
+    {
+      "latitude": 43.30601051639476,
+      "longitude": 5.386377797734509,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:16.274Z"
+    },
+    {
+      "latitude": 43.30601650118673,
+      "longitude": 5.386384846204601,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:16.392Z"
+    },
+    {
+      "latitude": 43.30602193809784,
+      "longitude": 5.386391249477001,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:16.500Z"
+    },
+    {
+      "latitude": 43.3060281903069,
+      "longitude": 5.386398612859098,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:16.621Z"
+    },
+    {
+      "latitude": 43.306033213560426,
+      "longitude": 5.386404529011509,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:16.718Z"
+    },
+    {
+      "latitude": 43.3060387146668,
+      "longitude": 5.386411007765201,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:16.832Z"
+    },
+    {
+      "latitude": 43.30604465053542,
+      "longitude": 5.386417998790495,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:16.944Z"
+    },
+    {
+      "latitude": 43.30605012434917,
+      "longitude": 5.386424445444162,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:17.049Z"
+    },
+    {
+      "latitude": 43.30605516184865,
+      "longitude": 5.386430378322807,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:17.149Z"
+    },
+    {
+      "latitude": 43.306061177359716,
+      "longitude": 5.386437463043489,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:17.266Z"
+    },
+    {
+      "latitude": 43.306066064503604,
+      "longitude": 5.38644321870367,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:17.360Z"
+    },
+    {
+      "latitude": 43.306071820149555,
+      "longitude": 5.386449997346417,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:17.499Z"
+    },
+    {
+      "latitude": 43.3060779280879,
+      "longitude": 5.386457190937354,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:17.593Z"
+    },
+    {
+      "latitude": 43.30608350822789,
+      "longitude": 5.386463762977195,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:17.702Z"
+    },
+    {
+      "latitude": 43.30608855997254,
+      "longitude": 5.38646971258434,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:17.802Z"
+    },
+    {
+      "latitude": 43.30609476162682,
+      "longitude": 5.386477016495817,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:17.923Z"
+    },
+    {
+      "latitude": 43.30609975921768,
+      "longitude": 5.386482902338398,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:18.019Z"
+    },
+    {
+      "latitude": 43.30610557922755,
+      "longitude": 5.386489756744174,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:18.133Z"
+    },
+    {
+      "latitude": 43.30611121068698,
+      "longitude": 5.386496389195047,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:18.243Z"
+    },
+    {
+      "latitude": 43.30611684626654,
+      "longitude": 5.386503026444015,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:18.354Z"
+    },
+    {
+      "latitude": 43.30612224953063,
+      "longitude": 5.386509390026852,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:18.460Z"
+    },
+    {
+      "latitude": 43.3061280508279,
+      "longitude": 5.386516222499061,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:18.573Z"
+    },
+    {
+      "latitude": 43.30613338663528,
+      "longitude": 5.3865225066859175,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:18.677Z"
+    },
+    {
+      "latitude": 43.306139071561624,
+      "longitude": 5.38652920197992,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:18.788Z"
+    },
+    {
+      "latitude": 43.306144662339506,
+      "longitude": 5.386535786535196,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:18.897Z"
+    },
+    {
+      "latitude": 43.30615031679592,
+      "longitude": 5.38654244608291,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.008Z"
+    },
+    {
+      "latitude": 43.3061559316915,
+      "longitude": 5.386549058901506,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.116Z"
+    },
+    {
+      "latitude": 43.30616120423273,
+      "longitude": 5.386555273507232,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.220Z"
+    },
+    {
+      "latitude": 43.30616707048184,
+      "longitude": 5.3865622167369125,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.335Z"
+    },
+    {
+      "latitude": 43.306172553150894,
+      "longitude": 5.386568735825744,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.443Z"
+    },
+    {
+      "latitude": 43.30617837630596,
+      "longitude": 5.386575692037967,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.558Z"
+    },
+    {
+      "latitude": 43.306183096336134,
+      "longitude": 5.386581365301666,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.651Z"
+    },
+    {
+      "latitude": 43.30618882460702,
+      "longitude": 5.386588309178176,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.765Z"
+    },
+    {
+      "latitude": 43.30619485176594,
+      "longitude": 5.386595686285002,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.884Z"
+    },
+    {
+      "latitude": 43.306200453347905,
+      "longitude": 5.386602608145217,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:19.996Z"
+    },
+    {
+      "latitude": 43.306205145122675,
+      "longitude": 5.386608455450724,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:20.089Z"
+    },
+    {
+      "latitude": 43.30621060027267,
+      "longitude": 5.386615311202075,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:20.201Z"
+    },
+    {
+      "latitude": 43.30621618725612,
+      "longitude": 5.3866223973623715,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:20.314Z"
+    },
+    {
+      "latitude": 43.3062212022376,
+      "longitude": 5.386628814465585,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:20.415Z"
+    },
+    {
+      "latitude": 43.30622669051005,
+      "longitude": 5.386635898905276,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:20.527Z"
+    },
+    {
+      "latitude": 43.306231915273585,
+      "longitude": 5.386642704430749,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:20.633Z"
+    },
+    {
+      "latitude": 43.30623740829274,
+      "longitude": 5.386649923678808,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:20.746Z"
+    },
+    {
+      "latitude": 43.3062428049698,
+      "longitude": 5.386657082510149,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:20.860Z"
+    },
+    {
+      "latitude": 43.306247670712196,
+      "longitude": 5.386663593174929,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:20.957Z"
+    },
+    {
+      "latitude": 43.30625301456296,
+      "longitude": 5.386670805759693,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:21.068Z"
+    },
+    {
+      "latitude": 43.30625856636174,
+      "longitude": 5.386678368270076,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:21.184Z"
+    },
+    {
+      "latitude": 43.30626357298145,
+      "longitude": 5.386685248907087,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:21.289Z"
+    },
+    {
+      "latitude": 43.30626911825775,
+      "longitude": 5.386692938470302,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:21.407Z"
+    },
+    {
+      "latitude": 43.306274272282465,
+      "longitude": 5.38670015019132,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:21.515Z"
+    },
+    {
+      "latitude": 43.306278807135385,
+      "longitude": 5.386706547337967,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:21.612Z"
+    },
+    {
+      "latitude": 43.3062846929651,
+      "longitude": 5.386714923416239,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:21.740Z"
+    },
+    {
+      "latitude": 43.30628892785687,
+      "longitude": 5.386721001869299,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:21.829Z"
+    },
+    {
+      "latitude": 43.30629406196986,
+      "longitude": 5.386728430183997,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:21.940Z"
+    },
+    {
+      "latitude": 43.306299376829045,
+      "longitude": 5.386736188855146,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:22.055Z"
+    },
+    {
+      "latitude": 43.30630480906741,
+      "longitude": 5.386744179529895,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:22.173Z"
+    },
+    {
+      "latitude": 43.30630912584872,
+      "longitude": 5.386750555676787,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:22.267Z"
+    },
+    {
+      "latitude": 43.30631410543255,
+      "longitude": 5.3867579392519795,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:22.375Z"
+    },
+    {
+      "latitude": 43.30631904713617,
+      "longitude": 5.3867652966775275,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:22.486Z"
+    },
+    {
+      "latitude": 43.3063240714829,
+      "longitude": 5.3867727894086945,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:22.594Z"
+    },
+    {
+      "latitude": 43.306329658618004,
+      "longitude": 5.38678111865207,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:22.716Z"
+    },
+    {
+      "latitude": 43.30633392964445,
+      "longitude": 5.386787483546209,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:22.809Z"
+    },
+    {
+      "latitude": 43.30633926539373,
+      "longitude": 5.386795445965478,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:22.927Z"
+    },
+    {
+      "latitude": 43.3063442650778,
+      "longitude": 5.386802949039202,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:23.038Z"
+    },
+    {
+      "latitude": 43.30634925306949,
+      "longitude": 5.386810477242493,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:23.147Z"
+    },
+    {
+      "latitude": 43.30635417028872,
+      "longitude": 5.386817941691289,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:23.256Z"
+    },
+    {
+      "latitude": 43.30635869745713,
+      "longitude": 5.386824875026383,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:23.360Z"
+    },
+    {
+      "latitude": 43.30636415560432,
+      "longitude": 5.386833334339135,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:23.482Z"
+    },
+    {
+      "latitude": 43.306368559939145,
+      "longitude": 5.386840242097891,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:23.579Z"
+    },
+    {
+      "latitude": 43.30637372251535,
+      "longitude": 5.386848433560088,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:23.695Z"
+    },
+    {
+      "latitude": 43.30637815869667,
+      "longitude": 5.386855555308414,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:23.795Z"
+    },
+    {
+      "latitude": 43.306382566843496,
+      "longitude": 5.386862709989731,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:23.898Z"
+    },
+    {
+      "latitude": 43.30638734646117,
+      "longitude": 5.386870557035035,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:24.009Z"
+    },
+    {
+      "latitude": 43.30639204902843,
+      "longitude": 5.386878371475567,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:24.116Z"
+    },
+    {
+      "latitude": 43.30639674518307,
+      "longitude": 5.3868862698143465,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:24.228Z"
+    },
+    {
+      "latitude": 43.306401783282865,
+      "longitude": 5.386894851174144,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:24.346Z"
+    },
+    {
+      "latitude": 43.306406187058315,
+      "longitude": 5.38690244671872,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:24.451Z"
+    },
+    {
+      "latitude": 43.306410574845486,
+      "longitude": 5.386910104685572,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:24.557Z"
+    },
+    {
+      "latitude": 43.306415311369406,
+      "longitude": 5.386918474144396,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:24.671Z"
+    },
+    {
+      "latitude": 43.306419609944385,
+      "longitude": 5.386926163959789,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:24.776Z"
+    },
+    {
+      "latitude": 43.30642405763951,
+      "longitude": 5.386934216404811,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:24.885Z"
+    },
+    {
+      "latitude": 43.30642874032982,
+      "longitude": 5.386942801512432,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.003Z"
+    },
+    {
+      "latitude": 43.30643261050332,
+      "longitude": 5.386949981861314,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.097Z"
+    },
+    {
+      "latitude": 43.30643699515223,
+      "longitude": 5.386958211094651,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.208Z"
+    },
+    {
+      "latitude": 43.3064413842935,
+      "longitude": 5.386966549411513,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.318Z"
+    },
+    {
+      "latitude": 43.30644583915597,
+      "longitude": 5.386975079639734,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.433Z"
+    },
+    {
+      "latitude": 43.30645020744277,
+      "longitude": 5.386983494412574,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.544Z"
+    },
+    {
+      "latitude": 43.30645401877714,
+      "longitude": 5.386990877422674,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.642Z"
+    },
+    {
+      "latitude": 43.30645862109348,
+      "longitude": 5.386999837374127,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.762Z"
+    },
+    {
+      "latitude": 43.306462619991024,
+      "longitude": 5.3870076284682336,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.865Z"
+    },
+    {
+      "latitude": 43.30646709933173,
+      "longitude": 5.387016354600425,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:25.980Z"
+    },
+    {
+      "latitude": 43.30647127363911,
+      "longitude": 5.387024499933341,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:26.089Z"
+    },
+    {
+      "latitude": 43.30647522735697,
+      "longitude": 5.387032226982243,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:26.189Z"
+    },
+    {
+      "latitude": 43.306479630063016,
+      "longitude": 5.387040850268072,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:26.303Z"
+    },
+    {
+      "latitude": 43.30648351445877,
+      "longitude": 5.387048477769092,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:26.403Z"
+    },
+    {
+      "latitude": 43.30648810065595,
+      "longitude": 5.387057510424992,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:26.522Z"
+    },
+    {
+      "latitude": 43.306492342866996,
+      "longitude": 5.387065894627172,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:26.634Z"
+    },
+    {
+      "latitude": 43.306496498882574,
+      "longitude": 5.387074136748893,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:26.743Z"
+    },
+    {
+      "latitude": 43.30650024946333,
+      "longitude": 5.387081599176968,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:26.841Z"
+    },
+    {
+      "latitude": 43.30650457263241,
+      "longitude": 5.387090228777566,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:26.956Z"
+    },
+    {
+      "latitude": 43.306508567643654,
+      "longitude": 5.38709823095237,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:27.061Z"
+    },
+    {
+      "latitude": 43.30651295205173,
+      "longitude": 5.387107043892092,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:27.175Z"
+    },
+    {
+      "latitude": 43.306516938321046,
+      "longitude": 5.387115085671297,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:27.282Z"
+    },
+    {
+      "latitude": 43.30652116511126,
+      "longitude": 5.387123643895523,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:27.394Z"
+    },
+    {
+      "latitude": 43.306525295777114,
+      "longitude": 5.387132038639679,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:27.504Z"
+    },
+    {
+      "latitude": 43.30652903610812,
+      "longitude": 5.387139667495146,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:27.601Z"
+    },
+    {
+      "latitude": 43.30653352902783,
+      "longitude": 5.387148867427938,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:27.722Z"
+    },
+    {
+      "latitude": 43.306537562382886,
+      "longitude": 5.387157159663145,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:27.829Z"
+    },
+    {
+      "latitude": 43.30654133893548,
+      "longitude": 5.3871649529386705,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:27.930Z"
+    },
+    {
+      "latitude": 43.30654540113071,
+      "longitude": 5.387173367282512,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:28.039Z"
+    },
+    {
+      "latitude": 43.306549607762115,
+      "longitude": 5.38718211586903,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:28.151Z"
+    },
+    {
+      "latitude": 43.30655367586635,
+      "longitude": 5.387190609312052,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:28.260Z"
+    },
+    {
+      "latitude": 43.30655772671197,
+      "longitude": 5.387199099672352,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:28.371Z"
+    },
+    {
+      "latitude": 43.30656150747043,
+      "longitude": 5.387207053527838,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:28.476Z"
+    },
+    {
+      "latitude": 43.3065655263016,
+      "longitude": 5.38721553998789,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:28.582Z"
+    },
+    {
+      "latitude": 43.30656995450492,
+      "longitude": 5.38722492908327,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:28.704Z"
+    },
+    {
+      "latitude": 43.30657370997504,
+      "longitude": 5.3872329232508545,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:28.806Z"
+    },
+    {
+      "latitude": 43.30657769135718,
+      "longitude": 5.387241430221985,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:28.916Z"
+    },
+    {
+      "latitude": 43.30658180217816,
+      "longitude": 5.387250248513686,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:29.029Z"
+    },
+    {
+      "latitude": 43.30658578733178,
+      "longitude": 5.387258831670797,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:29.139Z"
+    },
+    {
+      "latitude": 43.30658976946442,
+      "longitude": 5.3872674415611606,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:29.249Z"
+    },
+    {
+      "latitude": 43.306593443487905,
+      "longitude": 5.387275415627899,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:29.351Z"
+    },
+    {
+      "latitude": 43.30659714729456,
+      "longitude": 5.387283483513799,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:29.454Z"
+    },
+    {
+      "latitude": 43.3066011208363,
+      "longitude": 5.3872921720569895,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:29.566Z"
+    },
+    {
+      "latitude": 43.306605326381465,
+      "longitude": 5.387301405911517,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:29.682Z"
+    },
+    {
+      "latitude": 43.30660899808339,
+      "longitude": 5.387309499454095,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:29.786Z"
+    },
+    {
+      "latitude": 43.30661276700614,
+      "longitude": 5.387317838638924,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:29.891Z"
+    },
+    {
+      "latitude": 43.30661676014195,
+      "longitude": 5.3873267088029,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.005Z"
+    },
+    {
+      "latitude": 43.30662059637563,
+      "longitude": 5.387335264766744,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.113Z"
+    },
+    {
+      "latitude": 43.30662424513375,
+      "longitude": 5.3873434336918855,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.217Z"
+    },
+    {
+      "latitude": 43.30662828865553,
+      "longitude": 5.3873525226223355,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.332Z"
+    },
+    {
+      "latitude": 43.30663226097427,
+      "longitude": 5.387361488420545,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.446Z"
+    },
+    {
+      "latitude": 43.30663564666769,
+      "longitude": 5.387369159285042,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.542Z"
+    },
+    {
+      "latitude": 43.306639668045854,
+      "longitude": 5.387378306350535,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.658Z"
+    },
+    {
+      "latitude": 43.306643659046024,
+      "longitude": 5.387387421704895,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.772Z"
+    },
+    {
+      "latitude": 43.30664746040581,
+      "longitude": 5.38739614000213,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.882Z"
+    },
+    {
+      "latitude": 43.306650754543284,
+      "longitude": 5.387403723302437,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:30.979Z"
+    },
+    {
+      "latitude": 43.30665448018836,
+      "longitude": 5.387412332378937,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:31.088Z"
+    },
+    {
+      "latitude": 43.306658674163074,
+      "longitude": 5.387422065058557,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:31.211Z"
+    },
+    {
+      "latitude": 43.30666231073421,
+      "longitude": 5.387430539347001,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:31.317Z"
+    },
+    {
+      "latitude": 43.306665922923095,
+      "longitude": 5.387438989563807,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:31.423Z"
+    },
+    {
+      "latitude": 43.306669376628015,
+      "longitude": 5.387447100292865,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:31.525Z"
+    },
+    {
+      "latitude": 43.30667340220903,
+      "longitude": 5.387456593157475,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:31.644Z"
+    },
+    {
+      "latitude": 43.30667673578623,
+      "longitude": 5.38746448558487,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:31.743Z"
+    },
+    {
+      "latitude": 43.30668034168703,
+      "longitude": 5.387473055724275,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:31.851Z"
+    },
+    {
+      "latitude": 43.306683895989394,
+      "longitude": 5.387481536610251,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:31.956Z"
+    },
+    {
+      "latitude": 43.306687550265345,
+      "longitude": 5.387490291301378,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:32.065Z"
+    },
+    {
+      "latitude": 43.306691494160376,
+      "longitude": 5.387499779708623,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:32.183Z"
+    },
+    {
+      "latitude": 43.30669498583204,
+      "longitude": 5.387508215340899,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:32.288Z"
+    },
+    {
+      "latitude": 43.3066986197616,
+      "longitude": 5.387517030524943,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:32.396Z"
+    },
+    {
+      "latitude": 43.30670217038853,
+      "longitude": 5.387525678816591,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:32.505Z"
+    },
+    {
+      "latitude": 43.30670604487981,
+      "longitude": 5.3875351557209274,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:32.621Z"
+    },
+    {
+      "latitude": 43.306709430790455,
+      "longitude": 5.387543472408784,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:32.724Z"
+    },
+    {
+      "latitude": 43.30671306623539,
+      "longitude": 5.387552438043073,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:32.834Z"
+    },
+    {
+      "latitude": 43.30671679688792,
+      "longitude": 5.387561678319649,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:32.949Z"
+    },
+    {
+      "latitude": 43.306720616590596,
+      "longitude": 5.38757118071609,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:33.067Z"
+    },
+    {
+      "latitude": 43.30672732512041,
+      "longitude": 5.387587972905609,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:33.273Z"
+    },
+    {
+      "latitude": 43.306730767297275,
+      "longitude": 5.387596639293692,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:33.379Z"
+    },
+    {
+      "latitude": 43.30673426559288,
+      "longitude": 5.387605477351512,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:33.489Z"
+    },
+    {
+      "latitude": 43.30673759107796,
+      "longitude": 5.387613904079531,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:33.591Z"
+    },
+    {
+      "latitude": 43.30674118748924,
+      "longitude": 5.387623041698228,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:33.705Z"
+    },
+    {
+      "latitude": 43.306744908692465,
+      "longitude": 5.38763251520051,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:33.821Z"
+    },
+    {
+      "latitude": 43.30674804242272,
+      "longitude": 5.387640502947939,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:33.919Z"
+    },
+    {
+      "latitude": 43.306751796975995,
+      "longitude": 5.387650080464544,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:34.038Z"
+    },
+    {
+      "latitude": 43.30675510604904,
+      "longitude": 5.387658524495168,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:34.141Z"
+    },
+    {
+      "latitude": 43.306758474568554,
+      "longitude": 5.387667119796737,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:34.248Z"
+    },
+    {
+      "latitude": 43.306762216398205,
+      "longitude": 5.387676666476091,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:34.363Z"
+    },
+    {
+      "latitude": 43.30676553505165,
+      "longitude": 5.387685131654816,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:34.469Z"
+    },
+    {
+      "latitude": 43.30676913164202,
+      "longitude": 5.38769430462807,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:34.582Z"
+    },
+    {
+      "latitude": 43.30677229824396,
+      "longitude": 5.387702379157369,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:34.681Z"
+    },
+    {
+      "latitude": 43.30677595312912,
+      "longitude": 5.38771169745779,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:34.795Z"
+    },
+    {
+      "latitude": 43.30677962704145,
+      "longitude": 5.387721062499528,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:34.910Z"
+    },
+    {
+      "latitude": 43.30678290074554,
+      "longitude": 5.387729406239352,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.013Z"
+    },
+    {
+      "latitude": 43.306786718977875,
+      "longitude": 5.387739136226356,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.133Z"
+    },
+    {
+      "latitude": 43.30678993291865,
+      "longitude": 5.38774732483256,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.232Z"
+    },
+    {
+      "latitude": 43.30679353718375,
+      "longitude": 5.387756506903402,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.345Z"
+    },
+    {
+      "latitude": 43.30679693913942,
+      "longitude": 5.387765172337323,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.450Z"
+    },
+    {
+      "latitude": 43.306800568959794,
+      "longitude": 5.387774416938541,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.564Z"
+    },
+    {
+      "latitude": 43.3068037272815,
+      "longitude": 5.387782460328028,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.661Z"
+    },
+    {
+      "latitude": 43.30680735015623,
+      "longitude": 5.387791685875977,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.773Z"
+    },
+    {
+      "latitude": 43.306811061293175,
+      "longitude": 5.387801135465375,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.890Z"
+    },
+    {
+      "latitude": 43.30681424278882,
+      "longitude": 5.387809235392776,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:35.989Z"
+    },
+    {
+      "latitude": 43.30681790352393,
+      "longitude": 5.387818551045474,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:36.105Z"
+    },
+    {
+      "latitude": 43.30682116634599,
+      "longitude": 5.387826849217433,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:36.208Z"
+    },
+    {
+      "latitude": 43.3068247474756,
+      "longitude": 5.387835949358461,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:36.320Z"
+    },
+    {
+      "latitude": 43.30682811605383,
+      "longitude": 5.387844499108447,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:36.423Z"
+    },
+    {
+      "latitude": 43.30683194559406,
+      "longitude": 5.387854202943153,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:36.542Z"
+    },
+    {
+      "latitude": 43.306835287303386,
+      "longitude": 5.387862653993626,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:36.647Z"
+    },
+    {
+      "latitude": 43.30683899881023,
+      "longitude": 5.387872018238422,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:36.762Z"
+    },
+    {
+      "latitude": 43.30684232486488,
+      "longitude": 5.387880387283319,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:36.865Z"
+    },
+    {
+      "latitude": 43.30684613303818,
+      "longitude": 5.3878899394170645,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:36.982Z"
+    },
+    {
+      "latitude": 43.30684940956455,
+      "longitude": 5.3878981306109885,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:37.084Z"
+    },
+    {
+      "latitude": 43.306853118025096,
+      "longitude": 5.387907369037023,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:37.198Z"
+    },
+    {
+      "latitude": 43.306856273706224,
+      "longitude": 5.387915201626583,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:37.294Z"
+    },
+    {
+      "latitude": 43.30685980278339,
+      "longitude": 5.3879239287686005,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:37.402Z"
+    },
+    {
+      "latitude": 43.306863910216926,
+      "longitude": 5.387934043245579,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:37.527Z"
+    },
+    {
+      "latitude": 43.30686712480805,
+      "longitude": 5.387941926428082,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:37.624Z"
+    },
+    {
+      "latitude": 43.30687086409072,
+      "longitude": 5.387951061433936,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:37.738Z"
+    },
+    {
+      "latitude": 43.30687420669626,
+      "longitude": 5.38795919562173,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:37.839Z"
+    },
+    {
+      "latitude": 43.306877878163604,
+      "longitude": 5.387968095830773,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:37.949Z"
+    },
+    {
+      "latitude": 43.30688189177501,
+      "longitude": 5.387977784977107,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:38.069Z"
+    },
+    {
+      "latitude": 43.30688569357994,
+      "longitude": 5.3879869238811695,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:38.183Z"
+    },
+    {
+      "latitude": 43.306888936251006,
+      "longitude": 5.387994689689647,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:38.279Z"
+    },
+    {
+      "latitude": 43.306892743520685,
+      "longitude": 5.388003773182298,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:38.393Z"
+    },
+    {
+      "latitude": 43.30689616151293,
+      "longitude": 5.388011897324894,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:38.493Z"
+    },
+    {
+      "latitude": 43.30689996297319,
+      "longitude": 5.388020898956871,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:38.606Z"
+    },
+    {
+      "latitude": 43.30690385221957,
+      "longitude": 5.388030071633694,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:38.721Z"
+    },
+    {
+      "latitude": 43.30690725005219,
+      "longitude": 5.388038055800234,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:38.821Z"
+    },
+    {
+      "latitude": 43.30691125093709,
+      "longitude": 5.388047421528368,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:38.938Z"
+    },
+    {
+      "latitude": 43.30691471583123,
+      "longitude": 5.388055501758732,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:39.044Z"
+    },
+    {
+      "latitude": 43.30691883149859,
+      "longitude": 5.388065063671634,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:39.160Z"
+    },
+    {
+      "latitude": 43.306922371844266,
+      "longitude": 5.388073257151414,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:39.265Z"
+    },
+    {
+      "latitude": 43.30692975681878,
+      "longitude": 5.388090256497845,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:39.479Z"
+    },
+    {
+      "latitude": 43.306933383636746,
+      "longitude": 5.388098559686304,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:39.584Z"
+    },
+    {
+      "latitude": 43.306937306584864,
+      "longitude": 5.388107507811431,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:39.696Z"
+    },
+    {
+      "latitude": 43.306941397788194,
+      "longitude": 5.388116803157276,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:39.815Z"
+    },
+    {
+      "latitude": 43.306945050112965,
+      "longitude": 5.388125070142552,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:39.919Z"
+    },
+    {
+      "latitude": 43.30694902273275,
+      "longitude": 5.388134029126858,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:40.031Z"
+    },
+    {
+      "latitude": 43.306953012618436,
+      "longitude": 5.388142992882473,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:40.143Z"
+    },
+    {
+      "latitude": 43.30695650234371,
+      "longitude": 5.388150801679343,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:40.242Z"
+    },
+    {
+      "latitude": 43.30696021757603,
+      "longitude": 5.388159089916265,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:40.348Z"
+    },
+    {
+      "latitude": 43.30696421683484,
+      "longitude": 5.388167979510933,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:40.460Z"
+    },
+    {
+      "latitude": 43.3069682503066,
+      "longitude": 5.38817691078302,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:40.573Z"
+    },
+    {
+      "latitude": 43.30697186324606,
+      "longitude": 5.388184882562138,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:40.675Z"
+    },
+    {
+      "latitude": 43.30697600216275,
+      "longitude": 5.388193981358153,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:40.789Z"
+    },
+    {
+      "latitude": 43.3069796224458,
+      "longitude": 5.388201910923587,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:40.892Z"
+    },
+    {
+      "latitude": 43.30698385060343,
+      "longitude": 5.388211138440145,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.010Z"
+    },
+    {
+      "latitude": 43.306987543226825,
+      "longitude": 5.38821916812959,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.111Z"
+    },
+    {
+      "latitude": 43.30699161519442,
+      "longitude": 5.388227990624419,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.224Z"
+    },
+    {
+      "latitude": 43.30699572349349,
+      "longitude": 5.388236858612313,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.337Z"
+    },
+    {
+      "latitude": 43.3069993528462,
+      "longitude": 5.388244665362609,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.439Z"
+    },
+    {
+      "latitude": 43.30700352177602,
+      "longitude": 5.38825360050641,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.554Z"
+    },
+    {
+      "latitude": 43.307007629587325,
+      "longitude": 5.388262371792465,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.666Z"
+    },
+    {
+      "latitude": 43.30701116480374,
+      "longitude": 5.388269894672861,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.763Z"
+    },
+    {
+      "latitude": 43.307015292893254,
+      "longitude": 5.3882786485741505,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.876Z"
+    },
+    {
+      "latitude": 43.307019419902325,
+      "longitude": 5.388287367877714,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:41.989Z"
+    },
+    {
+      "latitude": 43.30702357370322,
+      "longitude": 5.388296111590819,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:42.102Z"
+    },
+    {
+      "latitude": 43.30702713665436,
+      "longitude": 5.388303586315471,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:42.199Z"
+    },
+    {
+      "latitude": 43.30703116021596,
+      "longitude": 5.388311998146143,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:42.309Z"
+    },
+    {
+      "latitude": 43.30703519552375,
+      "longitude": 5.388320405381018,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:42.416Z"
+    },
+    {
+      "latitude": 43.30703903771257,
+      "longitude": 5.388328382305184,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:42.521Z"
+    },
+    {
+      "latitude": 43.30704372729864,
+      "longitude": 5.388338082208843,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:42.645Z"
+    },
+    {
+      "latitude": 43.30704734275322,
+      "longitude": 5.3883455332283035,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:42.742Z"
+    },
+    {
+      "latitude": 43.30705165468468,
+      "longitude": 5.388354388860909,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:42.857Z"
+    },
+    {
+      "latitude": 43.30705589360594,
+      "longitude": 5.388363062710798,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:42.970Z"
+    },
+    {
+      "latitude": 43.30706015631447,
+      "longitude": 5.388371753266998,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:43.083Z"
+    },
+    {
+      "latitude": 43.30706380739937,
+      "longitude": 5.388379171731726,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:43.178Z"
+    },
+    {
+      "latitude": 43.30706807693573,
+      "longitude": 5.388387817405295,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:43.292Z"
+    },
+    {
+      "latitude": 43.307072357054885,
+      "longitude": 5.388396453139723,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:43.405Z"
+    },
+    {
+      "latitude": 43.307076647935084,
+      "longitude": 5.388405078821591,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:43.518Z"
+    },
+    {
+      "latitude": 43.30708033425753,
+      "longitude": 5.388412464595801,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:43.615Z"
+    },
+    {
+      "latitude": 43.3070846344832,
+      "longitude": 5.3884210511527595,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:43.728Z"
+    },
+    {
+      "latitude": 43.3070889438559,
+      "longitude": 5.388429624944987,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:43.841Z"
+    },
+    {
+      "latitude": 43.30709326951064,
+      "longitude": 5.388438200098742,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:43.954Z"
+    },
+    {
+      "latitude": 43.30709697241552,
+      "longitude": 5.388445515968478,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:44.051Z"
+    },
+    {
+      "latitude": 43.30710131671257,
+      "longitude": 5.388454071024535,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:44.163Z"
+    },
+    {
+      "latitude": 43.30710567888872,
+      "longitude": 5.38846262991283,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:44.276Z"
+    },
+    {
+      "latitude": 43.30710949606255,
+      "longitude": 5.388470093907128,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:44.375Z"
+    },
+    {
+      "latitude": 43.307113877805385,
+      "longitude": 5.388478633697234,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:44.488Z"
+    },
+    {
+      "latitude": 43.30711827013859,
+      "longitude": 5.388487163187303,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:44.601Z"
+    },
+    {
+      "latitude": 43.30712250182226,
+      "longitude": 5.38849535177525,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:44.709Z"
+    },
+    {
+      "latitude": 43.307126914801536,
+      "longitude": 5.388503861005473,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:44.822Z"
+    },
+    {
+      "latitude": 43.30713135497433,
+      "longitude": 5.3885123922530385,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:44.935Z"
+    },
+    {
+      "latitude": 43.30713515496931,
+      "longitude": 5.38851966931178,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:45.032Z"
+    },
+    {
+      "latitude": 43.30713959798832,
+      "longitude": 5.388528149500413,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:45.145Z"
+    },
+    {
+      "latitude": 43.30714405155376,
+      "longitude": 5.388536619387304,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:45.258Z"
+    },
+    {
+      "latitude": 43.30714851542156,
+      "longitude": 5.388545079083293,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:45.372Z"
+    },
+    {
+      "latitude": 43.307152378749905,
+      "longitude": 5.3885523759659755,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:45.469Z"
+    },
+    {
+      "latitude": 43.307156420873795,
+      "longitude": 5.388559986891147,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:45.571Z"
+    },
+    {
+      "latitude": 43.30716119040251,
+      "longitude": 5.388568936098243,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:45.691Z"
+    },
+    {
+      "latitude": 43.30716571340565,
+      "longitude": 5.3885773913730866,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:45.807Z"
+    },
+    {
+      "latitude": 43.30716968455288,
+      "longitude": 5.388584790495051,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:45.905Z"
+    },
+    {
+      "latitude": 43.307174196440364,
+      "longitude": 5.388593169601041,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:46.017Z"
+    },
+    {
+      "latitude": 43.307178713223436,
+      "longitude": 5.388601527949342,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:46.129Z"
+    },
+    {
+      "latitude": 43.30718249223201,
+      "longitude": 5.3886084982440305,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:46.223Z"
+    },
+    {
+      "latitude": 43.307187112482396,
+      "longitude": 5.388616992493613,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:46.338Z"
+    },
+    {
+      "latitude": 43.30719166634551,
+      "longitude": 5.388625335200518,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:46.451Z"
+    },
+    {
+      "latitude": 43.30719623279081,
+      "longitude": 5.388633671177247,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:46.564Z"
+    },
+    {
+      "latitude": 43.30720081646198,
+      "longitude": 5.388642009636238,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:46.678Z"
+    },
+    {
+      "latitude": 43.3072047537223,
+      "longitude": 5.3886491482036,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:46.773Z"
+    },
+    {
+      "latitude": 43.307209356531025,
+      "longitude": 5.388657467066027,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:46.886Z"
+    },
+    {
+      "latitude": 43.30721396946637,
+      "longitude": 5.388665775730701,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.001Z"
+    },
+    {
+      "latitude": 43.30721861603433,
+      "longitude": 5.388674117020109,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.112Z"
+    },
+    {
+      "latitude": 43.30722258576302,
+      "longitude": 5.388681221825447,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.210Z"
+    },
+    {
+      "latitude": 43.30722724986882,
+      "longitude": 5.388689545382151,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.324Z"
+    },
+    {
+      "latitude": 43.30723189856888,
+      "longitude": 5.388697817163697,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.437Z"
+    },
+    {
+      "latitude": 43.307235956078415,
+      "longitude": 5.388705018485844,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.534Z"
+    },
+    {
+      "latitude": 43.30724061900588,
+      "longitude": 5.38871327421109,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.647Z"
+    },
+    {
+      "latitude": 43.30724528897357,
+      "longitude": 5.388721522266616,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.759Z"
+    },
+    {
+      "latitude": 43.30724997495448,
+      "longitude": 5.388729780342557,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.872Z"
+    },
+    {
+      "latitude": 43.307254657507706,
+      "longitude": 5.388738015167387,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:47.985Z"
+    },
+    {
+      "latitude": 43.307258675471985,
+      "longitude": 5.388745069012554,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:48.082Z"
+    },
+    {
+      "latitude": 43.30726336775597,
+      "longitude": 5.388753293625234,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:48.195Z"
+    },
+    {
+      "latitude": 43.30726805091737,
+      "longitude": 5.388761488743322,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:48.308Z"
+    },
+    {
+      "latitude": 43.30727275178579,
+      "longitude": 5.3887697038215565,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:48.420Z"
+    },
+    {
+      "latitude": 43.307276783944566,
+      "longitude": 5.388776742092611,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:48.519Z"
+    },
+    {
+      "latitude": 43.30728149260689,
+      "longitude": 5.388784953384776,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:48.630Z"
+    },
+    {
+      "latitude": 43.30728619403215,
+      "longitude": 5.3887931448887585,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:48.743Z"
+    },
+    {
+      "latitude": 43.307290905758485,
+      "longitude": 5.388801348356693,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:48.857Z"
+    },
+    {
+      "latitude": 43.30729494561911,
+      "longitude": 5.388808378264473,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:48.953Z"
+    },
+    {
+      "latitude": 43.307299639656385,
+      "longitude": 5.388816543474759,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:49.067Z"
+    },
+    {
+      "latitude": 43.30730435448656,
+      "longitude": 5.388824742974139,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:49.178Z"
+    },
+    {
+      "latitude": 43.30730906977142,
+      "longitude": 5.388832942251803,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:49.291Z"
+    },
+    {
+      "latitude": 43.30731311158616,
+      "longitude": 5.388839970073064,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:49.390Z"
+    },
+    {
+      "latitude": 43.30731782689687,
+      "longitude": 5.38884816911331,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:49.504Z"
+    },
+    {
+      "latitude": 43.30732253066729,
+      "longitude": 5.388856349159996,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:49.615Z"
+    },
+    {
+      "latitude": 43.30732657187741,
+      "longitude": 5.388863377442334,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:49.712Z"
+    },
+    {
+      "latitude": 43.307331302710054,
+      "longitude": 5.3888716057512855,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:49.825Z"
+    },
+    {
+      "latitude": 43.30733601703868,
+      "longitude": 5.388879806443697,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:49.937Z"
+    },
+    {
+      "latitude": 43.30734074167947,
+      "longitude": 5.388888024880057,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:50.051Z"
+    },
+    {
+      "latitude": 43.30734478275441,
+      "longitude": 5.388895055328672,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:50.147Z"
+    },
+    {
+      "latitude": 43.30734949648821,
+      "longitude": 5.388903256001445,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:50.259Z"
+    },
+    {
+      "latitude": 43.30735421009052,
+      "longitude": 5.388911457151978,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:50.372Z"
+    },
+    {
+      "latitude": 43.30735892419924,
+      "longitude": 5.388919659286893,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:50.486Z"
+    },
+    {
+      "latitude": 43.307362967372136,
+      "longitude": 5.388926693915792,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:50.583Z"
+    },
+    {
+      "latitude": 43.3073676806098,
+      "longitude": 5.388934894814888,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:50.697Z"
+    },
+    {
+      "latitude": 43.30737239378279,
+      "longitude": 5.388943096675989,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:50.809Z"
+    },
+    {
+      "latitude": 43.30737710812158,
+      "longitude": 5.3889512997881255,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:50.922Z"
+    },
+    {
+      "latitude": 43.30738114805026,
+      "longitude": 5.38895833020031,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:51.019Z"
+    },
+    {
+      "latitude": 43.307385861055806,
+      "longitude": 5.388966531576887,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:51.130Z"
+    },
+    {
+      "latitude": 43.30739057408363,
+      "longitude": 5.38897473343725,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:51.243Z"
+    },
+    {
+      "latitude": 43.3073953005912,
+      "longitude": 5.388982958463622,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:51.356Z"
+    },
+    {
+      "latitude": 43.30740001660324,
+      "longitude": 5.388991165259772,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:51.470Z"
+    },
+    {
+      "latitude": 43.307404045124656,
+      "longitude": 5.3889981754835485,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:51.567Z"
+    },
+    {
+      "latitude": 43.307408766818185,
+      "longitude": 5.389006392137278,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:51.679Z"
+    },
+    {
+      "latitude": 43.307413487213296,
+      "longitude": 5.389014606333273,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:51.791Z"
+    },
+    {
+      "latitude": 43.30741820025347,
+      "longitude": 5.389022807960828,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:51.905Z"
+    },
+    {
+      "latitude": 43.3074222548536,
+      "longitude": 5.3890298637613725,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.003Z"
+    },
+    {
+      "latitude": 43.307426967903616,
+      "longitude": 5.3890380653916985,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.115Z"
+    },
+    {
+      "latitude": 43.307431709379934,
+      "longitude": 5.389046316300066,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.227Z"
+    },
+    {
+      "latitude": 43.30743642240672,
+      "longitude": 5.389054517932054,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.340Z"
+    },
+    {
+      "latitude": 43.307440462195956,
+      "longitude": 5.389061547870986,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.437Z"
+    },
+    {
+      "latitude": 43.307445195092996,
+      "longitude": 5.389069783998001,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.550Z"
+    },
+    {
+      "latitude": 43.307449911123776,
+      "longitude": 5.389077985634238,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.662Z"
+    },
+    {
+      "latitude": 43.307453958935774,
+      "longitude": 5.389085029617116,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.760Z"
+    },
+    {
+      "latitude": 43.30745867516568,
+      "longitude": 5.389093236678596,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.873Z"
+    },
+    {
+      "latitude": 43.30746338824109,
+      "longitude": 5.389101438319827,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:52.986Z"
+    },
+    {
+      "latitude": 43.30746810128706,
+      "longitude": 5.389109639961189,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:53.099Z"
+    },
+    {
+      "latitude": 43.30747280384848,
+      "longitude": 5.389117823372709,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:53.212Z"
+    },
+    {
+      "latitude": 43.30747683384667,
+      "longitude": 5.389124836320249,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:53.309Z"
+    },
+    {
+      "latitude": 43.3074815468483,
+      "longitude": 5.389133037963534,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:53.421Z"
+    },
+    {
+      "latitude": 43.30748625980492,
+      "longitude": 5.389141239365523,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:53.533Z"
+    },
+    {
+      "latitude": 43.30749028621527,
+      "longitude": 5.389148246155235,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:53.632Z"
+    },
+    {
+      "latitude": 43.307494991477355,
+      "longitude": 5.3891564342540885,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:53.744Z"
+    },
+    {
+      "latitude": 43.307499689301245,
+      "longitude": 5.389164609299564,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:53.856Z"
+    },
+    {
+      "latitude": 43.307504402258225,
+      "longitude": 5.389172810706506,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:53.969Z"
+    },
+    {
+      "latitude": 43.307509093183725,
+      "longitude": 5.389180973925102,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:54.083Z"
+    },
+    {
+      "latitude": 43.307513410681445,
+      "longitude": 5.389188487242109,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:54.188Z"
+    },
+    {
+      "latitude": 43.30751812738261,
+      "longitude": 5.389196695060695,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:54.299Z"
+    },
+    {
+      "latitude": 43.30752231004288,
+      "longitude": 5.389203973840358,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:54.399Z"
+    },
+    {
+      "latitude": 43.30752702305223,
+      "longitude": 5.389212175496326,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:54.513Z"
+    },
+    {
+      "latitude": 43.30753174753055,
+      "longitude": 5.389220396868204,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:54.625Z"
+    },
+    {
+      "latitude": 43.307535796035694,
+      "longitude": 5.389227442101452,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:54.721Z"
+    },
+    {
+      "latitude": 43.30754051745555,
+      "longitude": 5.389235658298757,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:54.834Z"
+    },
+    {
+      "latitude": 43.30754524487452,
+      "longitude": 5.389243885087483,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:54.947Z"
+    },
+    {
+      "latitude": 43.307549971185,
+      "longitude": 5.389252109666725,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:55.060Z"
+    },
+    {
+      "latitude": 43.30755402435433,
+      "longitude": 5.389259163033911,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:55.157Z"
+    },
+    {
+      "latitude": 43.30755874534757,
+      "longitude": 5.389267378497022,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:55.270Z"
+    },
+    {
+      "latitude": 43.307563458671524,
+      "longitude": 5.389275580656868,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:55.382Z"
+    },
+    {
+      "latitude": 43.307568171664464,
+      "longitude": 5.389283782323393,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:55.496Z"
+    },
+    {
+      "latitude": 43.30757221611606,
+      "longitude": 5.389290820422672,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:55.593Z"
+    },
+    {
+      "latitude": 43.30757693328904,
+      "longitude": 5.389299029239029,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:55.706Z"
+    },
+    {
+      "latitude": 43.30758164653875,
+      "longitude": 5.389307231160098,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:55.819Z"
+    },
+    {
+      "latitude": 43.30758635949634,
+      "longitude": 5.389315432830191,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:55.931Z"
+    },
+    {
+      "latitude": 43.30759039920273,
+      "longitude": 5.389322462800861,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:56.028Z"
+    },
+    {
+      "latitude": 43.307595101939334,
+      "longitude": 5.389330646493278,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:56.141Z"
+    },
+    {
+      "latitude": 43.307599810592215,
+      "longitude": 5.389338840533065,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:56.255Z"
+    },
+    {
+      "latitude": 43.30760452359638,
+      "longitude": 5.38934704196911,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:56.368Z"
+    },
+    {
+      "latitude": 43.30760856342748,
+      "longitude": 5.38935407218972,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:56.463Z"
+    },
+    {
+      "latitude": 43.30761327633164,
+      "longitude": 5.389362273624231,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:56.579Z"
+    },
+    {
+      "latitude": 43.307618181195636,
+      "longitude": 5.38937080912833,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:56.695Z"
+    },
+    {
+      "latitude": 43.30762219409067,
+      "longitude": 5.389377792300794,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:56.790Z"
+    },
+    {
+      "latitude": 43.30762687723872,
+      "longitude": 5.389385942242481,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:56.907Z"
+    },
+    {
+      "latitude": 43.30763114764638,
+      "longitude": 5.3893933735519095,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.009Z"
+    },
+    {
+      "latitude": 43.30763614655975,
+      "longitude": 5.389402072648252,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.124Z"
+    },
+    {
+      "latitude": 43.30764086066697,
+      "longitude": 5.389410276304757,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.236Z"
+    },
+    {
+      "latitude": 43.3076455736108,
+      "longitude": 5.3894184777496115,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.349Z"
+    },
+    {
+      "latitude": 43.30764961328852,
+      "longitude": 5.389425507732975,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.446Z"
+    },
+    {
+      "latitude": 43.30765433068785,
+      "longitude": 5.389433716820105,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.560Z"
+    },
+    {
+      "latitude": 43.307659044544195,
+      "longitude": 5.389441919749283,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.672Z"
+    },
+    {
+      "latitude": 43.30766375797387,
+      "longitude": 5.389450120977317,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.784Z"
+    },
+    {
+      "latitude": 43.307667798521244,
+      "longitude": 5.389457150276561,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.882Z"
+    },
+    {
+      "latitude": 43.30767250088605,
+      "longitude": 5.389465328677499,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:57.994Z"
+    },
+    {
+      "latitude": 43.3076772169222,
+      "longitude": 5.389473527121572,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:58.107Z"
+    },
+    {
+      "latitude": 43.307681934442606,
+      "longitude": 5.389481723939394,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:58.221Z"
+    },
+    {
+      "latitude": 43.307685979809065,
+      "longitude": 5.3894887476521935,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:58.319Z"
+    },
+    {
+      "latitude": 43.30769070187079,
+      "longitude": 5.3894969395932755,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:58.430Z"
+    },
+    {
+      "latitude": 43.30769540448973,
+      "longitude": 5.389505088871747,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:58.543Z"
+    },
+    {
+      "latitude": 43.307700133327536,
+      "longitude": 5.389513273134073,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:58.656Z"
+    },
+    {
+      "latitude": 43.3077041838821,
+      "longitude": 5.389520274658642,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:58.754Z"
+    },
+    {
+      "latitude": 43.30770891162837,
+      "longitude": 5.389528434317413,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:58.867Z"
+    },
+    {
+      "latitude": 43.30771365864509,
+      "longitude": 5.389536613275546,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:58.978Z"
+    },
+    {
+      "latitude": 43.307718406302506,
+      "longitude": 5.389544777329529,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:59.091Z"
+    },
+    {
+      "latitude": 43.307722480607346,
+      "longitude": 5.3895517699158075,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:59.188Z"
+    },
+    {
+      "latitude": 43.30772724002776,
+      "longitude": 5.389559921188394,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:59.301Z"
+    },
+    {
+      "latitude": 43.307732006483434,
+      "longitude": 5.389568065031927,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:59.414Z"
+    },
+    {
+      "latitude": 43.30773678037293,
+      "longitude": 5.3895762002579515,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:59.527Z"
+    },
+    {
+      "latitude": 43.30774087860944,
+      "longitude": 5.389583166815184,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:59.624Z"
+    },
+    {
+      "latitude": 43.30774566728065,
+      "longitude": 5.38959128576591,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:59.737Z"
+    },
+    {
+      "latitude": 43.30775046460565,
+      "longitude": 5.389599396628579,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:59.849Z"
+    },
+    {
+      "latitude": 43.30775526995381,
+      "longitude": 5.3896074969703225,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:34:59.963Z"
+    },
+    {
+      "latitude": 43.30775939558321,
+      "longitude": 5.389614432817881,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:00.059Z"
+    },
+    {
+      "latitude": 43.30776422003428,
+      "longitude": 5.389622522592463,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:00.172Z"
+    },
+    {
+      "latitude": 43.30776904929246,
+      "longitude": 5.389630596903757,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:00.286Z"
+    },
+    {
+      "latitude": 43.30777385955023,
+      "longitude": 5.38963861580647,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:00.398Z"
+    },
+    {
+      "latitude": 43.307778012496584,
+      "longitude": 5.389645521423018,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:00.495Z"
+    },
+    {
+      "latitude": 43.30778286555817,
+      "longitude": 5.389653568495605,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:00.608Z"
+    },
+    {
+      "latitude": 43.30778772680544,
+      "longitude": 5.389661606739355,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:00.721Z"
+    },
+    {
+      "latitude": 43.30779259616054,
+      "longitude": 5.389669635669581,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:00.834Z"
+    },
+    {
+      "latitude": 43.307796776443986,
+      "longitude": 5.38967651009267,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:00.930Z"
+    },
+    {
+      "latitude": 43.307801660825675,
+      "longitude": 5.389684521553139,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:01.043Z"
+    },
+    {
+      "latitude": 43.307806555358425,
+      "longitude": 5.389692526910787,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:01.156Z"
+    },
+    {
+      "latitude": 43.30781144806349,
+      "longitude": 5.389700507153265,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:01.269Z"
+    },
+    {
+      "latitude": 43.30781565549326,
+      "longitude": 5.389707351097871,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:01.370Z"
+    },
+    {
+      "latitude": 43.3078201717608,
+      "longitude": 5.389714679629648,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:01.470Z"
+    },
+    {
+      "latitude": 43.30782515265113,
+      "longitude": 5.389722740152641,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:01.584Z"
+    },
+    {
+      "latitude": 43.307829882152504,
+      "longitude": 5.389730373489289,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:01.696Z"
+    },
+    {
+      "latitude": 43.30783483476224,
+      "longitude": 5.389738344045317,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:01.806Z"
+    },
+    {
+      "latitude": 43.30783978470276,
+      "longitude": 5.389746288730736,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:01.918Z"
+    },
+    {
+      "latitude": 43.30784473970394,
+      "longitude": 5.389754218444441,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.031Z"
+    },
+    {
+      "latitude": 43.30784899305618,
+      "longitude": 5.3897610085682395,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.129Z"
+    },
+    {
+      "latitude": 43.307853962749455,
+      "longitude": 5.389768921039911,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.241Z"
+    },
+    {
+      "latitude": 43.307858940457734,
+      "longitude": 5.389776824435251,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.354Z"
+    },
+    {
+      "latitude": 43.30786392605426,
+      "longitude": 5.389784718508481,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.467Z"
+    },
+    {
+      "latitude": 43.30786820572829,
+      "longitude": 5.389791477639882,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.564Z"
+    },
+    {
+      "latitude": 43.30787320606085,
+      "longitude": 5.389799354472807,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.677Z"
+    },
+    {
+      "latitude": 43.307878214193806,
+      "longitude": 5.389807221980176,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.789Z"
+    },
+    {
+      "latitude": 43.307883230258945,
+      "longitude": 5.389815080167155,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.902Z"
+    },
+    {
+      "latitude": 43.30788753607906,
+      "longitude": 5.389821808299286,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:02.999Z"
+    },
+    {
+      "latitude": 43.3078925581276,
+      "longitude": 5.389829634694722,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:03.111Z"
+    },
+    {
+      "latitude": 43.30789759785122,
+      "longitude": 5.3898374673231,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:03.225Z"
+    },
+    {
+      "latitude": 43.30790264436623,
+      "longitude": 5.38984528841903,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:03.339Z"
+    },
+    {
+      "latitude": 43.307906976171836,
+      "longitude": 5.389851984823154,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:03.434Z"
+    },
+    {
+      "latitude": 43.30791203956402,
+      "longitude": 5.389859791411701,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:03.548Z"
+    },
+    {
+      "latitude": 43.30791710849376,
+      "longitude": 5.389867585455388,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:03.661Z"
+    },
+    {
+      "latitude": 43.30792218528799,
+      "longitude": 5.389875369212774,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:03.772Z"
+    },
+    {
+      "latitude": 43.307926543040196,
+      "longitude": 5.389882033646563,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:03.871Z"
+    },
+    {
+      "latitude": 43.30793163430691,
+      "longitude": 5.38988980015333,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:03.984Z"
+    },
+    {
+      "latitude": 43.307936733374035,
+      "longitude": 5.389897557334551,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:04.095Z"
+    },
+    {
+      "latitude": 43.30794184174733,
+      "longitude": 5.389905304708993,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:04.208Z"
+    },
+    {
+      "latitude": 43.30794623940729,
+      "longitude": 5.389911959152389,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:04.305Z"
+    },
+    {
+      "latitude": 43.307951360674586,
+      "longitude": 5.389919689032158,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:04.419Z"
+    },
+    {
+      "latitude": 43.30795648975237,
+      "longitude": 5.3899274091051455,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:04.531Z"
+    },
+    {
+      "latitude": 43.307961626640626,
+      "longitude": 5.389935119371353,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:04.644Z"
+    },
+    {
+      "latitude": 43.307966045258446,
+      "longitude": 5.389941734424393,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:04.742Z"
+    },
+    {
+      "latitude": 43.3079711966293,
+      "longitude": 5.389949426958759,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:04.853Z"
+    },
+    {
+      "latitude": 43.30797635545417,
+      "longitude": 5.389957109913189,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:04.967Z"
+    },
+    {
+      "latitude": 43.30798152213348,
+      "longitude": 5.389964783062562,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:05.080Z"
+    },
+    {
+      "latitude": 43.307985962689365,
+      "longitude": 5.389971360208564,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:05.177Z"
+    },
+    {
+      "latitude": 43.307991147913874,
+      "longitude": 5.389979021083326,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:05.289Z"
+    },
+    {
+      "latitude": 43.30799633774976,
+      "longitude": 5.389986667450387,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:05.402Z"
+    },
+    {
+      "latitude": 43.30800153420135,
+      "longitude": 5.38999430227812,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:05.517Z"
+    },
+    {
+      "latitude": 43.30800597684672,
+      "longitude": 5.390000813045074,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:05.613Z"
+    },
+    {
+      "latitude": 43.30801118743956,
+      "longitude": 5.39000842964595,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:05.725Z"
+    },
+    {
+      "latitude": 43.30801640562325,
+      "longitude": 5.390016036431442,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:05.840Z"
+    },
+    {
+      "latitude": 43.308021631480635,
+      "longitude": 5.390023633645615,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:05.951Z"
+    },
+    {
+      "latitude": 43.308026116228945,
+      "longitude": 5.390030136675652,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:06.048Z"
+    },
+    {
+      "latitude": 43.308031347576566,
+      "longitude": 5.390037702560548,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:06.161Z"
+    },
+    {
+      "latitude": 43.30803659517111,
+      "longitude": 5.39004527149187,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:06.273Z"
+    },
+    {
+      "latitude": 43.30804185039038,
+      "longitude": 5.390052831090767,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:06.386Z"
+    },
+    {
+      "latitude": 43.30804636099258,
+      "longitude": 5.390059302387687,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:06.484Z"
+    },
+    {
+      "latitude": 43.308051352789214,
+      "longitude": 5.390066446849083,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:06.591Z"
+    },
+    {
+      "latitude": 43.30805662943315,
+      "longitude": 5.390073978393635,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:06.703Z"
+    },
+    {
+      "latitude": 43.30806192647952,
+      "longitude": 5.3900815182046875,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:06.817Z"
+    },
+    {
+      "latitude": 43.30806721810066,
+      "longitude": 5.39008902938801,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:06.930Z"
+    },
+    {
+      "latitude": 43.30807251744952,
+      "longitude": 5.390096530520501,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:07.041Z"
+    },
+    {
+      "latitude": 43.308077065625845,
+      "longitude": 5.390102952003133,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:07.139Z"
+    },
+    {
+      "latitude": 43.30808238886019,
+      "longitude": 5.390110448294909,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:07.251Z"
+    },
+    {
+      "latitude": 43.30808770972156,
+      "longitude": 5.39011792137657,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:07.364Z"
+    },
+    {
+      "latitude": 43.308093038062175,
+      "longitude": 5.39012538367521,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:07.477Z"
+    },
+    {
+      "latitude": 43.308097611102184,
+      "longitude": 5.390131772422658,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:07.573Z"
+    },
+    {
+      "latitude": 43.30810295328162,
+      "longitude": 5.390139216241783,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:07.687Z"
+    },
+    {
+      "latitude": 43.30810830287622,
+      "longitude": 5.390146650238646,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:07.799Z"
+    },
+    {
+      "latitude": 43.30811365997388,
+      "longitude": 5.390154074416683,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:07.912Z"
+    },
+    {
+      "latitude": 43.308118257668,
+      "longitude": 5.3901604299390975,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.009Z"
+    },
+    {
+      "latitude": 43.30812362870242,
+      "longitude": 5.390167835159832,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.122Z"
+    },
+    {
+      "latitude": 43.30812899223827,
+      "longitude": 5.39017520998579,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.235Z"
+    },
+    {
+      "latitude": 43.30813437792733,
+      "longitude": 5.390182595555098,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.347Z"
+    },
+    {
+      "latitude": 43.30813900029071,
+      "longitude": 5.39018891713062,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.445Z"
+    },
+    {
+      "latitude": 43.3081444106899,
+      "longitude": 5.39019629837321,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.557Z"
+    },
+    {
+      "latitude": 43.30814981993108,
+      "longitude": 5.390203657175752,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.670Z"
+    },
+    {
+      "latitude": 43.308155231720384,
+      "longitude": 5.39021099922233,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.783Z"
+    },
+    {
+      "latitude": 43.30815987193934,
+      "longitude": 5.390217278396043,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.881Z"
+    },
+    {
+      "latitude": 43.30816531045817,
+      "longitude": 5.390224618362439,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:08.994Z"
+    },
+    {
+      "latitude": 43.3081707459163,
+      "longitude": 5.3902319343692735,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:09.107Z"
+    },
+    {
+      "latitude": 43.3081761885311,
+      "longitude": 5.390239240302889,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:09.219Z"
+    },
+    {
+      "latitude": 43.308180868894105,
+      "longitude": 5.390245506605888,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:09.317Z"
+    },
+    {
+      "latitude": 43.30818632526998,
+      "longitude": 5.390252793575316,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:09.428Z"
+    },
+    {
+      "latitude": 43.30819178907615,
+      "longitude": 5.390260070000619,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:09.542Z"
+    },
+    {
+      "latitude": 43.30819726003397,
+      "longitude": 5.390267336593326,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:09.655Z"
+    },
+    {
+      "latitude": 43.30820273841203,
+      "longitude": 5.390274593123149,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:09.767Z"
+    },
+    {
+      "latitude": 43.30820743988405,
+      "longitude": 5.390280804389722,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:09.865Z"
+    },
+    {
+      "latitude": 43.30821293176467,
+      "longitude": 5.390288041704398,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:09.976Z"
+    },
+    {
+      "latitude": 43.30821843098271,
+      "longitude": 5.390295268712127,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:10.090Z"
+    },
+    {
+      "latitude": 43.30822314132139,
+      "longitude": 5.3903014427620946,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:10.187Z"
+    },
+    {
+      "latitude": 43.30822865387635,
+      "longitude": 5.390308650066547,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:10.300Z"
+    },
+    {
+      "latitude": 43.30823417377376,
+      "longitude": 5.39031584682343,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:10.413Z"
+    },
+    {
+      "latitude": 43.30823968670854,
+      "longitude": 5.390323014892197,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:10.526Z"
+    },
+    {
+      "latitude": 43.30824522093945,
+      "longitude": 5.390330190540161,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:10.640Z"
+    },
+    {
+      "latitude": 43.3082499708867,
+      "longitude": 5.39033633315665,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:10.736Z"
+    },
+    {
+      "latitude": 43.30825550192048,
+      "longitude": 5.390343468224394,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:10.849Z"
+    },
+    {
+      "latitude": 43.30826104859761,
+      "longitude": 5.390350603665995,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:10.960Z"
+    },
+    {
+      "latitude": 43.308266609976826,
+      "longitude": 5.3903577382404695,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:11.075Z"
+    },
+    {
+      "latitude": 43.30827138367098,
+      "longitude": 5.3903638468739,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:11.172Z"
+    },
+    {
+      "latitude": 43.30827695923555,
+      "longitude": 5.3903709632232655,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:11.283Z"
+    },
+    {
+      "latitude": 43.308282541264,
+      "longitude": 5.390378068990614,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:11.396Z"
+    },
+    {
+      "latitude": 43.308288132263996,
+      "longitude": 5.390385166200808,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:11.509Z"
+    },
+    {
+      "latitude": 43.30829292902733,
+      "longitude": 5.3903912396205165,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:11.606Z"
+    },
+    {
+      "latitude": 43.308298531730195,
+      "longitude": 5.390398315377637,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:11.719Z"
+    },
+    {
+      "latitude": 43.30830414151699,
+      "longitude": 5.390405380336231,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:11.832Z"
+    },
+    {
+      "latitude": 43.308309758548354,
+      "longitude": 5.39041243522505,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:11.946Z"
+    },
+    {
+      "latitude": 43.30831460735257,
+      "longitude": 5.390418509244762,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:12.041Z"
+    },
+    {
+      "latitude": 43.308320712906365,
+      "longitude": 5.390426136930998,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:12.165Z"
+    },
+    {
+      "latitude": 43.30832554498144,
+      "longitude": 5.390432157317081,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:12.261Z"
+    },
+    {
+      "latitude": 43.3083311888098,
+      "longitude": 5.390439171118558,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:12.373Z"
+    },
+    {
+      "latitude": 43.30833683989782,
+      "longitude": 5.390446174128396,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:12.487Z"
+    },
+    {
+      "latitude": 43.30834249795679,
+      "longitude": 5.390453167539364,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:12.600Z"
+    },
+    {
+      "latitude": 43.30834735310616,
+      "longitude": 5.390459152471095,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:12.698Z"
+    },
+    {
+      "latitude": 43.308353024170806,
+      "longitude": 5.390466125202517,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:12.809Z"
+    },
+    {
+      "latitude": 43.30835869218859,
+      "longitude": 5.390473075419731,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:12.922Z"
+    },
+    {
+      "latitude": 43.30836437724041,
+      "longitude": 5.390480026787821,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:13.035Z"
+    },
+    {
+      "latitude": 43.308369255986214,
+      "longitude": 5.390485976526486,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:13.132Z"
+    },
+    {
+      "latitude": 43.30837493773805,
+      "longitude": 5.3904928880326795,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:13.245Z"
+    },
+    {
+      "latitude": 43.30838064105463,
+      "longitude": 5.390499806887857,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:13.358Z"
+    },
+    {
+      "latitude": 43.30838635067452,
+      "longitude": 5.390506714432258,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:13.472Z"
+    },
+    {
+      "latitude": 43.308391243222296,
+      "longitude": 5.3905126179978,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:13.567Z"
+    },
+    {
+      "latitude": 43.308396968149644,
+      "longitude": 5.390519508324349,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:13.680Z"
+    },
+    {
+      "latitude": 43.3084026997267,
+      "longitude": 5.3905263875945195,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:13.794Z"
+    },
+    {
+      "latitude": 43.30840843837263,
+      "longitude": 5.39053325678802,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:13.906Z"
+    },
+    {
+      "latitude": 43.30841334524456,
+      "longitude": 5.39053911444171,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.004Z"
+    },
+    {
+      "latitude": 43.30841909654478,
+      "longitude": 5.390545962941869,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.117Z"
+    },
+    {
+      "latitude": 43.30842485501686,
+      "longitude": 5.3905528006469385,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.230Z"
+    },
+    {
+      "latitude": 43.308430620050785,
+      "longitude": 5.3905596272921805,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.343Z"
+    },
+    {
+      "latitude": 43.30843556698551,
+      "longitude": 5.39056546966391,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.439Z"
+    },
+    {
+      "latitude": 43.30844133917009,
+      "longitude": 5.390572265649902,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.552Z"
+    },
+    {
+      "latitude": 43.30844712384945,
+      "longitude": 5.390579061040439,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.664Z"
+    },
+    {
+      "latitude": 43.308452915427026,
+      "longitude": 5.39058584610679,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.778Z"
+    },
+    {
+      "latitude": 43.308457885001914,
+      "longitude": 5.390591652766289,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.875Z"
+    },
+    {
+      "latitude": 43.30846368897023,
+      "longitude": 5.390598417128956,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:14.987Z"
+    },
+    {
+      "latitude": 43.30846950044673,
+      "longitude": 5.390605171432173,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:15.100Z"
+    },
+    {
+      "latitude": 43.30847531806093,
+      "longitude": 5.39061191393647,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:15.213Z"
+    },
+    {
+      "latitude": 43.30848031018814,
+      "longitude": 5.3906176848802865,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:15.309Z"
+    },
+    {
+      "latitude": 43.30848614052943,
+      "longitude": 5.39062440741654,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:15.423Z"
+    },
+    {
+      "latitude": 43.30849197760831,
+      "longitude": 5.390631118899849,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:15.536Z"
+    },
+    {
+      "latitude": 43.30849782134702,
+      "longitude": 5.390637818845526,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:15.648Z"
+    },
+    {
+      "latitude": 43.30850284230439,
+      "longitude": 5.390643560821927,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:15.745Z"
+    },
+    {
+      "latitude": 43.308508698940884,
+      "longitude": 5.390650241047068,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:15.859Z"
+    },
+    {
+      "latitude": 43.30851456231498,
+      "longitude": 5.390656910219262,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:15.972Z"
+    },
+    {
+      "latitude": 43.30852043208029,
+      "longitude": 5.390663568084107,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:16.084Z"
+    },
+    {
+      "latitude": 43.30852630832468,
+      "longitude": 5.390670214645045,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:16.197Z"
+    },
+    {
+      "latitude": 43.30853135054215,
+      "longitude": 5.39067590279481,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:16.293Z"
+    },
+    {
+      "latitude": 43.30853723918738,
+      "longitude": 5.390682528170806,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:16.407Z"
+    },
+    {
+      "latitude": 43.30854313439452,
+      "longitude": 5.390689142486959,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:16.519Z"
+    },
+    {
+      "latitude": 43.30854903650995,
+      "longitude": 5.390695745997673,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:16.632Z"
+    },
+    {
+      "latitude": 43.30855410094852,
+      "longitude": 5.390701397455457,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:16.729Z"
+    },
+    {
+      "latitude": 43.30856001518617,
+      "longitude": 5.390707980492749,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:16.842Z"
+    },
+    {
+      "latitude": 43.30856593625432,
+      "longitude": 5.390714552239908,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:16.955Z"
+    },
+    {
+      "latitude": 43.30857186379653,
+      "longitude": 5.390721112923779,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:17.068Z"
+    },
+    {
+      "latitude": 43.3085769498412,
+      "longitude": 5.390726727665455,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:17.165Z"
+    },
+    {
+      "latitude": 43.30858288969141,
+      "longitude": 5.390733267401543,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:17.278Z"
+    },
+    {
+      "latitude": 43.30858883618636,
+      "longitude": 5.39073979632185,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:17.390Z"
+    },
+    {
+      "latitude": 43.30859393810113,
+      "longitude": 5.390745383754096,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:17.487Z"
+    },
+    {
+      "latitude": 43.308599896723344,
+      "longitude": 5.390751891960348,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:17.600Z"
+    },
+    {
+      "latitude": 43.30860586182967,
+      "longitude": 5.390758388622058,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:17.714Z"
+    },
+    {
+      "latitude": 43.30861183341007,
+      "longitude": 5.390764874220469,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:17.826Z"
+    },
+    {
+      "latitude": 43.30861781155238,
+      "longitude": 5.390771348759028,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:17.939Z"
+    },
+    {
+      "latitude": 43.30862294279991,
+      "longitude": 5.390776891591425,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:18.036Z"
+    },
+    {
+      "latitude": 43.30862893308459,
+      "longitude": 5.390783344694053,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:18.149Z"
+    },
+    {
+      "latitude": 43.30863492975549,
+      "longitude": 5.390789786729934,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:18.262Z"
+    },
+    {
+      "latitude": 43.30864093272978,
+      "longitude": 5.390796217455,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:18.374Z"
+    },
+    {
+      "latitude": 43.30864608705192,
+      "longitude": 5.390801724832933,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:18.472Z"
+    },
+    {
+      "latitude": 43.30865210163641,
+      "longitude": 5.390808134342009,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:18.585Z"
+    },
+    {
+      "latitude": 43.30865812296359,
+      "longitude": 5.390814532557494,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:18.696Z"
+    },
+    {
+      "latitude": 43.308664150945596,
+      "longitude": 5.39082091947594,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:18.810Z"
+    },
+    {
+      "latitude": 43.308669322757375,
+      "longitude": 5.390826385159893,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:18.907Z"
+    },
+    {
+      "latitude": 43.30867536200823,
+      "longitude": 5.390832750367317,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:19.020Z"
+    },
+    {
+      "latitude": 43.30868140782606,
+      "longitude": 5.390839104274253,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:19.133Z"
+    },
+    {
+      "latitude": 43.30868746011295,
+      "longitude": 5.3908454473584975,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:19.245Z"
+    },
+    {
+      "latitude": 43.30869265301387,
+      "longitude": 5.390850875824356,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:19.343Z"
+    },
+    {
+      "latitude": 43.30869871730269,
+      "longitude": 5.390857195781401,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:19.455Z"
+    },
+    {
+      "latitude": 43.30870478770912,
+      "longitude": 5.39086350490197,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:19.568Z"
+    },
+    {
+      "latitude": 43.30871086449676,
+      "longitude": 5.3908698031964,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:19.682Z"
+    },
+    {
+      "latitude": 43.3087160782736,
+      "longitude": 5.390875192027591,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:19.777Z"
+    },
+    {
+      "latitude": 43.30872216833073,
+      "longitude": 5.390881469652714,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:19.890Z"
+    },
+    {
+      "latitude": 43.3087282634814,
+      "longitude": 5.3908877349562765,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.004Z"
+    },
+    {
+      "latitude": 43.308734364692036,
+      "longitude": 5.390893987976182,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.116Z"
+    },
+    {
+      "latitude": 43.308739599655986,
+      "longitude": 5.390899339111446,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.214Z"
+    },
+    {
+      "latitude": 43.30874571220323,
+      "longitude": 5.390905571386231,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.326Z"
+    },
+    {
+      "latitude": 43.30875183097611,
+      "longitude": 5.390911791865485,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.440Z"
+    },
+    {
+      "latitude": 43.308757956315986,
+      "longitude": 5.390918001044236,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.552Z"
+    },
+    {
+      "latitude": 43.30876408778357,
+      "longitude": 5.390924198905253,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.666Z"
+    },
+    {
+      "latitude": 43.308769348373,
+      "longitude": 5.390929501923683,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.763Z"
+    },
+    {
+      "latitude": 43.30877549145087,
+      "longitude": 5.3909356785686615,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.875Z"
+    },
+    {
+      "latitude": 43.30878164962262,
+      "longitude": 5.390941852435416,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:20.988Z"
+    },
+    {
+      "latitude": 43.30878692547735,
+      "longitude": 5.39094712763896,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:21.084Z"
+    },
+    {
+      "latitude": 43.308793086215424,
+      "longitude": 5.3909532712654675,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:21.197Z"
+    },
+    {
+      "latitude": 43.30879925309128,
+      "longitude": 5.390959403092989,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:21.310Z"
+    },
+    {
+      "latitude": 43.30880542618271,
+      "longitude": 5.390965523606214,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:21.423Z"
+    },
+    {
+      "latitude": 43.308810722356114,
+      "longitude": 5.390970760598078,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:21.520Z"
+    },
+    {
+      "latitude": 43.3088169068922,
+      "longitude": 5.390976859407111,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:21.633Z"
+    },
+    {
+      "latitude": 43.308823097721664,
+      "longitude": 5.390982947386533,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:21.747Z"
+    },
+    {
+      "latitude": 43.30882929461112,
+      "longitude": 5.39098902308227,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:21.857Z"
+    },
+    {
+      "latitude": 43.30883549823327,
+      "longitude": 5.390995087965624,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:21.972Z"
+    },
+    {
+      "latitude": 43.308840821837,
+      "longitude": 5.391000278837922,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:22.068Z"
+    },
+    {
+      "latitude": 43.308847035957484,
+      "longitude": 5.3910063210166745,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:22.182Z"
+    },
+    {
+      "latitude": 43.308853256215784,
+      "longitude": 5.39101235139643,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:22.294Z"
+    },
+    {
+      "latitude": 43.308859482338235,
+      "longitude": 5.39101837044809,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:22.409Z"
+    },
+    {
+      "latitude": 43.308864824114565,
+      "longitude": 5.391023520616294,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:22.504Z"
+    },
+    {
+      "latitude": 43.30887106149591,
+      "longitude": 5.391029518438091,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:22.617Z"
+    },
+    {
+      "latitude": 43.308877305035196,
+      "longitude": 5.391035503498388,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:22.730Z"
+    },
+    {
+      "latitude": 43.30888356661533,
+      "longitude": 5.3910414878226085,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:22.843Z"
+    },
+    {
+      "latitude": 43.30888892793979,
+      "longitude": 5.391046598785566,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:22.939Z"
+    },
+    {
+      "latitude": 43.308895188798004,
+      "longitude": 5.391052550332294,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:23.052Z"
+    },
+    {
+      "latitude": 43.30890145533462,
+      "longitude": 5.39105849102527,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:23.165Z"
+    },
+    {
+      "latitude": 43.30890772759996,
+      "longitude": 5.391064418458267,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:23.282Z"
+    },
+    {
+      "latitude": 43.308913124796014,
+      "longitude": 5.3910695043421075,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:23.375Z"
+    },
+    {
+      "latitude": 43.30891940826261,
+      "longitude": 5.391075409098035,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:23.489Z"
+    },
+    {
+      "latitude": 43.30892555340172,
+      "longitude": 5.391081167309187,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:23.604Z"
+    },
+    {
+      "latitude": 43.308931866022,
+      "longitude": 5.391087065504803,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:23.715Z"
+    },
+    {
+      "latitude": 43.308937245715455,
+      "longitude": 5.391092075993314,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:23.810Z"
+    },
+    {
+      "latitude": 43.30894444279996,
+      "longitude": 5.391098761685641,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:23.941Z"
+    },
+    {
+      "latitude": 43.30894959575345,
+      "longitude": 5.3911035350442145,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:24.031Z"
+    },
+    {
+      "latitude": 43.30895543958962,
+      "longitude": 5.391108934180661,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:24.137Z"
+    },
+    {
+      "latitude": 43.308962332252754,
+      "longitude": 5.391115283792894,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:24.257Z"
+    },
+    {
+      "latitude": 43.3089682969927,
+      "longitude": 5.391120762809724,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:24.365Z"
+    },
+    {
+      "latitude": 43.30897472867721,
+      "longitude": 5.391126652197867,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:24.480Z"
+    },
+    {
+      "latitude": 43.30897973511674,
+      "longitude": 5.391131224750173,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:24.568Z"
+    },
+    {
+      "latitude": 43.3089861142904,
+      "longitude": 5.3911370350184535,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:24.683Z"
+    },
+    {
+      "latitude": 43.30899228359781,
+      "longitude": 5.391142638138806,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:24.792Z"
+    },
+    {
+      "latitude": 43.30899876961874,
+      "longitude": 5.391148510878946,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:24.908Z"
+    },
+    {
+      "latitude": 43.30900452070472,
+      "longitude": 5.3911537031339165,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.010Z"
+    },
+    {
+      "latitude": 43.30901113911597,
+      "longitude": 5.3911596615032735,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.127Z"
+    },
+    {
+      "latitude": 43.30901680898519,
+      "longitude": 5.391164751356789,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.228Z"
+    },
+    {
+      "latitude": 43.30902329776953,
+      "longitude": 5.391170559188635,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.341Z"
+    },
+    {
+      "latitude": 43.309029154704675,
+      "longitude": 5.3911757859430445,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.446Z"
+    },
+    {
+      "latitude": 43.309035011228616,
+      "longitude": 5.391180998714766,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.551Z"
+    },
+    {
+      "latitude": 43.3090421046648,
+      "longitude": 5.391187292160675,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.674Z"
+    },
+    {
+      "latitude": 43.30904759751214,
+      "longitude": 5.39119215159452,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.771Z"
+    },
+    {
+      "latitude": 43.309054004087514,
+      "longitude": 5.391197803527558,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.884Z"
+    },
+    {
+      "latitude": 43.309060424479235,
+      "longitude": 5.391203450705695,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:25.996Z"
+    },
+    {
+      "latitude": 43.309065980518014,
+      "longitude": 5.391208324180557,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:26.094Z"
+    },
+    {
+      "latitude": 43.30907288704794,
+      "longitude": 5.391214363701397,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:26.218Z"
+    },
+    {
+      "latitude": 43.30907829653624,
+      "longitude": 5.39121908019457,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:26.313Z"
+    },
+    {
+      "latitude": 43.30908539258736,
+      "longitude": 5.391225248525416,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:26.436Z"
+    },
+    {
+      "latitude": 43.30909113878572,
+      "longitude": 5.391230228681431,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:26.538Z"
+    },
+    {
+      "latitude": 43.30909726683079,
+      "longitude": 5.391235525805431,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:26.645Z"
+    },
+    {
+      "latitude": 43.30910356139861,
+      "longitude": 5.391240949872728,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:26.754Z"
+    },
+    {
+      "latitude": 43.309109439771994,
+      "longitude": 5.391246000719589,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:26.859Z"
+    },
+    {
+      "latitude": 43.309116263286036,
+      "longitude": 5.391251847226128,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:26.976Z"
+    },
+    {
+      "latitude": 43.30912308651969,
+      "longitude": 5.391257673494061,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:27.096Z"
+    },
+    {
+      "latitude": 43.30912868624979,
+      "longitude": 5.391262442250114,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:27.193Z"
+    },
+    {
+      "latitude": 43.309135164758,
+      "longitude": 5.391267942413018,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:27.308Z"
+    },
+    {
+      "latitude": 43.30914095479738,
+      "longitude": 5.391272844344473,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:27.408Z"
+    },
+    {
+      "latitude": 43.30914744327693,
+      "longitude": 5.3912783217819715,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:27.520Z"
+    },
+    {
+      "latitude": 43.309153937660994,
+      "longitude": 5.3912837859663,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:27.631Z"
+    },
+    {
+      "latitude": 43.30916043754782,
+      "longitude": 5.391289239289907,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:27.745Z"
+    },
+    {
+      "latitude": 43.30916602276234,
+      "longitude": 5.39129391163579,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:27.842Z"
+    },
+    {
+      "latitude": 43.30917254006562,
+      "longitude": 5.391299347824037,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:27.953Z"
+    },
+    {
+      "latitude": 43.30917905479416,
+      "longitude": 5.3913047641651515,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:28.068Z"
+    },
+    {
+      "latitude": 43.309185253848675,
+      "longitude": 5.391309903221621,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:28.178Z"
+    },
+    {
+      "latitude": 43.30919156750151,
+      "longitude": 5.391315120947315,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:28.286Z"
+    },
+    {
+      "latitude": 43.30919810139423,
+      "longitude": 5.391320503847037,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:28.397Z"
+    },
+    {
+      "latitude": 43.30920370457434,
+      "longitude": 5.3913251075470585,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:28.495Z"
+    },
+    {
+      "latitude": 43.30921024637013,
+      "longitude": 5.391330465713589,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:28.607Z"
+    },
+    {
+      "latitude": 43.30921610274873,
+      "longitude": 5.391335247922426,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:28.712Z"
+    },
+    {
+      "latitude": 43.30922314285797,
+      "longitude": 5.391340979645548,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:28.832Z"
+    },
+    {
+      "latitude": 43.309229253529594,
+      "longitude": 5.391345938479848,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:28.934Z"
+    },
+    {
+      "latitude": 43.30923585770468,
+      "longitude": 5.391351282240432,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:29.051Z"
+    },
+    {
+      "latitude": 43.30924361838596,
+      "longitude": 5.391357540251651,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:29.184Z"
+    },
+    {
+      "latitude": 43.30924849268608,
+      "longitude": 5.391361459851266,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:29.269Z"
+    },
+    {
+      "latitude": 43.309254094324054,
+      "longitude": 5.3913659522391075,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:29.368Z"
+    },
+    {
+      "latitude": 43.309261047636554,
+      "longitude": 5.391371511989789,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:29.484Z"
+    },
+    {
+      "latitude": 43.309266951857644,
+      "longitude": 5.391376218057369,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:29.586Z"
+    },
+    {
+      "latitude": 43.30927401367476,
+      "longitude": 5.391381828304525,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:29.706Z"
+    },
+    {
+      "latitude": 43.30927972196556,
+      "longitude": 5.391386350407014,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:29.805Z"
+    },
+    {
+      "latitude": 43.30928623362178,
+      "longitude": 5.391391493073747,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:29.919Z"
+    },
+    {
+      "latitude": 43.3092923419444,
+      "longitude": 5.3913963034803345,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:30.017Z"
+    },
+    {
+      "latitude": 43.30929863379389,
+      "longitude": 5.391401243424589,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:30.125Z"
+    },
+    {
+      "latitude": 43.30930599702169,
+      "longitude": 5.391407005659554,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:30.248Z"
+    },
+    {
+      "latitude": 43.309311515543605,
+      "longitude": 5.391411309844614,
+      "height": 4800,
+      "gradient": 0,
+      "timestamp": "2026-01-25T19:35:30.346Z"
+    }
+  ],
+  "markers": [
+    {
+      "stationName": "Marseille Saint-Charles",
+      "markerType": "Platform",
+      "platformLength": 42588.015625,
+      "detectedAt": {
+        "longitude": 5.384463458054709,
+        "latitude": 43.30490083630503
+      },
+      "distanceAheadMeters": 24.666455078125,
+      "onspot_latitude": 43.30930599702169,
+      "onspot_longitude": 5.391407005659554,
+      "onspot_distance": 24.666455078125
+    },
+    {
+      "stationName": "Marseille Saint-Charles E",
+      "markerType": "Platform",
+      "platformLength": 42588.015625,
+      "detectedAt": {
+        "longitude": 5.384463458054709,
+        "latitude": 43.30490083630503
+      },
+      "distanceAheadMeters": 24.666455078125,
+      "onspot_latitude": 43.30930599702169,
+      "onspot_longitude": 5.391407005659554,
+      "onspot_distance": 24.666455078125
+    }
+  ],
+  "timetable": [
+    {
+      "index": 0,
+      "location": "Marseille Saint-Charles",
+      "arrival": "06:02:00",
+      "departure": "06:04:00",
+      "platform": "E",
+      "apiName": "Marseille Saint-Charles E"
+    },
+    {
+      "index": 1,
+      "location": "Power Changeover Location",
+      "arrival": "",
+      "departure": "",
+      "platform": "",
+      "apiName": "Power Changeover Location",
+      "isPassThrough": true
+    },
+    {
+      "index": 2,
+      "location": "Aix-en-Provence TGV",
+      "arrival": "06:15:00",
+      "departure": "06:16:00",
+      "platform": "4",
+      "apiName": "Aix-en-Provence TGV 4"
+    },
+    {
+      "index": 3,
+      "location": "Avignon TGV",
+      "arrival": "06:35:00",
+      "departure": "",
+      "platform": "4",
+      "apiName": "Avignon TGV 4"
+    }
+  ]
+}

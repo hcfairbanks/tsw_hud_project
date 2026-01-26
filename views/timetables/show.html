@@ -80,6 +80,7 @@
         .stop-marker { background: #00cc66; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
         .stop-marker.first { background: #0066ff; }
         .stop-marker.last { background: #e94560; }
+        .coord-cell { font-family: monospace; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
     </style>
 </head>
 <body data-theme="dark">
@@ -584,7 +585,7 @@
                 return;
             }
 
-            let html = '<table><thead><tr><th>#</th><th>Action</th><th>Location</th><th>Platform</th><th>Time 1</th><th>Time 2</th><th>Details</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>#</th><th>Action</th><th>Location</th><th>Platform</th><th>Time 1</th><th>Time 2</th><th>Details</th><th>Lat</th><th>Lng</th><th class="actions">Actions</th></tr></thead><tbody>';
             entries.forEach(function(entry, index) {
                 var actionOptions = ACTIONS.map(function(a) {
                     return '<option value="' + a + '"' + (entry.action === a ? ' selected' : '') + '>' + a + '</option>';
@@ -598,6 +599,8 @@
                 html += '<td class="editable-cell" data-field="time1">' + escapeHtml(entry.time1 || '') + '</td>';
                 html += '<td class="editable-cell" data-field="time2">' + escapeHtml(entry.time2 || '') + '</td>';
                 html += '<td class="editable-cell" data-field="details">' + escapeHtml(entry.details || '') + '</td>';
+                html += '<td class="editable-cell coord-cell" data-field="latitude">' + escapeHtml(entry.latitude || '') + '</td>';
+                html += '<td class="editable-cell coord-cell" data-field="longitude">' + escapeHtml(entry.longitude || '') + '</td>';
                 html += '<td class="actions">';
                 if (index > 0) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', -1)">Up</button>';
                 if (index < entries.length - 1) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', 1)">Down</button>';

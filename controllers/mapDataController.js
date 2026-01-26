@@ -276,37 +276,53 @@ async function getRouteDataFromDb(req, res, timetableId) {
         // Get entries from timetable_entries
         const entries = entryDb.getByTimetableId(timetableId);
 
-        // Build timetable array from entries
+        // Build timetable array from entries (include entries with a location, even without coordinates)
         const timetableArray = [];
         let entryIndex = 0;
         for (let i = 0; i < entries.length; i++) {
             const entry = entries[i];
-            if (entry.latitude && entry.longitude && entry.latitude !== '' && entry.longitude !== '') {
-                let arrival = '';
-                let departure = '';
 
-                if (entry.action === 'WAIT FOR SERVICE') {
-                    arrival = entry.time2 || '';
-                } else {
-                    arrival = entry.time1 || '';
-                }
-
-                if (i + 1 < entries.length) {
-                    departure = entries[i + 1].time1 || '';
-                }
-
-                timetableArray.push({
-                    index: entryIndex,
-                    location: entry.location || '',
-                    arrival: arrival,
-                    departure: departure,
-                    platform: entry.platform || '',
-                    apiName: entry.api_name || '',
-                    latitude: parseFloat(entry.latitude),
-                    longitude: parseFloat(entry.longitude)
-                });
-                entryIndex++;
+            // Only include entries that have a location
+            if (!entry.location || entry.location.trim() === '') {
+                continue;
             }
+
+            let arrival = '';
+            let departure = '';
+
+            if (entry.action === 'WAIT FOR SERVICE') {
+                arrival = entry.time2 || '';
+            } else {
+                arrival = entry.time1 || '';
+            }
+
+            if (i + 1 < entries.length) {
+                departure = entries[i + 1].time1 || '';
+            }
+
+            const timetableEntry = {
+                id: entry.id,  // Database ID for SAVE LOC functionality
+                index: entryIndex,
+                location: entry.location,
+                arrival: arrival,
+                departure: departure,
+                platform: entry.platform || '',
+                apiName: entry.api_name || ''
+            };
+
+            // Only include coordinates if they exist
+            if (entry.latitude && entry.longitude && entry.latitude !== '' && entry.longitude !== '') {
+                timetableEntry.latitude = parseFloat(entry.latitude);
+                timetableEntry.longitude = parseFloat(entry.longitude);
+            }
+
+            // Include isPassThrough flag for GO VIA LOCATION entries
+            if (entry.action === 'GO VIA LOCATION') {
+                timetableEntry.isPassThrough = true;
+            }
+
+            timetableArray.push(timetableEntry);
+            entryIndex++;
         }
 
         // Build the route data structure
@@ -372,44 +388,58 @@ async function remakeProcessedJson(req, res) {
         // Get entries from timetable_entries
         const entries = entryDb.getByTimetableId(timetableId);
 
-        // Build timetable array from entries
-        // For each entry with coordinates, we need to find the arrival and departure times
+        // Build timetable array from entries (include entries with a location, even without coordinates)
         // - WAIT FOR SERVICE (sort_order 0): arrival = time2, departure = next sort_order's time1
         // - STOP AT LOCATION: arrival = time1, departure = next sort_order's time1
         const timetableArray = [];
         let entryIndex = 0;
         for (let i = 0; i < entries.length; i++) {
             const entry = entries[i];
-            // Only include entries that have coordinates (location-based stops)
-            if (entry.latitude && entry.longitude && entry.latitude !== '' && entry.longitude !== '') {
-                let arrival = '';
-                let departure = '';
 
-                if (entry.action === 'WAIT FOR SERVICE') {
-                    // First entry: arrival is time2 (scheduled start), departure is next entry's time1
-                    arrival = entry.time2 || '';
-                } else {
-                    // Other entries: arrival is time1
-                    arrival = entry.time1 || '';
-                }
-
-                // Departure is always the next entry's time1 (if exists)
-                if (i + 1 < entries.length) {
-                    departure = entries[i + 1].time1 || '';
-                }
-
-                timetableArray.push({
-                    index: entryIndex,
-                    location: entry.location || '',
-                    arrival: arrival,
-                    departure: departure,
-                    platform: entry.platform || '',
-                    apiName: entry.api_name || '',
-                    latitude: parseFloat(entry.latitude),
-                    longitude: parseFloat(entry.longitude)
-                });
-                entryIndex++;
+            // Only include entries that have a location
+            if (!entry.location || entry.location.trim() === '') {
+                continue;
             }
+
+            let arrival = '';
+            let departure = '';
+
+            if (entry.action === 'WAIT FOR SERVICE') {
+                // First entry: arrival is time2 (scheduled start), departure is next entry's time1
+                arrival = entry.time2 || '';
+            } else {
+                // Other entries: arrival is time1
+                arrival = entry.time1 || '';
+            }
+
+            // Departure is always the next entry's time1 (if exists)
+            if (i + 1 < entries.length) {
+                departure = entries[i + 1].time1 || '';
+            }
+
+            const timetableEntry = {
+                id: entry.id,  // Database ID for SAVE LOC functionality
+                index: entryIndex,
+                location: entry.location,
+                arrival: arrival,
+                departure: departure,
+                platform: entry.platform || '',
+                apiName: entry.api_name || ''
+            };
+
+            // Only include coordinates if they exist
+            if (entry.latitude && entry.longitude && entry.latitude !== '' && entry.longitude !== '') {
+                timetableEntry.latitude = parseFloat(entry.latitude);
+                timetableEntry.longitude = parseFloat(entry.longitude);
+            }
+
+            // Include isPassThrough flag for GO VIA LOCATION entries
+            if (entry.action === 'GO VIA LOCATION') {
+                timetableEntry.isPassThrough = true;
+            }
+
+            timetableArray.push(timetableEntry);
+            entryIndex++;
         }
 
         // Build the exported JSON structure

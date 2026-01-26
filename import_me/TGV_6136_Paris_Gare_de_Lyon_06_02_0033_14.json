@@ -1,15 +1,13 @@
 {
   "timetableId": 14,
-  "completed": true,
+  "completed": null,
   "recordingMode": null,
   "serviceName": "TGV 6136 Paris Gare de Lyon 06:02 0033",
   "routeName": "LGV Mediterranee",
   "countryName": "France",
-  "trainNames": [
-    "TGV Duplex"
-  ],
-  "contributor": null,
-  "coordinates_contributor": null,
+  "trainNames": ["TGV Duplex"],
+  "contributor": "Henry Wise",
+  "coordinates_contributor": "Henry Wise",
   "totalPoints": 400,
   "totalMarkers": 2,
   "coordinates": [
@@ -2848,7 +2846,9 @@
       "departure": "",
       "platform": "",
       "apiName": "Power Changeover Location",
-      "isPassThrough": true
+      "isPassThrough": true,
+      "latitude": 43.36109376605919,
+      "longitude": 5.343564800906602
     },
     {
       "index": 2,
@@ -2904,8 +2904,8 @@
       "time1": "",
       "time2": "",
       "details": "Power Changeover Location",
-      "latitude": "",
-      "longitude": "",
+      "latitude": "43.36109376605919",
+      "longitude": "5.343564800906602",
       "api_name": ""
     },
     {

@@ -1,0 +1,52 @@
+{
+  "timetableId": 12,
+  "completed": false,
+  "recordingMode": "automatic",
+  "serviceName": "0352 - Manifest - Willard to Cumberland 06:57 01:27",
+  "routeName": "Sand Patch Grade",
+  "countryName": "United States",
+  "trainNames": [
+    "GP38-2 CSX"
+  ],
+  "contributor": null,
+  "coordinates_contributor": null,
+  "totalPoints": 1,
+  "totalMarkers": 0,
+  "coordinates": [
+    {
+      "latitude": 39.91383520392968,
+      "longitude": -79.1502639975894,
+      "height": 55508.75390625,
+      "gradient": 0.6399838328361511,
+      "timestamp": "2026-01-26T00:15:56.567Z"
+    }
+  ],
+  "markers": [],
+  "timetable": [
+    {
+      "index": 0,
+      "location": "",
+      "arrival": "06:57:00",
+      "departure": "06:57:00",
+      "platform": "",
+      "apiName": ""
+    },
+    {
+      "index": 1,
+      "location": "Garrett Main No2",
+      "arrival": "",
+      "departure": "",
+      "platform": "",
+      "apiName": "Garrett Main No2",
+      "isPassThrough": true
+    },
+    {
+      "index": 2,
+      "location": "Cumberland Receiving Yard",
+      "arrival": "",
+      "departure": "",
+      "platform": "",
+      "apiName": ""
+    }
+  ]
+}

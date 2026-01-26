@@ -165,6 +165,11 @@ function buildTimetableExportJson(options) {
             apiName: e.apiName
         };
 
+        // Include isPassThrough flag for GO VIA LOCATION entries
+        if (e.isPassThrough) {
+            result.isPassThrough = true;
+        }
+
         // Use savedTimetableCoords if provided (recording), otherwise use entry coords
         if (savedTimetableCoords) {
             const savedCoords = savedTimetableCoords.get(idx);
