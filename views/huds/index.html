@@ -39,7 +39,8 @@
             transition: all 0.3s ease;
             text-decoration: none;
             color: inherit;
-            display: block;
+            display: flex;
+            flex-direction: column;
         }
         .hud-card:hover {
             border-color: var(--accent-color);
@@ -66,6 +67,7 @@
         .hud-card .features {
             font-size: 0.85rem;
             color: var(--text-muted);
+            flex-grow: 1;
         }
         .hud-card .features ul {
             margin: 8px 0 0 0;
@@ -83,6 +85,22 @@
             color: var(--text-muted);
             margin-top: 12px;
         }
+        .hud-card .qr-code {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .hud-card .qr-code svg {
+            border-radius: 8px;
+            background: white;
+            padding: 8px;
+        }
+        .hud-card .qr-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -91,7 +109,7 @@
     <nav id="main-nav"></nav>
 
     <div class="hud-grid">
-        <a href="/mobile" class="hud-card">
+        <a href="/mobile" class="hud-card" data-path="/mobile">
             <div class="device-icon">📱</div>
             <h2 data-i18n="huds.mobile">Mobile</h2>
             <p class="description" data-i18n="huds.mobileDesc">
@@ -107,9 +125,13 @@
                 </ul>
             </div>
             <span class="resolution" data-i18n="huds.mobileRes">1920 × 900 canvas</span>
+            <div class="qr-code">
+                <div id="qr-mobile"></div>
+                <div class="qr-label" data-i18n="huds.scanToOpen">Scan to open on device</div>
+            </div>
         </a>
 
-        <a href="/tablet" class="hud-card">
+        <a href="/tablet" class="hud-card" data-path="/tablet">
             <div class="device-icon">📲</div>
             <h2 data-i18n="huds.tablet">Tablet</h2>
             <p class="description" data-i18n="huds.tabletDesc">
@@ -125,9 +147,13 @@
                 </ul>
             </div>
             <span class="resolution" data-i18n="huds.tabletRes">1920 × 900 canvas</span>
+            <div class="qr-code">
+                <div id="qr-tablet"></div>
+                <div class="qr-label" data-i18n="huds.scanToOpen">Scan to open on device</div>
+            </div>
         </a>
 
-        <a href="/desktop" class="hud-card">
+        <a href="/desktop" class="hud-card" data-path="/desktop">
             <div class="device-icon">🖥️</div>
             <h2 data-i18n="huds.desktop">Desktop</h2>
             <p class="description" data-i18n="huds.desktopDesc">
@@ -143,9 +169,13 @@
                 </ul>
             </div>
             <span class="resolution" data-i18n="huds.desktopRes">1920 × 900 canvas</span>
+            <div class="qr-code">
+                <div id="qr-desktop"></div>
+                <div class="qr-label" data-i18n="huds.scanToOpen">Scan to open on device</div>
+            </div>
         </a>
 
-        <a href="/experiment" class="hud-card">
+        <a href="/experiment" class="hud-card" data-path="/experiment">
             <div class="device-icon">🧪</div>
             <h2 data-i18n="huds.experiment">Experiment</h2>
             <p class="description" data-i18n="huds.experimentDesc">
@@ -161,16 +191,55 @@
                 </ul>
             </div>
             <span class="resolution" data-i18n="huds.experimentRes">Responsive canvas</span>
+            <div class="qr-code">
+                <div id="qr-experiment"></div>
+                <div class="qr-label" data-i18n="huds.scanToOpen">Scan to open on device</div>
+            </div>
         </a>
     </div>
 
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <script>
         i18n.init().then(function() {
             // Update page title
             document.title = i18n.t('huds.pageTitle');
         });
+
+        // Generate QR codes for each HUD card
+        async function generateQRCodes() {
+            try {
+                const response = await fetch('/api/config/server-urls');
+                const urls = await response.json();
+                const networkBase = urls.network;
+
+                const huds = ['mobile', 'tablet', 'desktop', 'experiment'];
+
+                for (const hud of huds) {
+                    const container = document.getElementById('qr-' + hud);
+                    if (container) {
+                        const url = networkBase + '/' + hud;
+                        const qr = qrcode(0, 'M');
+                        qr.addData(url);
+                        qr.make();
+                        container.innerHTML = qr.createSvgTag(4, 0);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to generate QR codes:', err);
+            }
+        }
+
+        // Wait for qrcode library to load
+        function waitForQRCode() {
+            if (typeof qrcode !== 'undefined') {
+                generateQRCodes();
+            } else {
+                setTimeout(waitForQRCode, 50);
+            }
+        }
+        waitForQRCode();
     </script>
 </body>
 </html>

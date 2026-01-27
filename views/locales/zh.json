@@ -630,7 +630,8 @@
     "experimentBest1": "测试新功能",
     "experimentBest2": "紧凑显示需求",
     "experimentBest3": "开发目的",
-    "experimentRes": "响应式画布"
+    "experimentRes": "响应式画布",
+    "scanToOpen": "扫描以在设备上打开"
   },
   "weather": {
     "title": "天气控制",

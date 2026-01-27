@@ -630,7 +630,8 @@
     "experimentBest1": "新機能のテスト",
     "experimentBest2": "コンパクト表示",
     "experimentBest3": "開発目的",
-    "experimentRes": "レスポンシブキャンバス"
+    "experimentRes": "レスポンシブキャンバス",
+    "scanToOpen": "スキャンしてデバイスで開く"
   },
   "weather": {
     "title": "天気コントロール",

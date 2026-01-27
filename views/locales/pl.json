@@ -630,7 +630,8 @@
     "experimentBest1": "Testowanie nowych funkcji",
     "experimentBest2": "Potrzeby kompaktowego wyswietlacza",
     "experimentBest3": "Cele deweloperskie",
-    "experimentRes": "Responsywny canvas"
+    "experimentRes": "Responsywny canvas",
+    "scanToOpen": "Zeskanuj, aby otworzyć na urządzeniu"
   },
   "weather": {
     "title": "Sterowanie pogoda",

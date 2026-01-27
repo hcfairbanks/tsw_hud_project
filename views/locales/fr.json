@@ -630,7 +630,8 @@
     "experimentBest1": "Test de nouvelles fonctionnalites",
     "experimentBest2": "Besoins d'affichage compact",
     "experimentBest3": "Objectifs de developpement",
-    "experimentRes": "Canvas responsive"
+    "experimentRes": "Canvas responsive",
+    "scanToOpen": "Scanner pour ouvrir sur l'appareil"
   },
   "weather": {
     "title": "Controle meteo",

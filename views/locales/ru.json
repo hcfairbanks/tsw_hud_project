@@ -630,7 +630,8 @@
     "experimentBest1": "Тестирование новых функций",
     "experimentBest2": "Потребности в компактном дисплее",
     "experimentBest3": "Цели разработки",
-    "experimentRes": "Адаптивный canvas"
+    "experimentRes": "Адаптивный canvas",
+    "scanToOpen": "Сканируйте, чтобы открыть на устройстве"
   },
   "weather": {
     "title": "Погода",

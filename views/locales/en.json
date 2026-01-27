@@ -630,7 +630,8 @@
     "experimentBest1": "Testing new features",
     "experimentBest2": "Compact display needs",
     "experimentBest3": "Development purposes",
-    "experimentRes": "Responsive canvas"
+    "experimentRes": "Responsive canvas",
+    "scanToOpen": "Scan to open on device"
   },
   "weather": {
     "title": "Weather Control",

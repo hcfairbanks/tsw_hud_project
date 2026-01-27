@@ -630,7 +630,8 @@
     "experimentBest1": "Probar nuevas funciones",
     "experimentBest2": "Necesidades de pantalla compacta",
     "experimentBest3": "Propositos de desarrollo",
-    "experimentRes": "Canvas responsivo"
+    "experimentRes": "Canvas responsivo",
+    "scanToOpen": "Escanea para abrir en el dispositivo"
   },
   "weather": {
     "title": "Control de clima",

@@ -630,7 +630,8 @@
     "experimentBest1": "Testen neuer Funktionen",
     "experimentBest2": "Kompakte Anzeige",
     "experimentBest3": "Entwicklungszwecke",
-    "experimentRes": "Responsives Canvas"
+    "experimentRes": "Responsives Canvas",
+    "scanToOpen": "Scannen um auf Gerät zu öffnen"
   },
   "weather": {
     "title": "Wetterkontrolle",
