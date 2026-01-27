@@ -367,9 +367,13 @@
             }
         })();
 
-        loadClasses();
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        i18n.init().then(function() {
+            loadClasses();
+        });
+    </script>
 </body>
 </html>

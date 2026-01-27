@@ -72,33 +72,34 @@
     </style>
 </head>
 <body data-theme="dark">
+    <script src="/js/i18n.js"></script>
     <div class="container">
-        <h1>Create Timetable</h1>
+        <h1 data-i18n="timetables.createNew">Create Timetable</h1>
         <nav id="main-nav"></nav>
 
         <div id="statusMessage" class="status-message"></div>
 
         <div class="form-section">
-            <h2>Timetable Details</h2>
+            <h2 data-i18n="timetables.details">Timetable Details</h2>
             <div class="form-row">
                 <div class="form-group full-width">
-                    <label for="serviceName">Service Name *</label>
+                    <label for="serviceName" data-i18n="timetables.serviceName">Service Name *</label>
                     <input type="text" id="serviceName" placeholder="e.g., 2T17: London Euston - Tring 08:22 00:35" required>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Route *</label>
+                    <label data-i18n="timetables.route">Route *</label>
                     <div class="typeahead-row">
                         <div class="typeahead-wrapper">
-                            <input type="text" class="typeahead-input" id="routeSearch" placeholder="Type to search routes..." autocomplete="off">
+                            <input type="text" class="typeahead-input" id="routeSearch" data-i18n-placeholder="trains.searchRoutesPlaceholder" placeholder="Type to search routes..." autocomplete="off">
                             <div class="typeahead-dropdown" id="routeDropdown"></div>
                         </div>
-                        <button type="button" class="clear-btn" onclick="clearRoute()">Clear</button>
+                        <button type="button" class="clear-btn" onclick="clearRoute()" data-i18n="common.clear">Clear</button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Trains * (at least one)</label>
+                    <label data-i18n="timetables.trains">Trains * (at least one)</label>
                     <div class="typeahead-row">
                         <div class="typeahead-wrapper">
                             <input type="text" class="typeahead-input" id="trainSearch" placeholder="Type to search and add trains..." autocomplete="off">
@@ -112,12 +113,12 @@
 
         <div class="form-section">
             <div class="entries-header">
-                <h2>Timetable Entries</h2>
-                <button class="btn btn-primary" onclick="addEntry()">+ Add Entry</button>
+                <h2 data-i18n="timetables.entries">Timetable Entries</h2>
+                <button class="btn btn-primary" onclick="addEntry()" data-i18n="timetables.addEntry">+ Add Entry</button>
             </div>
 
             <div class="quick-add">
-                <h3>Quick Add Common Entries</h3>
+                <h3 data-i18n="timetables.quickAdd">Quick Add Common Entries</h3>
                 <div class="quick-add-buttons">
                     <button class="btn btn-secondary" onclick="addQuickEntry('WAIT FOR SERVICE')">Wait for Service</button>
                     <button class="btn btn-secondary" onclick="addQuickEntry('STOP AT LOCATION')">Stop at Location</button>
@@ -131,12 +132,12 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Action</th>
-                        <th>Location</th>
-                        <th>Platform</th>
-                        <th>Time 1</th>
-                        <th>Time 2</th>
-                        <th>Actions</th>
+                        <th data-i18n="timetables.action">Action</th>
+                        <th data-i18n="timetables.location">Location</th>
+                        <th data-i18n="timetables.platform">Platform</th>
+                        <th data-i18n="timetables.time1">Time 1</th>
+                        <th data-i18n="timetables.time2">Time 2</th>
+                        <th data-i18n="common.actions">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="entriesBody">
@@ -149,8 +150,8 @@
         </div>
 
         <div class="form-section submit-section">
-            <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
-            <button class="btn btn-success" onclick="createTimetable()">Create Timetable</button>
+            <button class="btn btn-secondary" onclick="clearAll()" data-i18n="common.clear">Clear All</button>
+            <button class="btn btn-success" onclick="createTimetable()" data-i18n="timetables.createNew">Create Timetable</button>
         </div>
     </div>
 
@@ -706,9 +707,15 @@
             }
         }
 
-        init();
+        // Initialize after i18n is ready
+        if (typeof i18n !== 'undefined' && i18n.init) {
+            i18n.init().then(function() {
+                init();
+            });
+        } else {
+            init();
+        }
     </script>
     <script src="/js/navbar.js"></script>
-    <script src="/js/i18n.js"></script>
 </body>
 </html>

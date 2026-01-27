@@ -215,7 +215,8 @@
             // Build dropdown HTML with flags
             var addHtml = '';
             var editHtml = '';
-            var filterHtml = '<div class="country-dropdown-item" data-id="" onclick="selectCountry(\'filter\', \'\', \'All Countries\')">All Countries</div>';
+            var allCountriesText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('routes.allCountries') : 'All Countries';
+            var filterHtml = '<div class="country-dropdown-item" data-id="" onclick="selectCountry(\'filter\', \'\', \'' + allCountriesText + '\')">' + allCountriesText + '</div>';
 
             allCountries.forEach(function(c) {
                 var flag = countryCodeToFlag(c.code);
@@ -467,11 +468,13 @@
 
         function renderPagination(p) {
             const container = document.getElementById('pagination');
-            if (p.totalPages <= 1) { container.innerHTML = '<span class="pagination-info">Showing ' + p.total + ' routes</span>'; return; }
+            const ofText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.of') : 'of';
+            const showingText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.showing') : 'Showing';
+            if (p.totalPages <= 1) { container.innerHTML = '<span class="pagination-info">' + showingText + ' ' + p.total + ' routes</span>'; return; }
             const start = (p.page - 1) * p.limit + 1, end = Math.min(p.page * p.limit, p.total);
             let html = '<button class="btn-secondary" onclick="goToPage(1)" ' + (p.page === 1 ? 'disabled' : '') + '>&laquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (p.page - 1) + ')" ' + (p.page === 1 ? 'disabled' : '') + '>&lsaquo;</button>';
-            html += '<span class="pagination-info">' + p.page + ' of ' + p.totalPages + '</span>';
+            html += '<span class="pagination-info">' + p.page + ' ' + ofText + ' ' + p.totalPages + '</span>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (p.page + 1) + ')" ' + (p.page === p.totalPages ? 'disabled' : '') + '>&rsaquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + p.totalPages + ')" ' + (p.page === p.totalPages ? 'disabled' : '') + '>&raquo;</button>';
             html += '<div class="per-page"><label>&nbsp;</label><select onchange="changeLimit(this.value)">';
@@ -540,10 +543,14 @@
             } catch (error) { console.error('Error deleting route:', error); alert('Error deleting route'); }
         }
 
-        loadCountries().then(loadRoutes);
-        loadAllRoutesForSearch();
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        i18n.init().then(function() {
+            loadCountries().then(loadRoutes);
+            loadAllRoutesForSearch();
+        });
+    </script>
 </body>
 </html>

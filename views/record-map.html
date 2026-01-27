@@ -419,27 +419,27 @@
             <div id="timetableSelector" style="margin-bottom: 10px;">
                 <label class="info-label" data-i18n="record.selectRoute">Select Route:</label>
                 <div class="typeahead-container">
-                    <input type="text" class="typeahead-input" id="routeInput" placeholder="Type to search routes..." autocomplete="off">
+                    <input type="text" class="typeahead-input" id="routeInput" placeholder="Type to search routes..." autocomplete="off" data-i18n-placeholder="record.typeToSearchRoutes">
                     <div id="routeDropdown" class="typeahead-dropdown"></div>
                     <input type="hidden" id="routeSelect" value="">
                 </div>
                 <label class="info-label" style="margin-top: 8px;" data-i18n="record.selectTrainClass">Select Train Class:</label>
                 <select class="timetable-dropdown" id="trainClassSelect" disabled>
-                    <option value="">-- Select a route first --</option>
+                    <option value="" data-i18n="record.selectRouteFirst">-- Select a route first --</option>
                 </select>
                 <label class="info-label" style="margin-top: 8px;" data-i18n="record.selectTrain">Select Train:</label>
                 <select class="timetable-dropdown" id="trainSelect" disabled>
-                    <option value="">-- Select a train class first --</option>
+                    <option value="" data-i18n="record.selectTrainClassFirst">-- Select a train class first --</option>
                 </select>
                 <label class="info-label" style="margin-top: 8px;" data-i18n="record.selectTimetable">Select Timetable:</label>
                 <select class="timetable-dropdown" id="timetableSelect" disabled>
-                    <option value="">-- Select a train first --</option>
+                    <option value="" data-i18n="record.selectTrainFirst">-- Select a train first --</option>
                 </select>
             </div>
             <div class="controls-row">
-                <button class="btn-success" id="mainBtn" onclick="handleMainButton()">Start</button>
-                <button class="btn-danger" id="stopBtn" onclick="stopRecording()">Save</button>
-                <button class="btn-secondary" id="resetBtn" onclick="resetRecording()">Reset</button>
+                <button class="btn-success" id="mainBtn" onclick="handleMainButton()" data-i18n="common.start">Start</button>
+                <button class="btn-danger" id="stopBtn" onclick="stopRecording()" data-i18n="common.save">Save</button>
+                <button class="btn-secondary" id="resetBtn" onclick="resetRecording()" data-i18n="common.reset">Reset</button>
             </div>
         </div>
 
@@ -448,14 +448,14 @@
             <div style="display: flex; gap: 15px; margin-bottom: 5px;">
                 <label style="display: flex; align-items: center; cursor: pointer;">
                     <input type="radio" name="recordMode" value="manual" onchange="handleModeChange(this.value)" style="margin-right: 5px;">
-                    Manual
+                    <span data-i18n="record.manualMode">Manual</span>
                 </label>
                 <label style="display: flex; align-items: center; cursor: pointer;">
                     <input type="radio" name="recordMode" value="automatic" checked onchange="handleModeChange(this.value)" style="margin-right: 5px;">
-                    Automatic
+                    <span data-i18n="record.automaticMode">Automatic</span>
                 </label>
             </div>
-            <div id="autoModeInfo" style="font-size: 11px; color: #666;">
+            <div id="autoModeInfo" style="font-size: 11px; color: #666;" data-i18n="record.automaticDesc">
                 Auto-stops after 4 min of no movement
             </div>
         </div>
@@ -476,29 +476,29 @@
             <h3 data-i18n="record.saveStationPosition">Save Station Position</h3>
             <label class="info-label" data-i18n="record.selectStation">Select Station:</label>
             <select class="timetable-dropdown" id="stationDropdown">
-                <option value="">-- Start recording first --</option>
+                <option value="" data-i18n="record.startRecordingFirst">-- Start recording first --</option>
             </select>
             <div class="controls-row">
-                <button class="btn-success" id="saveBtn" onclick="saveToTimetable()" disabled>Save Position</button>
+                <button class="btn-success" id="saveBtn" onclick="saveToTimetable()" disabled data-i18n="record.savePosition">Save Position</button>
             </div>
         </div>
 
         <div class="dev-tools" style="background: rgba(255, 0, 0, 0.15); border: 2px solid rgba(255, 0, 0, 0.4); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
-            <h3 style="color: #cc0000; margin: 0 0 10px 0; font-size: 14px;">Development Tools</h3>
+            <h3 style="color: #cc0000; margin: 0 0 10px 0; font-size: 14px;" data-i18n="record.developmentTools">Development Tools</h3>
 
             <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 0, 0, 0.3);">
                 <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleLoadFile()">
-                    <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;">Load Recording File</label>
+                    <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;" data-i18n="record.loadRecordingFile">Load Recording File</label>
                     <span id="loadFileToggle" style="font-size: 12px; color: #aaa;">▼</span>
                 </div>
                 <div id="loadFileContent" style="margin-top: 10px;">
                     <select class="timetable-dropdown" id="recordingFileSelect">
-                        <option value="">-- Loading... --</option>
+                        <option value="" data-i18n="record.loading">-- Loading... --</option>
                     </select>
                     <div class="controls-row">
-                        <button class="btn-warning" id="loadFileBtn" onclick="loadSelectedFile()">Load File</button>
+                        <button class="btn-warning" id="loadFileBtn" onclick="loadSelectedFile()" data-i18n="record.loadFile">Load File</button>
                         <input type="file" id="browseFileInput" accept=".json" style="display: none;" onchange="handleFileBrowse(event)">
-                        <button class="btn-secondary" onclick="document.getElementById('browseFileInput').click()">Browse...</button>
+                        <button class="btn-secondary" onclick="document.getElementById('browseFileInput').click()" data-i18n="record.browse">Browse...</button>
                     </div>
                     <div id="loadFileStatus" style="margin-top: 8px; font-size: 12px; color: #aaa;"></div>
                 </div>
@@ -506,15 +506,15 @@
 
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleCoordinatesPicker()">
-                    <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;">Coordinates Picker</label>
+                    <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;" data-i18n="record.coordinatesPicker">Coordinates Picker</label>
                     <span id="coordsToggle" style="font-size: 12px; color: #aaa;">▼</span>
                 </div>
                 <div id="coordsPickerContent" style="margin-top: 10px;">
-                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Click on map to capture coordinates</div>
-                    <div id="pickedCoords" style="font-family: 'Courier New', monospace; font-size: 12px; color: #333; background: #f8f9fa; padding: 8px; border-radius: 4px; min-height: 40px; white-space: pre-wrap;">No coordinates selected</div>
+                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;" data-i18n="record.clickToCapture">Click on map to capture coordinates</div>
+                    <div id="pickedCoords" style="font-family: 'Courier New', monospace; font-size: 12px; color: #333; background: #f8f9fa; padding: 8px; border-radius: 4px; min-height: 40px; white-space: pre-wrap;" data-i18n="record.noCoordinatesSelected">No coordinates selected</div>
                     <div class="controls-row">
-                        <button class="btn-primary" onclick="copyPickedCoords(event)">Copy</button>
-                        <button class="btn-secondary" onclick="clearPickedCoords()">Clear</button>
+                        <button class="btn-primary" onclick="copyPickedCoords(event)" data-i18n="common.copy">Copy</button>
+                        <button class="btn-secondary" onclick="clearPickedCoords()" data-i18n="common.reset">Clear</button>
                     </div>
                 </div>
             </div>
@@ -708,15 +708,15 @@
             const timetableSelect = document.getElementById('timetableSelect');
 
             // Reset train class, train, and timetable dropdowns
-            trainClassSelect.innerHTML = '<option value="">-- Loading... --</option>';
+            trainClassSelect.innerHTML = '<option value="">' + i18n.t('record.loading') + '</option>';
             trainClassSelect.disabled = true;
-            trainSelect.innerHTML = '<option value="">-- Select a train class first --</option>';
+            trainSelect.innerHTML = '<option value="">' + i18n.t('record.selectTrainClassFirst') + '</option>';
             trainSelect.disabled = true;
-            timetableSelect.innerHTML = '<option value="">-- Select a train first --</option>';
+            timetableSelect.innerHTML = '<option value="">' + i18n.t('record.selectTrainFirst') + '</option>';
             timetableSelect.disabled = true;
 
             if (!routeId) {
-                trainClassSelect.innerHTML = '<option value="">-- Select a route first --</option>';
+                trainClassSelect.innerHTML = '<option value="">' + i18n.t('record.selectRouteFirst') + '</option>';
                 return;
             }
 
@@ -746,11 +746,11 @@
                 const trainClassesWithTimetables = trainClasses.filter(tc => classIdsWithTimetables.includes(tc.id));
 
                 if (trainClassesWithTimetables.length === 0) {
-                    trainClassSelect.innerHTML = '<option value="">-- No train classes with timetables --</option>';
+                    trainClassSelect.innerHTML = '<option value="">' + i18n.t('record.noTrainClassesWithTimetables') + '</option>';
                     return;
                 }
 
-                trainClassSelect.innerHTML = '<option value="">-- Select a train class --</option>';
+                trainClassSelect.innerHTML = '<option value="">' + i18n.t('record.selectTrainClass') + '</option>';
                 trainClassesWithTimetables.forEach(tc => {
                     const option = document.createElement('option');
                     option.value = tc.id;
@@ -760,7 +760,7 @@
                 trainClassSelect.disabled = false;
             } catch (err) {
                 console.error('Failed to load train classes:', err);
-                trainClassSelect.innerHTML = '<option value="">-- Error loading train classes --</option>';
+                trainClassSelect.innerHTML = '<option value="">' + i18n.t('record.errorLoadingTrainClasses') + '</option>';
             }
         }
 
@@ -770,13 +770,13 @@
             const timetableSelect = document.getElementById('timetableSelect');
 
             // Reset train and timetable dropdowns
-            trainSelect.innerHTML = '<option value="">-- Loading... --</option>';
+            trainSelect.innerHTML = '<option value="">' + i18n.t('record.loading') + '</option>';
             trainSelect.disabled = true;
-            timetableSelect.innerHTML = '<option value="">-- Select a train first --</option>';
+            timetableSelect.innerHTML = '<option value="">' + i18n.t('record.selectTrainFirst') + '</option>';
             timetableSelect.disabled = true;
 
             if (!classId) {
-                trainSelect.innerHTML = '<option value="">-- Select a train class first --</option>';
+                trainSelect.innerHTML = '<option value="">' + i18n.t('record.selectTrainClassFirst') + '</option>';
                 return;
             }
 
@@ -793,11 +793,11 @@
                 const trainsWithTimetables = trains.filter(t => trainIdsWithTimetables.includes(t.id));
 
                 if (trainsWithTimetables.length === 0) {
-                    trainSelect.innerHTML = '<option value="">-- No trains with timetables in this class --</option>';
+                    trainSelect.innerHTML = '<option value="">' + i18n.t('record.noTrainsWithTimetables') + '</option>';
                     return;
                 }
 
-                trainSelect.innerHTML = '<option value="">-- Select a train --</option>';
+                trainSelect.innerHTML = '<option value="">' + i18n.t('record.selectTrain') + '</option>';
                 trainsWithTimetables.forEach(t => {
                     const option = document.createElement('option');
                     option.value = t.id;
@@ -807,7 +807,7 @@
                 trainSelect.disabled = false;
             } catch (err) {
                 console.error('Failed to load trains:', err);
-                trainSelect.innerHTML = '<option value="">-- Error loading trains --</option>';
+                trainSelect.innerHTML = '<option value="">' + i18n.t('record.errorLoadingTrains') + '</option>';
             }
         }
 
@@ -816,7 +816,7 @@
             const timetableSelect = document.getElementById('timetableSelect');
 
             if (!routeId || !trainId) {
-                timetableSelect.innerHTML = '<option value="">-- Select a train first --</option>';
+                timetableSelect.innerHTML = '<option value="">' + i18n.t('record.selectTrainFirst') + '</option>';
                 timetableSelect.disabled = true;
                 return;
             }
@@ -833,12 +833,12 @@
             });
 
             if (timetables.length === 0) {
-                timetableSelect.innerHTML = '<option value="">-- No timetables found --</option>';
+                timetableSelect.innerHTML = '<option value="">' + i18n.t('record.noTimetablesFound') + '</option>';
                 timetableSelect.disabled = true;
                 return;
             }
 
-            timetableSelect.innerHTML = '<option value="">-- Select a timetable --</option>';
+            timetableSelect.innerHTML = '<option value="">' + i18n.t('record.selectTimetable') + '</option>';
             timetables.forEach(t => {
                 const option = document.createElement('option');
                 option.value = t.id;
@@ -1247,17 +1247,17 @@
                     currentTimetableId = null;
                     currentRecordingState = 'stopped';
                     document.getElementById('coordCount').textContent = '0';
-                    document.getElementById('stationDropdown').innerHTML = '<option value="">-- Start recording first --</option>';
+                    document.getElementById('stationDropdown').innerHTML = '<option value="">' + i18n.t('record.startRecordingFirst') + '</option>';
                     // Reset route typeahead input
                     document.getElementById('routeInput').value = '';
                     document.getElementById('routeDropdown').style.display = 'none';
                     // Reset all cascading dropdowns
                     document.getElementById('routeSelect').value = '';
-                    document.getElementById('trainClassSelect').innerHTML = '<option value="">-- Select a route first --</option>';
+                    document.getElementById('trainClassSelect').innerHTML = '<option value="">' + i18n.t('record.selectRouteFirst') + '</option>';
                     document.getElementById('trainClassSelect').disabled = true;
-                    document.getElementById('trainSelect').innerHTML = '<option value="">-- Select a train class first --</option>';
+                    document.getElementById('trainSelect').innerHTML = '<option value="">' + i18n.t('record.selectTrainClassFirst') + '</option>';
                     document.getElementById('trainSelect').disabled = true;
-                    document.getElementById('timetableSelect').innerHTML = '<option value="">-- Select a train first --</option>';
+                    document.getElementById('timetableSelect').innerHTML = '<option value="">' + i18n.t('record.selectTrainFirst') + '</option>';
                     document.getElementById('timetableSelect').disabled = true;
                     // Reset main button - disabled until timetable is selected
                     const mainBtn = document.getElementById('mainBtn');
@@ -1555,13 +1555,13 @@
         // Load recording files list for the dev tools dropdown
         async function loadRecordingFiles() {
             const select = document.getElementById('recordingFileSelect');
-            select.innerHTML = '<option value="">-- Loading... --</option>';
+            select.innerHTML = '<option value="">' + i18n.t('record.loading') + '</option>';
 
             try {
                 const response = await fetch('/api/recording/list');
                 const files = await response.json();
 
-                select.innerHTML = '<option value="">-- Select a file --</option>';
+                select.innerHTML = '<option value="">' + i18n.t('record.selectFile') + '</option>';
                 files.forEach(f => {
                     const option = document.createElement('option');
                     option.value = f.filename;
@@ -1570,11 +1570,11 @@
                 });
 
                 if (files.length === 0) {
-                    select.innerHTML = '<option value="">-- No recording files --</option>';
+                    select.innerHTML = '<option value="">' + i18n.t('record.noRecordingFiles') + '</option>';
                 }
             } catch (err) {
                 console.error('Failed to load recording files:', err);
-                select.innerHTML = '<option value="">-- Error loading --</option>';
+                select.innerHTML = '<option value="">' + i18n.t('record.errorLoading') + '</option>';
             }
         }
 
@@ -1637,7 +1637,7 @@
         // Load a recording file by name
         async function loadRecordingFileByName(filename) {
             const statusEl = document.getElementById('loadFileStatus');
-            statusEl.textContent = 'Loading...';
+            statusEl.textContent = i18n.t('common.loading');
             statusEl.style.color = '#aaa';
 
             try {
@@ -2004,8 +2004,13 @@
             connectToStream();
         }
 
-        initialize();
+        // initialize() called after i18n.init() below
     </script>
     <script src="/js/i18n.js"></script>
+    <script>
+        i18n.init().then(function() {
+            initialize();
+        });
+    </script>
 </body>
 </html>

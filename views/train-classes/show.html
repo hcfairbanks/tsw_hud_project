@@ -51,28 +51,28 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Train Class Details</h1>
+    <h1 data-i18n="trainClasses.trainClassDetails">Train Class Details</h1>
 
     <nav id="main-nav"></nav>
 
     <div class="back-link" id="backLink">
-        <a href="/train-classes">&larr; Back to Train Classes</a>
+        <a href="/train-classes"><span data-i18n="trainClasses.backToTrainClasses">← Back to Train Classes</span></a>
     </div>
 
     <div class="card">
-        <h2 id="className">Loading...</h2>
+        <h2 id="className" data-i18n="common.loading">Loading...</h2>
         <div id="classDetails">
-            <p class="empty-message">Loading train class details...</p>
+            <p class="empty-message" data-i18n="common.loading">Loading train class details...</p>
         </div>
     </div>
 
     <div class="card">
-        <h2>Trains in this Class</h2>
-        <p style="color: var(--text-muted); margin-bottom: 15px;">
+        <h2 data-i18n="trainClasses.trainsInClass">Trains in this Class</h2>
+        <p style="color: var(--text-muted); margin-bottom: 15px;" data-i18n="trainClasses.trainsInClassHint">
             Trains assigned to this class. To add a train, edit the train and assign it to this class.
         </p>
         <div id="trainsList">
-            <p class="empty-message">Loading trains...</p>
+            <p class="empty-message" data-i18n="common.loading">Loading trains...</p>
         </div>
     </div>
 
@@ -103,8 +103,11 @@
             document.getElementById('className').textContent = trainClass.name;
             document.title = trainClass.name + ' - TSW HUD Project';
 
-            let html = '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + trainClass.id + '</span></div>';
-            html += '<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value">' + escapeHtml(trainClass.name) + '</span></div>';
+            var idLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.id') : 'ID';
+            var nameLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.name') : 'Name';
+
+            let html = '<div class="detail-row"><span class="detail-label">' + idLabel + ':</span><span class="detail-value">' + trainClass.id + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">' + nameLabel + ':</span><span class="detail-value">' + escapeHtml(trainClass.name) + '</span></div>';
 
             document.getElementById('classDetails').innerHTML = html;
         }
@@ -123,17 +126,23 @@
         function renderTrains() {
             const container = document.getElementById('trainsList');
 
+            var noTrainsMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trainClasses.noTrainsInClass') : 'No trains assigned to this class.';
+            var idHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.id') : 'ID';
+            var nameHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.name') : 'Name';
+            var actionsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.actions') : 'Actions';
+            var viewBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.view') : 'View';
+
             if (trains.length === 0) {
-                container.innerHTML = '<p class="empty-message">No trains assigned to this class.</p>';
+                container.innerHTML = '<p class="empty-message">' + noTrainsMsg + '</p>';
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Name</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>' + idHeader + '</th><th>' + nameHeader + '</th><th class="actions">' + actionsHeader + '</th></tr></thead><tbody>';
             trains.forEach(function(train) {
                 html += '<tr>';
                 html += '<td>' + train.id + '</td>';
                 html += '<td><a href="/trains/' + train.id + (fromRouteId ? '?from_route=' + fromRouteId : '') + '">' + escapeHtml(train.name) + '</a></td>';
-                html += '<td class="actions"><button class="btn-primary" onclick="showTrain(' + train.id + ')">View</button></td>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showTrain(' + train.id + ')">' + viewBtn + '</button></td>';
                 html += '</tr>';
             });
             html += '</tbody></table>';
@@ -163,15 +172,23 @@
         })();
 
         // Update back link if we came from a route
-        if (fromRouteId) {
-            document.getElementById('backLink').innerHTML = '<a href="/routes/' + fromRouteId + '">&larr; Back to Route</a>';
+        function updateBackLink() {
+            if (fromRouteId) {
+                var backToRoute = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trainClasses.backToRoute') : '← Back to Route';
+                document.getElementById('backLink').innerHTML = '<a href="/routes/' + fromRouteId + '">' + backToRoute + '</a>';
+            }
         }
 
-        // Load all data
-        loadClass();
-        loadTrains();
+        // Initialization deferred to after i18n.init()
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        i18n.init().then(function() {
+            updateBackLink();
+            loadClass();
+            loadTrains();
+        });
+    </script>
 </body>
 </html>

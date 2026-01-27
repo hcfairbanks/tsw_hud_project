@@ -386,10 +386,47 @@ const i18n = (function() {
         return html;
     }
 
+    /**
+     * Translate elements within a specific container
+     */
+    function translate(container) {
+        if (!container) {
+            return translatePage();
+        }
+
+        // Translate text content
+        container.querySelectorAll('[data-i18n]').forEach(function(el) {
+            const key = el.getAttribute('data-i18n');
+            const translation = t(key);
+            if (translation !== key) {
+                el.textContent = translation;
+            }
+        });
+
+        // Translate placeholders
+        container.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+            const key = el.getAttribute('data-i18n-placeholder');
+            const translation = t(key);
+            if (translation !== key) {
+                el.placeholder = translation;
+            }
+        });
+
+        // Translate titles
+        container.querySelectorAll('[data-i18n-title]').forEach(function(el) {
+            const key = el.getAttribute('data-i18n-title');
+            const translation = t(key);
+            if (translation !== key) {
+                el.title = translation;
+            }
+        });
+    }
+
     // Public API
     return {
         init: init,
         t: t,
+        translate: translate,
         setLanguage: setLanguage,
         getLanguage: getLanguage,
         getSupportedLanguages: getSupportedLanguages,

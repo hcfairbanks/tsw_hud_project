@@ -89,12 +89,12 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Train Details</h1>
+    <h1 data-i18n="trains.trainDetails">Train Details</h1>
 
     <nav id="main-nav"></nav>
 
     <div class="back-link" id="backLink">
-        <a href="/trains">&larr; Back to Trains</a>
+        <a href="/trains" data-i18n="trains.backToTrains">&larr; Back to Trains</a>
     </div>
 
     <div class="card">
@@ -108,17 +108,18 @@
         <!-- Extraction module will be rendered here -->
     </div>
 
+    <script src="/js/i18n.js"></script>
     <div class="card">
-        <h2>Timetables</h2>
+        <h2 data-i18n="nav.timetables">Timetables</h2>
         <div id="contextInfo" class="context-info" style="display:none;"></div>
         <div class="filter-box">
-            <label for="routeFilterInput">Filter by Route:</label>
+            <label for="routeFilterInput" data-i18n="trains.filterByRoute">Filter by Route:</label>
             <div class="typeahead-container" style="flex: 1;">
-                <input type="text" id="routeFilterInput" placeholder="Type to search routes..." autocomplete="off">
+                <input type="text" id="routeFilterInput" placeholder="Type to search routes..." data-i18n-placeholder="trains.searchRoutesPlaceholder" autocomplete="off">
                 <div id="routeFilterDropdown" class="typeahead-dropdown"></div>
                 <input type="hidden" id="routeFilter" value="">
             </div>
-            <button class="btn-secondary" onclick="clearRouteFilter()" style="padding: 10px 15px;">Clear</button>
+            <button class="btn-secondary" onclick="clearRouteFilter()" style="padding: 10px 15px;" data-i18n="common.clear">Clear</button>
         </div>
         <div id="timetablesList">
             <p class="empty-message">Loading timetables...</p>
@@ -138,15 +139,18 @@
             try {
                 const response = await fetch('/api/trains/' + trainId);
                 if (!response.ok) {
-                    document.getElementById('trainName').textContent = 'Train Not Found';
-                    document.getElementById('trainDetails').innerHTML = '<p class="empty-message">The requested train could not be found.</p>';
+                    var notFoundTitle = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.trainNotFound') : 'Train Not Found';
+                    var notFoundMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.trainNotFoundMsg') : 'The requested train could not be found.';
+                    document.getElementById('trainName').textContent = notFoundTitle;
+                    document.getElementById('trainDetails').innerHTML = '<p class="empty-message">' + notFoundMsg + '</p>';
                     return;
                 }
                 const train = await response.json();
                 renderTrain(train);
             } catch (error) {
                 console.error('Error loading train:', error);
-                document.getElementById('trainDetails').innerHTML = '<p class="empty-message">Error loading train</p>';
+                var errorMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.errorLoadingTrain') : 'Error loading train';
+                document.getElementById('trainDetails').innerHTML = '<p class="empty-message">' + errorMsg + '</p>';
             }
         }
 
@@ -158,16 +162,27 @@
             document.getElementById('trainName').textContent = train.name;
             document.title = train.name + ' - TSW HUD Project';
 
+            var idLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.id') : 'ID';
+            var nameLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.name') : 'Name';
+            var classLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.class') : 'Class';
+            var editBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.edit') : 'Edit';
+            var saveBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.save') : 'Save';
+            var cancelBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.cancel') : 'Cancel';
+            var changeNameLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.changeName') : 'Change Name';
+            var changeClassLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.changeClass') : 'Change Class';
+            var namePlaceholder = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.enterTrainName') : 'Enter train name...';
+            var searchClassesPlaceholder = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.searchClassesPlaceholder') : 'Type to search classes...';
+
             let classDisplay = '-';
             if (train.class_id && train.class_name) {
                 classDisplay = '<a href="/train-classes/' + train.class_id + '">' + escapeHtml(train.class_name) + '</a>';
             }
 
-            let html = '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + train.id + '</span></div>';
-            html += '<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value" id="nameDisplay">' + escapeHtml(train.name) + ' <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 10px;" onclick="showNameEdit()">Edit</button></span></div>';
-            html += '<div class="detail-row" id="nameEditRow" style="display: none;"><span class="detail-label">Change Name:</span><span class="detail-value"><input type="text" id="nameInput" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; min-width: 200px;" placeholder="Enter train name..."> <button class="btn-primary" style="padding: 4px 12px; font-size: 12px;" onclick="saveNameChange()">Save</button> <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="cancelNameEdit()">Cancel</button></span></div>';
-            html += '<div class="detail-row"><span class="detail-label">Class:</span><span class="detail-value" id="classDisplay">' + classDisplay + ' <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 10px;" onclick="showClassEdit()">Edit</button></span></div>';
-            html += '<div class="detail-row" id="classEditRow" style="display: none;"><span class="detail-label">Change Class:</span><span class="detail-value"><div class="typeahead-container"><input type="text" id="classInput" placeholder="Type to search classes..." autocomplete="off"><div id="classDropdown" class="typeahead-dropdown"></div><input type="hidden" id="classSelect" value=""></div> <button class="btn-primary" style="padding: 4px 12px; font-size: 12px;" onclick="saveClassChange()">Save</button> <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="cancelClassEdit()">Cancel</button></span></div>';
+            let html = '<div class="detail-row"><span class="detail-label">' + idLabel + ':</span><span class="detail-value">' + train.id + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">' + nameLabel + ':</span><span class="detail-value" id="nameDisplay">' + escapeHtml(train.name) + ' <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 10px;" onclick="showNameEdit()">' + editBtn + '</button></span></div>';
+            html += '<div class="detail-row" id="nameEditRow" style="display: none;"><span class="detail-label">' + changeNameLabel + ':</span><span class="detail-value"><input type="text" id="nameInput" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; min-width: 200px;" placeholder="' + namePlaceholder + '"> <button class="btn-primary" style="padding: 4px 12px; font-size: 12px;" onclick="saveNameChange()">' + saveBtn + '</button> <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="cancelNameEdit()">' + cancelBtn + '</button></span></div>';
+            html += '<div class="detail-row"><span class="detail-label">' + classLabel + ':</span><span class="detail-value" id="classDisplay">' + classDisplay + ' <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-left: 10px;" onclick="showClassEdit()">' + editBtn + '</button></span></div>';
+            html += '<div class="detail-row" id="classEditRow" style="display: none;"><span class="detail-label">' + changeClassLabel + ':</span><span class="detail-value"><div class="typeahead-container"><input type="text" id="classInput" placeholder="' + searchClassesPlaceholder + '" autocomplete="off"><div id="classDropdown" class="typeahead-dropdown"></div><input type="hidden" id="classSelect" value=""></div> <button class="btn-primary" style="padding: 4px 12px; font-size: 12px;" onclick="saveClassChange()">' + saveBtn + '</button> <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="cancelClassEdit()">' + cancelBtn + '</button></span></div>';
 
             document.getElementById('trainDetails').innerHTML = html;
 
@@ -257,11 +272,14 @@
                 return cls.name.toLowerCase().includes(filterLower);
             });
 
+            var noClassLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.noClass') : '-- No Class --';
+            var noClassesFoundLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.noClassesFound') : 'No classes found';
+
             // Add "No Class" option at the top
-            let html = '<div class="typeahead-item" data-id="" data-name=""><div class="item-name" style="color: var(--text-muted);">-- No Class --</div></div>';
+            let html = '<div class="typeahead-item" data-id="" data-name=""><div class="item-name" style="color: var(--text-muted);">' + noClassLabel + '</div></div>';
 
             if (filtered.length === 0) {
-                html += '<div class="typeahead-item" style="color: var(--text-muted);">No classes found</div>';
+                html += '<div class="typeahead-item" style="color: var(--text-muted);">' + noClassesFoundLabel + '</div>';
             } else {
                 html += filtered.map(function(cls) {
                     return '<div class="typeahead-item" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' +
@@ -367,11 +385,13 @@
                 if (fromRouteId) {
                     currentRoute = allRoutes.find(function(r) { return r.id == fromRouteId; });
                     if (currentRoute) {
+                        var showingTimetablesMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.showingTimetablesOnRoute') : 'Showing timetables for this train on';
+                        var backToLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.backTo') : 'Back to';
                         document.getElementById('routeFilter').value = fromRouteId;
                         document.getElementById('routeFilterInput').value = currentRoute.name;
                         document.getElementById('contextInfo').style.display = 'block';
-                        document.getElementById('contextInfo').innerHTML = 'Showing timetables for this train on <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
-                        document.getElementById('backLink').innerHTML = '<a href="/routes/' + currentRoute.id + '">&larr; Back to ' + escapeHtml(currentRoute.name) + '</a>';
+                        document.getElementById('contextInfo').innerHTML = showingTimetablesMsg + ' <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
+                        document.getElementById('backLink').innerHTML = '<a href="/routes/' + currentRoute.id + '">&larr; ' + backToLabel + ' ' + escapeHtml(currentRoute.name) + '</a>';
                     }
                 }
             } catch (error) {
@@ -443,11 +463,14 @@
                 return route.name.toLowerCase().includes(filterLower);
             });
 
+            var allRoutesLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('routes.allRoutes') : '-- All Routes --';
+            var noRoutesFoundLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('routes.noRoutesFound') : 'No routes found';
+
             // Add "All Routes" option at the top
-            let html = '<div class="typeahead-item" data-id="" data-name=""><div class="item-name" style="color: var(--text-muted);">-- All Routes --</div></div>';
+            let html = '<div class="typeahead-item" data-id="" data-name=""><div class="item-name" style="color: var(--text-muted);">' + allRoutesLabel + '</div></div>';
 
             if (filtered.length === 0) {
-                html += '<div class="typeahead-item" style="color: var(--text-muted);">No routes found</div>';
+                html += '<div class="typeahead-item" style="color: var(--text-muted);">' + noRoutesFoundLabel + '</div>';
             } else {
                 html += filtered.map(function(route) {
                     return '<div class="typeahead-item" data-id="' + route.id + '" data-name="' + escapeHtml(route.name) + '">' +
@@ -484,7 +507,8 @@
                 renderTimetables();
             } catch (error) {
                 console.error('Error loading timetables:', error);
-                document.getElementById('timetablesList').innerHTML = '<p class="empty-message">Error loading timetables</p>';
+                var errorMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.errorLoadingTimetables') : 'Error loading timetables';
+                document.getElementById('timetablesList').innerHTML = '<p class="empty-message">' + errorMsg + '</p>';
             }
         }
 
@@ -495,8 +519,9 @@
                 // Update URL without reloading
                 const newUrl = '/trains/' + trainId + '?from_route=' + routeId;
                 window.history.replaceState({}, '', newUrl);
+                var showingTimetablesMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.showingTimetablesOnRoute') : 'Showing timetables for this train on';
                 document.getElementById('contextInfo').style.display = 'block';
-                document.getElementById('contextInfo').innerHTML = 'Showing timetables for this train on <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
+                document.getElementById('contextInfo').innerHTML = showingTimetablesMsg + ' <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
             } else {
                 currentRoute = null;
                 window.history.replaceState({}, '', '/trains/' + trainId);
@@ -515,12 +540,21 @@
                 timetables = timetables.filter(function(t) { return t.route_id == routeId; });
             }
 
+            var noTimetablesMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.noTimetablesForTrain') : 'No timetables found for this train';
+            var noTimetablesOnRouteMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.noTimetablesOnRoute') : 'No timetables found for this train on this route';
+            var idHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.id') : 'ID';
+            var serviceNameHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('timetables.serviceName') : 'Service Name';
+            var routeHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('nav.routes') : 'Route';
+            var createdHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.created') : 'Created';
+            var actionsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.actions') : 'Actions';
+            var showBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.show') : 'Show';
+
             if (timetables.length === 0) {
-                container.innerHTML = '<p class="empty-message">No timetables found for this train' + (routeId ? ' on this route' : '') + '.</p>';
+                container.innerHTML = '<p class="empty-message">' + (routeId ? noTimetablesOnRouteMsg : noTimetablesMsg) + '.</p>';
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Service Name</th><th>Route</th><th>Created</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>' + idHeader + '</th><th>' + serviceNameHeader + '</th><th>' + routeHeader + '</th><th>' + createdHeader + '</th><th class="actions">' + actionsHeader + '</th></tr></thead><tbody>';
             timetables.forEach(function(t) {
                 const route = allRoutes.find(function(r) { return r.id == t.route_id; });
                 const routeName = route ? route.name : 'Unknown';
@@ -529,7 +563,7 @@
                 html += '<td><a href="/timetables/' + t.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(t.service_name) + '</a></td>';
                 html += '<td>' + (route ? '<a href="/routes/' + route.id + '" style="color:#00d4ff;text-decoration:none;">' + escapeHtml(routeName) + '</a>' : routeName) + '</td>';
                 html += '<td>' + (t.created_at || '-') + '</td>';
-                html += '<td class="actions"><button class="btn-primary" onclick="showTimetable(' + t.id + ')">Show</button></td>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showTimetable(' + t.id + ')">' + showBtn + '</button></td>';
                 html += '</tr>';
             });
             html += '</tbody></table>';
@@ -558,9 +592,16 @@
             }
         })();
 
-        // Load everything
-        loadTrain();
-        loadRoutes().then(loadTimetables);
+        // Load everything after i18n is ready
+        if (typeof i18n !== 'undefined' && i18n.init) {
+            i18n.init().then(function() {
+                loadTrain();
+                loadRoutes().then(loadTimetables);
+            });
+        } else {
+            loadTrain();
+            loadRoutes().then(loadTimetables);
+        }
     </script>
     <script src="/js/extraction.js"></script>
     <script>
@@ -605,6 +646,5 @@
         setTimeout(initExtractionWhenReady, 100);
     </script>
     <script src="/js/navbar.js"></script>
-    <script src="/js/i18n.js"></script>
 </body>
 </html>

@@ -211,10 +211,12 @@
                 return name.toLowerCase().includes(filterLower);
             }).slice(0, 20);
 
-            var html = '<div class="typeahead-item" data-id="" data-name="" style="color: var(--text-muted); font-style: italic;">All Classes</div>';
+            var allClassesText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.allClasses') : 'All Classes';
+            var noClassesText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.noClassesFound') : 'No classes found';
+            var html = '<div class="typeahead-item" data-id="" data-name="" style="color: var(--text-muted); font-style: italic;">' + allClassesText + '</div>';
 
             if (filtered.length === 0) {
-                html += '<div class="typeahead-item" style="color: var(--text-muted);">No classes found</div>';
+                html += '<div class="typeahead-item" style="color: var(--text-muted);">' + noClassesText + '</div>';
             } else {
                 html += filtered.map(function(cls) {
                     return '<div class="typeahead-item" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' +
@@ -323,8 +325,9 @@
                 return name.toLowerCase().includes(filterLower);
             }).slice(0, 20);
 
+            var noClassesText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.noClassesFound') : 'No classes found';
             if (filtered.length === 0) {
-                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No classes found</div>';
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">' + noClassesText + '</div>';
             } else {
                 dropdown.innerHTML = filtered.map(function(cls) {
                     return '<div class="typeahead-item" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' +
@@ -417,8 +420,9 @@
                 return name.toLowerCase().includes(filterLower);
             }).slice(0, 20);
 
+            var noClassesText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.noClassesFound') : 'No classes found';
             if (filtered.length === 0) {
-                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No classes found</div>';
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">' + noClassesText + '</div>';
             } else {
                 dropdown.innerHTML = filtered.map(function(cls) {
                     return '<div class="typeahead-item" data-id="' + cls.id + '" data-name="' + escapeHtml(cls.name) + '">' +
@@ -528,8 +532,9 @@
                 return name.toLowerCase().includes(filterLower);
             }).slice(0, 20);
 
+            var noTrainsText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.noTrains') : 'No trains found';
             if (filtered.length === 0) {
-                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No trains found</div>';
+                dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">' + noTrainsText + '</div>';
             } else {
                 dropdown.innerHTML = filtered.map(function(train) {
                     return '<div class="typeahead-item" data-id="' + train.id + '" data-name="' + escapeHtml(train.name) + '">' +
@@ -610,15 +615,17 @@
 
         function renderPagination(total, totalPages) {
             var container = document.getElementById('pagination');
-            var showingText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.showingItems', { count: total }) : 'Showing ' + total + ' trains';
+            var showingText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.showing') : 'Showing';
+            var trainsText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.trains') : 'trains';
+            var ofText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.of') : 'of';
             if (totalPages <= 1) {
-                container.innerHTML = '<span class="pagination-info">' + showingText + '</span>';
+                container.innerHTML = '<span class="pagination-info">' + showingText + ' ' + total + ' ' + trainsText + '</span>';
                 return;
             }
 
             var html = '<button class="btn-secondary" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>&laquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>&lsaquo;</button>';
-            html += '<span class="pagination-info">' + currentPage + ' of ' + totalPages + '</span>';
+            html += '<span class="pagination-info">' + currentPage + ' ' + ofText + ' ' + totalPages + '</span>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&rsaquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&raquo;</button>';
             html += '<div class="per-page"><label>&nbsp;</label><select onchange="changeLimit(this.value)">';
@@ -745,7 +752,8 @@
         });
 
         async function deleteTrain(id) {
-            if (!confirm('Are you sure you want to delete this train?')) return;
+            var confirmMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.confirmDelete') : 'Are you sure you want to delete this train?';
+            if (!confirm(confirmMsg)) return;
             try {
                 await fetch(API_URL + '/' + id, { method: 'DELETE' });
                 loadTrains();

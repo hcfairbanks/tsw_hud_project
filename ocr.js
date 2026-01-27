@@ -207,6 +207,7 @@ async function extractTimetableFromBuffer(imageBuffer, onProgress) {
         let blueText = '';
 
         if (greenBuffer && blueBuffer) {
+            // Image has green header section (WAIT FOR SERVICE) - process both sections
             progressCallback({ status: 'Processing green section...', progress: 10 });
             const greenInput = await qualityPreprocessBuffer(greenBuffer, true);
             greenText = await recognizeImage(greenInput);
@@ -217,30 +218,11 @@ async function extractTimetableFromBuffer(imageBuffer, onProgress) {
 
             return greenText.trim() + '\n' + blueText.trim();
         } else {
-            progressCallback({ status: 'Processing image...', progress: 20 });
+            // No green section found - process image once with normal preprocessing
+            progressCallback({ status: 'Processing image...', progress: 50 });
             const imageInput = await qualityPreprocessBuffer(imageBuffer, false);
             const result = await recognizeImage(imageInput);
-
-            progressCallback({ status: 'Processing inverted...', progress: 60 });
-            const invertedInput = await qualityPreprocessBuffer(imageBuffer, true);
-            const result2 = await recognizeImage(invertedInput);
-
-            let combinedText = result;
-            const allLines = new Set(result.split('\n').map(l => l.trim()).filter(l => l.length > 0));
-
-            const invertedLines = result2.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            invertedLines.forEach(line => {
-                if (!allLines.has(line) && line.length > 0) {
-                    if (line.includes('WAIT FOR SERVICE')) {
-                        combinedText = line + '\n' + combinedText;
-                    } else {
-                        combinedText += '\n' + line;
-                    }
-                    allLines.add(line);
-                }
-            });
-
-            return combinedText;
+            return result;
         }
     } catch (error) {
         console.error('Error processing timetable:', error);

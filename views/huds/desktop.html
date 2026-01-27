@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>TSW HUD - Desktop</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="/js/i18n.js"></script>
     <style>
         body {
             margin: 0;
@@ -1598,40 +1599,40 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
     <div id="loadOverlay" class="load-overlay">
         <div class="load-panel">
             <div class="load-panel-header">
-                <h2>Load Timetable</h2>
+                <h2 data-i18n="map.loadTimetable">Load Timetable</h2>
                 <button class="close-btn" onclick="hideLoadOverlay()">&times;</button>
             </div>
 
             <div id="loadedInfoOverlay" class="loaded-info" style="display: none;">
-                <h3>Currently Loaded:</h3>
+                <h3 data-i18n="hud.currentlyLoaded">Currently Loaded:</h3>
                 <p id="loadedRouteNameOverlay">-</p>
             </div>
 
             <div class="route-selector">
-                <label>Route:</label>
+                <label data-i18n="map.route">Route:</label>
                 <div class="typeahead-container">
-                    <input type="text" id="routeInputOverlay" placeholder="Type to search routes..." autocomplete="off">
+                    <input type="text" id="routeInputOverlay" data-i18n-placeholder="record.typeToSearchRoutes" placeholder="Type to search routes..." autocomplete="off">
                     <div id="routeDropdownOverlay" class="typeahead-dropdown" style="display: none;"></div>
                     <input type="hidden" id="routeSelectOverlay" value="">
                 </div>
 
-                <label>Train Class:</label>
+                <label data-i18n="map.trainClass">Train Class:</label>
                 <select id="trainClassSelectOverlay" onchange="handleTrainClassChangeOverlay()" disabled>
-                    <option value="">-- Select a train class --</option>
+                    <option value="" data-i18n="record.selectTrainClass">-- Select a train class --</option>
                 </select>
 
-                <label>Train:</label>
+                <label data-i18n="map.train">Train:</label>
                 <select id="trainSelectOverlay" onchange="handleTrainChangeOverlay()" disabled>
-                    <option value="">-- Select a train class first --</option>
+                    <option value="" data-i18n="record.selectTrainClassFirst">-- Select a train class first --</option>
                 </select>
 
-                <label>Timetable:</label>
+                <label data-i18n="map.timetable">Timetable:</label>
                 <select id="timetableSelectOverlay" onchange="handleTimetableChangeOverlay()" disabled>
-                    <option value="">-- Select a timetable --</option>
+                    <option value="" data-i18n="record.selectTimetable">-- Select a timetable --</option>
                 </select>
 
-                <button id="loadRouteBtnOverlay" onclick="loadSelectedTimetableOverlay()" disabled>Load Timetable</button>
-                <button id="clearRouteBtnOverlay" onclick="clearLoadedRouteOverlay()" style="display: none;">Clear Loaded Route</button>
+                <button id="loadRouteBtnOverlay" onclick="loadSelectedTimetableOverlay()" disabled data-i18n="map.load">Load Timetable</button>
+                <button id="clearRouteBtnOverlay" onclick="clearLoadedRouteOverlay()" style="display: none;" data-i18n="map.clearLoadedRoute">Clear Loaded Route</button>
 
                 <div class="status-message" id="statusMessageOverlay"></div>
             </div>
@@ -2364,11 +2365,11 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             const timetableSelect = document.getElementById('timetableSelectOverlay');
             const loadBtn = document.getElementById('loadRouteBtnOverlay');
 
-            trainClassSelect.innerHTML = '<option value="">-- Select a train class --</option>';
+            trainClassSelect.innerHTML = '<option value="">' + t('record.selectTrainClass', '-- Select a train class --') + '</option>';
             trainClassSelect.disabled = true;
-            trainSelect.innerHTML = '<option value="">-- Select a train class first --</option>';
+            trainSelect.innerHTML = '<option value="">' + t('record.selectTrainClassFirst', '-- Select a train class first --') + '</option>';
             trainSelect.disabled = true;
-            timetableSelect.innerHTML = '<option value="">-- Select a timetable --</option>';
+            timetableSelect.innerHTML = '<option value="">' + t('record.selectTimetable', '-- Select a timetable --') + '</option>';
             timetableSelect.disabled = true;
             loadBtn.disabled = true;
 
@@ -2402,9 +2403,9 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             const timetableSelect = document.getElementById('timetableSelectOverlay');
             const loadBtn = document.getElementById('loadRouteBtnOverlay');
 
-            trainSelect.innerHTML = '<option value="">-- Select a train --</option>';
+            trainSelect.innerHTML = '<option value="">' + t('record.selectTrain', '-- Select a train --') + '</option>';
             trainSelect.disabled = true;
-            timetableSelect.innerHTML = '<option value="">-- Select a timetable --</option>';
+            timetableSelect.innerHTML = '<option value="">' + t('record.selectTimetable', '-- Select a timetable --') + '</option>';
             timetableSelect.disabled = true;
             loadBtn.disabled = true;
 
@@ -2437,7 +2438,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             const timetableSelect = document.getElementById('timetableSelectOverlay');
             const loadBtn = document.getElementById('loadRouteBtnOverlay');
 
-            timetableSelect.innerHTML = '<option value="">-- Select a timetable --</option>';
+            timetableSelect.innerHTML = '<option value="">' + t('record.selectTimetable', '-- Select a timetable --') + '</option>';
             timetableSelect.disabled = true;
             loadBtn.disabled = true;
 
@@ -2551,11 +2552,11 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                 // Reset dropdowns
                 document.getElementById('routeInputOverlay').value = '';
                 document.getElementById('routeSelectOverlay').value = '';
-                document.getElementById('trainClassSelectOverlay').innerHTML = '<option value="">-- Select a train class --</option>';
+                document.getElementById('trainClassSelectOverlay').innerHTML = '<option value="">' + t('record.selectTrainClass', '-- Select a train class --') + '</option>';
                 document.getElementById('trainClassSelectOverlay').disabled = true;
-                document.getElementById('trainSelectOverlay').innerHTML = '<option value="">-- Select a train class first --</option>';
+                document.getElementById('trainSelectOverlay').innerHTML = '<option value="">' + t('record.selectTrainClassFirst', '-- Select a train class first --') + '</option>';
                 document.getElementById('trainSelectOverlay').disabled = true;
-                document.getElementById('timetableSelectOverlay').innerHTML = '<option value="">-- Select a timetable --</option>';
+                document.getElementById('timetableSelectOverlay').innerHTML = '<option value="">' + t('record.selectTimetable', '-- Select a timetable --') + '</option>';
                 document.getElementById('timetableSelectOverlay').disabled = true;
                 document.getElementById('loadRouteBtnOverlay').disabled = true;
 
@@ -2565,7 +2566,7 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
                 stationScrollOffset = 0;
                 redrawButtons();
 
-                statusMessage.textContent = 'Route cleared.';
+                statusMessage.textContent = t('hud.routeCleared', 'Route cleared.');
                 statusMessage.className = 'status-message';
 
             } catch (err) {
@@ -2645,8 +2646,18 @@ function draw(iSpeed, speedLimit, isSlipping, powerHandle, incline, nextSpeedLim
             }
         }
 
+        // Translation helper function
+        function t(key, fallback) {
+            return (typeof i18n !== 'undefined' && i18n.t) ? i18n.t(key) : fallback;
+        }
+
         // Load timetable items once on page load
         loadTimetableItems();
+
+        // Initialize i18n
+        if (typeof i18n !== 'undefined' && i18n.init) {
+            i18n.init();
+        }
     </script>
 </body>
 </html>

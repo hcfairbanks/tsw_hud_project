@@ -58,6 +58,11 @@ window.ExtractionModule = (function() {
         return value;
     }
 
+    // Helper function to get translated text
+    function t(key, fallback) {
+        return (typeof i18n !== 'undefined' && i18n.t) ? i18n.t(key) : fallback;
+    }
+
     /**
      * Render the extraction UI into the container
      */
@@ -75,19 +80,48 @@ window.ExtractionModule = (function() {
         if (config.prefilledTrainId) params.push('train_id=' + config.prefilledTrainId);
         if (params.length > 0) manualCreateUrl += '?' + params.join('&');
 
+        // Get translated strings
+        var extractFromImages = t('timetables.extractFromImages', 'Extract from Images');
+        var clickOrDrag = t('timetables.dragDropImages', 'Click or drag images here');
+        var supportedFormats = t('timetables.supportedFormats', 'Supports: PNG, JPG, JPEG, GIF, BMP');
+        var clearBtn = t('common.clear', 'Clear');
+        var orText = t('common.or', 'OR');
+        var createManually = t('timetables.createManually', 'Create Manually');
+        var createNewBtn = t('timetables.createNewButton', '+ Create New Timetable');
+        var createManuallyDesc = t('timetables.createManuallyDesc', 'Build a timetable from scratch by adding entries manually');
+        var extractedTimetable = t('timetables.extractedTimetable', 'Extracted Timetable');
+        var serviceNameLabel = t('timetables.serviceName', 'Service Name');
+        var routeLabel = t('timetables.route', 'Route');
+        var selectRoute = t('timetables.selectRoute', 'Select a route...');
+        var trainsLabel = t('timetables.trains', 'Trains');
+        var selectRouteFirst = t('timetables.selectRouteFirst', 'Select a route first...');
+        var actionHeader = t('timetables.action', 'Action');
+        var detailsHeader = t('timetables.detailsColumn', 'Details');
+        var locationHeader = t('timetables.location', 'Location');
+        var platformHeader = t('timetables.platform', 'Platform');
+        var time1Header = t('timetables.time1', 'Time 1');
+        var time2Header = t('timetables.time2', 'Time 2');
+        var latitudeHeader = t('extraction.latitude', 'Latitude');
+        var longitudeHeader = t('extraction.longitude', 'Longitude');
+        var actionsHeader = t('common.actions', 'Actions');
+        var createTimetableBtn = t('timetables.createNew', 'Create Timetable');
+        var addRowBtn = t('extraction.addRow', 'Add Row');
+        var cancelBtn = t('common.cancel', 'Cancel');
+        var rawOcrOutput = t('timetables.rawOcrOutput', 'Raw OCR Output');
+
         container.innerHTML = `
             <div class="card" style="display: flex; gap: 20px; align-items: stretch; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 250px;">
-                    <h2>Extract from Images</h2>
+                    <h2>${extractFromImages}</h2>
                     <div class="upload-area" id="extractImageUploadArea">
                         <div class="upload-icon">&#128247;</div>
-                        <div class="upload-text">Click or drag images here</div>
-                        <div class="upload-hint">Supports: PNG, JPG, JPEG, GIF, BMP</div>
+                        <div class="upload-text">${clickOrDrag}</div>
+                        <div class="upload-hint">${supportedFormats}</div>
                         <input type="file" id="extractImageFileInput" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,image/*" style="display: none;">
                     </div>
                     <div class="file-list" id="extractImageFileList"></div>
                     <div style="margin-top: 15px;">
-                        <button class="btn-secondary" id="extractClearImagesBtn">Clear</button>
+                        <button class="btn-secondary" id="extractClearImagesBtn">${clearBtn}</button>
                     </div>
                     <div class="progress-bar" id="extractImageProgressBar">
                         <div class="fill" id="extractImageProgressFill"></div>
@@ -95,33 +129,33 @@ window.ExtractionModule = (function() {
                     <div class="progress-text" id="extractImageProgressText"></div>
                     <div id="extractImageUploadStatus" class="upload-status"></div>
                 </div>
-                <div style="display: flex; align-items: center; color: var(--text-muted);">OR</div>
+                <div style="display: flex; align-items: center; color: var(--text-muted);">${orText}</div>
                 <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <h2 style="margin-bottom: 15px;">Create Manually</h2>
-                    <a href="${manualCreateUrl}" class="btn-primary" style="padding: 15px 30px; text-decoration: none; border-radius: 4px; font-size: 16px;">+ Create New Timetable</a>
-                    <p style="color: var(--text-muted); margin-top: 15px; font-size: 13px; text-align: center;">Build a timetable from scratch by adding entries manually</p>
+                    <h2 style="margin-bottom: 15px;">${createManually}</h2>
+                    <a href="${manualCreateUrl}" class="btn-primary" style="padding: 15px 30px; text-decoration: none; border-radius: 4px; font-size: 16px;">${createNewBtn}</a>
+                    <p style="color: var(--text-muted); margin-top: 15px; font-size: 13px; text-align: center;">${createManuallyDesc}</p>
                 </div>
             </div>
 
             <div class="card" id="extractResultsSection" style="display: none;">
-                <h2>Extracted Timetable</h2>
+                <h2>${extractedTimetable}</h2>
                 <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-start;">
                     <div style="flex: 1; min-width: 200px;">
-                        <label style="color: #888; font-size: 12px;">Service Name *</label>
-                        <input type="text" class="service-name-input" id="extractServiceName" placeholder="Service Name" required>
+                        <label style="color: #888; font-size: 12px;">${serviceNameLabel} *</label>
+                        <input type="text" class="service-name-input" id="extractServiceName" placeholder="${serviceNameLabel}" required>
                     </div>
                     <div style="flex: 1; min-width: 200px;">
-                        <label style="color: #888; font-size: 12px;">Route *</label>
+                        <label style="color: #888; font-size: 12px;">${routeLabel} *</label>
                         <div class="typeahead-container">
-                            <input type="text" id="extractRouteInput" placeholder="Select a route..." autocomplete="off" required>
+                            <input type="text" id="extractRouteInput" placeholder="${selectRoute}" autocomplete="off" required>
                             <div id="extractRouteDropdown" class="typeahead-dropdown"></div>
                             <input type="hidden" id="extractRouteId" value="">
                         </div>
                     </div>
                     <div style="flex: 1; min-width: 200px;">
-                        <label style="color: #888; font-size: 12px;">Trains * (at least one)</label>
+                        <label style="color: #888; font-size: 12px;">${trainsLabel} *</label>
                         <div class="typeahead-container">
-                            <input type="text" id="extractTrainInput" placeholder="Select a route first..." autocomplete="off" disabled>
+                            <input type="text" id="extractTrainInput" placeholder="${selectRouteFirst}" autocomplete="off" disabled>
                             <div id="extractTrainDropdown" class="typeahead-dropdown"></div>
                         </div>
                         <div id="extractSelectedTrains" style="margin-top: 8px;"></div>
@@ -133,15 +167,15 @@ window.ExtractionModule = (function() {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Action</th>
-                                <th>Details</th>
-                                <th>Location</th>
-                                <th>Platform</th>
-                                <th>Time 1</th>
-                                <th>Time 2</th>
-                                <th>Latitude</th>
-                                <th>Longitude</th>
-                                <th class="actions">Actions</th>
+                                <th>${actionHeader}</th>
+                                <th>${detailsHeader}</th>
+                                <th>${locationHeader}</th>
+                                <th>${platformHeader}</th>
+                                <th>${time1Header}</th>
+                                <th>${time2Header}</th>
+                                <th>${latitudeHeader}</th>
+                                <th>${longitudeHeader}</th>
+                                <th class="actions">${actionsHeader}</th>
                             </tr>
                         </thead>
                         <tbody id="extractTableBody"></tbody>
@@ -149,13 +183,13 @@ window.ExtractionModule = (function() {
                 </div>
 
                 <div style="margin-top: 15px;">
-                    <button class="btn-success" id="extractCreateBtn">Create Timetable</button>
-                    <button class="btn-secondary" id="extractAddRowBtn">Add Row</button>
-                    <button class="btn-secondary" id="extractCancelBtn" style="margin-left: 20px;">Cancel</button>
+                    <button class="btn-success" id="extractCreateBtn">${createTimetableBtn}</button>
+                    <button class="btn-secondary" id="extractAddRowBtn">${addRowBtn}</button>
+                    <button class="btn-secondary" id="extractCancelBtn" style="margin-left: 20px;">${cancelBtn}</button>
                 </div>
 
                 <div style="margin-top: 20px;">
-                    <h3 class="collapsible collapsed" id="extractRawToggle">Raw OCR Output</h3>
+                    <h3 class="collapsible collapsed" id="extractRawToggle">${rawOcrOutput}</h3>
                     <div class="collapsible-content hidden" id="extractRawContent">
                         <div class="raw-text" id="extractRawText"></div>
                     </div>
@@ -217,7 +251,8 @@ window.ExtractionModule = (function() {
 
         // Cancel button
         document.getElementById('extractCancelBtn').addEventListener('click', function() {
-            if (extractedEntries.length > 0 && !confirm('Discard extracted data?')) return;
+            var discardMsg = t('extraction.discardData', 'Discard extracted data?');
+            if (extractedEntries.length > 0 && !confirm(discardMsg)) return;
             resetExtraction();
         });
 
@@ -283,7 +318,7 @@ window.ExtractionModule = (function() {
 
         progressBar.style.display = 'block';
         progressFill.style.width = '0%';
-        progressText.textContent = 'Uploading images...';
+        progressText.textContent = t('extraction.uploadingImages', 'Uploading images...');
         uploadStatus.className = 'upload-status';
 
         var formData = new FormData();
@@ -297,11 +332,11 @@ window.ExtractionModule = (function() {
 
             if (!response.ok) {
                 var error = await response.json();
-                throw new Error(error.error || 'Processing failed');
+                throw new Error(error.error || t('extraction.processingFailed', 'Processing failed'));
             }
 
             progressFill.style.width = '100%';
-            progressText.textContent = 'Complete!';
+            progressText.textContent = t('extraction.complete', 'Complete!');
 
             var data = await response.json();
             displayExtractedResults(data);
@@ -334,7 +369,7 @@ window.ExtractionModule = (function() {
         document.getElementById('extractRouteInput').value = '';
         document.getElementById('extractTrainInput').value = '';
         document.getElementById('extractTrainInput').disabled = true;
-        document.getElementById('extractTrainInput').placeholder = 'Select a route first...';
+        document.getElementById('extractTrainInput').placeholder = t('timetables.selectRouteFirst', 'Select a route first...');
         renderExtractSelectedTrains();
 
         // Setup route/train typeaheads
@@ -405,7 +440,7 @@ window.ExtractionModule = (function() {
         }).slice(0, 10);
 
         if (filtered.length === 0) {
-            dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No routes found</div>';
+            dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">' + t('timetables.noRoutesFound', 'No routes found') + '</div>';
         } else {
             dropdown.innerHTML = filtered.map(function(route) {
                 return '<div class="typeahead-item" data-id="' + route.id + '" data-name="' + escapeHtml(route.name) + '">' +
@@ -446,8 +481,8 @@ window.ExtractionModule = (function() {
         var trainInput = document.getElementById('extractTrainInput');
         trainInput.disabled = false;
         trainInput.placeholder = extractRouteTrains.length > 0
-            ? 'Type to search and add trains...'
-            : 'No trains available for this route';
+            ? t('timetables.typeToSearchTrains', 'Type to search and add trains...')
+            : t('timetables.noTrainsAvailable', 'No trains available for this route');
 
         // Apply prefilled train if configured
         if (config.prefilledTrainId && config.prefilledTrainName) {
@@ -497,8 +532,8 @@ window.ExtractionModule = (function() {
         var routeId = document.getElementById('extractRouteId').value;
 
         if (!routeId || extractRouteTrains.length === 0) {
-            dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">' +
-                (routeId ? 'No trains available for this route' : 'Please select a route first') + '</div>';
+            var msg = routeId ? t('timetables.noTrainsAvailable', 'No trains available for this route') : t('timetables.selectRouteFirst', 'Please select a route first');
+            dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">' + msg + '</div>';
             dropdown.style.display = 'block';
             return;
         }
@@ -512,7 +547,7 @@ window.ExtractionModule = (function() {
         }).slice(0, 10);
 
         if (filtered.length === 0) {
-            dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">No more trains available</div>';
+            dropdown.innerHTML = '<div class="typeahead-item" style="color: var(--text-muted);">' + t('extraction.noMoreTrains', 'No more trains available') + '</div>';
         } else {
             dropdown.innerHTML = filtered.map(function(train) {
                 var label = escapeHtml(train.name);
@@ -574,6 +609,9 @@ window.ExtractionModule = (function() {
      */
     function renderExtractedTable() {
         const tbody = document.getElementById('extractTableBody');
+        var selectText = t('common.select', '-- Select --');
+        var deleteText = t('common.delete', 'Delete');
+
         tbody.innerHTML = extractedEntries.map(function(entry, index) {
             var actionOptions = ACTIONS.map(function(a) {
                 return '<option value="' + a + '"' + (entry.action === a ? ' selected' : '') + '>' + a + '</option>';
@@ -581,7 +619,7 @@ window.ExtractionModule = (function() {
 
             return '<tr data-index="' + index + '">' +
                 '<td>' + (index + 1) + '</td>' +
-                '<td><select class="action-select" onchange="ExtractionModule.updateExtractedField(' + index + ', \'action\', this.value)"><option value="">-- Select --</option>' + actionOptions + '</select></td>' +
+                '<td><select class="action-select" onchange="ExtractionModule.updateExtractedField(' + index + ', \'action\', this.value)"><option value="">' + selectText + '</option>' + actionOptions + '</select></td>' +
                 '<td class="editable-cell" data-field="details">' + escapeHtml(entry.details || '') + '</td>' +
                 '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>' +
                 '<td class="editable-cell" data-field="platform">' + escapeHtml(entry.platform || '') + '</td>' +
@@ -589,7 +627,7 @@ window.ExtractionModule = (function() {
                 '<td class="editable-cell" data-field="time2">' + escapeHtml(entry.time2 || '') + '</td>' +
                 '<td class="editable-cell" data-field="latitude">' + escapeHtml(entry.latitude || '') + '</td>' +
                 '<td class="editable-cell" data-field="longitude">' + escapeHtml(entry.longitude || '') + '</td>' +
-                '<td class="actions"><button class="btn-danger" onclick="ExtractionModule.deleteExtractedRow(' + index + ')">Delete</button></td>' +
+                '<td class="actions"><button class="btn-danger" onclick="ExtractionModule.deleteExtractedRow(' + index + ')">' + deleteText + '</button></td>' +
                 '</tr>';
         }).join('');
 
@@ -639,7 +677,7 @@ window.ExtractionModule = (function() {
         // Validate service name
         var serviceName = document.getElementById('extractServiceName').value.trim();
         if (!serviceName) {
-            alert('Please enter a service name');
+            alert(t('extraction.enterServiceName', 'Please enter a service name'));
             document.getElementById('extractServiceName').focus();
             return;
         }
@@ -647,21 +685,21 @@ window.ExtractionModule = (function() {
         // Validate route is selected
         var routeId = document.getElementById('extractRouteId').value;
         if (!routeId) {
-            alert('Please select a route');
+            alert(t('extraction.selectRoute', 'Please select a route'));
             document.getElementById('extractRouteInput').focus();
             return;
         }
 
         // Validate at least one train is selected
         if (extractSelectedTrains.length === 0) {
-            alert('Please select at least one train');
+            alert(t('extraction.selectTrain', 'Please select at least one train'));
             document.getElementById('extractTrainInput').focus();
             return;
         }
 
         // Validate entries exist
         if (extractedEntries.length === 0) {
-            alert('No entries to save');
+            alert(t('extraction.noEntries', 'No entries to save'));
             return;
         }
 
@@ -669,14 +707,14 @@ window.ExtractionModule = (function() {
         var invalidTimes = [];
         extractedEntries.forEach(function(entry, index) {
             if (entry.time1 && !isValidTimeFormat(entry.time1)) {
-                invalidTimes.push('Entry ' + (index + 1) + ' Time 1: "' + entry.time1 + '"');
+                invalidTimes.push(t('extraction.entry', 'Entry') + ' ' + (index + 1) + ' ' + t('timetables.time1', 'Time 1') + ': "' + entry.time1 + '"');
             }
             if (entry.time2 && !isValidTimeFormat(entry.time2)) {
-                invalidTimes.push('Entry ' + (index + 1) + ' Time 2: "' + entry.time2 + '"');
+                invalidTimes.push(t('extraction.entry', 'Entry') + ' ' + (index + 1) + ' ' + t('timetables.time2', 'Time 2') + ': "' + entry.time2 + '"');
             }
         });
         if (invalidTimes.length > 0) {
-            alert('Invalid time format. Times must be HH:MM:SS (e.g., 08:30:00).\n\n' + invalidTimes.join('\n'));
+            alert(t('extraction.invalidTimeFormat', 'Invalid time format. Times must be HH:MM:SS (e.g., 08:30:00).') + '\n\n' + invalidTimes.join('\n'));
             return;
         }
 
@@ -714,7 +752,7 @@ window.ExtractionModule = (function() {
             }
 
             uploadStatus.className = 'upload-status success';
-            uploadStatus.textContent = 'Timetable created! Redirecting...';
+            uploadStatus.textContent = t('extraction.timetableCreated', 'Timetable created! Redirecting...');
 
             // Call callback if provided
             if (config.onTimetableCreated) {
@@ -726,7 +764,7 @@ window.ExtractionModule = (function() {
             }, 1000);
 
         } catch (error) {
-            alert('Error creating timetable: ' + error.message);
+            alert(t('extraction.errorCreating', 'Error creating timetable: ') + error.message);
             console.error('Error:', error);
         }
     }
@@ -747,7 +785,7 @@ window.ExtractionModule = (function() {
         document.getElementById('extractRouteInput').value = '';
         document.getElementById('extractTrainInput').value = '';
         document.getElementById('extractTrainInput').disabled = true;
-        document.getElementById('extractTrainInput').placeholder = 'Select a route first...';
+        document.getElementById('extractTrainInput').placeholder = t('timetables.selectRouteFirst', 'Select a route first...');
         document.getElementById('extractSelectedTrains').innerHTML = '';
 
         document.getElementById('extractResultsSection').style.display = 'none';
@@ -777,7 +815,7 @@ window.ExtractionModule = (function() {
             extractedEntries[index][field] = value;
         },
         deleteExtractedRow: function(index) {
-            if (!confirm('Delete this row?')) return;
+            if (!confirm(t('extraction.deleteRow', 'Delete this row?'))) return;
             extractedEntries.splice(index, 1);
             renderExtractedTable();
         }

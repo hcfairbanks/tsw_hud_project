@@ -84,12 +84,12 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Timetable Details</h1>
+    <h1 data-i18n="timetables.details">Timetable Details</h1>
 
     <nav id="main-nav"></nav>
 
     <div class="back-link">
-        <a href="/timetables">&larr; Back to Timetables</a>
+        <a href="/timetables" data-i18n="timetables.backToTimetables">&larr; Back to Timetables</a>
     </div>
 
     <div class="card">
@@ -100,31 +100,31 @@
     </div>
 
     <div class="card map-card" id="mapCard">
-        <h2>Route Map</h2>
+        <h2 data-i18n="timetables.routeMap">Route Map</h2>
         <div id="routeMap"></div>
     </div>
 
     <div class="card">
         <div class="entries-header">
-            <h2>Entries <span id="unsavedIndicator" class="unsaved-indicator" style="display:none;">* Unsaved changes</span></h2>
-            <button class="btn-warning" id="recordRouteBtn" onclick="goToRecordMap()" style="display:none;">Record Route</button>
+            <h2><span data-i18n="timetables.entries">Entries</span> <span id="unsavedIndicator" class="unsaved-indicator" style="display:none;" data-i18n="timetables.unsavedChanges">* Unsaved changes</span></h2>
+            <button class="btn-warning" id="recordRouteBtn" onclick="goToRecordMap()" style="display:none;" data-i18n="timetables.recordRoute">Record Route</button>
         </div>
         <div id="entriesList">
-            <p class="empty-message">Loading entries...</p>
+            <p class="empty-message" data-i18n="common.loading">Loading entries...</p>
         </div>
         <div class="action-bar">
-            <button class="btn-primary" onclick="addEntry()">Add Entry</button>
-            <button class="btn-save" id="saveBtn" onclick="saveChanges()" disabled>Save All Changes</button>
-            <button class="btn-danger" onclick="deleteTimetable()">Delete Timetable</button>
+            <button class="btn-primary" onclick="addEntry()" data-i18n="timetables.addEntry">Add Entry</button>
+            <button class="btn-save" id="saveBtn" onclick="saveChanges()" disabled data-i18n="timetables.saveAllChanges">Save All Changes</button>
+            <button class="btn-danger" onclick="deleteTimetable()" data-i18n="timetables.deleteTimetable">Delete Timetable</button>
         </div>
     </div>
 
     <div class="card">
-        <h2>Export</h2>
+        <h2 data-i18n="common.export">Export</h2>
         <div class="action-bar">
-            <button class="btn-primary" onclick="exportCSV()">Export CSV</button>
-            <button class="btn-secondary" onclick="exportThirdRails()">Export ThirdRails</button>
-            <button class="btn-secondary" onclick="exportJSON()">Export JSON (Map)</button>
+            <button class="btn-primary" onclick="exportCSV()" data-i18n="timetables.exportCSV">Export CSV</button>
+            <button class="btn-secondary" onclick="exportThirdRails()" data-i18n="timetables.exportThirdRails">Export ThirdRails</button>
+            <button class="btn-secondary" onclick="exportJSON()" data-i18n="timetables.exportJSONMap">Export JSON (Map)</button>
         </div>
     </div>
 
@@ -585,7 +585,19 @@
                 return;
             }
 
-            let html = '<table><thead><tr><th>#</th><th>Action</th><th>Location</th><th>Platform</th><th>Time 1</th><th>Time 2</th><th>Details</th><th>Lat</th><th>Lng</th><th class="actions">Actions</th></tr></thead><tbody>';
+            var actionHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('timetables.action') : 'Action';
+            var locationHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('timetables.location') : 'Location';
+            var platformHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('timetables.platform') : 'Platform';
+            var time1Header = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('timetables.time1') : 'Time 1';
+            var time2Header = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('timetables.time2') : 'Time 2';
+            var detailsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('timetables.detailsColumn') : 'Details';
+            var actionsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.actions') : 'Actions';
+            let html = '<table><thead><tr><th>#</th><th>' + actionHeader + '</th><th>' + locationHeader + '</th><th>' + platformHeader + '</th><th>' + time1Header + '</th><th>' + time2Header + '</th><th>' + detailsHeader + '</th><th>Lat</th><th>Lng</th><th class="actions">' + actionsHeader + '</th></tr></thead><tbody>';
+            var selectText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.select') : '-- Select --';
+            var upText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.up') : 'Up';
+            var downText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.down') : 'Down';
+            var deleteText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.delete') : 'Delete';
+
             entries.forEach(function(entry, index) {
                 var actionOptions = ACTIONS.map(function(a) {
                     return '<option value="' + a + '"' + (entry.action === a ? ' selected' : '') + '>' + a + '</option>';
@@ -593,7 +605,7 @@
 
                 html += '<tr data-index="' + index + '" data-id="' + (entry.id || '') + '">';
                 html += '<td>' + (index + 1) + '</td>';
-                html += '<td><select class="action-select" onchange="updateEntryField(' + index + ', \'action\', this.value)"><option value="">-- Select --</option>' + actionOptions + '</select></td>';
+                html += '<td><select class="action-select" onchange="updateEntryField(' + index + ', \'action\', this.value)"><option value="">' + selectText + '</option>' + actionOptions + '</select></td>';
                 html += '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>';
                 html += '<td class="editable-cell" data-field="platform">' + escapeHtml(entry.platform || '') + '</td>';
                 html += '<td class="editable-cell" data-field="time1">' + escapeHtml(entry.time1 || '') + '</td>';
@@ -602,9 +614,9 @@
                 html += '<td class="editable-cell coord-cell" data-field="latitude">' + escapeHtml(entry.latitude || '') + '</td>';
                 html += '<td class="editable-cell coord-cell" data-field="longitude">' + escapeHtml(entry.longitude || '') + '</td>';
                 html += '<td class="actions">';
-                if (index > 0) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', -1)">Up</button>';
-                if (index < entries.length - 1) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', 1)">Down</button>';
-                html += '<button class="btn-danger" onclick="deleteEntry(' + index + ')">Delete</button>';
+                if (index > 0) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', -1)">' + upText + '</button>';
+                if (index < entries.length - 1) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', 1)">' + downText + '</button>';
+                html += '<button class="btn-danger" onclick="deleteEntry(' + index + ')">' + deleteText + '</button>';
                 html += '</td></tr>';
             });
             html += '</tbody></table>';
@@ -1068,9 +1080,13 @@
             }
         }
 
-        loadData();
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        i18n.init().then(function() {
+            loadData();
+        });
+    </script>
 </body>
 </html>

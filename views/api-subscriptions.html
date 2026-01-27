@@ -388,8 +388,15 @@
             const subscriptionStatus = document.getElementById('subscriptionStatus');
             const apiKeySource = document.getElementById('apiKeySource');
 
-            apiKeyStatus.innerHTML = '<span class="spinner"></span> Checking...';
-            subscriptionStatus.innerHTML = '<span class="spinner"></span> Checking...';
+            const checkingText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('apiSubscriptions.checking') : 'Checking...';
+            const availableText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('apiSubscriptions.available') : 'Available';
+            const notAvailableText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('apiSubscriptions.notAvailable') : 'Not Available';
+            const activeText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('apiSubscriptions.active') : 'Active';
+            const notCreatedText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('apiSubscriptions.notCreated') : 'Not Created';
+            const errorText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('apiSubscriptions.error') : 'Error';
+
+            apiKeyStatus.innerHTML = '<span class="spinner"></span> ' + checkingText;
+            subscriptionStatus.innerHTML = '<span class="spinner"></span> ' + checkingText;
 
             try {
                 const response = await fetch('/api/subscription/status');
@@ -397,24 +404,24 @@
 
                 // Update API key status
                 if (data.hasApiKey) {
-                    apiKeyStatus.innerHTML = '<span class="status-indicator status-active"></span> Available';
+                    apiKeyStatus.innerHTML = '<span class="status-indicator status-active"></span> ' + availableText;
                     apiKeySource.textContent = data.apiKeySource || 'Unknown';
                 } else {
-                    apiKeyStatus.innerHTML = '<span class="status-indicator status-inactive"></span> Not Available';
+                    apiKeyStatus.innerHTML = '<span class="status-indicator status-inactive"></span> ' + notAvailableText;
                     apiKeySource.textContent = 'None';
                 }
 
                 // Update subscription status
                 if (data.subscriptionsCreated) {
-                    subscriptionStatus.innerHTML = '<span class="status-indicator status-active"></span> Active';
+                    subscriptionStatus.innerHTML = '<span class="status-indicator status-active"></span> ' + activeText;
                 } else {
-                    subscriptionStatus.innerHTML = '<span class="status-indicator status-inactive"></span> Not Created';
+                    subscriptionStatus.innerHTML = '<span class="status-indicator status-inactive"></span> ' + notCreatedText;
                 }
 
             } catch (err) {
                 console.error('Failed to fetch status:', err);
-                apiKeyStatus.innerHTML = '<span class="status-indicator status-inactive"></span> Error';
-                subscriptionStatus.innerHTML = '<span class="status-indicator status-inactive"></span> Error';
+                apiKeyStatus.innerHTML = '<span class="status-indicator status-inactive"></span> ' + errorText;
+                subscriptionStatus.innerHTML = '<span class="status-indicator status-inactive"></span> ' + errorText;
                 showMessage('statusMessage', 'Failed to fetch status: ' + err.message, 'error');
             }
         }
@@ -525,8 +532,12 @@
 
         // Initialize
         displaySubscriptionList();
-        refreshStatus();
     </script>
     <script src="/js/i18n.js"></script>
+    <script>
+        i18n.init().then(function() {
+            refreshStatus();
+        });
+    </script>
 </body>
 </html>

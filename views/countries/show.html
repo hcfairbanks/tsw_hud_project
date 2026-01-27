@@ -41,12 +41,12 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Country Details</h1>
+    <h1 data-i18n="countries.countryDetails">Country Details</h1>
 
     <nav id="main-nav"></nav>
 
     <div class="back-link">
-        <a href="/countries">&larr; Back to Countries</a>
+        <a href="/countries" data-i18n="countries.backToCountries">&larr; Back to Countries</a>
     </div>
 
     <div class="card">
@@ -57,12 +57,13 @@
     </div>
 
     <div class="card">
-        <h2>Routes in this Country</h2>
+        <h2 data-i18n="countries.routesInCountry">Routes in this Country</h2>
         <div id="routesList">
-            <p class="empty-message">Loading routes...</p>
+            <p class="empty-message" data-i18n="common.loading">Loading routes...</p>
         </div>
     </div>
 
+    <script src="/js/i18n.js"></script>
     <script>
         const countryId = window.location.pathname.split('/').pop();
         let country = null;
@@ -71,15 +72,18 @@
             try {
                 const response = await fetch('/api/countries/' + countryId);
                 if (!response.ok) {
-                    document.getElementById('countryName').textContent = 'Country Not Found';
-                    document.getElementById('countryDetails').innerHTML = '<p class="empty-message">The requested country could not be found.</p>';
+                    var notFoundTitle = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.countryNotFound') : 'Country Not Found';
+                    var notFoundMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.countryNotFoundMsg') : 'The requested country could not be found.';
+                    document.getElementById('countryName').textContent = notFoundTitle;
+                    document.getElementById('countryDetails').innerHTML = '<p class="empty-message">' + notFoundMsg + '</p>';
                     return;
                 }
                 country = await response.json();
                 renderCountry();
             } catch (error) {
                 console.error('Error loading country:', error);
-                document.getElementById('countryDetails').innerHTML = '<p class="empty-message">Error loading country</p>';
+                var errorMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.errorLoadingCountry') : 'Error loading country';
+                document.getElementById('countryDetails').innerHTML = '<p class="empty-message">' + errorMsg + '</p>';
             }
         }
 
@@ -87,10 +91,14 @@
             document.getElementById('countryName').textContent = country.name;
             document.title = country.name + ' - TSW HUD Project';
 
+            var idLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.id') : 'ID';
+            var nameLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.name') : 'Name';
+            var codeLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.code') : 'Code';
+
             let html = '';
-            html += '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + country.id + '</span></div>';
-            html += '<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value">' + escapeHtml(country.name) + '</span></div>';
-            html += '<div class="detail-row"><span class="detail-label">Code:</span><span class="detail-value">' + escapeHtml(country.code || '-') + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">' + idLabel + ':</span><span class="detail-value">' + country.id + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">' + nameLabel + ':</span><span class="detail-value">' + escapeHtml(country.name) + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">' + codeLabel + ':</span><span class="detail-value">' + escapeHtml(country.code || '-') + '</span></div>';
 
             document.getElementById('countryDetails').innerHTML = html;
         }
@@ -102,25 +110,33 @@
                 renderRoutes(routes);
             } catch (error) {
                 console.error('Error loading routes:', error);
-                document.getElementById('routesList').innerHTML = '<p class="empty-message">Error loading routes</p>';
+                var errorMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.errorLoadingRoutes') : 'Error loading routes';
+                document.getElementById('routesList').innerHTML = '<p class="empty-message">' + errorMsg + '</p>';
             }
         }
 
         function renderRoutes(routes) {
             const container = document.getElementById('routesList');
 
+            var noRoutesMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.noRoutesInCountry') : 'No routes in this country.';
+            var idHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.id') : 'ID';
+            var nameHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.name') : 'Name';
+            var tswVersionHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('routes.tswVersion') : 'TSW Version';
+            var actionsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.actions') : 'Actions';
+            var showBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.show') : 'Show';
+
             if (routes.length === 0) {
-                container.innerHTML = '<p class="empty-message">No routes in this country.</p>';
+                container.innerHTML = '<p class="empty-message">' + noRoutesMsg + '</p>';
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Name</th><th>TSW Version</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>' + idHeader + '</th><th>' + nameHeader + '</th><th>' + tswVersionHeader + '</th><th class="actions">' + actionsHeader + '</th></tr></thead><tbody>';
             routes.forEach(function(route) {
                 html += '<tr>';
                 html += '<td>' + route.id + '</td>';
                 html += '<td><a href="/routes/' + route.id + '">' + escapeHtml(route.name) + '</a></td>';
                 html += '<td>TSW ' + route.tsw_version + '</td>';
-                html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + route.id + ')">Show</button></td>';
+                html += '<td class="actions"><button class="btn-primary" onclick="showRoute(' + route.id + ')">' + showBtn + '</button></td>';
                 html += '</tr>';
             });
             html += '</tbody></table>';
@@ -138,10 +154,17 @@
             return div.innerHTML;
         }
 
-        loadCountry();
-        loadRoutes();
+        // Initialize after i18n is ready
+        if (typeof i18n !== 'undefined' && i18n.init) {
+            i18n.init().then(function() {
+                loadCountry();
+                loadRoutes();
+            });
+        } else {
+            loadCountry();
+            loadRoutes();
+        }
     </script>
     <script src="/js/navbar.js"></script>
-    <script src="/js/i18n.js"></script>
 </body>
 </html>

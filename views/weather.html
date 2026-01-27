@@ -455,7 +455,8 @@
                 const response = await fetch('/api/weather-presets');
                 presets = await response.json();
                 const select = document.getElementById('presetSelect');
-                select.innerHTML = '<option value="">-- Select a preset --</option>';
+                const selectText = typeof i18n !== 'undefined' ? i18n.t('weather.selectPreset') : '-- Select a preset --';
+                select.innerHTML = '<option value="">' + selectText + '</option>';
                 for (const preset of presets) {
                     const option = document.createElement('option');
                     option.value = preset.id;
@@ -510,7 +511,8 @@
 
         // Save current settings as a new preset
         async function saveAsPreset() {
-            const name = prompt('Enter a name for this preset:');
+            var promptMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('weather.enterPresetName') : 'Enter a name for this preset:';
+            const name = prompt(promptMsg);
             if (!name || !name.trim()) return;
 
             const preset = {
@@ -532,14 +534,17 @@
                 });
 
                 if (response.ok) {
-                    showNotification(`Preset "${name}" saved`);
+                    var savedMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('weather.presetSaved') : 'Preset saved';
+                    showNotification(savedMsg + ': ' + name);
                     loadPresets(); // Refresh the dropdown
                 } else {
                     const data = await response.json();
-                    showNotification(data.error || 'Failed to save preset', true);
+                    var failedMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('weather.failedToSavePreset') : 'Failed to save preset';
+                    showNotification(data.error || failedMsg, true);
                 }
             } catch (err) {
-                showNotification('Error saving preset: ' + err.message, true);
+                var errorMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('weather.errorSavingPreset') : 'Error saving preset';
+                showNotification(errorMsg + ': ' + err.message, true);
             }
         }
 
@@ -559,10 +564,10 @@
 
             if (connected) {
                 indicator.className = 'status-indicator connected';
-                text.textContent = 'Connected to TSW';
+                text.textContent = typeof i18n !== 'undefined' ? i18n.t('weather.connected') : 'Connected to TSW';
             } else {
                 indicator.className = 'status-indicator';
-                text.textContent = 'Disconnected';
+                text.textContent = typeof i18n !== 'undefined' ? i18n.t('weather.disconnected') : 'Disconnected';
             }
         }
 
@@ -695,12 +700,17 @@
             }
         })();
 
-        // Start connection and load config/presets
-        connectToStream();
-        loadConfig();
-        loadPresets();
+        // Theme and other initialization done above
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        // Initialize i18n, then start connection and load config/presets
+        i18n.init().then(function() {
+            connectToStream();
+            loadConfig();
+            loadPresets();
+        });
+    </script>
 </body>
 </html>

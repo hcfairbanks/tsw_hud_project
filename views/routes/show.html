@@ -61,12 +61,12 @@
     </style>
 </head>
 <body data-theme="dark">
-    <h1>Route Details</h1>
+    <h1 data-i18n="routes.routeDetails">Route Details</h1>
 
     <nav id="main-nav"></nav>
 
     <div class="back-link">
-        <a href="/routes">&larr; Back to Routes</a>
+        <a href="/routes"><span data-i18n="routes.backToRoutes">← Back to Routes</span></a>
     </div>
 
     <div class="card">
@@ -77,33 +77,33 @@
     </div>
 
     <div class="card">
-        <h2>Add Train Class to Route</h2>
+        <h2 data-i18n="routes.addTrainClassToRoute">Add Train Class to Route</h2>
         <div class="add-train-section">
             <div class="form-group">
-                <label for="classSearch">Add Existing Train Class:</label>
+                <label for="classSearch" data-i18n="routes.addExistingTrainClass">Add Existing Train Class:</label>
                 <div class="typeahead-wrapper">
-                    <input type="text" id="classSearch" placeholder="Type to search train classes..." autocomplete="off">
+                    <input type="text" id="classSearch" placeholder="Type to search train classes..." autocomplete="off" data-i18n-placeholder="trainClasses.searchPlaceholder">
                     <input type="hidden" id="selectedClassId">
                     <div class="typeahead-dropdown" id="classDropdown"></div>
                 </div>
             </div>
-            <button class="btn-primary" onclick="addExistingClass()">Add</button>
-            <span class="or-divider">OR</span>
+            <button class="btn-primary" onclick="addExistingClass()" data-i18n="common.add">Add</button>
+            <span class="or-divider" data-i18n="common.or">OR</span>
             <div class="form-group">
-                <label for="newClassName">Create New Train Class:</label>
-                <input type="text" id="newClassName" placeholder="e.g., BR Class 185">
+                <label for="newClassName" data-i18n="routes.createNewTrainClass">Create New Train Class:</label>
+                <input type="text" id="newClassName" placeholder="e.g., BR Class 185" data-i18n-placeholder="trainClasses.classNamePlaceholder">
             </div>
-            <button class="btn-primary" onclick="createAndAddClass()">Create & Add</button>
+            <button class="btn-primary" onclick="createAndAddClass()" data-i18n="routes.createAndAdd">Create & Add</button>
         </div>
     </div>
 
     <div class="card">
-        <h2>Train Classes on this Route</h2>
-        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 13px;">
+        <h2 data-i18n="routes.trainClassesOnRoute">Train Classes on this Route</h2>
+        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 13px;" data-i18n="routes.clickTrainClassHint">
             Click on a train class to see the trains available for that class.
         </p>
         <div id="classesList">
-            <p class="empty-message">Loading train classes...</p>
+            <p class="empty-message" data-i18n="common.loading">Loading train classes...</p>
         </div>
     </div>
 
@@ -140,10 +140,15 @@
             document.getElementById('routeName').textContent = route.name;
             document.title = route.name + ' - TSW HUD Project';
 
-            let html = '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + route.id + '</span></div>';
-            html += '<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value">' + escapeHtml(route.name) + '</span></div>';
-            html += '<div class="detail-row"><span class="detail-label">Country:</span><span class="detail-value">' + escapeHtml(route.country) + '</span></div>';
-            html += '<div class="detail-row"><span class="detail-label">TSW Version:</span><span class="detail-value">TSW ' + route.tsw_version + '</span></div>';
+            var idLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.id') : 'ID';
+            var nameLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.name') : 'Name';
+            var countryLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('routes.country') : 'Country';
+            var tswVersionLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('routes.tswVersion') : 'TSW Version';
+
+            let html = '<div class="detail-row"><span class="detail-label">' + idLabel + ':</span><span class="detail-value">' + route.id + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">' + nameLabel + ':</span><span class="detail-value">' + escapeHtml(route.name) + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">' + countryLabel + ':</span><span class="detail-value">' + escapeHtml(route.country) + '</span></div>';
+            html += '<div class="detail-row"><span class="detail-label">' + tswVersionLabel + ':</span><span class="detail-value">TSW ' + route.tsw_version + '</span></div>';
 
             document.getElementById('routeDetails').innerHTML = html;
         }
@@ -269,20 +274,29 @@
         function renderClasses(classes) {
             const container = document.getElementById('classesList');
 
+            var noClassesMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('routes.noTrainClassesOnRoute') : 'No train classes assigned to this route yet.';
+            var idHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.id') : 'ID';
+            var trainClassHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trainClasses.trainClass') : 'Train Class';
+            var trainsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.trains') : 'Trains';
+            var actionsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.actions') : 'Actions';
+            var showTrainsBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('routes.showTrains') : 'Show Trains';
+            var viewBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.view') : 'View';
+            var removeBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.remove') : 'Remove';
+
             if (classes.length === 0) {
-                container.innerHTML = '<p class="empty-message">No train classes assigned to this route yet.</p>';
+                container.innerHTML = '<p class="empty-message">' + noClassesMsg + '</p>';
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Train Class</th><th>Trains</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>' + idHeader + '</th><th>' + trainClassHeader + '</th><th>' + trainsHeader + '</th><th class="actions">' + actionsHeader + '</th></tr></thead><tbody>';
             classes.forEach(function(cls) {
                 html += '<tr id="class-row-' + cls.id + '">';
                 html += '<td>' + cls.id + '</td>';
                 html += '<td><a href="/train-classes/' + cls.id + '?from_route=' + routeId + '">' + escapeHtml(cls.name) + '</a></td>';
-                html += '<td><button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="toggleTrains(' + cls.id + ')">Show Trains</button></td>';
+                html += '<td><button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="toggleTrains(' + cls.id + ')">' + showTrainsBtn + '</button></td>';
                 html += '<td class="actions">';
-                html += '<button class="btn-primary" onclick="showClass(' + cls.id + ')">View</button>';
-                html += '<button class="btn-danger" onclick="removeClass(' + cls.id + ')">Remove</button>';
+                html += '<button class="btn-primary" onclick="showClass(' + cls.id + ')">' + viewBtn + '</button>';
+                html += '<button class="btn-danger" onclick="removeClass(' + cls.id + ')">' + removeBtn + '</button>';
                 html += '</td></tr>';
                 // Hidden row for trains
                 html += '<tr id="trains-row-' + cls.id + '" style="display: none;"><td colspan="4" style="padding: 0;">';
@@ -433,10 +447,15 @@
             }
         })();
 
-        loadRoute();
-        loadAllClasses().then(loadRouteClasses);
+        // Initialization deferred to after i18n.init()
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        i18n.init().then(function() {
+            loadRoute();
+            loadAllClasses().then(loadRouteClasses);
+        });
+    </script>
 </body>
 </html>

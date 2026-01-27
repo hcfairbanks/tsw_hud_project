@@ -86,85 +86,91 @@
     </style>
 </head>
 <body>
-    <h1>HUD Displays</h1>
+    <h1 data-i18n="huds.title">HUD Displays</h1>
 
     <nav id="main-nav"></nav>
 
     <div class="hud-grid">
         <a href="/mobile" class="hud-card">
             <div class="device-icon">📱</div>
-            <h2>Mobile</h2>
-            <p class="description">
-                Full-featured HUD optimized for smartphones in landscape orientation. 
+            <h2 data-i18n="huds.mobile">Mobile</h2>
+            <p class="description" data-i18n="huds.mobileDesc">
+                Full-featured HUD optimized for smartphones in landscape orientation.
                 Large touch targets and simplified station selector for one-handed operation.
             </p>
             <div class="features">
-                <strong>Best for:</strong>
+                <strong data-i18n="huds.bestFor">Best for:</strong>
                 <ul>
-                    <li>Samsung Galaxy S23 and similar phones</li>
-                    <li>Landscape orientation</li>
-                    <li>Touch-first interaction</li>
+                    <li data-i18n="huds.mobileBest1">Samsung Galaxy S23 and similar phones</li>
+                    <li data-i18n="huds.mobileBest2">Landscape orientation</li>
+                    <li data-i18n="huds.mobileBest3">Touch-first interaction</li>
                 </ul>
             </div>
-            <span class="resolution">1920 × 900 canvas</span>
+            <span class="resolution" data-i18n="huds.mobileRes">1920 × 900 canvas</span>
         </a>
 
         <a href="/tablet" class="hud-card">
             <div class="device-icon">📲</div>
-            <h2>Tablet</h2>
-            <p class="description">
-                Comprehensive HUD with all telemetry data visible at once. 
+            <h2 data-i18n="huds.tablet">Tablet</h2>
+            <p class="description" data-i18n="huds.tabletDesc">
+                Comprehensive HUD with all telemetry data visible at once.
                 Includes station selector with scroll support and detailed brake information.
             </p>
             <div class="features">
-                <strong>Best for:</strong>
+                <strong data-i18n="huds.bestFor">Best for:</strong>
                 <ul>
-                    <li>Samsung Tab S9 FE and similar tablets</li>
-                    <li>Mounted tablet displays</li>
-                    <li>Touch or mouse interaction</li>
+                    <li data-i18n="huds.tabletBest1">Samsung Tab S9 FE and similar tablets</li>
+                    <li data-i18n="huds.tabletBest2">Mounted tablet displays</li>
+                    <li data-i18n="huds.tabletBest3">Touch or mouse interaction</li>
                 </ul>
             </div>
-            <span class="resolution">1920 × 900 canvas</span>
+            <span class="resolution" data-i18n="huds.tabletRes">1920 × 900 canvas</span>
         </a>
 
         <a href="/desktop" class="hud-card">
             <div class="device-icon">🖥️</div>
-            <h2>Desktop</h2>
-            <p class="description">
-                Same layout as Tablet HUD, designed for use on a secondary monitor 
+            <h2 data-i18n="huds.desktop">Desktop</h2>
+            <p class="description" data-i18n="huds.desktopDesc">
+                Same layout as Tablet HUD, designed for use on a secondary monitor
                 or browser window alongside the game on PC.
             </p>
             <div class="features">
-                <strong>Best for:</strong>
+                <strong data-i18n="huds.bestFor">Best for:</strong>
                 <ul>
-                    <li>Secondary PC monitors</li>
-                    <li>Windowed browser alongside game</li>
-                    <li>Mouse interaction</li>
+                    <li data-i18n="huds.desktopBest1">Secondary PC monitors</li>
+                    <li data-i18n="huds.desktopBest2">Windowed browser alongside game</li>
+                    <li data-i18n="huds.desktopBest3">Mouse interaction</li>
                 </ul>
             </div>
-            <span class="resolution">1920 × 900 canvas</span>
+            <span class="resolution" data-i18n="huds.desktopRes">1920 × 900 canvas</span>
         </a>
 
         <a href="/experiment" class="hud-card">
             <div class="device-icon">🧪</div>
-            <h2>Experiment</h2>
-            <p class="description">
-                Minimal canvas-based HUD with a compact speedometer design. 
+            <h2 data-i18n="huds.experiment">Experiment</h2>
+            <p class="description" data-i18n="huds.experimentDesc">
+                Minimal canvas-based HUD with a compact speedometer design.
                 Used for testing new layouts and features before rolling out to other HUDs.
             </p>
             <div class="features">
-                <strong>Best for:</strong>
+                <strong data-i18n="huds.bestFor">Best for:</strong>
                 <ul>
-                    <li>Testing new features</li>
-                    <li>Compact display needs</li>
-                    <li>Development purposes</li>
+                    <li data-i18n="huds.experimentBest1">Testing new features</li>
+                    <li data-i18n="huds.experimentBest2">Compact display needs</li>
+                    <li data-i18n="huds.experimentBest3">Development purposes</li>
                 </ul>
             </div>
-            <span class="resolution">Responsive canvas</span>
+            <span class="resolution" data-i18n="huds.experimentRes">Responsive canvas</span>
         </a>
     </div>
 
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        i18n.init().then(function() {
+            // Update page title
+            document.title = i18n.t('huds.pageTitle');
+        });
+    </script>
 </body>
 </html>

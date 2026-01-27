@@ -103,7 +103,7 @@
             <div class="upload-area" id="imageUploadArea">
                 <div class="upload-icon">&#128247;</div>
                 <div class="upload-text" data-i18n="timetables.dragDropImages">Click or drag images here</div>
-                <div class="upload-hint">Supports: PNG, JPG, JPEG, GIF, BMP</div>
+                <div class="upload-hint" data-i18n="timetables.supportedFormats">Supports: PNG, JPG, JPEG, GIF, BMP</div>
                 <input type="file" id="imageFileInput" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,image/*" style="display: none;">
             </div>
             <div class="file-list" id="imageFileList"></div>
@@ -116,19 +116,19 @@
             <div class="progress-text" id="imageProgressText"></div>
             <div id="imageUploadStatus" class="upload-status"></div>
         </div>
-        <div style="display: flex; align-items: center; color: var(--text-muted);">OR</div>
+        <div style="display: flex; align-items: center; color: var(--text-muted);" data-i18n="common.or">OR</div>
         <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <h2 style="margin-bottom: 15px;" data-i18n="timetables.createNew">Create Manually</h2>
-            <a href="/timetables/create" class="btn-primary" style="padding: 15px 30px; text-decoration: none; border-radius: 4px; font-size: 16px;" data-i18n="timetables.createNew">+ Create New Timetable</a>
-            <p style="color: var(--text-muted); margin-top: 15px; font-size: 13px; text-align: center;">Build a timetable from scratch by adding entries manually</p>
+            <h2 style="margin-bottom: 15px;" data-i18n="timetables.createManually">Create Manually</h2>
+            <a href="/timetables/create" class="btn-primary" style="padding: 15px 30px; text-decoration: none; border-radius: 4px; font-size: 16px;" data-i18n="timetables.createNewButton">+ Create New Timetable</a>
+            <p style="color: var(--text-muted); margin-top: 15px; font-size: 13px; text-align: center;" data-i18n="timetables.createManuallyDesc">Build a timetable from scratch by adding entries manually</p>
         </div>
-        <div style="display: flex; align-items: center; color: var(--text-muted);">OR</div>
+        <div style="display: flex; align-items: center; color: var(--text-muted);" data-i18n="common.or">OR</div>
         <div style="flex: 1; min-width: 250px;">
             <h2 data-i18n="timetables.importTimetable">Import Timetable</h2>
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">&#128194;</div>
                 <div class="upload-text" data-i18n="timetables.dragDropJson">Click to select or drag and drop a JSON file</div>
-                <div class="upload-hint">Accepts exported timetable JSON files</div>
+                <div class="upload-hint" data-i18n="timetables.acceptsJson">Accepts exported timetable JSON files</div>
                 <input type="file" id="fileInput" accept=".json" onchange="handleFileSelect(event)">
             </div>
             <div id="uploadStatus" class="upload-status"></div>
@@ -537,7 +537,7 @@
                 return;
             }
 
-            let html = '<table><thead><tr><th>Service Name</th><th>Route</th><th>Trains</th><th>Status</th><th class="actions">Actions</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th data-i18n="timetables.serviceName">Service Name</th><th data-i18n="timetables.route">Route</th><th data-i18n="timetables.trains">Trains</th><th data-i18n="common.status">Status</th><th class="actions" data-i18n="common.actions">Actions</th></tr></thead><tbody>';
             paginatedTimetables.forEach(function(t) {
                 const route = allRoutes.find(function(r) { return r.id == t.route_id; });
 
@@ -556,8 +556,8 @@
 
                 // Determine completed status
                 const completedStatus = t.coordinates_complete
-                    ? '<span class="status-badge completed">Completed</span>'
-                    : '<span class="status-badge incomplete">Not Completed</span>';
+                    ? '<span class="status-badge completed" data-i18n="timetables.completed">Completed</span>'
+                    : '<span class="status-badge incomplete" data-i18n="timetables.notCompleted">Not Completed</span>';
 
                 html += '<tr>';
                 html += '<td><a href="/timetables/' + t.id + '">' + escapeHtml(t.service_name || 'Untitled') + '</a></td>';
@@ -565,26 +565,33 @@
                 html += '<td>' + trainDisplay + '</td>';
                 html += '<td>' + completedStatus + '</td>';
                 html += '<td class="actions">';
-                html += '<button class="btn-primary" onclick="showTimetable(' + t.id + ')">Show</button>';
-                html += '<button class="btn-danger" onclick="deleteTimetable(' + t.id + ')">Delete</button>';
+                html += '<button class="btn-primary" onclick="showTimetable(' + t.id + ')" data-i18n="common.show">Show</button>';
+                html += '<button class="btn-danger" onclick="deleteTimetable(' + t.id + ')" data-i18n="common.delete">Delete</button>';
                 html += '</td></tr>';
             });
             html += '</tbody></table>';
             container.innerHTML = html;
+
+            // Translate dynamically generated buttons
+            if (typeof i18n !== 'undefined' && i18n.translate) {
+                i18n.translate(container);
+            }
 
             renderPagination(total, totalPages);
         }
 
         function renderPagination(total, totalPages) {
             var container = document.getElementById('pagination');
+            var ofText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.of') : 'of';
+            var showingText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.showing') : 'Showing';
             if (totalPages <= 1) {
-                container.innerHTML = '<span class="pagination-info">Showing ' + total + ' timetables</span>';
+                container.innerHTML = '<span class="pagination-info">' + showingText + ' ' + total + ' timetables</span>';
                 return;
             }
 
             var html = '<button class="btn-secondary" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>&laquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>&lsaquo;</button>';
-            html += '<span class="pagination-info">' + currentPage + ' of ' + totalPages + '</span>';
+            html += '<span class="pagination-info">' + currentPage + ' ' + ofText + ' ' + totalPages + '</span>';
             html += '<button class="btn-secondary" onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&rsaquo;</button>';
             html += '<button class="btn-secondary" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>&raquo;</button>';
             html += '<div class="per-page"><label>&nbsp;</label><select onchange="changeLimit(this.value)">';
@@ -1113,7 +1120,7 @@
                     '<td class="editable-cell" data-field="time2">' + escapeHtml(entry.time2 || '') + '</td>' +
                     '<td class="editable-cell" data-field="latitude">' + escapeHtml(entry.latitude || '') + '</td>' +
                     '<td class="editable-cell" data-field="longitude">' + escapeHtml(entry.longitude || '') + '</td>' +
-                    '<td class="actions"><button class="btn-danger" onclick="deleteExtractedRow(' + index + ')">Delete</button></td>' +
+                    '<td class="actions"><button class="btn-danger" onclick="deleteExtractedRow(' + index + ')" data-i18n="common.delete">Delete</button></td>' +
                     '</tr>';
             }).join('');
 
@@ -1121,6 +1128,11 @@
             document.querySelectorAll('#extractTableBody .editable-cell').forEach(function(cell) {
                 cell.addEventListener('click', makeExtractedCellEditable);
             });
+
+            // Translate dynamically generated buttons
+            if (typeof i18n !== 'undefined' && i18n.translate) {
+                i18n.translate(extractTableBody);
+            }
         }
 
         function updateExtractedField(index, field, value) {
@@ -1308,9 +1320,13 @@
             }
         })();
 
-        loadData();
     </script>
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
+    <script>
+        i18n.init().then(function() {
+            loadData();
+        });
+    </script>
 </body>
 </html>

@@ -113,18 +113,27 @@
         function renderCountries() {
             const container = document.getElementById('countriesList');
 
+            // Helper for safe translation with fallback
+            function t(key, fallback) {
+                if (typeof i18n !== 'undefined' && i18n.t) {
+                    var result = i18n.t(key);
+                    // If i18n.t returns the key itself, use fallback
+                    return (result !== key) ? result : fallback;
+                }
+                return fallback;
+            }
+
             if (allCountries.length === 0) {
-                container.innerHTML = '<p class="empty-message" data-i18n="countries.noCountries">No countries found.</p>';
-                if (typeof i18n !== 'undefined') i18n.translatePage();
+                container.innerHTML = '<p class="empty-message">' + t('countries.noCountries', 'No countries found.') + '</p>';
                 return;
             }
 
-            var nameHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.name') : 'Name';
-            var codeHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('countries.code') : 'Code';
-            var actionsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.actions') : 'Actions';
-            var showBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.show') : 'Show';
-            var editBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.edit') : 'Edit';
-            var deleteBtn = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.delete') : 'Delete';
+            var nameHeader = t('countries.name', 'Name');
+            var codeHeader = t('countries.code', 'Code');
+            var actionsHeader = t('common.actions', 'Actions');
+            var showBtn = t('common.show', 'Show');
+            var editBtn = t('common.edit', 'Edit');
+            var deleteBtn = t('common.delete', 'Delete');
 
             let html = '<table><thead><tr><th>' + nameHeader + '</th><th>' + codeHeader + '</th><th class="actions">' + actionsHeader + '</th></tr></thead><tbody>';
             allCountries.forEach(function(c) {

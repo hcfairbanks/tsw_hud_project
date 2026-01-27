@@ -675,21 +675,21 @@
         </div>
 
         <div class="tsw-section" id="tsw5Section">
-            <h3>TSW5 API Key Path</h3>
+            <h3 data-i18n="settings.tsw5ApiKeyPath">TSW5 API Key Path</h3>
             <div class="path-input-container">
-                <input type="text" id="tsw5KeyPath" class="setting-input" placeholder="Custom path to CommAPIKey.txt (optional)">
-                <button class="btn-save" onclick="saveTswPath('tsw5')">Save</button>
+                <input type="text" id="tsw5KeyPath" class="setting-input" data-i18n-placeholder="settings.customPath" placeholder="Custom path to CommAPIKey.txt (optional)">
+                <button class="btn-save" onclick="saveTswPath('tsw5')" data-i18n="common.save">Save</button>
             </div>
-            <div class="path-note">Default: <span id="tsw5DefaultPath"></span></div>
+            <div class="path-note"><span data-i18n="settings.default">Default</span>: <span id="tsw5DefaultPath"></span></div>
         </div>
 
         <div class="tsw-section" id="tsw6Section">
-            <h3>TSW6 API Key Path</h3>
+            <h3 data-i18n="settings.tsw6ApiKeyPath">TSW6 API Key Path</h3>
             <div class="path-input-container">
-                <input type="text" id="tsw6KeyPath" class="setting-input" placeholder="Custom path to CommAPIKey.txt (optional)">
-                <button class="btn-save" onclick="saveTswPath('tsw6')">Save</button>
+                <input type="text" id="tsw6KeyPath" class="setting-input" data-i18n-placeholder="settings.customPath" placeholder="Custom path to CommAPIKey.txt (optional)">
+                <button class="btn-save" onclick="saveTswPath('tsw6')" data-i18n="common.save">Save</button>
             </div>
-            <div class="path-note">Default: <span id="tsw6DefaultPath"></span></div>
+            <div class="path-note"><span data-i18n="settings.default">Default</span>: <span id="tsw6DefaultPath"></span></div>
         </div>
 
         <div class="setting-row" style="border-top: 1px solid var(--border-color); margin-top: 10px;">
@@ -701,13 +701,13 @@
         </div>
         <div class="setting-row" style="padding-top: 0;">
             <div class="api-key-container" style="width: 100%;">
-                <input type="text" id="apiKey" class="setting-input" style="flex: 1; width: auto;" placeholder="Enter API key or leave empty to use path">
-                <button class="btn-save" onclick="saveApiKey()">Save</button>
+                <input type="text" id="apiKey" class="setting-input" style="flex: 1; width: auto;" data-i18n-placeholder="settings.enterApiKey" placeholder="Enter API key or leave empty to use path">
+                <button class="btn-save" onclick="saveApiKey()" data-i18n="common.save">Save</button>
             </div>
         </div>
 
         <div class="current-key-display">
-            <h3>Current API Key <span id="keyStatus" class="key-status"></span></h3>
+            <h3><span data-i18n="settings.currentApiKey">Current API Key</span> <span id="keyStatus" class="key-status"></span></h3>
             <div class="current-key-value" id="currentKeyValue">Loading...</div>
             <div class="current-key-source" id="currentKeySource"></div>
         </div>
@@ -724,8 +724,8 @@
         </div>
         <div class="setting-row" style="padding-top: 0;">
             <div class="api-key-container" style="width: 100%;">
-                <input type="text" id="contributorName" class="setting-input" style="flex: 1; width: auto;" placeholder="Enter your name">
-                <button class="btn-save" onclick="saveContributorName()">Save</button>
+                <input type="text" id="contributorName" class="setting-input" style="flex: 1; width: auto;" data-i18n-placeholder="settings.enterYourName" placeholder="Enter your name">
+                <button class="btn-save" onclick="saveContributorName()" data-i18n="common.save">Save</button>
             </div>
         </div>
     </div>
@@ -735,7 +735,7 @@
 
         <div class="setting-row">
             <div class="setting-info">
-                <div class="setting-label">Development Mode: <span id="devModeStatus" class="dev-mode-status">Disabled</span></div>
+                <div class="setting-label"><span data-i18n="settings.developmentMode">Development Mode</span>: <span id="devModeStatus" class="dev-mode-status">Disabled</span></div>
             </div>
             <label class="toggle-switch">
                 <input type="checkbox" id="developmentMode" onchange="toggleDevMode(this.checked)">
@@ -1107,11 +1107,13 @@
         // Update development mode status display
         function updateDevModeStatus(enabled) {
             const statusEl = document.getElementById('devModeStatus');
+            const enabledText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('settings.enabled') : 'Enabled';
+            const disabledText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('settings.disabled') : 'Disabled';
             if (enabled) {
-                statusEl.textContent = 'Enabled';
+                statusEl.textContent = enabledText;
                 statusEl.className = 'dev-mode-status enabled';
             } else {
-                statusEl.textContent = 'Disabled';
+                statusEl.textContent = disabledText;
                 statusEl.className = 'dev-mode-status disabled';
             }
         }
@@ -1190,9 +1192,23 @@
     <script src="/js/navbar.js"></script>
     <script src="/js/i18n.js"></script>
     <script>
+        // Initialize i18n and update UI
+        i18n.init().then(function() {
+            // Re-apply dev mode status with translated text
+            const devModeCheckbox = document.getElementById('developmentMode');
+            if (devModeCheckbox) {
+                updateDevModeStatus(devModeCheckbox.checked);
+            }
+        });
+
         // Update language setting when loaded
         document.addEventListener('languageChanged', function(e) {
             applyLanguage(e.detail.language);
+            // Update dev mode status text
+            const devModeCheckbox = document.getElementById('developmentMode');
+            if (devModeCheckbox) {
+                updateDevModeStatus(devModeCheckbox.checked);
+            }
         });
     </script>
 </body>
