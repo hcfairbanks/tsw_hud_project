@@ -6,6 +6,7 @@
   "routeName": "Riviera Line",
   "countryName": "United Kingdom",
   "trainNames": ["Class 802/0 GWR"],
+  "serviceType": "passenger",
   "totalPoints": 966,
   "totalMarkers": 6,
   "coordinates_contributor": "Henry Wise",

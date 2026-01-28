@@ -82,9 +82,16 @@
         <div class="form-section">
             <h2 data-i18n="timetables.details">Timetable Details</h2>
             <div class="form-row">
-                <div class="form-group full-width">
+                <div class="form-group" style="flex: 3;">
                     <label for="serviceName" data-i18n="timetables.serviceName">Service Name *</label>
                     <input type="text" id="serviceName" placeholder="e.g., 2T17: London Euston - Tring 08:22 00:35" required>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 150px;">
+                    <label for="serviceType" data-i18n="timetables.serviceType">Service Type</label>
+                    <select id="serviceType">
+                        <option value="passenger" data-i18n="timetables.passenger">Passenger</option>
+                        <option value="freight" data-i18n="timetables.freight">Freight</option>
+                    </select>
                 </div>
             </div>
             <div class="form-row">
@@ -572,6 +579,7 @@
             selectedRouteId = null;
             routeTrains = [];
             document.getElementById('serviceName').value = '';
+            document.getElementById('serviceType').value = 'passenger';
             document.getElementById('routeSearch').value = '';
             document.getElementById('trainSearch').value = '';
 
@@ -615,8 +623,10 @@
             }
 
             // Build the request body
+            const serviceType = document.getElementById('serviceType').value;
             const body = {
                 service_name: serviceName,
+                service_type: serviceType,
                 entries: entries.map(e => ({
                     action: e.action,
                     location: e.location,

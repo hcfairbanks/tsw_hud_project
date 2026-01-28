@@ -6,6 +6,7 @@
   "routeName": "LGV Mediterranee",
   "countryName": "France",
   "trainNames": ["TGV Duplex"],
+  "serviceType": "passenger",
   "contributor": "Henry Wise",
   "coordinates_contributor": "Henry Wise",
   "totalPoints": 400,

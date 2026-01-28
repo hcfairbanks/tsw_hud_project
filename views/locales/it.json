@@ -493,7 +493,10 @@
     "trainsLabel": "Treni:",
     "createdLabel": "Creato:",
     "contributorLabel": "Contributore:",
-    "coordinatesLabel": "Coordinate:"
+    "coordinatesLabel": "Coordinate:",
+    "serviceType": "Tipo di Servizio",
+    "passenger": "Passeggeri",
+    "freight": "Merci"
   },
   "map": {
     "title": "Mappa di tracciamento",

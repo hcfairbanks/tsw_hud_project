@@ -198,6 +198,7 @@
             let html = '';
             html += '<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">' + timetable.id + '</span></div>';
             html += '<div class="detail-row"><span class="detail-label">Service Name:</span><span class="detail-value"><input type="text" class="service-name-input" id="serviceNameInput" value="' + escapeHtml(timetable.service_name || '') + '" onchange="markUnsaved()"></span></div>';
+            html += '<div class="detail-row"><span class="detail-label">Service Type:</span><span class="detail-value"><select id="serviceTypeSelect" onchange="markUnsaved()" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px;"><option value="passenger"' + (timetable.service_type === 'passenger' || !timetable.service_type ? ' selected' : '') + '>Passenger</option><option value="freight"' + (timetable.service_type === 'freight' ? ' selected' : '') + '>Freight</option></select></span></div>';
 
             // Route typeahead
             html += '<div class="detail-row"><span class="detail-label">Route:</span><span class="detail-value typeahead-row">';
@@ -735,11 +736,13 @@
 
         async function saveChanges() {
             try {
-                // Update timetable service name and route (trains are managed via junction table)
+                // Update timetable service name, service type, and route (trains are managed via junction table)
                 const serviceName = document.getElementById('serviceNameInput').value.trim();
+                const serviceType = document.getElementById('serviceTypeSelect').value;
 
                 const updateData = {
                     service_name: serviceName,
+                    service_type: serviceType,
                     route_id: selectedRouteId
                 };
 

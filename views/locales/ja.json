@@ -493,7 +493,10 @@
     "trainsLabel": "車両:",
     "createdLabel": "作成日:",
     "contributorLabel": "コントリビューター:",
-    "coordinatesLabel": "座標:"
+    "coordinatesLabel": "座標:",
+    "serviceType": "サービスタイプ",
+    "passenger": "旅客",
+    "freight": "貨物"
   },
   "map": {
     "title": "追跡マップ",

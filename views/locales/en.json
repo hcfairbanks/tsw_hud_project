@@ -493,7 +493,10 @@
     "trainsLabel": "Trains:",
     "createdLabel": "Created:",
     "contributorLabel": "Contributor:",
-    "coordinatesLabel": "Coordinates:"
+    "coordinatesLabel": "Coordinates:",
+    "serviceType": "Service Type",
+    "passenger": "Passenger",
+    "freight": "Freight"
   },
   "map": {
     "title": "Tracking Map",

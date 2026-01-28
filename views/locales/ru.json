@@ -493,7 +493,10 @@
     "trainsLabel": "Поезда:",
     "createdLabel": "Создано:",
     "contributorLabel": "Контрибьютор:",
-    "coordinatesLabel": "Координаты:"
+    "coordinatesLabel": "Координаты:",
+    "serviceType": "Тип сервиса",
+    "passenger": "Пассажирский",
+    "freight": "Грузовой"
   },
   "map": {
     "title": "Карта отслеживания",

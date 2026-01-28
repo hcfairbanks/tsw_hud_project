@@ -80,14 +80,6 @@ async function start() {
         console.log(`========================================`);
         console.log(`  Local:   http://127.0.0.1:${PORT}`);
         console.log(`  Network: http://${ip}:${PORT}`);
-        console.log(`========================================`);
-        console.log(`  Pages:`);
-        console.log(`    /        - Main index`);
-        console.log(`    /hud     - Live HUD dashboard`);
-        console.log(`    /map     - Live route map`);
-        console.log(`    /weather - Weather control`);
-        console.log(`========================================`);
-        console.log(`  Press Ctrl+C to stop`);
         console.log(`========================================\n`);
     });
 }

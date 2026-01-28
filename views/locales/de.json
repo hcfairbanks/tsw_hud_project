@@ -493,7 +493,10 @@
     "trainsLabel": "Zuege:",
     "createdLabel": "Erstellt:",
     "contributorLabel": "Mitwirkender:",
-    "coordinatesLabel": "Koordinaten:"
+    "coordinatesLabel": "Koordinaten:",
+    "serviceType": "Diensttyp",
+    "passenger": "Personenverkehr",
+    "freight": "Gueterverkehr"
   },
   "map": {
     "title": "Tracking-Karte",

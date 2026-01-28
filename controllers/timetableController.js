@@ -74,6 +74,7 @@ function getTimetableExportMetadata(timetable) {
         routeName: routeName,
         countryName: countryName,
         trainNames: trainNames,
+        serviceType: timetable ? (timetable.service_type || 'passenger') : 'passenger',
         contributor: timetable ? timetable.contributor : null,
         coordinates_contributor: timetable ? timetable.coordinates_contributor : null
     };
@@ -196,6 +197,10 @@ function buildTimetableExportJson(options) {
         if (c.timestamp) {
             coord.timestamp = c.timestamp;
         }
+        // Preserve gameTime if it exists (in-game time from recording)
+        if (c.gameTime) {
+            coord.gameTime = c.gameTime;
+        }
         return coord;
     });
 
@@ -233,6 +238,7 @@ function buildTimetableExportJson(options) {
         routeName: metadata.routeName,
         countryName: metadata.countryName,
         trainNames: metadata.trainNames || [],
+        serviceType: metadata.serviceType || 'passenger',
         contributor: metadata.contributor || null,
         coordinates_contributor: metadata.coordinates_contributor || null,
         totalPoints: formattedCoordinates.length,
@@ -360,14 +366,15 @@ const timetableController = {
 
         const routeId = body.route_id;
         const trainId = body.train_id || trainIds[0];  // Use first train for backward compatibility
+        const serviceType = body.service_type || 'passenger';
 
         // Get contributor name from config
         const config = loadConfig();
         const contributor = config.contributorName || null;
 
-        const result = timetableDb.create(serviceName, routeId, trainId, trainIds, contributor);
+        const result = timetableDb.create(serviceName, routeId, trainId, trainIds, contributor, serviceType);
         const timetableId = result.lastInsertRowid;
-        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId, 'train_ids:', trainIds, 'contributor:', contributor);
+        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_id:', trainId, 'train_ids:', trainIds, 'service_type:', serviceType, 'contributor:', contributor);
 
         // Step 2: Deduplicate entries based on unique key
         // An entry is considered duplicate if it has the same action, time1/time2, AND location
@@ -428,6 +435,7 @@ const timetableController = {
             service_name: serviceName,
             route_id: routeId,
             train_id: trainId,
+            service_type: serviceType,
             entries: savedEntries
         }, 201);
     },
@@ -513,6 +521,7 @@ const timetableController = {
         if (body.route_id !== undefined) updateData.route_id = body.route_id;
         if (body.train_id !== undefined) updateData.train_id = body.train_id;
         if (body.train_ids !== undefined) updateData.train_ids = body.train_ids;
+        if (body.service_type !== undefined) updateData.service_type = body.service_type;
 
         timetableDb.update(id, updateData);
 
@@ -800,11 +809,12 @@ const timetableController = {
             }
         }
 
-        // Step 4: Create the timetable with route and train IDs (include contributor from import)
+        // Step 4: Create the timetable with route and train IDs (include contributor and serviceType from import)
         const importedContributor = body.contributor || null;
-        const result = timetableDb.create(serviceName, routeId, trainId, trainIds, importedContributor);
+        const importedServiceType = body.serviceType || 'passenger';
+        const result = timetableDb.create(serviceName, routeId, trainId, trainIds, importedContributor, importedServiceType);
         const timetableId = result.lastInsertRowid;
-        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_ids:', trainIds, 'contributor:', importedContributor);
+        console.log('Timetable created with ID:', timetableId, 'route_id:', routeId, 'train_ids:', trainIds, 'service_type:', importedServiceType, 'contributor:', importedContributor);
 
         // Step 5: Import coordinates if present
         if (body.coordinates && Array.isArray(body.coordinates) && body.coordinates.length > 0) {
@@ -862,6 +872,7 @@ const timetableController = {
             train_id: trainId,
             train_ids: trainIds,
             train_names: trainNamesToProcess,
+            service_type: importedServiceType,
             contributor: importedContributor,
             coordinates_contributor: body.coordinates_contributor || null,
             message: 'Timetable imported successfully',

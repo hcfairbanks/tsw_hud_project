@@ -31,11 +31,71 @@ const savedRawDataDir = path.join(__dirname, '..', 'saved_raw_data');
 const processedRoutesDir = path.join(__dirname, '..', 'processed_routes');
 
 // Auto-stop configuration
-const AUTO_STOP_TIMEOUT_MS = 240000; // 4 minutes
+const AUTO_STOP_TIMEOUT_MS = 240000; // 4 minutes in ms (for real-time inactivity)
+const AUTO_STOP_AFTER_TIMETABLE_SECONDS = 240; // 4 minutes in seconds (for game time after last timetable)
 let autoStopEnabled = true; // Default to automatic mode
 let lastUniqueCoordinateTime = null;
 let autoStopCheckInterval = null;
 let autoStopped = false; // Flag to notify frontend of auto-stop
+let lastTimetableTimeSeconds = null; // Last scheduled time in timetable (in seconds since midnight)
+let currentGameTimeSeconds = null; // Current in-game time (in seconds since midnight)
+
+/**
+ * Parse time string (HH:MM:SS) to seconds since midnight
+ */
+function timeStringToSeconds(timeStr) {
+    if (!timeStr) return null;
+    const parts = timeStr.split(':');
+    if (parts.length < 2) return null;
+    const hours = parseInt(parts[0], 10);
+    const minutes = parseInt(parts[1], 10);
+    const seconds = parts.length >= 3 ? parseInt(parts[2], 10) : 0;
+    return hours * 3600 + minutes * 60 + seconds;
+}
+
+/**
+ * Parse ISO8601 time string to seconds since midnight
+ * Example: "2024-01-27T05:47:56.149+00:00" -> seconds for 05:47:56
+ */
+function isoTimeToSeconds(isoStr) {
+    if (!isoStr) return null;
+    const timePart = isoStr.split('T')[1];
+    if (!timePart) return null;
+    const timeOnly = timePart.split('.')[0]; // Remove milliseconds and timezone
+    return timeStringToSeconds(timeOnly);
+}
+
+/**
+ * Calculate the last time from timetable entries
+ * Returns the latest arrival or departure time in seconds since midnight
+ * Handles both DB format (time1/time2) and export format (arrival/departure)
+ */
+function calculateLastTimetableTime(entries) {
+    if (!entries || entries.length === 0) return null;
+
+    let lastTimeSeconds = null;
+
+    for (const entry of entries) {
+        // Check arrival time (DB uses time1, export uses arrival)
+        const arrivalTime = entry.arrival || entry.time1;
+        if (arrivalTime) {
+            const arrivalSeconds = timeStringToSeconds(arrivalTime);
+            if (arrivalSeconds !== null && (lastTimeSeconds === null || arrivalSeconds > lastTimeSeconds)) {
+                lastTimeSeconds = arrivalSeconds;
+            }
+        }
+        // Check departure time (DB uses time2, export uses departure)
+        const departureTime = entry.departure || entry.time2;
+        if (departureTime) {
+            const departureSeconds = timeStringToSeconds(departureTime);
+            if (departureSeconds !== null && (lastTimeSeconds === null || departureSeconds > lastTimeSeconds)) {
+                lastTimeSeconds = departureSeconds;
+            }
+        }
+    }
+
+    return lastTimeSeconds;
+}
 
 /**
  * Get current recording status
@@ -191,10 +251,21 @@ async function start(req, res, timetableId) {
     isPaused = false;
     recordingStartTime = Date.now();
 
+    // Calculate the last time from the timetable for auto-stop logic
+    lastTimetableTimeSeconds = calculateLastTimetableTime(entries);
+    if (lastTimetableTimeSeconds !== null) {
+        const hours = Math.floor(lastTimetableTimeSeconds / 3600);
+        const mins = Math.floor((lastTimetableTimeSeconds % 3600) / 60);
+        const secs = lastTimetableTimeSeconds % 60;
+        console.log(`Last timetable time: ${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`);
+        console.log(`Auto-stop will not trigger until 4 minutes after this time (in game time) AND 4 minutes of inactivity`);
+    }
+
     // Initialize auto-stop timer if in automatic mode
     console.log(`Auto-stop setup: autoStopEnabled=${autoStopEnabled}, interval exists=${!!autoStopCheckInterval}`);
     if (autoStopEnabled) {
         lastUniqueCoordinateTime = Date.now();
+        currentGameTimeSeconds = null; // Will be set when we receive game time
         if (!autoStopCheckInterval) {
             autoStopCheckInterval = setInterval(checkAutoStop, 30000);
             console.log('Auto-stop interval started (30s check interval)');
@@ -268,6 +339,8 @@ function stop(req, res) {
     currentHeight = null;
     recordingStartTime = null;
     routeOutputFilePath = null;
+    lastTimetableTimeSeconds = null;
+    currentGameTimeSeconds = null;
 
     // Clear auto-stop interval
     if (autoStopCheckInterval) {
@@ -551,6 +624,8 @@ function reset(req, res) {
     currentHeight = null;
     recordingStartTime = null;
     routeOutputFilePath = null;
+    lastTimetableTimeSeconds = null;
+    currentGameTimeSeconds = null;
 
     // Clear auto-stop interval when resetting
     if (autoStopCheckInterval) {
@@ -755,9 +830,18 @@ async function saveTimetableCoords(req, res) {
 /**
  * Process coordinate data from telemetry stream
  * Called by the stream controller when recording is active
+ * @param {Object} geoLocation - {latitude, longitude}
+ * @param {number} gradient - Current gradient
+ * @param {number} height - Current height
+ * @param {string} gameTimeISO - Current in-game time in ISO8601 format
  */
-function processCoordinate(geoLocation, gradient, height) {
+function processCoordinate(geoLocation, gradient, height, gameTimeISO) {
     if (!isRecording || isPaused) return;
+
+    // Update current game time for auto-stop checking
+    if (gameTimeISO) {
+        currentGameTimeSeconds = isoTimeToSeconds(gameTimeISO);
+    }
 
     if (!geoLocation || typeof geoLocation.latitude !== 'number' || typeof geoLocation.longitude !== 'number') {
         return;
@@ -774,7 +858,8 @@ function processCoordinate(geoLocation, gradient, height) {
     const coordinate = {
         longitude: geoLocation.longitude,
         latitude: geoLocation.latitude,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        gameTime: gameTimeISO || null
     };
 
     if (height !== null && height !== undefined) {
@@ -1297,17 +1382,59 @@ function getMode(req, res) {
 /**
  * Check if auto-stop should trigger
  * Called periodically when auto-stop mode is enabled
+ *
+ * Auto-stop triggers when BOTH conditions are met:
+ * 1. In-game time is past the last timetable time + 4 minutes
+ * 2. No unique coordinates received for 4 minutes AFTER reaching the last timetable time
  */
 function checkAutoStop() {
-    const elapsed = lastUniqueCoordinateTime ? Math.round((Date.now() - lastUniqueCoordinateTime) / 1000) : 0;
-    console.log(`Auto-stop check: enabled=${autoStopEnabled}, recording=${isRecording}, paused=${isPaused}, elapsed=${elapsed}s, timeout=${AUTO_STOP_TIMEOUT_MS/1000}s`);
+    // Format times for logging
+    const formatTime = (secs) => {
+        const h = Math.floor(secs / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = secs % 60;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+
+    // Check if game time has passed the last timetable time
+    let pastLastTimetableTime = false;
+    let gameTimePastMinimum = false;
+    let gameTimeStatus = 'unknown';
+
+    if (lastTimetableTimeSeconds !== null && currentGameTimeSeconds !== null) {
+        const minimumAutoStopTime = lastTimetableTimeSeconds + AUTO_STOP_AFTER_TIMETABLE_SECONDS;
+        pastLastTimetableTime = currentGameTimeSeconds >= lastTimetableTimeSeconds;
+        gameTimePastMinimum = currentGameTimeSeconds >= minimumAutoStopTime;
+
+        gameTimeStatus = `gameTime=${formatTime(currentGameTimeSeconds)}, lastTimetable=${formatTime(lastTimetableTimeSeconds)}, minAutoStop=${formatTime(minimumAutoStopTime)}, pastMin=${gameTimePastMinimum}`;
+    } else if (lastTimetableTimeSeconds === null) {
+        // No timetable time found, only use inactivity
+        pastLastTimetableTime = true;
+        gameTimePastMinimum = true;
+        gameTimeStatus = 'no timetable time (using inactivity only)';
+    } else {
+        gameTimeStatus = 'waiting for game time';
+    }
+
+    // Only count inactivity once we've reached the last timetable time
+    let inactivityElapsed = 0;
+    let hasInactivity = false;
+
+    if (pastLastTimetableTime && lastUniqueCoordinateTime) {
+        inactivityElapsed = Math.round((Date.now() - lastUniqueCoordinateTime) / 1000);
+        hasInactivity = (Date.now() - lastUniqueCoordinateTime > AUTO_STOP_TIMEOUT_MS);
+    }
+
+    const inactivityStatus = pastLastTimetableTime ? `inactivity=${inactivityElapsed}s` : 'inactivity=waiting for last timetable time';
+    console.log(`Auto-stop check: enabled=${autoStopEnabled}, recording=${isRecording}, paused=${isPaused}, ${inactivityStatus}, ${gameTimeStatus}`);
 
     if (!autoStopEnabled || !isRecording || isPaused) {
         return;
     }
 
-    if (lastUniqueCoordinateTime && (Date.now() - lastUniqueCoordinateTime > AUTO_STOP_TIMEOUT_MS)) {
-        console.log('Auto-stop triggered: train stationary for configured timeout');
+    // Both conditions must be true
+    if (hasInactivity && gameTimePastMinimum) {
+        console.log('Auto-stop triggered: train stationary AND game time past last timetable time + 4 minutes');
         triggerAutoStop();
     }
 }

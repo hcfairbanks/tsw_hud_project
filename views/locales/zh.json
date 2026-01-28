@@ -493,7 +493,10 @@
     "trainsLabel": "列车：",
     "createdLabel": "创建时间：",
     "contributorLabel": "贡献者：",
-    "coordinatesLabel": "坐标："
+    "coordinatesLabel": "坐标：",
+    "serviceType": "服务类型",
+    "passenger": "客运",
+    "freight": "货运"
   },
   "map": {
     "title": "跟踪地图",

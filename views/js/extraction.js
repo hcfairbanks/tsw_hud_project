@@ -108,6 +108,9 @@ window.ExtractionModule = (function() {
         var addRowBtn = t('extraction.addRow', 'Add Row');
         var cancelBtn = t('common.cancel', 'Cancel');
         var rawOcrOutput = t('timetables.rawOcrOutput', 'Raw OCR Output');
+        var serviceTypeLabel = t('timetables.serviceType', 'Service Type');
+        var passengerLabel = t('timetables.passenger', 'Passenger');
+        var freightLabel = t('timetables.freight', 'Freight');
 
         container.innerHTML = `
             <div class="card" style="display: flex; gap: 20px; align-items: stretch; flex-wrap: wrap;">
@@ -140,9 +143,16 @@ window.ExtractionModule = (function() {
             <div class="card" id="extractResultsSection" style="display: none;">
                 <h2>${extractedTimetable}</h2>
                 <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-start;">
-                    <div style="flex: 1; min-width: 200px;">
+                    <div style="flex: 2; min-width: 200px;">
                         <label style="color: #888; font-size: 12px;">${serviceNameLabel} *</label>
                         <input type="text" class="service-name-input" id="extractServiceName" placeholder="${serviceNameLabel}" required>
+                    </div>
+                    <div style="flex: 1; min-width: 120px;">
+                        <label style="color: #888; font-size: 12px;">${serviceTypeLabel}</label>
+                        <select id="extractServiceType" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+                            <option value="passenger">${passengerLabel}</option>
+                            <option value="freight">${freightLabel}</option>
+                        </select>
                     </div>
                     <div style="flex: 1; min-width: 200px;">
                         <label style="color: #888; font-size: 12px;">${routeLabel} *</label>
@@ -360,6 +370,7 @@ window.ExtractionModule = (function() {
     function displayExtractedResults(data) {
         extractedEntries = data.entries || [];
         document.getElementById('extractServiceName').value = data.service_name || '';
+        document.getElementById('extractServiceType').value = 'passenger';
         document.getElementById('extractResultsSection').style.display = 'block';
 
         // Reset route/train selection
@@ -721,8 +732,10 @@ window.ExtractionModule = (function() {
         const uploadStatus = document.getElementById('extractImageUploadStatus');
 
         try {
+            var serviceType = document.getElementById('extractServiceType').value;
             var payload = {
                 service_name: serviceName,
+                service_type: serviceType,
                 route_id: parseInt(routeId),
                 train_ids: extractSelectedTrains.map(function(t) { return t.id; }),
                 entries: extractedEntries.map(function(entry) {
@@ -775,6 +788,7 @@ window.ExtractionModule = (function() {
     function resetExtraction() {
         extractedEntries = [];
         document.getElementById('extractServiceName').value = '';
+        document.getElementById('extractServiceType').value = 'passenger';
         var rawTextEl = document.getElementById('extractRawText');
         if (rawTextEl) rawTextEl.textContent = '';
 

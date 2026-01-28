@@ -140,9 +140,16 @@
         <h2 data-i18n="timetables.extractedTimetable">Extracted Timetable</h2>
 
         <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 15px;">
-            <div style="flex: 1; min-width: 200px;">
+            <div style="flex: 2; min-width: 200px;">
                 <label style="color: #888; font-size: 12px;" data-i18n="timetables.serviceName">Service Name *</label>
                 <input type="text" class="service-name-input" id="extractServiceName" data-i18n-placeholder="timetables.serviceNamePlaceholder" placeholder="Service Name" required>
+            </div>
+            <div style="flex: 1; min-width: 120px;">
+                <label style="color: #888; font-size: 12px;" data-i18n="timetables.serviceType">Service Type</label>
+                <select id="extractServiceType" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+                    <option value="passenger" data-i18n="timetables.passenger">Passenger</option>
+                    <option value="freight" data-i18n="timetables.freight">Freight</option>
+                </select>
             </div>
             <div style="flex: 1; min-width: 200px;">
                 <label style="color: #888; font-size: 12px;" data-i18n="timetables.route">Route *</label>
@@ -893,11 +900,12 @@
             extractServiceName.value = data.service_name || '';
             extractResultsSection.classList.add('visible');
 
-            // Reset route/train selection
+            // Reset route/train selection and service type
             extractRouteTrains = [];
             extractSelectedTrains = [];
             document.getElementById('extractRouteId').value = '';
             document.getElementById('extractRouteInput').value = '';
+            document.getElementById('extractServiceType').value = 'passenger';
             document.getElementById('extractTrainInput').value = '';
             document.getElementById('extractTrainInput').disabled = true;
             document.getElementById('extractTrainInput').placeholder = 'Select a route first...';
@@ -1205,6 +1213,7 @@
             extractSelectedTrains = [];
             document.getElementById('extractRouteId').value = '';
             document.getElementById('extractRouteInput').value = '';
+            document.getElementById('extractServiceType').value = 'passenger';
             document.getElementById('extractTrainInput').value = '';
             document.getElementById('extractTrainInput').disabled = true;
             document.getElementById('extractTrainInput').placeholder = 'Select a route first...';
@@ -1260,8 +1269,10 @@
             }
 
             try {
+                var serviceType = document.getElementById('extractServiceType').value;
                 var payload = {
                     service_name: serviceName,
+                    service_type: serviceType,
                     route_id: parseInt(routeId),
                     train_ids: extractSelectedTrains.map(function(t) { return t.id; }),
                     entries: extractedEntries.map(function(entry) {

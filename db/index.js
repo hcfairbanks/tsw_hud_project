@@ -117,11 +117,22 @@ async function initDatabase() {
             service_name TEXT NOT NULL UNIQUE,
             route_id INTEGER,
             train_id INTEGER,
+            service_type TEXT NOT NULL DEFAULT 'passenger',
+            contributor TEXT,
+            coordinates_contributor TEXT,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE SET NULL,
             FOREIGN KEY (train_id) REFERENCES trains(id) ON DELETE SET NULL
         )
     `);
+
+    // Migration: Add contributor columns if they don't exist (for existing databases)
+    try {
+        db.run('ALTER TABLE timetables ADD COLUMN contributor TEXT');
+    } catch (e) { /* Column already exists */ }
+    try {
+        db.run('ALTER TABLE timetables ADD COLUMN coordinates_contributor TEXT');
+    } catch (e) { /* Column already exists */ }
 
     // Timetable-Train junction table (timetables can have multiple trains)
     db.run(`
@@ -372,9 +383,9 @@ function seedTimetables() {
     const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf8'));
 
     // Insert timetables
-    const ttStmt = db.prepare('INSERT INTO timetables (id, service_name, route_id, train_id) VALUES (?, ?, ?, ?)');
+    const ttStmt = db.prepare('INSERT INTO timetables (id, service_name, route_id, train_id, service_type) VALUES (?, ?, ?, ?, ?)');
     for (const tt of timetables) {
-        ttStmt.run([tt.id, tt.service_name, tt.route_id, tt.train_id || null]);
+        ttStmt.run([tt.id, tt.service_name, tt.route_id, tt.train_id || null, tt.service_type || 'passenger']);
     }
     ttStmt.free();
     console.log(`  ✓ Inserted ${timetables.length} timetables`);
@@ -556,14 +567,13 @@ const routeDb = {
         stmt.free();
         return results;
     },
-    // Get routes that have timetables with coordinates
+    // Get routes that have timetables (coordinates not required)
     getRoutesWithCoordinates: () => {
         const stmt = db.prepare(`
             SELECT DISTINCT r.*, c.name as country_name
             FROM routes r
             LEFT JOIN countries c ON r.country_id = c.id
             INNER JOIN timetables t ON t.route_id = r.id
-            INNER JOIN timetable_coordinates tc ON tc.timetable_id = t.id
             ORDER BY r.name
         `);
         const results = [];
@@ -729,7 +739,7 @@ const routeDb = {
         stmt.free();
         return results;
     },
-    // Get train classes for a route that have timetables with coordinates
+    // Get train classes for a route that have timetables (coordinates not required)
     getTrainClassesWithCoordinates: (routeId) => {
         const stmt = db.prepare(`
             SELECT DISTINCT tc.* FROM train_classes tc
@@ -737,7 +747,6 @@ const routeDb = {
             INNER JOIN trains tr ON tr.class_id = tc.id
             INNER JOIN timetable_trains tt ON tt.train_id = tr.id
             INNER JOIN timetables t ON t.id = tt.timetable_id AND t.route_id = ?
-            INNER JOIN timetable_coordinates tco ON tco.timetable_id = t.id
             WHERE rtc.route_id = ?
             ORDER BY tc.name
         `);
@@ -749,13 +758,12 @@ const routeDb = {
         stmt.free();
         return results;
     },
-    // Get trains for a route/class that have timetables with coordinates
+    // Get trains for a route/class that have timetables (coordinates not required)
     getTrainsForClassWithCoordinates: (routeId, classId) => {
         const stmt = db.prepare(`
             SELECT DISTINCT tr.* FROM trains tr
             INNER JOIN timetable_trains tt ON tt.train_id = tr.id
             INNER JOIN timetables t ON t.id = tt.timetable_id AND t.route_id = ?
-            INNER JOIN timetable_coordinates tco ON tco.timetable_id = t.id
             WHERE tr.class_id = ?
             ORDER BY tr.name
         `);
@@ -999,8 +1007,8 @@ const timetableDb = {
         const result = db.exec(query, params);
         return result.length > 0 && result[0].values[0][0] > 0;
     },
-    create: (serviceName, routeId = null, trainId = null, trainIds = null) => {
-        db.run('INSERT INTO timetables (service_name, route_id, train_id) VALUES (?, ?, ?)', [serviceName, routeId, trainId]);
+    create: (serviceName, routeId = null, trainId = null, trainIds = null, contributor = null, serviceType = 'passenger') => {
+        db.run('INSERT INTO timetables (service_name, route_id, train_id, service_type, contributor) VALUES (?, ?, ?, ?, ?)', [serviceName, routeId, trainId, serviceType || 'passenger', contributor]);
         const result = db.exec('SELECT last_insert_rowid() as id');
         console.log('last_insert_rowid result:', JSON.stringify(result));
         const lastId = result.length > 0 && result[0].values.length > 0 ? result[0].values[0][0] : 0;
@@ -1037,6 +1045,18 @@ const timetableDb = {
         if (data.train_id !== undefined) {
             updates.push('train_id = ?');
             params.push(data.train_id);
+        }
+        if (data.service_type !== undefined) {
+            updates.push('service_type = ?');
+            params.push(data.service_type);
+        }
+        if (data.contributor !== undefined) {
+            updates.push('contributor = ?');
+            params.push(data.contributor);
+        }
+        if (data.coordinates_contributor !== undefined) {
+            updates.push('coordinates_contributor = ?');
+            params.push(data.coordinates_contributor);
         }
 
         if (updates.length > 0) {

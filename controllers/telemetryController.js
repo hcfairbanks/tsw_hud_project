@@ -560,11 +560,13 @@ function parseSubscriptionData(rawData) {
     // Process recording data after all entries are parsed (so streamData.incline is available)
     if (recordingController.isRecordingActive()) {
         // Record coordinate with raw gradient from stream (not rounded)
+        // Also pass game time for auto-stop logic
         if (streamData._geoLocation) {
             recordingController.processCoordinate(
                 streamData._geoLocation,
                 streamData._rawGradient, // Raw value, not rounded
-                currentHeight
+                currentHeight,
+                streamData.localTime // In-game time for auto-stop
             );
         }
         // Record stations

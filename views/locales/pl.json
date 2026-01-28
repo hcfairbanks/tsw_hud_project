@@ -493,7 +493,10 @@
     "trainsLabel": "Pociagi:",
     "createdLabel": "Utworzono:",
     "contributorLabel": "Kontrybutor:",
-    "coordinatesLabel": "Wspolrzedne:"
+    "coordinatesLabel": "Wspolrzedne:",
+    "serviceType": "Typ Uslugi",
+    "passenger": "Pasazerski",
+    "freight": "Towarowy"
   },
   "map": {
     "title": "Mapa sledzenia",

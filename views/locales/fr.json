@@ -493,7 +493,10 @@
     "trainsLabel": "Trains :",
     "createdLabel": "Cree :",
     "contributorLabel": "Contributeur :",
-    "coordinatesLabel": "Coordonnees :"
+    "coordinatesLabel": "Coordonnees :",
+    "serviceType": "Type de Service",
+    "passenger": "Voyageurs",
+    "freight": "Marchandises"
   },
   "map": {
     "title": "Carte de suivi",
