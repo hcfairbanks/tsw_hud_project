@@ -84,24 +84,10 @@ const routeController = {
         sendJson(res, { success: true });
     },
 
-    // GET /api/routes/:id/trains
+    // GET /api/routes/:id/trains - Get all trains available on this route (via train classes)
     getTrains: async (req, res, routeId) => {
         const trains = routeDb.getTrains(routeId);
         sendJson(res, trains);
-    },
-
-    // POST /api/routes/:id/trains
-    addTrain: async (req, res, routeId) => {
-        const body = await parseBody(req);
-        routeDb.addTrain(routeId, body.train_id);
-        sendJson(res, { success: true }, 201);
-    },
-
-    // DELETE /api/routes/:id/trains
-    removeTrain: async (req, res, routeId) => {
-        const body = await parseBody(req);
-        routeDb.removeTrain(routeId, body.train_id);
-        sendJson(res, { success: true });
     },
 
     // GET /api/routes/:id/train-classes
@@ -117,10 +103,16 @@ const routeController = {
         sendJson(res, { success: true }, 201);
     },
 
-    // DELETE /api/routes/:id/train-classes
+    // DELETE /api/routes/:id/train-classes (class_id in body)
     removeTrainClass: async (req, res, routeId) => {
         const body = await parseBody(req);
         routeDb.removeTrainClass(routeId, body.class_id);
+        sendJson(res, { success: true });
+    },
+
+    // DELETE /api/routes/:id/train-classes/:classId (class_id in URL)
+    removeTrainClassById: async (req, res, routeId, classId) => {
+        routeDb.removeTrainClass(routeId, classId);
         sendJson(res, { success: true });
     },
 

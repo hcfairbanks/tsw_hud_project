@@ -379,20 +379,37 @@
                 // Only fetch routes that have this train assigned
                 const response = await fetch('/api/trains/' + trainId + '/routes');
                 allRoutes = await response.json();
-                populateRouteFilter();
 
-                // If we came from a specific route, show context and set filter
+                // If we came from a specific route, check if it's in the list
+                // If not, fetch it separately so we can still show context
                 if (fromRouteId) {
                     currentRoute = allRoutes.find(function(r) { return r.id == fromRouteId; });
-                    if (currentRoute) {
-                        var showingTimetablesMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.showingTimetablesOnRoute') : 'Showing timetables for this train on';
-                        var backToLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.backTo') : 'Back to';
-                        document.getElementById('routeFilter').value = fromRouteId;
-                        document.getElementById('routeFilterInput').value = currentRoute.name;
-                        document.getElementById('contextInfo').style.display = 'block';
-                        document.getElementById('contextInfo').innerHTML = showingTimetablesMsg + ' <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
-                        document.getElementById('backLink').innerHTML = '<a href="/routes/' + currentRoute.id + '">&larr; ' + backToLabel + ' ' + escapeHtml(currentRoute.name) + '</a>';
+                    if (!currentRoute) {
+                        // Route not in train's routes - fetch it separately
+                        try {
+                            const routeResponse = await fetch('/api/routes/' + fromRouteId);
+                            if (routeResponse.ok) {
+                                currentRoute = await routeResponse.json();
+                                // Add to allRoutes so it appears in the dropdown
+                                allRoutes.unshift(currentRoute);
+                            }
+                        } catch (e) {
+                            console.error('Error fetching from_route:', e);
+                        }
                     }
+                }
+
+                populateRouteFilter();
+
+                // If we have a current route from params, show context and set filter
+                if (fromRouteId && currentRoute) {
+                    var showingTimetablesMsg = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('trains.showingTimetablesOnRoute') : 'Showing timetables for this train on';
+                    var backToLabel = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.backTo') : 'Back to';
+                    document.getElementById('routeFilter').value = fromRouteId;
+                    document.getElementById('routeFilterInput').value = currentRoute.name;
+                    document.getElementById('contextInfo').style.display = 'block';
+                    document.getElementById('contextInfo').innerHTML = showingTimetablesMsg + ' <a href="/routes/' + currentRoute.id + '">' + escapeHtml(currentRoute.name) + '</a>';
+                    document.getElementById('backLink').innerHTML = '<a href="/routes/' + currentRoute.id + '">&larr; ' + backToLabel + ' ' + escapeHtml(currentRoute.name) + '</a>';
                 }
             } catch (error) {
                 console.error('Error loading routes:', error);

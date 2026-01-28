@@ -80,11 +80,6 @@ async function initDatabase() {
         )
     `);
 
-    // Add UNIQUE constraint to routes.name if it doesn't exist (migration for existing databases)
-    try {
-        db.run('CREATE UNIQUE INDEX IF NOT EXISTS idx_routes_name ON routes(name)');
-    } catch (e) { /* index may already exist */ }
-    
     // Train classes table - groups trains by class
     db.run(`
         CREATE TABLE IF NOT EXISTS train_classes (
@@ -100,23 +95,6 @@ async function initDatabase() {
             name TEXT NOT NULL UNIQUE,
             class_id INTEGER,
             FOREIGN KEY (class_id) REFERENCES train_classes(id) ON DELETE SET NULL
-        )
-    `);
-
-    // Add class_id column to trains if it doesn't exist (migration for existing databases)
-    try {
-        db.run('ALTER TABLE trains ADD COLUMN class_id INTEGER REFERENCES train_classes(id) ON DELETE SET NULL');
-    } catch (e) { /* column already exists */ }
-
-    // Route-Train junction table (many-to-many) - kept for backward compatibility during migration
-    db.run(`
-        CREATE TABLE IF NOT EXISTS route_trains (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            route_id INTEGER NOT NULL,
-            train_id INTEGER NOT NULL,
-            FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE,
-            FOREIGN KEY (train_id) REFERENCES trains(id) ON DELETE CASCADE,
-            UNIQUE(route_id, train_id)
         )
     `);
 
@@ -175,33 +153,6 @@ async function initDatabase() {
             FOREIGN KEY (timetable_id) REFERENCES timetables(id) ON DELETE CASCADE
         )
     `);
-
-    // Add latitude and longitude columns if they don't exist (for existing databases)
-    try {
-        db.run('ALTER TABLE timetable_entries ADD COLUMN latitude TEXT');
-    } catch (e) { /* column already exists */ }
-    try {
-        db.run('ALTER TABLE timetable_entries ADD COLUMN longitude TEXT');
-    } catch (e) { /* column already exists */ }
-    try {
-        db.run('ALTER TABLE timetable_entries ADD COLUMN api_name TEXT');
-    } catch (e) { /* column already exists */ }
-
-    // Add tsw_version column to routes if it doesn't exist (migration for existing databases)
-    try {
-        db.run('ALTER TABLE routes ADD COLUMN tsw_version INTEGER NOT NULL DEFAULT 3');
-    } catch (e) { /* column already exists */ }
-    
-    // Add route_id and train_id columns to timetables if they don't exist (migration)
-    try {
-        db.run('ALTER TABLE timetables ADD COLUMN route_id INTEGER REFERENCES routes(id) ON DELETE SET NULL');
-    } catch (e) { /* column already exists */ }
-    try {
-        db.run('ALTER TABLE timetables ADD COLUMN train_id INTEGER REFERENCES trains(id) ON DELETE SET NULL');
-    } catch (e) { /* column already exists */ }
-
-    // Migration: Migrate existing data to new train class structure
-    migrateToTrainClasses();
 
     // Weather presets table
     db.run(`
@@ -273,63 +224,15 @@ async function initDatabase() {
     console.log('✓ Database initialized');
 }
 
-// Migrate existing data to train class structure
-function migrateToTrainClasses() {
-    // Check if migration is needed by looking for train_classes table with data
-    const classCount = db.exec('SELECT COUNT(*) FROM train_classes')[0]?.values[0][0] || 0;
-    const trainCount = db.exec('SELECT COUNT(*) FROM trains')[0]?.values[0][0] || 0;
+// Seed default weather presets from JSON file
+function seedWeatherPresets() {
+    const presetsFile = path.join(__dirname, 'seed_weather_presets.json');
 
-    if (classCount > 0 || trainCount === 0) {
-        // Already migrated or no data to migrate
+    if (!fs.existsSync(presetsFile)) {
+        console.log('⚠ Weather presets seed file not found, skipping');
         return;
     }
 
-    console.log('Migrating to train class structure...');
-
-    // Step 1: Create train classes from existing trains (each train becomes its own class)
-    const trains = db.exec('SELECT id, name FROM trains');
-    if (trains.length > 0 && trains[0].values.length > 0) {
-        const insertClassStmt = db.prepare('INSERT INTO train_classes (id, name) VALUES (?, ?)');
-        const updateTrainStmt = db.prepare('UPDATE trains SET class_id = ? WHERE id = ?');
-
-        for (const [id, name] of trains[0].values) {
-            insertClassStmt.run([id, name]);
-            updateTrainStmt.run([id, id]); // Set class_id = id (train's own class)
-        }
-        insertClassStmt.free();
-        updateTrainStmt.free();
-        console.log(`  ✓ Created ${trains[0].values.length} train classes from existing trains`);
-    }
-
-    // Step 2: Migrate route_trains to route_train_classes
-    const routeTrains = db.exec('SELECT DISTINCT route_id, train_id FROM route_trains');
-    if (routeTrains.length > 0 && routeTrains[0].values.length > 0) {
-        const insertRTCStmt = db.prepare('INSERT OR IGNORE INTO route_train_classes (route_id, class_id) VALUES (?, ?)');
-        for (const [routeId, trainId] of routeTrains[0].values) {
-            // train_id = class_id since we created classes with same IDs as trains
-            insertRTCStmt.run([routeId, trainId]);
-        }
-        insertRTCStmt.free();
-        console.log(`  ✓ Migrated route-train relationships to route-train-class`);
-    }
-
-    // Step 3: Migrate timetable train_id to timetable_trains junction table
-    const timetables = db.exec('SELECT id, train_id FROM timetables WHERE train_id IS NOT NULL');
-    if (timetables.length > 0 && timetables[0].values.length > 0) {
-        const insertTTStmt = db.prepare('INSERT OR IGNORE INTO timetable_trains (timetable_id, train_id) VALUES (?, ?)');
-        for (const [timetableId, trainId] of timetables[0].values) {
-            insertTTStmt.run([timetableId, trainId]);
-        }
-        insertTTStmt.free();
-        console.log(`  ✓ Migrated timetable-train relationships to junction table`);
-    }
-
-    saveDatabase();
-    console.log('✓ Train class migration complete');
-}
-
-// Seed default weather presets
-function seedWeatherPresets() {
     const presetCount = db.exec('SELECT COUNT(*) FROM weather_presets')[0]?.values[0][0] || 0;
     if (presetCount > 0) {
         return; // Already seeded
@@ -337,23 +240,25 @@ function seedWeatherPresets() {
 
     console.log('Seeding weather presets...');
 
-    // Sunny Day preset
-    db.run(`INSERT INTO weather_presets (name, temperature, cloudiness, precipitation, wetness, ground_snow, piled_snow, fog_density)
-            VALUES ('Sunny Day', 25, 0.1, 0, 0, 0, 0, 0)`);
+    const presets = JSON.parse(fs.readFileSync(presetsFile, 'utf8'));
+    const stmt = db.prepare('INSERT INTO weather_presets (name, temperature, cloudiness, precipitation, wetness, ground_snow, piled_snow, fog_density) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    for (const p of presets) {
+        stmt.run([p.name, p.temperature, p.cloudiness, p.precipitation, p.wetness, p.ground_snow, p.piled_snow, p.fog_density]);
+    }
+    stmt.free();
 
-    // Snowy Day preset
-    db.run(`INSERT INTO weather_presets (name, temperature, cloudiness, precipitation, wetness, ground_snow, piled_snow, fog_density)
-            VALUES ('Snowy Day', -5, 0.8, 0.7, 0.3, 0.8, 0.6, 0.2)`);
-
-    // Rainy Day preset
-    db.run(`INSERT INTO weather_presets (name, temperature, cloudiness, precipitation, wetness, ground_snow, piled_snow, fog_density)
-            VALUES ('Rainy Day', 12, 0.9, 0.8, 0.7, 0, 0, 0.3)`);
-
-    console.log('✓ Weather presets seeded');
+    console.log(`  ✓ Inserted ${presets.length} weather presets`);
 }
 
-// Seed default countries
+// Seed default countries from JSON file
 function seedCountries() {
+    const countriesFile = path.join(__dirname, 'seed_countries.json');
+
+    if (!fs.existsSync(countriesFile)) {
+        console.log('⚠ Countries seed file not found, skipping');
+        return;
+    }
+
     const countryCount = db.exec('SELECT COUNT(*) FROM countries')[0]?.values[0][0] || 0;
     if (countryCount > 0) {
         return; // Already seeded
@@ -361,31 +266,20 @@ function seedCountries() {
 
     console.log('Seeding countries...');
 
-    const countries = [
-        { name: 'United Kingdom', code: 'GB' },
-        { name: 'Germany', code: 'DE' },
-        { name: 'United States', code: 'US' },
-        { name: 'France', code: 'FR' },
-        { name: 'Austria', code: 'AT' },
-        { name: 'Switzerland', code: 'CH' },
-        { name: 'Netherlands', code: 'NL' },
-        { name: 'Ireland', code: 'IE' },
-        { name: 'Canada', code: 'CA' },
-        { name: 'Italy', code: 'IT' }
-    ];
-
+    const countries = JSON.parse(fs.readFileSync(countriesFile, 'utf8'));
+    const stmt = db.prepare('INSERT INTO countries (name, code) VALUES (?, ?)');
     for (const country of countries) {
-        db.run('INSERT INTO countries (name, code) VALUES (?, ?)', [country.name, country.code]);
+        stmt.run([country.name, country.code]);
     }
+    stmt.free();
 
-    console.log(`✓ ${countries.length} countries seeded`);
+    console.log(`  ✓ Inserted ${countries.length} countries`);
 }
 
 // Seed database with routes and trains from JSON files
 async function seedDatabase() {
     const routesFile = path.join(__dirname, 'seed_routes.json');
     const trainsFile = path.join(__dirname, 'seed_trains.json');
-    const routeTrainsFile = path.join(__dirname, 'seed_route_trains.json');
     const trainClassesFile = path.join(__dirname, 'seed_train_classes.json');
     const routeTrainClassesFile = path.join(__dirname, 'seed_route_train_classes.json');
 
@@ -444,17 +338,6 @@ async function seedDatabase() {
         console.log(`  ✓ Inserted ${routeTrainClasses.length} route-train-class links`);
     }
 
-    // Insert legacy route-train relationships (for backward compatibility)
-    if (fs.existsSync(routeTrainsFile)) {
-        const routeTrains = JSON.parse(fs.readFileSync(routeTrainsFile, 'utf8'));
-        const rtStmt = db.prepare('INSERT INTO route_trains (route_id, train_id) VALUES (?, ?)');
-        for (const rt of routeTrains) {
-            rtStmt.run([rt.route_id, rt.train_id]);
-        }
-        rtStmt.free();
-        console.log(`  ✓ Inserted ${routeTrains.length} route-train links`);
-    }
-
     saveDatabase();
     console.log('✓ Database seeded successfully');
 
@@ -488,7 +371,7 @@ function seedTimetables() {
     const timetables = JSON.parse(fs.readFileSync(timetablesFile, 'utf8'));
     const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf8'));
 
-    // Insert timetables (train_id kept for backward compatibility during migration)
+    // Insert timetables
     const ttStmt = db.prepare('INSERT INTO timetables (id, service_name, route_id, train_id) VALUES (?, ?, ?, ?)');
     for (const tt of timetables) {
         ttStmt.run([tt.id, tt.service_name, tt.route_id, tt.train_id || null]);
@@ -789,12 +672,14 @@ const routeDb = {
         db.run('DELETE FROM routes WHERE id = ?', [id]);
         saveDatabase();
     },
+    // Get all trains available on a route (via train classes)
     getTrains: (routeId) => {
         const stmt = db.prepare(`
-            SELECT t.* FROM trains t
-            INNER JOIN route_trains rt ON t.id = rt.train_id
-            WHERE rt.route_id = ?
-            ORDER BY t.name
+            SELECT DISTINCT t.*, tc.name as class_name FROM trains t
+            INNER JOIN train_classes tc ON t.class_id = tc.id
+            INNER JOIN route_train_classes rtc ON tc.id = rtc.class_id
+            WHERE rtc.route_id = ?
+            ORDER BY tc.name, t.name
         `);
         stmt.bind([routeId]);
         const results = [];
@@ -803,14 +688,6 @@ const routeDb = {
         }
         stmt.free();
         return results;
-    },
-    addTrain: (routeId, trainId) => {
-        db.run('INSERT OR IGNORE INTO route_trains (route_id, train_id) VALUES (?, ?)', [routeId, trainId]);
-        saveDatabase();
-    },
-    removeTrain: (routeId, trainId) => {
-        db.run('DELETE FROM route_trains WHERE route_id = ? AND train_id = ?', [routeId, trainId]);
-        saveDatabase();
     },
     // Train Class methods
     getTrainClasses: (routeId) => {
@@ -838,7 +715,7 @@ const routeDb = {
     },
     // Get trains for a specific class on a route
     getTrainsForClass: (routeId, classId) => {
-        // Get all trains in the class, not just ones linked to route_trains
+        // Get all trains in the specified class
         const stmt = db.prepare(`
             SELECT t.* FROM trains t
             WHERE t.class_id = ?
@@ -1051,10 +928,12 @@ const trainDb = {
         saveDatabase();
     },
     getRoutes: (trainId) => {
+        // Get routes where this train's class is assigned
         const stmt = db.prepare(`
-            SELECT r.* FROM routes r
-            INNER JOIN route_trains rt ON r.id = rt.route_id
-            WHERE rt.train_id = ?
+            SELECT DISTINCT r.* FROM routes r
+            INNER JOIN route_train_classes rtc ON r.id = rtc.route_id
+            INNER JOIN trains t ON t.class_id = rtc.class_id
+            WHERE t.id = ?
             ORDER BY r.name
         `);
         stmt.bind([trainId]);

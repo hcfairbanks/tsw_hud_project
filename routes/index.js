@@ -333,23 +333,12 @@ async function handleRoutes(req, res) {
         }
     }
 
-    // Route trains API
+    // Route trains API - get all trains available on this route (via train classes)
     const routeTrainsMatch = pathname.match(/^\/api\/routes\/(\d+)\/trains$/);
-    if (routeTrainsMatch) {
+    if (routeTrainsMatch && method === 'GET') {
         const routeId = parseInt(routeTrainsMatch[1]);
-
-        if (method === 'GET') {
-            await routeController.getTrains(req, res, routeId);
-            return true;
-        }
-        if (method === 'POST') {
-            await routeController.addTrain(req, res, routeId);
-            return true;
-        }
-        if (method === 'DELETE') {
-            await routeController.removeTrain(req, res, routeId);
-            return true;
-        }
+        await routeController.getTrains(req, res, routeId);
+        return true;
     }
 
     // Route train classes API
@@ -367,6 +356,18 @@ async function handleRoutes(req, res) {
         }
         if (method === 'DELETE') {
             await routeController.removeTrainClass(req, res, routeId);
+            return true;
+        }
+    }
+
+    // Single train class on route (for DELETE with class_id in URL)
+    const routeTrainClassMatch = pathname.match(/^\/api\/routes\/(\d+)\/train-classes\/(\d+)$/);
+    if (routeTrainClassMatch) {
+        const routeId = parseInt(routeTrainClassMatch[1]);
+        const classId = parseInt(routeTrainClassMatch[2]);
+
+        if (method === 'DELETE') {
+            await routeController.removeTrainClassById(req, res, routeId, classId);
             return true;
         }
     }

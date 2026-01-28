@@ -1622,5 +1622,8 @@
     {
         "route_id": 81,
         "class_id": 92
+    },{
+        "route_id": 67,
+        "class_id": 162
     }
 ]
