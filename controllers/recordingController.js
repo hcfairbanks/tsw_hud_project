@@ -31,8 +31,7 @@ const savedRawDataDir = path.join(__dirname, '..', 'saved_raw_data');
 const processedRoutesDir = path.join(__dirname, '..', 'processed_routes');
 
 // Auto-stop configuration
-const AUTO_STOP_TIMEOUT_MS = 240000; // 4 minutes in ms (for real-time inactivity)
-const AUTO_STOP_AFTER_TIMETABLE_SECONDS = 240; // 4 minutes in seconds (for game time after last timetable)
+const AUTO_STOP_TIMEOUT_MS = 120000; // 2 minutes in ms (for real-time inactivity)
 let autoStopEnabled = true; // Default to automatic mode
 let lastUniqueCoordinateTime = null;
 let autoStopCheckInterval = null;
@@ -258,7 +257,7 @@ async function start(req, res, timetableId) {
         const mins = Math.floor((lastTimetableTimeSeconds % 3600) / 60);
         const secs = lastTimetableTimeSeconds % 60;
         console.log(`Last timetable time: ${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`);
-        console.log(`Auto-stop will not trigger until 4 minutes after this time (in game time) AND 4 minutes of inactivity`);
+        console.log(`Auto-stop will trigger after this time (in game time) when train is stationary for 2 minutes`);
     }
 
     // Initialize auto-stop timer if in automatic mode
@@ -1326,7 +1325,7 @@ function deleteRawFile(req, res, filename) {
 
 /**
  * Set recording mode (manual/automatic)
- * In automatic mode, recording will auto-stop after 4 minutes of no unique coordinates
+ * In automatic mode, recording will auto-stop after 2 minutes of no unique coordinates
  */
 async function setMode(req, res) {
     try {
@@ -1384,8 +1383,8 @@ function getMode(req, res) {
  * Called periodically when auto-stop mode is enabled
  *
  * Auto-stop triggers when BOTH conditions are met:
- * 1. In-game time is past the last timetable time + 4 minutes
- * 2. No unique coordinates received for 4 minutes AFTER reaching the last timetable time
+ * 1. In-game time is past the last timetable time (arrival at final stop)
+ * 2. No unique coordinates received for 2 minutes (train stationary)
  */
 function checkAutoStop() {
     // Format times for logging
@@ -1398,19 +1397,14 @@ function checkAutoStop() {
 
     // Check if game time has passed the last timetable time
     let pastLastTimetableTime = false;
-    let gameTimePastMinimum = false;
     let gameTimeStatus = 'unknown';
 
     if (lastTimetableTimeSeconds !== null && currentGameTimeSeconds !== null) {
-        const minimumAutoStopTime = lastTimetableTimeSeconds + AUTO_STOP_AFTER_TIMETABLE_SECONDS;
         pastLastTimetableTime = currentGameTimeSeconds >= lastTimetableTimeSeconds;
-        gameTimePastMinimum = currentGameTimeSeconds >= minimumAutoStopTime;
-
-        gameTimeStatus = `gameTime=${formatTime(currentGameTimeSeconds)}, lastTimetable=${formatTime(lastTimetableTimeSeconds)}, minAutoStop=${formatTime(minimumAutoStopTime)}, pastMin=${gameTimePastMinimum}`;
+        gameTimeStatus = `gameTime=${formatTime(currentGameTimeSeconds)}, lastTimetable=${formatTime(lastTimetableTimeSeconds)}, pastLast=${pastLastTimetableTime}`;
     } else if (lastTimetableTimeSeconds === null) {
         // No timetable time found, only use inactivity
         pastLastTimetableTime = true;
-        gameTimePastMinimum = true;
         gameTimeStatus = 'no timetable time (using inactivity only)';
     } else {
         gameTimeStatus = 'waiting for game time';
@@ -1433,8 +1427,8 @@ function checkAutoStop() {
     }
 
     // Both conditions must be true
-    if (hasInactivity && gameTimePastMinimum) {
-        console.log('Auto-stop triggered: train stationary AND game time past last timetable time + 4 minutes');
+    if (hasInactivity && pastLastTimetableTime) {
+        console.log('Auto-stop triggered: train stationary for 2 min AND game time past last timetable time');
         triggerAutoStop();
     }
 }
