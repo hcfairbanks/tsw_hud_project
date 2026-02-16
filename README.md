@@ -1,6 +1,6 @@
 # TSW HUD Project
 
-A compilable Train Sim World dashboard HUD system with SQLite database support.
+A Train Sim World dashboard HUD system with SQLite database support.
 
 ## Features
 
@@ -86,3 +86,4 @@ npm start
 # Run with embedded Node (portable)
 .\TSW_HUD_Start.bat
 ```
+
