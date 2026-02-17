@@ -10,3 +10,6 @@ runtime/
 portable/
 
 notes/
+
+ocr_output/
+saved_raw_data/
