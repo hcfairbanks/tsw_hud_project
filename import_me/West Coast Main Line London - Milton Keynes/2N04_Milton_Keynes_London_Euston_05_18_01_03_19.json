@@ -1,5 +1,5 @@
 {
-  "timetableId": 2,
+  "timetableId": 19,
   "completed": null,
   "recordingMode": null,
   "serviceName": "2N04: Milton Keynes - London Euston  05:18 01:03",
@@ -3743,11 +3743,13 @@
   "timetable": [
     {
       "index": 0,
-      "location": "",
+      "location": "Milton Keynes Central",
       "arrival": "05:18:00",
       "departure": "05:20:00",
-      "platform": "",
-      "apiName": ""
+      "platform": "1",
+      "apiName": "Milton Keynes Central 1",
+      "latitude": 52.03381922099319,
+      "longitude": -0.77380269565124
     },
     {
       "index": 1,
@@ -3834,8 +3836,8 @@
     {
       "index": 0,
       "action": "WAIT FOR SERVICE",
-      "location": "",
-      "platform": "",
+      "location": "Milton Keynes Central",
+      "platform": "1",
       "time1": "",
       "time2": "05:18:00",
       "details": "Service is scheduled to start at",
