@@ -127,6 +127,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/timetable-actions.js"></script>
     <script>
         const timetableId = window.location.pathname.split('/').pop();
         let timetable = null;
@@ -136,15 +137,7 @@
         let allCountries = [];
         let hasUnsavedChanges = false;
 
-        const ACTIONS = [
-            'WAIT FOR SERVICE',
-            'STOP AT LOCATION',
-            'LOAD PASSENGERS',
-            'UNLOAD PASSENGERS',
-            'GO VIA LOCATION',
-            'UNCOUPLE VEHICLES',
-            'COUPLE TO FORMATION'
-        ];
+        const ACTIONS = TIMETABLE_ACTIONS;
 
         async function loadData() {
             try {

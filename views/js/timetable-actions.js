@@ -1,0 +1,12 @@
+'use strict';
+
+window.TIMETABLE_ACTIONS = [
+    'WAIT FOR SERVICE',
+    'WAIT',
+    'STOP AT LOCATION',
+    'LOAD PASSENGERS',
+    'UNLOAD PASSENGERS',
+    'GO VIA LOCATION',
+    'UNCOUPLE VEHICLES',
+    'COUPLE TO FORMATION'
+];

@@ -239,6 +239,7 @@
         <div class="pagination" id="pagination"></div>
     </div>
 
+    <script src="/js/timetable-actions.js"></script>
     <script>
         let allTimetables = [];
         let allRoutes = [];
@@ -776,15 +777,7 @@
         var rawToggle = document.getElementById('rawToggle');
         var rawContent = document.getElementById('rawContent');
 
-        var ACTIONS = [
-            'WAIT FOR SERVICE',
-            'STOP AT LOCATION',
-            'LOAD PASSENGERS',
-            'UNLOAD PASSENGERS',
-            'GO VIA LOCATION',
-            'UNCOUPLE VEHICLES',
-            'COUPLE TO FORMATION'
-        ];
+        var ACTIONS = TIMETABLE_ACTIONS;
 
         // Extracted timetable route/train selection
         var extractRouteTrains = []; // Trains available for selected route

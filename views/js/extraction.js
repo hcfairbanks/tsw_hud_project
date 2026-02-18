@@ -25,15 +25,7 @@ window.ExtractionModule = (function() {
         prefilledTrainName: null
     };
 
-    const ACTIONS = [
-        'WAIT FOR SERVICE',
-        'STOP AT LOCATION',
-        'LOAD PASSENGERS',
-        'UNLOAD PASSENGERS',
-        'GO VIA LOCATION',
-        'UNCOUPLE VEHICLES',
-        'COUPLE TO FORMATION'
-    ];
+    const ACTIONS = window.TIMETABLE_ACTIONS || [];
 
     const TIME_FORMAT_REGEX = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
 
