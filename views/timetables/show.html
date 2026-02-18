@@ -568,6 +568,8 @@
             }
         });
 
+        var draggedIndex = null;
+
         function renderEntries() {
             const container = document.getElementById('entriesList');
 
@@ -584,10 +586,8 @@
             var time2Header = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('timetables.time2') : 'Time 2';
             var detailsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('timetables.detailsColumn') : 'Details';
             var actionsHeader = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.actions') : 'Actions';
-            let html = '<table><thead><tr><th>#</th><th>' + actionHeader + '</th><th>' + locationHeader + '</th><th>' + platformHeader + '</th><th>' + time1Header + '</th><th>' + time2Header + '</th><th>' + detailsHeader + '</th><th>Lat</th><th>Lng</th><th class="actions">' + actionsHeader + '</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>#</th><th>' + actionHeader + '</th><th>' + locationHeader + '</th><th>' + platformHeader + '</th><th>' + time1Header + '</th><th>' + time2Header + '</th><th>' + detailsHeader + '</th><th>Lat</th><th>Lng</th><th class="actions">' + actionsHeader + '</th></tr></thead><tbody id="entriesTableBody">';
             var selectText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.select') : '-- Select --';
-            var upText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.up') : 'Up';
-            var downText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.down') : 'Down';
             var deleteText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('common.delete') : 'Delete';
 
             entries.forEach(function(entry, index) {
@@ -596,7 +596,7 @@
                 }).join('');
 
                 html += '<tr data-index="' + index + '" data-id="' + (entry.id || '') + '">';
-                html += '<td>' + (index + 1) + '</td>';
+                html += '<td class="drag-handle">\u2630 ' + (index + 1) + '</td>';
                 html += '<td><select class="action-select" onchange="updateEntryField(' + index + ', \'action\', this.value)"><option value="">' + selectText + '</option>' + actionOptions + '</select></td>';
                 html += '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>';
                 html += '<td class="editable-cell" data-field="platform">' + escapeHtml(entry.platform || '') + '</td>';
@@ -606,8 +606,6 @@
                 html += '<td class="editable-cell coord-cell" data-field="latitude">' + escapeHtml(entry.latitude || '') + '</td>';
                 html += '<td class="editable-cell coord-cell" data-field="longitude">' + escapeHtml(entry.longitude || '') + '</td>';
                 html += '<td class="actions">';
-                if (index > 0) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', -1)">' + upText + '</button>';
-                if (index < entries.length - 1) html += '<button class="btn-secondary" onclick="moveEntry(' + index + ', 1)">' + downText + '</button>';
                 html += '<button class="btn-danger" onclick="deleteEntry(' + index + ')">' + deleteText + '</button>';
                 html += '</td></tr>';
             });
@@ -619,7 +617,71 @@
                 cell.addEventListener('click', makeCellEditable);
             });
 
+            // Add drag event listeners
+            var tbody = document.getElementById('entriesTableBody');
+            setupDragListeners(tbody, entries, function() {
+                entries.forEach(function(entry, i) { entry.sort_order = i; });
+                renderEntries();
+                markUnsaved();
+            });
+
             updateRecordRouteButton();
+        }
+
+        function setupDragListeners(tbody, entriesArray, rerenderFn) {
+            var rows = tbody.querySelectorAll('tr[data-index]');
+            rows.forEach(function(row) {
+                var handle = row.querySelector('.drag-handle');
+                if (handle) {
+                    handle.addEventListener('mousedown', function() {
+                        row.setAttribute('draggable', 'true');
+                    });
+                }
+
+                row.addEventListener('dragstart', function(e) {
+                    draggedIndex = parseInt(this.dataset.index);
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                row.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    var targetIndex = parseInt(this.dataset.index);
+                    rows.forEach(function(r) {
+                        r.classList.remove('drag-over-above', 'drag-over-below');
+                    });
+                    if (draggedIndex === null || targetIndex === draggedIndex) return;
+                    if (targetIndex < draggedIndex) {
+                        this.classList.add('drag-over-above');
+                    } else {
+                        this.classList.add('drag-over-below');
+                    }
+                });
+
+                row.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over-above', 'drag-over-below');
+                });
+
+                row.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    var targetIndex = parseInt(this.dataset.index);
+                    if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+                    var item = entriesArray.splice(draggedIndex, 1)[0];
+                    entriesArray.splice(targetIndex, 0, item);
+                    draggedIndex = null;
+                    rerenderFn();
+                });
+
+                row.addEventListener('dragend', function() {
+                    draggedIndex = null;
+                    rows.forEach(function(r) {
+                        r.setAttribute('draggable', 'false');
+                        r.classList.remove('dragging', 'drag-over-above', 'drag-over-below');
+                    });
+                });
+            });
         }
 
         function updateRecordRouteButton() {
@@ -699,19 +761,6 @@
             markUnsaved();
         }
 
-        function moveEntry(index, direction) {
-            var newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= entries.length) return;
-
-            var temp = entries[index];
-            entries[index] = entries[newIndex];
-            entries[newIndex] = temp;
-
-            // Update sort_order
-            entries.forEach(function(entry, i) { entry.sort_order = i; });
-            renderEntries();
-            markUnsaved();
-        }
 
         function markUnsaved() {
             hasUnsavedChanges = true;

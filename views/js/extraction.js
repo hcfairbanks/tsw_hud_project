@@ -607,6 +607,9 @@ window.ExtractionModule = (function() {
         }
     }
 
+    // Drag state
+    let draggedIndex = null;
+
     /**
      * Render the extracted entries table
      */
@@ -621,7 +624,7 @@ window.ExtractionModule = (function() {
             }).join('');
 
             return '<tr data-index="' + index + '">' +
-                '<td>' + (index + 1) + '</td>' +
+                '<td class="drag-handle">\u2630 ' + (index + 1) + '</td>' +
                 '<td><select class="action-select" onchange="ExtractionModule.updateExtractedField(' + index + ', \'action\', this.value)"><option value="">' + selectText + '</option>' + actionOptions + '</select></td>' +
                 '<td class="editable-cell" data-field="details">' + escapeHtml(entry.details || '') + '</td>' +
                 '<td class="editable-cell" data-field="location">' + escapeHtml(entry.location || '') + '</td>' +
@@ -637,6 +640,70 @@ window.ExtractionModule = (function() {
         // Add click handlers for editable cells
         document.querySelectorAll('#extractTableBody .editable-cell').forEach(function(cell) {
             cell.addEventListener('click', makeExtractedCellEditable);
+        });
+
+        // Add drag event listeners
+        setupDragListeners(tbody, extractedEntries, renderExtractedTable);
+    }
+
+    /**
+     * Setup drag-and-drop reorder listeners on table rows.
+     * Dragging is only enabled when initiated from the .drag-handle cell,
+     * so that selects, inputs, and editable cells remain interactive.
+     */
+    function setupDragListeners(tbody, entriesArray, rerenderFn) {
+        var rows = tbody.querySelectorAll('tr[data-index]');
+        rows.forEach(function(row) {
+            var handle = row.querySelector('.drag-handle');
+            if (handle) {
+                handle.addEventListener('mousedown', function() {
+                    row.setAttribute('draggable', 'true');
+                });
+            }
+
+            row.addEventListener('dragstart', function(e) {
+                draggedIndex = parseInt(this.dataset.index);
+                this.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            row.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                var targetIndex = parseInt(this.dataset.index);
+                rows.forEach(function(r) {
+                    r.classList.remove('drag-over-above', 'drag-over-below');
+                });
+                if (draggedIndex === null || targetIndex === draggedIndex) return;
+                if (targetIndex < draggedIndex) {
+                    this.classList.add('drag-over-above');
+                } else {
+                    this.classList.add('drag-over-below');
+                }
+            });
+
+            row.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over-above', 'drag-over-below');
+            });
+
+            row.addEventListener('drop', function(e) {
+                e.preventDefault();
+                var targetIndex = parseInt(this.dataset.index);
+                if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+                var item = entriesArray.splice(draggedIndex, 1)[0];
+                entriesArray.splice(targetIndex, 0, item);
+                draggedIndex = null;
+                rerenderFn();
+            });
+
+            row.addEventListener('dragend', function() {
+                draggedIndex = null;
+                rows.forEach(function(r) {
+                    r.setAttribute('draggable', 'false');
+                    r.classList.remove('dragging', 'drag-over-above', 'drag-over-below');
+                });
+            });
         });
     }
 

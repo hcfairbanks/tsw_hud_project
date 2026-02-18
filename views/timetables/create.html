@@ -454,21 +454,6 @@
             renderEntries();
         }
 
-        function moveEntryUp(id) {
-            const index = entries.findIndex(e => e.id === id);
-            if (index > 0) {
-                [entries[index - 1], entries[index]] = [entries[index], entries[index - 1]];
-                renderEntries();
-            }
-        }
-
-        function moveEntryDown(id) {
-            const index = entries.findIndex(e => e.id === id);
-            if (index < entries.length - 1) {
-                [entries[index], entries[index + 1]] = [entries[index + 1], entries[index]];
-                renderEntries();
-            }
-        }
 
         function updateEntry(id, field, value) {
             const entry = entries.find(e => e.id === id);
@@ -476,6 +461,8 @@
                 entry[field] = value;
             }
         }
+
+        var draggedIndex = null;
 
         function renderEntries() {
             const tbody = document.getElementById('entriesBody');
@@ -490,8 +477,8 @@
             noEntries.style.display = 'none';
 
             tbody.innerHTML = entries.map((entry, index) => `
-                <tr>
-                    <td>${index + 1}</td>
+                <tr data-index="${index}">
+                    <td class="drag-handle">\u2630 ${index + 1}</td>
                     <td>
                         <select class="action-select" onchange="updateEntry(${entry.id}, 'action', this.value)">
                             <option value="">-- Select --</option>
@@ -523,12 +510,69 @@
                             placeholder="00:00:00">
                     </td>
                     <td class="actions-cell">
-                        <button class="btn btn-secondary btn-small" onclick="moveEntryUp(${entry.id})" ${index === 0 ? 'disabled' : ''}>&#8593;</button>
-                        <button class="btn btn-secondary btn-small" onclick="moveEntryDown(${entry.id})" ${index === entries.length - 1 ? 'disabled' : ''}>&#8595;</button>
                         <button class="btn btn-danger btn-small" onclick="removeEntry(${entry.id})">&times;</button>
                     </td>
                 </tr>
             `).join('');
+
+            // Add drag event listeners
+            setupDragListeners(tbody, entries, renderEntries);
+        }
+
+        function setupDragListeners(tbody, entriesArray, rerenderFn) {
+            var rows = tbody.querySelectorAll('tr[data-index]');
+            rows.forEach(function(row) {
+                var handle = row.querySelector('.drag-handle');
+                if (handle) {
+                    handle.addEventListener('mousedown', function() {
+                        row.setAttribute('draggable', 'true');
+                    });
+                }
+
+                row.addEventListener('dragstart', function(e) {
+                    draggedIndex = parseInt(this.dataset.index);
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                row.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    var targetIndex = parseInt(this.dataset.index);
+                    rows.forEach(function(r) {
+                        r.classList.remove('drag-over-above', 'drag-over-below');
+                    });
+                    if (draggedIndex === null || targetIndex === draggedIndex) return;
+                    if (targetIndex < draggedIndex) {
+                        this.classList.add('drag-over-above');
+                    } else {
+                        this.classList.add('drag-over-below');
+                    }
+                });
+
+                row.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over-above', 'drag-over-below');
+                });
+
+                row.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    var targetIndex = parseInt(this.dataset.index);
+                    if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+                    var item = entriesArray.splice(draggedIndex, 1)[0];
+                    entriesArray.splice(targetIndex, 0, item);
+                    draggedIndex = null;
+                    rerenderFn();
+                });
+
+                row.addEventListener('dragend', function() {
+                    draggedIndex = null;
+                    rows.forEach(function(r) {
+                        r.setAttribute('draggable', 'false');
+                        r.classList.remove('dragging', 'drag-over-above', 'drag-over-below');
+                    });
+                });
+            });
         }
 
         function escapeHtml(text) {

@@ -87,3 +87,19 @@ npm start
 .\TSW_HUD_Start.bat
 ```
 
+
+
+1. Move recording variables like distance and wait time into a central location
+2. Add notes about changing anthropic model
+3. Add a stop watcher for live recordings that stops once all the stops have been recorded.
+4. I might want a clock on the front end that show how long the stop is taking. at least for debugging
+5. Need to account for how we create timetable entries when we have things like "Wait" or "Stop at location" when they don't have two times, time 1 arrival, time 2 departure. and "Via", "Via" might have a flag on it, which might solve the "Wait" issue too
+6. Frieght, this might require a completely different approach.
+
+7. consolidate code for creating timetabels with image uplaods on this page
+http://localhost:3000/timetables
+http://localhost:3000/trains/91?from_route=81
+
+8. We might need a default "Location" of "Start" for creating timetables
+http://localhost:3000/timetables
+http://localhost:3000/trains/91?from_route=81

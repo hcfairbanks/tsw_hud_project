@@ -280,6 +280,34 @@
     background: var(--accent-hover);
 }
 
+/* Drag-and-drop row reorder */
+.drag-handle {
+    cursor: grab;
+    user-select: none;
+    color: var(--text-muted, #888);
+    white-space: nowrap;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+tr[draggable="true"] {
+    transition: opacity 0.15s ease;
+}
+
+tr.dragging {
+    opacity: 0.4;
+}
+
+tr.drag-over-above {
+    box-shadow: 0 -2px 0 0 var(--accent-color, #0066ff);
+}
+
+tr.drag-over-below {
+    box-shadow: 0 2px 0 0 var(--accent-color, #0066ff);
+}
+
 /* Status messages */
 .status-message {
     text-align: center;
