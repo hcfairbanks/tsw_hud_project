@@ -8,8 +8,9 @@ const { buildTimetableExportJson } = require('./timetableController');
 const { processRawData } = require('./routeProcessingController');
 const { loadConfig } = require('./configController');
 
-// Recording configuration
+// Recording configuration (hardcoded fallbacks, overridden by user config on recording start)
 const SAVE_FREQUENCY = 1; // Save to file every N coordinates (1 = every coordinate, 100 = every 100th)
+let currentSaveFrequency = SAVE_FREQUENCY;
 
 // Recording state
 let isRecording = false;
@@ -30,8 +31,9 @@ const recordingDataDir = path.join(__dirname, '..', 'recording_data');
 const savedRawDataDir = path.join(__dirname, '..', 'saved_raw_data');
 const processedRoutesDir = path.join(__dirname, '..', 'processed_routes');
 
-// Auto-stop configuration
+// Auto-stop configuration (hardcoded fallback, overridden by user config on recording start)
 const AUTO_STOP_TIMEOUT_MS = 120000; // 2 minutes in ms (for real-time inactivity)
+let currentAutoStopTimeoutMs = AUTO_STOP_TIMEOUT_MS;
 let autoStopEnabled = true; // Default to automatic mode
 let lastUniqueCoordinateTime = null;
 let autoStopCheckInterval = null;
@@ -249,6 +251,11 @@ async function start(req, res, timetableId) {
     isRecording = true;
     isPaused = false;
     recordingStartTime = Date.now();
+
+    // Load recording settings from config
+    const recordingConfig = loadConfig();
+    currentSaveFrequency = recordingConfig.saveFrequency ?? SAVE_FREQUENCY;
+    currentAutoStopTimeoutMs = (recordingConfig.autoStopTimeoutSeconds ?? 120) * 1000;
 
     // Calculate the last time from the timetable for auto-stop logic
     lastTimetableTimeSeconds = calculateLastTimetableTime(entries);
@@ -625,6 +632,8 @@ function reset(req, res) {
     routeOutputFilePath = null;
     lastTimetableTimeSeconds = null;
     currentGameTimeSeconds = null;
+    currentSaveFrequency = SAVE_FREQUENCY;
+    currentAutoStopTimeoutMs = AUTO_STOP_TIMEOUT_MS;
 
     // Clear auto-stop interval when resetting
     if (autoStopCheckInterval) {
@@ -883,12 +892,12 @@ function processCoordinate(geoLocation, gradient, height, gameTimeISO) {
 
         routeCoordinates.push(coordinate);
 
-        // Save to file periodically based on SAVE_FREQUENCY
-        if (routeCoordinates.length % SAVE_FREQUENCY === 0) {
+        // Save to file periodically based on save frequency setting
+        if (routeCoordinates.length % currentSaveFrequency === 0) {
             const timetable = timetableDb.getById(currentTimetableId);
             const entries = entryDb.getByTimetableId(currentTimetableId);
             saveRouteData(timetable, entries);
-            if (SAVE_FREQUENCY >= 100) {
+            if (currentSaveFrequency >= 100) {
                 console.log(`Route collection: ${routeCoordinates.length} coordinates, ${discoveredMarkers.length} markers`);
             }
         }
@@ -1374,7 +1383,7 @@ function getMode(req, res) {
     sendJson(res, {
         mode: autoStopEnabled ? 'automatic' : 'manual',
         autoStopEnabled: autoStopEnabled,
-        autoStopTimeoutMs: AUTO_STOP_TIMEOUT_MS
+        autoStopTimeoutMs: currentAutoStopTimeoutMs
     });
 }
 
@@ -1416,7 +1425,7 @@ function checkAutoStop() {
 
     if (pastLastTimetableTime && lastUniqueCoordinateTime) {
         inactivityElapsed = Math.round((Date.now() - lastUniqueCoordinateTime) / 1000);
-        hasInactivity = (Date.now() - lastUniqueCoordinateTime > AUTO_STOP_TIMEOUT_MS);
+        hasInactivity = (Date.now() - lastUniqueCoordinateTime > currentAutoStopTimeoutMs);
     }
 
     const inactivityStatus = pastLastTimetableTime ? `inactivity=${inactivityElapsed}s` : 'inactivity=waiting for last timetable time';

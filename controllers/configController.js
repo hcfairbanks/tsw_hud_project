@@ -19,7 +19,14 @@ const defaultConfig = {
     tsw6KeyPath: '',  // Path to TSW6 CommAPIKey.txt
     distanceUnits: 'metric', // 'metric' (km/m) or 'imperial' (miles/feet)
     temperatureUnits: 'celsius', // 'celsius' or 'fahrenheit'
-    contributorName: '' // Name to use as contributor when creating timetables
+    contributorName: '', // Name to use as contributor when creating timetables
+    // Recording settings
+    simplifyEpsilon: 1, // meters - path simplification tolerance
+    minStopDurationSeconds: 30, // seconds - minimum stop duration for auto-detection
+    gpsNoiseRadiusMeters: 10, // meters - max distance for "same location" in stop detection
+    minPointsForStop: 10, // minimum coordinate points to form a valid stop
+    autoStopTimeoutSeconds: 120, // seconds - inactivity timeout before auto-stop
+    saveFrequency: 1 // save recording data every N coordinates
 };
 
 /**

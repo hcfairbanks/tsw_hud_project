@@ -195,6 +195,12 @@ async function handleRoutes(req, res) {
         return true;
     }
 
+    // Recording Settings page
+    if (pathname === '/recording-settings' || pathname === '/recording-settings.html') {
+        serveFile(res, 'recording-settings.html', 'text/html');
+        return true;
+    }
+
     // Weather preset show page /weather-presets/:id
     const weatherPresetShowMatch = pathname.match(/^\/weather-presets\/(\d+)$/);
     if (weatherPresetShowMatch) {

@@ -475,6 +475,15 @@ function processRawData(rawData) {
     console.log(`  Timetable entries: ${rawData.timetable?.length || 0}`);
     console.log(`  Recording mode: ${rawData.recordingMode || 'unknown'}`);
 
+    // Load user-configurable settings (with hardcoded fallbacks)
+    const config = loadConfig();
+    const simplifyEpsilon = config.simplifyEpsilon ?? 1;
+    const stopConfig = {
+        MIN_STOP_DURATION_MS: (config.minStopDurationSeconds ?? 30) * 1000,
+        GPS_NOISE_RADIUS_METERS: config.gpsNoiseRadiusMeters ?? 10,
+        MIN_POINTS_FOR_STOP: config.minPointsForStop ?? 10
+    };
+
     const coordinates = rawData.coordinates || [];
     const markers = rawData.markers || [];
     const timetable = rawData.timetable || [];
@@ -509,7 +518,7 @@ function processRawData(rawData) {
     let detectedStops = [];
     if (isAutomatic) {
         console.log('\n  Automatic mode: Running stop detection...');
-        detectedStops = detectStops(coordinates, STOP_DETECTION_CONFIG);
+        detectedStops = detectStops(coordinates, stopConfig);
     } else {
         console.log('\n  Manual mode: Skipping stop detection');
     }
@@ -524,10 +533,8 @@ function processRawData(rawData) {
     }
 
     // Step 4: Simplify coordinates to reduce file size while preserving path accuracy
-    // Epsilon of 1 meter means points within 1m of the simplified line are removed
     // This happens AFTER stop detection so we have full data for stop analysis
-    const SIMPLIFY_EPSILON = 1; // meters
-    const simplifiedCoordinates = simplifyPath(coordinates, SIMPLIFY_EPSILON);
+    const simplifiedCoordinates = simplifyPath(coordinates, simplifyEpsilon);
     console.log(`  Simplified coordinates: ${coordinates.length} -> ${simplifiedCoordinates.length} (${((1 - simplifiedCoordinates.length / coordinates.length) * 100).toFixed(1)}% reduction)`);
 
     // Step 5: In automatic mode, if the LAST timetable entry still has no coordinates,
