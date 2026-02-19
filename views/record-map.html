@@ -504,7 +504,7 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 0, 0, 0.3);">
+            <div id="devClocksSection" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 0, 0, 0.3);">
                 <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleDevClocks()">
                     <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;">Clocks</label>
                     <span id="devClocksToggle" style="font-size: 12px; color: #aaa;">▼</span>
@@ -1035,10 +1035,13 @@
 
             // Update UI
             const infoDiv = document.getElementById('autoModeInfo');
+            const clocksSection = document.getElementById('devClocksSection');
             if (mode === 'automatic') {
                 infoDiv.style.display = 'block';
+                if (clocksSection) clocksSection.style.display = '';
             } else {
                 infoDiv.style.display = 'none';
+                if (clocksSection) clocksSection.style.display = 'none';
             }
 
             // Send mode change to backend
@@ -1073,9 +1076,11 @@
                     radio.checked = (radio.value === recordingMode);
                 });
 
-                // Update info div
+                // Update info div and clocks section
                 const infoDiv = document.getElementById('autoModeInfo');
                 infoDiv.style.display = recordingMode === 'automatic' ? 'block' : 'none';
+                const clocksSection = document.getElementById('devClocksSection');
+                if (clocksSection) clocksSection.style.display = recordingMode === 'automatic' ? '' : 'none';
             } catch (err) {
                 console.error('Error loading recording mode:', err);
                 // On error, keep the default (automatic)
