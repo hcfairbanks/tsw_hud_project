@@ -504,6 +504,29 @@
                 </div>
             </div>
 
+            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 0, 0, 0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleDevClocks()">
+                    <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;">Clocks</label>
+                    <span id="devClocksToggle" style="font-size: 12px; color: #aaa;">▼</span>
+                </div>
+                <div id="devClocksContent" style="margin-top: 10px;">
+                    <div style="text-align: center; margin-bottom: 8px;">
+                        <span style="font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">Stops:</span>
+                        <span id="devStopCount" style="font-family: 'Courier New', monospace; font-size: 14px; color: #000; margin-left: 4px;">0</span>
+                    </div>
+                    <div style="display: flex; gap: 12px; justify-content: space-between;">
+                        <div style="flex: 1; text-align: center;">
+                            <div style="font-size: 10px; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">In-Game Time</div>
+                            <div id="devGameClock" style="font-family: 'Courier New', monospace; font-size: 22px; color: #00cc66; background: #1a1a1a; padding: 6px 10px; border-radius: 4px; border: 1px solid #333; letter-spacing: 2px;">--:--:--</div>
+                        </div>
+                        <div style="flex: 1; text-align: center;">
+                            <div style="font-size: 10px; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Stopped</div>
+                            <div id="devStopwatch" style="font-family: 'Courier New', monospace; font-size: 22px; color: #ffaa00; background: #1a1a1a; padding: 6px 10px; border-radius: 4px; border: 1px solid #333; letter-spacing: 2px;">00:00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleCoordinatesPicker()">
                     <label style="font-size: 12px; color: #aaa; font-weight: 600; cursor: pointer;" data-i18n="record.coordinatesPicker">Coordinates Picker</label>
@@ -566,6 +589,19 @@
         let nextStationIndex = null; // Used to advance dropdown after save
         let recordingMode = 'automatic'; // 'manual' or 'automatic'
         let pendingRawFileDelete = null; // Raw file to delete after DB save (normal mode)
+
+        // Stopwatch state - tracks time since train stopped moving
+        let lastMovingPosition = null;   // Last GPS position when train was confirmed moving
+        let stoppedSince = null;          // Timestamp when train was detected as stopped
+        let stopwatchInterval = null;     // Interval for updating the stopwatch display
+        let stopCount = 0;               // Number of times the train has stopped
+        let movingReadings = 0;          // Consecutive "moving" readings for debounce
+        let stoppedReadings = 0;         // Consecutive "stopped" readings for debounce
+        let pendingStop = false;         // Waiting to confirm a stop
+        const GPS_NOISE_THRESHOLD = 0.000005; // ~0.5m - positions closer than this are considered noise
+        const SPEED_THRESHOLD = 2;        // Speed below this (in display units) = stopped
+        const MOVING_DEBOUNCE = 10;       // Require 10 consecutive moving readings (~1s) to confirm movement
+        const STOPPED_DEBOUNCE = 20;      // Require 20 consecutive stopped readings (~2s) to confirm a stop
 
         // Create custom train icon
         const trainIcon = L.divIcon({
@@ -1483,6 +1519,127 @@
                 currentTimetableId = null;
                 updateUIFromRecording({ isRecording: false, isPaused: false });
             }
+
+            // Update in-game time clock
+            if (data.localTime) {
+                const gameClockEl = document.getElementById('devGameClock');
+                if (gameClockEl) {
+                    try {
+                        // localTime is ISO8601 e.g. "2024-01-15T14:30:00"
+                        // Extract time directly from the string to avoid timezone conversion
+                        const timePart = data.localTime.split('T')[1];
+                        if (timePart) {
+                            gameClockEl.textContent = timePart.split('.')[0].substring(0, 8);
+                        }
+                    } catch (e) {
+                        gameClockEl.textContent = '--:--:--';
+                    }
+                }
+            }
+
+            // Update stopped-train stopwatch
+            updateStopwatch(data);
+        }
+
+        // Determine if train is moving and manage stopwatch
+        function updateStopwatch(data) {
+            const speed = typeof data.speed === 'number' ? data.speed : 0;
+            const hasValidPosition = data.playerPosition &&
+                typeof data.playerPosition.latitude === 'number' &&
+                typeof data.playerPosition.longitude === 'number' &&
+                (data.playerPosition.latitude !== 0 || data.playerPosition.longitude !== 0);
+
+            // No valid data - don't update
+            if (!hasValidPosition) return;
+
+            const lat = data.playerPosition.latitude;
+            const lng = data.playerPosition.longitude;
+
+            // Use speed as primary indicator, GPS distance as secondary
+            let isMoving = speed >= SPEED_THRESHOLD;
+
+            // If speed says stopped, also check GPS drift to filter noise
+            if (!isMoving && lastMovingPosition) {
+                const dLat = Math.abs(lat - lastMovingPosition.lat);
+                const dLng = Math.abs(lng - lastMovingPosition.lng);
+                // If GPS jumped significantly beyond noise, train is actually moving
+                if (dLat > GPS_NOISE_THRESHOLD || dLng > GPS_NOISE_THRESHOLD) {
+                    isMoving = true;
+                }
+            }
+
+            if (isMoving) {
+                movingReadings++;
+                stoppedReadings = 0;
+                pendingStop = false;
+                // Only confirm movement after sustained readings to filter noise
+                if (stoppedSince !== null && movingReadings >= MOVING_DEBOUNCE) {
+                    stoppedSince = null;
+                    clearStopwatchInterval();
+                    updateStopwatchDisplay(0);
+                    lastMovingPosition = { lat, lng };
+                } else if (stoppedSince === null) {
+                    lastMovingPosition = { lat, lng };
+                }
+            } else {
+                // Train appears stopped - require sustained stopped readings before counting
+                movingReadings = 0;
+                stoppedReadings++;
+                if (stoppedSince === null && stoppedReadings >= STOPPED_DEBOUNCE) {
+                    stoppedSince = Date.now();
+                    stopCount++;
+                    const countEl = document.getElementById('devStopCount');
+                    if (countEl) countEl.textContent = stopCount;
+                    startStopwatchInterval();
+                }
+                if (!lastMovingPosition) {
+                    lastMovingPosition = { lat, lng };
+                }
+            }
+        }
+
+        function startStopwatchInterval() {
+            clearStopwatchInterval();
+            stopwatchInterval = setInterval(() => {
+                if (stoppedSince !== null) {
+                    const elapsed = Math.floor((Date.now() - stoppedSince) / 1000);
+                    updateStopwatchDisplay(elapsed);
+                }
+            }, 200);
+        }
+
+        function clearStopwatchInterval() {
+            if (stopwatchInterval) {
+                clearInterval(stopwatchInterval);
+                stopwatchInterval = null;
+            }
+        }
+
+        function updateStopwatchDisplay(totalSeconds) {
+            const el = document.getElementById('devStopwatch');
+            if (!el) return;
+
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+
+            if (minutes >= 60) {
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                el.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            } else {
+                el.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            // Color coding: green when just stopped, yellow after 30s, red after 2min
+            if (totalSeconds === 0) {
+                el.style.color = '#ffaa00';
+            } else if (totalSeconds < 30) {
+                el.style.color = '#ffaa00';
+            } else if (totalSeconds < 120) {
+                el.style.color = '#ff6600';
+            } else {
+                el.style.color = '#ff0000';
+            }
         }
 
         // Update UI based on recording state from stream
@@ -1861,6 +2018,19 @@
         function toggleLoadFile() {
             const content = document.getElementById('loadFileContent');
             const toggle = document.getElementById('loadFileToggle');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▶';
+            }
+        }
+
+        // Toggle dev clocks visibility
+        function toggleDevClocks() {
+            const content = document.getElementById('devClocksContent');
+            const toggle = document.getElementById('devClocksToggle');
             if (content.style.display === 'none') {
                 content.style.display = 'block';
                 toggle.textContent = '▼';

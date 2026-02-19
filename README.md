@@ -87,19 +87,42 @@ npm start
 .\TSW_HUD_Start.bat
 ```
 
+To change anthropic model
+ctrl + shift + p
+Preferences: Open User Settings (JSON)
 
 
-1. Move recording variables like distance and wait time into a central location
-2. Add notes about changing anthropic model
-3. Add a stop watcher for live recordings that stops once all the stops have been recorded.
-4. I might want a clock on the front end that show how long the stop is taking. at least for debugging
-5. Need to account for how we create timetable entries when we have things like "Wait" or "Stop at location" when they don't have two times, time 1 arrival, time 2 departure. and "Via", "Via" might have a flag on it, which might solve the "Wait" issue too
-6. Frieght, this might require a completely different approach.
+1. Add a stop watcher for live recordings that stops once all the stops have been recorded.
+2. I might want a clock on the front end that show how long the stop is taking. at least for debugging
+3. Need to account for how we create timetable entries when we have things like "Wait" or "Stop at location" when they don't have two times, time 1 arrival, time 2 departure. and "Via", "Via" might have a flag on it, which might solve the "Wait" issue too
+4. Frieght, this might require a completely different approach.
 
-7. consolidate code for creating timetabels with image uplaods on this page
+5. consolidate code for creating timetabels with image uplaods on this page
 http://localhost:3000/timetables
 http://localhost:3000/trains/91?from_route=81
 
-8. We might need a default "Location" of "Start" for creating timetables
+6. We might need a default "Location" of "Start" for creating timetables
 http://localhost:3000/timetables
 http://localhost:3000/trains/91?from_route=81
+
+
+
+Now lets move this logic into the back end.
+When the train is in automatic it should record the coordinates for each stop in the file
+"C:\Users\hcfai\Desktop\git\tsw_hud_project\recording_data\raw_data_timetable_24_2026-02-19_03-38-12.json"
+In the timetable section
+We need to account for things that have via because they are not stops.
+So if we have 5 items in the timetable but one of them is a via we need to skip that one and record in the other sections.
+Once we have recorded all the stops and the time is past the last arrival time, stop the automatic recording.
+
+
+
+    {
+      "index": 1,
+      "location": "Power Changeover Location",
+      "arrival": "",
+      "departure": "",
+      "platform": "",
+      "apiName": "Power Changeover Location",
+      "isPassThrough": true
+    },
