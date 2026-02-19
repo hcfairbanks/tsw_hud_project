@@ -566,7 +566,8 @@ function parseSubscriptionData(rawData) {
                 streamData._geoLocation,
                 streamData._rawGradient, // Raw value, not rounded
                 currentHeight,
-                streamData.localTime // In-game time for auto-stop
+                streamData.localTime, // In-game time for auto-stop
+                streamData.speed // Display-unit speed for stop detection
             );
         }
         // Record stations

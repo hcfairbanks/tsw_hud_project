@@ -41,6 +41,15 @@ let autoStopped = false; // Flag to notify frontend of auto-stop
 let lastTimetableTimeSeconds = null; // Last scheduled time in timetable (in seconds since midnight)
 let currentGameTimeSeconds = null; // Current in-game time (in seconds since midnight)
 
+// Stop detection for automatic coordinate assignment during recording
+const STOP_SPEED_THRESHOLD = 2;           // Speed below this (display units) = stopped
+const STOP_MOVING_READINGS = 10;          // ~1s at 100ms to confirm movement
+let stopDetectionStoppedCount = 0;        // Consecutive stopped readings
+let stopDetectionMovingCount = 0;         // Consecutive moving readings
+let stopDetectionIsStopped = false;       // True when stop confirmed, reset on movement
+let stopDetectionConfirmedReadings = 300; // Readings needed to confirm stop (from config)
+let cachedProcessedEntries = null;        // Cached preprocessed timetable entries
+
 /**
  * Parse time string (HH:MM:SS) to seconds since midnight
  */
@@ -64,6 +73,45 @@ function isoTimeToSeconds(isoStr) {
     if (!timePart) return null;
     const timeOnly = timePart.split('.')[0]; // Remove milliseconds and timezone
     return timeStringToSeconds(timeOnly);
+}
+
+/**
+ * Find the index of the next non-passthrough timetable entry
+ * that doesn't already have coordinates recorded.
+ * @returns {number|null} Array index in cachedProcessedEntries, or null if all recorded
+ */
+function findNextUnrecordedStopIndex() {
+    if (!cachedProcessedEntries) return null;
+
+    for (let i = 0; i < cachedProcessedEntries.length; i++) {
+        const entry = cachedProcessedEntries[i];
+        if (entry.isPassThrough) continue;
+        if (savedTimetableCoords.has(i)) continue;
+        return i;
+    }
+
+    return null;
+}
+
+/**
+ * Check if all non-passthrough timetable entries have coordinates.
+ * If so, and game time is past the last timetable time, trigger auto-stop.
+ */
+function checkAllStopsRecorded() {
+    if (!cachedProcessedEntries) return;
+
+    const allRecorded = findNextUnrecordedStopIndex() === null;
+
+    if (allRecorded) {
+        const nonPassThroughCount = cachedProcessedEntries.filter(e => !e.isPassThrough).length;
+        console.log(`[Auto-coord] All ${nonPassThroughCount} station coordinates recorded`);
+
+        if (lastTimetableTimeSeconds !== null && currentGameTimeSeconds !== null &&
+            currentGameTimeSeconds >= lastTimetableTimeSeconds) {
+            console.log(`[Auto-coord] Game time past last timetable time AND all stops recorded - triggering auto-stop`);
+            triggerAutoStop();
+        }
+    }
 }
 
 /**
@@ -159,6 +207,22 @@ async function start(req, res, timetableId) {
         // Resume from paused state
         isPaused = false;
         isRecording = true;
+
+        // Reset stop detection counters on resume
+        stopDetectionStoppedCount = 0;
+        stopDetectionMovingCount = 0;
+        stopDetectionIsStopped = false;
+
+        // Ensure cached entries exist on resume
+        if (!cachedProcessedEntries) {
+            let stationNameMapping = {};
+            if (timetable.route_id) {
+                stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
+            } else {
+                stationNameMapping = stationMappingDb.getMappingObject(null);
+            }
+            cachedProcessedEntries = preprocessTimetableEntries(entries, stationNameMapping);
+        }
 
         // Restart auto-stop timer if in automatic mode
         if (autoStopEnabled) {
@@ -256,6 +320,22 @@ async function start(req, res, timetableId) {
     const recordingConfig = loadConfig();
     currentSaveFrequency = recordingConfig.saveFrequency ?? SAVE_FREQUENCY;
     currentAutoStopTimeoutMs = (recordingConfig.autoStopTimeoutSeconds ?? 120) * 1000;
+    stopDetectionConfirmedReadings = (recordingConfig.minStopDurationSeconds ?? 30) * 10;
+
+    // Reset stop detection state for new recording
+    stopDetectionStoppedCount = 0;
+    stopDetectionMovingCount = 0;
+    stopDetectionIsStopped = false;
+
+    // Cache preprocessed entries for stop detection coordinate assignment
+    let stationNameMapping = {};
+    if (timetable.route_id) {
+        stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
+    } else {
+        stationNameMapping = stationMappingDb.getMappingObject(null);
+    }
+    cachedProcessedEntries = preprocessTimetableEntries(entries, stationNameMapping);
+    console.log(`Cached ${cachedProcessedEntries.length} timetable entries (${cachedProcessedEntries.filter(e => !e.isPassThrough).length} stops, ${cachedProcessedEntries.filter(e => e.isPassThrough).length} pass-through)`);
 
     // Calculate the last time from the timetable for auto-stop logic
     lastTimetableTimeSeconds = calculateLastTimetableTime(entries);
@@ -347,6 +427,12 @@ function stop(req, res) {
     routeOutputFilePath = null;
     lastTimetableTimeSeconds = null;
     currentGameTimeSeconds = null;
+
+    // Reset stop detection state
+    stopDetectionStoppedCount = 0;
+    stopDetectionMovingCount = 0;
+    stopDetectionIsStopped = false;
+    cachedProcessedEntries = null;
 
     // Clear auto-stop interval
     if (autoStopCheckInterval) {
@@ -635,6 +721,12 @@ function reset(req, res) {
     currentSaveFrequency = SAVE_FREQUENCY;
     currentAutoStopTimeoutMs = AUTO_STOP_TIMEOUT_MS;
 
+    // Reset stop detection state
+    stopDetectionStoppedCount = 0;
+    stopDetectionMovingCount = 0;
+    stopDetectionIsStopped = false;
+    cachedProcessedEntries = null;
+
     // Clear auto-stop interval when resetting
     if (autoStopCheckInterval) {
         clearInterval(autoStopCheckInterval);
@@ -843,7 +935,7 @@ async function saveTimetableCoords(req, res) {
  * @param {number} height - Current height
  * @param {string} gameTimeISO - Current in-game time in ISO8601 format
  */
-function processCoordinate(geoLocation, gradient, height, gameTimeISO) {
+function processCoordinate(geoLocation, gradient, height, gameTimeISO, speed) {
     if (!isRecording || isPaused) return;
 
     // Update current game time for auto-stop checking
@@ -899,6 +991,50 @@ function processCoordinate(geoLocation, gradient, height, gameTimeISO) {
             saveRouteData(timetable, entries);
             if (currentSaveFrequency >= 100) {
                 console.log(`Route collection: ${routeCoordinates.length} coordinates, ${discoveredMarkers.length} markers`);
+            }
+        }
+    }
+
+    // === Automatic stop detection for coordinate assignment ===
+    if (autoStopEnabled && typeof speed === 'number' && cachedProcessedEntries) {
+        if (speed < STOP_SPEED_THRESHOLD) {
+            // Train appears stopped
+            stopDetectionMovingCount = 0;
+            stopDetectionStoppedCount++;
+
+            if (stopDetectionStoppedCount >= stopDetectionConfirmedReadings && !stopDetectionIsStopped) {
+                // Stop confirmed - assign coordinates to next unrecorded non-passthrough entry
+                stopDetectionIsStopped = true;
+
+                const nextEntryIndex = findNextUnrecordedStopIndex();
+                if (nextEntryIndex !== null) {
+                    const entry = cachedProcessedEntries[nextEntryIndex];
+                    savedTimetableCoords.set(nextEntryIndex, {
+                        latitude: geoLocation.latitude,
+                        longitude: geoLocation.longitude
+                    });
+
+                    // Persist to file
+                    const timetable = timetableDb.getById(currentTimetableId);
+                    const entries = entryDb.getByTimetableId(currentTimetableId);
+                    saveRouteData(timetable, entries);
+
+                    console.log(`[Auto-coord] Stop detected - assigned to "${entry.location}" (index ${nextEntryIndex}): ${geoLocation.latitude.toFixed(6)}, ${geoLocation.longitude.toFixed(6)}`);
+
+                    // Check if all stops are now recorded
+                    checkAllStopsRecorded();
+                } else {
+                    console.log(`[Auto-coord] Stop detected but all timetable entries already have coordinates`);
+                }
+            }
+        } else {
+            // Train is moving
+            stopDetectionStoppedCount = 0;
+            stopDetectionMovingCount++;
+
+            if (stopDetectionMovingCount >= STOP_MOVING_READINGS && stopDetectionIsStopped) {
+                // Movement confirmed - ready for next stop
+                stopDetectionIsStopped = false;
             }
         }
     }
@@ -1124,7 +1260,11 @@ function getRecordingStateForStream() {
         markerCount: discoveredMarkers.length,
         timetable: timetableData,
         autoStopped: wasAutoStopped,
-        autoStopEnabled: autoStopEnabled
+        autoStopEnabled: autoStopEnabled,
+        stopDetection: {
+            totalStops: cachedProcessedEntries ? cachedProcessedEntries.filter(e => !e.isPassThrough).length : 0,
+            recordedStops: savedTimetableCoords.size
+        }
     };
 }
 
@@ -1280,6 +1420,29 @@ function loadRecordingFile(req, res, filename) {
                 }
             });
         }
+
+        // Cache preprocessed entries for stop detection
+        if (timetableId) {
+            const timetable = timetableDb.getById(timetableId);
+            const dbEntries = entryDb.getByTimetableId(timetableId);
+            if (timetable && dbEntries) {
+                let stationNameMapping = {};
+                if (timetable.route_id) {
+                    stationNameMapping = stationMappingDb.getMappingObject(timetable.route_id);
+                } else {
+                    stationNameMapping = stationMappingDb.getMappingObject(null);
+                }
+                cachedProcessedEntries = preprocessTimetableEntries(dbEntries, stationNameMapping);
+                // Load config for stop detection threshold
+                const recordingConfig = loadConfig();
+                stopDetectionConfirmedReadings = (recordingConfig.minStopDurationSeconds ?? 30) * 10;
+            }
+        }
+
+        // Reset stop detection counters
+        stopDetectionStoppedCount = 0;
+        stopDetectionMovingCount = 0;
+        stopDetectionIsStopped = false;
 
         // Set state to paused (ready to resume)
         isRecording = true;

@@ -107,15 +107,23 @@ http://localhost:3000/trains/91?from_route=81
 
 
 
-Now lets move this logic into the back end.
+
+On this page 
+http://localhost:3000/record?timetable_id=25
+we have some logic that marks the stops. I want to use this same logic to record the lat an lng for stops during automatic recording on this file
+"C:\Users\hcfai\Desktop\git\tsw_hud_project\recording_data\raw_data_timetable_24_2026-02-19_03-38-12.json"
+
 When the train is in automatic it should record the coordinates for each stop in the file
 "C:\Users\hcfai\Desktop\git\tsw_hud_project\recording_data\raw_data_timetable_24_2026-02-19_03-38-12.json"
+
 In the timetable section
-We need to account for things that have via because they are not stops.
-So if we have 5 items in the timetable but one of them is a via we need to skip that one and record in the other sections.
+We need to account for things that have 
+"isPassThrough": true
+because they are not stops.
+So if we have 5 items in the timetable but one of them has 
+"isPassThrough": true
+we need to skip that one and record in the other sections.
 Once we have recorded all the stops and the time is past the last arrival time, stop the automatic recording.
-
-
 
     {
       "index": 1,
@@ -126,3 +134,9 @@ Once we have recorded all the stops and the time is past the last arrival time, 
       "apiName": "Power Changeover Location",
       "isPassThrough": true
     },
+
+
+
+I need to check "Wait" doesn't have 
+"isPassThrough": true
+and is included in the timetable section of the json that's used in the recording
