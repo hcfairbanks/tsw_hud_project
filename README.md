@@ -92,51 +92,20 @@ ctrl + shift + p
 Preferences: Open User Settings (JSON)
 
 
-1. Add a stop watcher for live recordings that stops once all the stops have been recorded.
-2. I might want a clock on the front end that show how long the stop is taking. at least for debugging
-3. Need to account for how we create timetable entries when we have things like "Wait" or "Stop at location" when they don't have two times, time 1 arrival, time 2 departure. and "Via", "Via" might have a flag on it, which might solve the "Wait" issue too
-4. Frieght, this might require a completely different approach.
-
-5. consolidate code for creating timetabels with image uplaods on this page
-http://localhost:3000/timetables
-http://localhost:3000/trains/91?from_route=81
-
-6. We might need a default "Location" of "Start" for creating timetables
-http://localhost:3000/timetables
-http://localhost:3000/trains/91?from_route=81
-
-
-
-
-On this page 
-http://localhost:3000/record?timetable_id=25
-we have some logic that marks the stops. I want to use this same logic to record the lat an lng for stops during automatic recording on this file
-"C:\Users\hcfai\Desktop\git\tsw_hud_project\recording_data\raw_data_timetable_24_2026-02-19_03-38-12.json"
-
-When the train is in automatic it should record the coordinates for each stop in the file
-"C:\Users\hcfai\Desktop\git\tsw_hud_project\recording_data\raw_data_timetable_24_2026-02-19_03-38-12.json"
-
-In the timetable section
-We need to account for things that have 
-"isPassThrough": true
-because they are not stops.
-So if we have 5 items in the timetable but one of them has 
-"isPassThrough": true
-we need to skip that one and record in the other sections.
-Once we have recorded all the stops and the time is past the last arrival time, stop the automatic recording.
-
-    {
-      "index": 1,
-      "location": "Power Changeover Location",
-      "arrival": "",
-      "departure": "",
-      "platform": "",
-      "apiName": "Power Changeover Location",
-      "isPassThrough": true
-    },
-
-
-
-I need to check "Wait" doesn't have 
+1. I need to check "Wait" doesn't have 
 "isPassThrough": true
 and is included in the timetable section of the json that's used in the recording
+
+2. Need to account for how we create timetable entries when we have things like "Wait" or "Stop at location" when they don't have two times, time 1 arrival, time 2 departure. and "Via", "Via" might have a flag on it, which might solve the "Wait" issue too
+
+3. Frieght, this might require a completely different approach.
+
+4. consolidate code for creating timetabels with image uplaods on this page
+http://localhost:3000/timetables
+http://localhost:3000/trains/91?from_route=81
+
+5. We might need a default "Location" of "Start" for creating timetables
+http://localhost:3000/timetables
+http://localhost:3000/trains/91?from_route=81
+
+

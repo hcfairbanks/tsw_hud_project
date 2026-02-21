@@ -1,0 +1,141 @@
+"""Test script: click service box #5 and debug the level load.
+
+Assumes the game is already at the service list screen (train class selected).
+Run this manually while the service list is visible.
+"""
+import os
+import time
+
+import pyautogui
+pyautogui.FAILSAFE = False
+
+import config
+from utils import _get_best_confidence
+from service_loop import (
+    get_visible_service_boxes,
+    screenshot_service_box,
+    exit_to_main_menu,
+)
+
+
+def main():
+    print("=== Test: Service Box #5 ===\n")
+    print("You have 5 seconds to make sure the service list is visible...")
+    time.sleep(5)
+
+    boxes = get_visible_service_boxes()
+    print(f"Visible boxes: {len(boxes)}")
+    for i, (bx, by) in enumerate(boxes):
+        print(f"  Box {i+1}: ({bx}, {by})")
+
+    # Target box 5 (index 4)
+    box_index = 4
+    if box_index >= len(boxes):
+        print(f"ERROR: Only {len(boxes)} boxes visible, can't reach box {box_index + 1}")
+        return
+
+    x, y = boxes[box_index]
+    print(f"\n--- Targeting box #{box_index + 1} at ({x}, {y}) ---")
+
+    # Click to select/highlight
+    print(f"       Clicking service at ({x}, {y})...")
+    pyautogui.moveTo(x, y)
+    time.sleep(0.5)
+    pyautogui.mouseDown()
+    time.sleep(0.2)
+    pyautogui.mouseUp()
+    time.sleep(1.5)
+
+    # Screenshot the selected box
+    img_path = screenshot_service_box(5, y)
+    print(f"       Saved: {img_path}")
+
+    # Press Enter twice to load
+    print("\n       Pressing Enter twice...")
+    pyautogui.press("enter")
+    time.sleep(1.0)
+    pyautogui.press("enter")
+
+    # Poll for driver/get_started every 5 seconds, logging confidence
+    driver_refs = [(config.REF_DRIVER, "driver.png")]
+    if os.path.isfile(config.REF_DRIVER_1):
+        driver_refs.append((config.REF_DRIVER_1, "driver_1.png"))
+
+    print(f"\n       Polling for level load (logging every 5s)...")
+    print(f"       Checking driver refs: {[name for _, name in driver_refs]}")
+    start = time.time()
+    found = None
+    found_ref = None
+    while time.time() - start < 90:
+        confs = {}
+        for ref_path, ref_name in driver_refs:
+            confs[ref_name] = _get_best_confidence(ref_path)
+        confs["get_started.png"] = _get_best_confidence(config.REF_GET_STARTED)
+
+        elapsed = int(time.time() - start)
+        parts = "  ".join(f"{name}={conf:.3f}" for name, conf in confs.items())
+        print(f"         [{elapsed:3d}s] {parts}")
+
+        for ref_path, ref_name in driver_refs:
+            if confs[ref_name] >= config.CONFIDENCE:
+                print(f"\n       FOUND {ref_name} at {elapsed}s (confidence {confs[ref_name]:.3f})")
+                found = "driver"
+                found_ref = ref_path
+                break
+        if found:
+            break
+        if confs["get_started.png"] >= config.CONFIDENCE:
+            print(f"\n       FOUND get_started.png at {elapsed}s (confidence {confs['get_started.png']:.3f})")
+            found = "get_started"
+            break
+
+        time.sleep(5)
+
+    if found is None:
+        print("\n       FAILED: Neither screen appeared within 90s")
+        return
+
+    # If driver found, click it and wait for get_started
+    if found == "driver":
+        print(f"       Clicking Driver (matched via {os.path.basename(found_ref)})...")
+        try:
+            loc = pyautogui.locateOnScreen(found_ref, confidence=config.CONFIDENCE)
+            if loc:
+                center = pyautogui.center(loc)
+                pyautogui.moveTo(center)
+                time.sleep(0.5)
+                pyautogui.mouseDown()
+                time.sleep(0.2)
+                pyautogui.mouseUp()
+                time.sleep(2.0)
+        except pyautogui.ImageNotFoundException:
+            print("       WARNING: Driver disappeared before we could click it")
+
+        print("       Waiting for get_started after clicking Driver...")
+        start2 = time.time()
+        while time.time() - start2 < 60:
+            started_conf = _get_best_confidence(config.REF_GET_STARTED)
+            elapsed2 = int(time.time() - start2)
+            print(f"         [{elapsed2:3d}s] get_started={started_conf:.3f}")
+            if started_conf >= config.CONFIDENCE:
+                print(f"\n       FOUND get_started.png at {elapsed2}s")
+                break
+            time.sleep(5)
+
+    print("\n       Level loaded — pressing Enter twice...")
+    time.sleep(0.5)
+    pyautogui.press("enter")
+    time.sleep(0.5)
+    pyautogui.press("enter")
+    time.sleep(5.0)
+
+    print("       [TODO] Schedule capture not yet implemented")
+
+    # Exit back
+    print("\n       Exiting to main menu...")
+    exit_to_main_menu()
+    print("\n=== Test complete ===")
+
+
+if __name__ == "__main__":
+    main()
