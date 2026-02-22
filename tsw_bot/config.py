@@ -31,6 +31,11 @@ REF_GET_STARTED = os.path.join(REFERENCES_DIR, "get_started.png")
 REF_GET_STARTED_2 = os.path.join(REFERENCES_DIR, "get_started_2.png")
 REF_DRIVER = os.path.join(REFERENCES_DIR, "driver.png")
 REF_DRIVER_1 = os.path.join(REFERENCES_DIR, "driver_1.png")
+REF_EXIT_GAME_1 = os.path.join(REFERENCES_DIR, "exit_game_1.png")
+REF_EXIT_GAME_2 = os.path.join(REFERENCES_DIR, "exit_game_2.png")
+REF_EXIT_GAME_DIALOGBOX = os.path.join(REFERENCES_DIR, "exit_game_dialogbox.png")
+REF_EXIT_GAME_YES_1 = os.path.join(REFERENCES_DIR, "exit_game_yes_1.png")
+REF_EXIT_GAME_YES_2 = os.path.join(REFERENCES_DIR, "exit_game_yes_2.png")
 
 # Route to select
 ROUTE_NAME = "WCML South - London Euston to Milton Keynes"
@@ -71,7 +76,7 @@ TRAIN_FIRST_Y_OFFSET = 47     # Y offset from TRAIN_BOX_TOP to center of first t
 TRAIN_BOX_STRIDE = 94         # distance between train box centers (472px / 5 trains ≈ 94)
 
 # Limits (None = unlimited)
-MAX_SERVICES_PER_TRAIN = 10   # cap services per train for faster testing
+MAX_SERVICES_PER_TRAIN = 1    # cap services per train for faster testing
 
 # Retry settings (when a click doesn't register and the screen doesn't change)
 RETRY_MAX = 3                # total click attempts before giving up

@@ -225,3 +225,69 @@ def click_train(index):
     pyautogui.mouseUp()
     time.sleep(5.0)           # service list needs time to populate
     print(f"       Train #{index + 1} selected!")
+
+
+def exit_game():
+    """Exit the game completely from any menu screen.
+
+    Looks for 'Exit Game' button, waits for confirmation dialog,
+    then clicks 'Yes' to quit.
+    """
+    print("       Exiting game...")
+
+    # 1. Find and click "Exit Game" (button stays visible after click — dialog overlays)
+    exit_refs = [config.REF_EXIT_GAME_1, config.REF_EXIT_GAME_2]
+    clicked = False
+    for ref in exit_refs:
+        if not os.path.isfile(ref):
+            continue
+        if wait_and_click(ref, timeout=10, confidence=config.CONFIDENCE, verify=False):
+            clicked = True
+            break
+    if not clicked:
+        raise TimeoutError("Could not find 'Exit Game' button")
+    time.sleep(2.0)
+
+    # 2. Wait for the exit confirmation dialog
+    print("       Waiting for exit dialog...")
+    loc = wait_for_image(config.REF_EXIT_GAME_DIALOGBOX, timeout=config.SCREEN_TIMEOUT, confidence=config.CONFIDENCE)
+    if loc is None:
+        raise TimeoutError("Timed out waiting for exit game dialog")
+    time.sleep(1.0)
+
+    # 3. Click "Yes" to confirm exit
+    print("       Clicking 'Yes' to confirm exit...")
+    yes_refs = [config.REF_EXIT_GAME_YES_1, config.REF_EXIT_GAME_YES_2]
+    clicked = False
+    for ref in yes_refs:
+        if not os.path.isfile(ref):
+            continue
+        if wait_and_click(ref, timeout=10, confidence=config.CONFIDENCE):
+            clicked = True
+            break
+    if not clicked:
+        raise TimeoutError("Could not find 'Yes' button on exit dialog")
+
+    # 4. 'Yes' click verify already confirmed the game closed (dialog disappeared).
+    #    Brief pause before relaunching.
+    print("       Game closed.")
+    time.sleep(5.0)
+
+
+def relaunch_and_navigate():
+    """Relaunch the game and navigate back to the train selection screen.
+
+    Goes through: launch → warning → splash → To The Trains →
+    Choose a Route → route screen → select route → timetable → select class.
+    """
+    print("\n       Relaunching game...")
+    launch_game()
+    pass_warning_screen()
+    pass_splash_screen()
+    click_to_the_trains()
+    click_choose_a_route()
+    wait_for_route_screen()
+    select_route()
+    click_timetable()
+    select_train_class()
+    print("       Back at train list after relaunch.")

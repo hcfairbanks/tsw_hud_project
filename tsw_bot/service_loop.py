@@ -18,6 +18,8 @@ from navigator import (
     click_timetable,
     select_train_class,
     click_train,
+    exit_game,
+    relaunch_and_navigate,
 )
 
 
@@ -472,7 +474,7 @@ def process_all_services(base_dir, train_index, max_services=None):
             if max_services is not None and service_index >= max_services:
                 print(f"\n       Reached service limit ({max_services}), stopping.")
                 print(f"\nProcessed {service_index} services for this train.")
-                return  # at main menu
+                return service_index  # at main menu
 
             # Re-navigate to the service list
             navigate_to_service_list(train_index)
@@ -515,18 +517,27 @@ def process_all_services(base_dir, train_index, max_services=None):
     print(f"\n       Reached end of service list. Returning to main menu...")
     _return_to_main_menu_from_menus()
     print(f"\nProcessed {service_index} services for this train.")
+    return service_index
 
 
 def process_all_trains():
     """Outer loop: iterate through all trains in the class, processing services for each."""
-    # Create class-level folder
-    class_dir = os.path.join(config.SCREENSHOTS_DIR, config.TRAIN_CLASS)
+    from datetime import datetime, timedelta
+
+    run_start = time.time()
+
+    # Create route/class folder structure
+    route_dir = os.path.join(config.SCREENSHOTS_DIR, config.ROUTE_NAME)
+    class_dir = os.path.join(route_dir, config.TRAIN_CLASS)
     os.makedirs(class_dir, exist_ok=True)
 
     train_count = count_trains()
     print(f"\n=== Processing {train_count} trains for '{config.TRAIN_CLASS}' ===\n")
 
+    train_results = []  # list of (train_number, service_count, duration_seconds)
+
     for train_idx in range(train_count):
+        train_start = time.time()
         print(f"\n{'='*50}")
         print(f"=== Train {train_idx + 1}/{train_count} ===")
         print(f"{'='*50}")
@@ -539,15 +550,41 @@ def process_all_trains():
         click_train(train_idx)
 
         # Process services for this train
-        process_all_services(
+        svc_count = process_all_services(
             base_dir=train_dir,
             train_index=train_idx,
             max_services=config.MAX_SERVICES_PER_TRAIN,
         )
 
-        # process_all_services returns at main menu (when limit hit).
-        # Navigate back to the train list for the next train.
+        train_duration = time.time() - train_start
+        train_results.append((train_idx + 1, svc_count, train_duration))
+
+        # Exit and relaunch game between trains to avoid memory issues.
+        # process_all_services returns at main menu.
         if train_idx < train_count - 1:
-            navigate_to_train_list()
+            exit_game()
+            relaunch_and_navigate()
+
+    total_duration = time.time() - run_start
+    total_services = sum(r[1] for r in train_results)
 
     print(f"\n=== All {train_count} trains processed! ===")
+
+    # Write summary report
+    report_path = os.path.join(class_dir, "report.txt")
+    started = datetime.fromtimestamp(run_start)
+    with open(report_path, "w") as f:
+        f.write(f"TSW Timetable Bot — Run Report\n")
+        f.write(f"{'='*40}\n\n")
+        f.write(f"Route:       {config.ROUTE_NAME}\n")
+        f.write(f"Train Class: {config.TRAIN_CLASS}\n")
+        f.write(f"Started:     {started:%Y-%m-%d %H:%M:%S}\n")
+        f.write(f"Duration:    {timedelta(seconds=int(total_duration))}\n")
+        f.write(f"Trains:      {train_count}\n")
+        f.write(f"Services:    {total_services}\n\n")
+        f.write(f"{'Train':<10} {'Services':<10} {'Duration'}\n")
+        f.write(f"{'-'*10} {'-'*10} {'-'*10}\n")
+        for train_num, svc_count, dur in train_results:
+            f.write(f"Train {train_num:<4} {svc_count:<10} {timedelta(seconds=int(dur))}\n")
+
+    print(f"\nReport saved to: {report_path}")
